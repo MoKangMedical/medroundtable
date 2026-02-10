@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    container_name: medroundtable-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - SECRET_KEY=${SECRET_KEY:-default-secret-key}
+      - DEBUG=${DEBUG:-false}
+    restart: unless-stopped
+    networks:
+      - medroundtable-network
+
+  frontend:
+    image: nginx:alpine
+    container_name: medroundtable-web
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+    networks:
+      - medroundtable-network
+    depends_on:
+      - backend
+
+networks:
+  medroundtable-network:
+    driver: bridge
