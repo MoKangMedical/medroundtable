@@ -330,11 +330,30 @@ def generate_operation_manual(rt: RoundTable) -> str:
 详见完整SOP文档
 """
 
-# 启动时同步已有的圆桌会
+# 启动时初始化
 @app.on_event("startup")
 async def startup_event():
+    # 初始化数据库
+    from backend.database import init_db
+    init_db()
+    
     print("🚀 MedRoundTable API 启动成功")
     print("📚 文档地址: http://localhost:8000/docs")
+
+# 注册路由
+from backend.routes.export import router as export_router
+from backend.routes.literature import router as literature_router
+from backend.routes.templates import router as templates_router
+from backend.routes.user import router as user_router
+
+app.include_router(export_router)
+app.include_router(literature_router)
+app.include_router(templates_router)
+app.include_router(user_router)
+
+# ============ Second Me A2A 集成 ============
+from backend.a2a_integration import router as a2a_router
+app.include_router(a2a_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

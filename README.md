@@ -44,11 +44,30 @@ MedRoundTable 是全球首个基于 A2A (Agent-to-Agent) 架构的医学科研�
 - 英文润色服务: ¥500/篇
 - 期刊投稿指导: ¥1,000/篇
 
+## 🌉 Second Me 集成
+
+MedRoundTable 已完整支持 [Second Me](https://secondme.io) A2A (Agent-to-Agent) 协议，可在 Second Me 平台直接运行：
+
+- ✅ **Agent Discovery** - 自动发现和连接
+- ✅ **A2A Messaging** - 标准消息通信协议
+- ✅ **Task Orchestration** - 任务委托与执行
+- ✅ **AI Space** - 参与 Second Me 网络协作
+- ✅ **Memory Sync** - 记忆和上下文共享
+
+**快速接入 Second Me:**
+```bash
+# 验证并自动集成
+./secondme-integration.sh
+```
+
+**Hackathon 项目:** https://hackathon.second.me/projects/cmlg779kn000204kvr6jygh28
+
 ## 🛠 技术栈
 
 - **前端**: React + TypeScript + TailwindCSS
 - **后端**: FastAPI + Python
 - **AI**: OpenAI/Claude API + 自定义Agent框架
+- **A2A 协议**: Second Me 兼容
 - **数据库**: PostgreSQL + Redis
 - **部署**: Docker + Kubernetes
 

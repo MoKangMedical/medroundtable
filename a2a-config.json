@@ -1,0 +1,117 @@
+{
+  "a2a_version": "1.0",
+  "agent_system": "MedRoundTable",
+  "protocol": {
+    "message_format": {
+      "type": "json",
+      "encoding": "utf-8",
+      "schema": {
+        "id": "string",
+        "timestamp": "iso8601",
+        "sender": {
+          "agent_id": "string",
+          "agent_name": "string",
+          "system": "string"
+        },
+        "recipient": {
+          "agent_id": "string", 
+          "agent_name": "string",
+          "system": "string"
+        },
+        "message_type": "enum:proposal|question|feedback|agreement|objection|summary|task|response",
+        "content": {
+          "type": "string|object",
+          "format": "text|markdown|json"
+        },
+        "metadata": {
+          "session_id": "string",
+          "round": "integer",
+          "priority": "enum:low|normal|high|urgent",
+          "tags": ["string"]
+        },
+        "context": {
+          "conversation_id": "string",
+          "parent_message_id": "string",
+          "thread_depth": "integer"
+        }
+      }
+    },
+    
+    "communication_modes": {
+      "unicast": {
+        "description": "点对点通信",
+        "enabled": true
+      },
+      "multicast": {
+        "description": "组播通信",
+        "enabled": true,
+        "groups": ["clinical_team", "data_team", "all"]
+      },
+      "broadcast": {
+        "description": "全员广播",
+        "enabled": true
+      }
+    },
+    
+    "task_management": {
+      "enabled": true,
+      "task_types": [
+        "research_design",
+        "literature_review", 
+        "data_analysis",
+        "report_generation",
+        "quality_check"
+      ],
+      "status_flow": [
+        "pending",
+        "assigned", 
+        "in_progress",
+        "review",
+        "completed",
+        "cancelled"
+      ]
+    },
+    
+    "discovery": {
+      "enabled": true,
+      "methods": ["registry", "broadcast", "manual"],
+      "heartbeat_interval": 30,
+      "capabilities_advertisement": true
+    },
+    
+    "security": {
+      "authentication": "bearer_token",
+      "encryption": "tls_1.3",
+      "signature": "ed25519",
+      "permissions": [
+        "read:messages",
+        "write:messages", 
+        "create:tasks",
+        "read:tasks",
+        "execute:actions"
+      ]
+    }
+  },
+  
+  "integration_points": {
+    "second_me_registry": {
+      "url": "https://app.secondme.io/api/registry",
+      "enabled": true,
+      "auto_register": true
+    },
+    "ai_space": {
+      "enabled": true,
+      "default_space": "medical_research",
+      "spaces": [
+        "medical_research",
+        "clinical_collaboration", 
+        "academic_discussion"
+      ]
+    },
+    "identity_bridge": {
+      "enabled": true,
+      "sync_profile": true,
+      "sync_memory": true
+    }
+  }
+}

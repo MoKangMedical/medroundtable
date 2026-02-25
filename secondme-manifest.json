@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "name": "MedRoundTable",
+  "display_name": "临床科研圆桌会",
+  "description": "基于A2A架构的医学科研协作平台 - 五位专业AI Agent助力临床研究",
+  "version": "1.0.0",
+  "author": "MoKangMedical",
+  "license": "MIT",
+  "homepage": "https://github.com/MoKangMedical/medroundtable",
+  "icon": "https://raw.githubusercontent.com/MoKangMedical/medroundtable/main/assets/icon.png",
+  
+  "a2a_protocol": {
+    "version": "1.0",
+    "capabilities": [
+      "agent_discovery",
+      "agent_communication",
+      "task_orchestration",
+      "memory_sharing"
+    ],
+    "endpoints": {
+      "discovery": "/api/a2a/discovery",
+      "message": "/api/a2a/message",
+      "task": "/api/a2a/task",
+      "status": "/api/a2a/status"
+    }
+  },
+  
+  "agents": [
+    {
+      "id": "clinical_director",
+      "name": "资深临床主任",
+      "role": "临床问题识别与研究价值评估",
+      "avatar": "👨‍⚕️",
+      "description": "识别临床科研价值，提出研究假设",
+      "skills": ["临床问题识别", "研究价值评估", "可行性判断"],
+      "personality": "权威、严谨、经验丰富"
+    },
+    {
+      "id": "phd_student", 
+      "name": "临床博士生",
+      "role": "文献检索与研究协调",
+      "avatar": "📚",
+      "description": "文献检索、综述撰写、协调推进",
+      "skills": ["文献检索", "综述撰写", "进度管理"],
+      "personality": "勤奋、细致、好学"
+    },
+    {
+      "id": "epidemiologist",
+      "name": "临床流行病学专家", 
+      "role": "研究设计与方案制定",
+      "avatar": "📊",
+      "description": "研究设计、纳入排除标准制定",
+      "skills": ["研究设计", "标准制定", "质量控制"],
+      "personality": "专业、系统、注重细节"
+    },
+    {
+      "id": "statistician",
+      "name": "数据统计专家",
+      "role": "统计分析与数据管理",
+      "avatar": "📈", 
+      "description": "CRF设计、统计分析、图表生成",
+      "skills": ["统计分析", "CRF设计", "数据可视化"],
+      "personality": "精确、逻辑性强、数据驱动"
+    },
+    {
+      "id": "research_nurse",
+      "name": "研究护士",
+      "role": "数据采集与质量控制",
+      "avatar": "👩‍⚕️",
+      "description": "数据采集、质量核查、问题反馈",
+      "skills": ["数据采集", "质量控制", "操作规范"],
+      "personality": "细心、耐心、执行力强"
+    }
+  ],
+  
+  "interfaces": {
+    "web": {
+      "url": "https://medroundtable.vercel.app",
+      "width": 1200,
+      "height": 800
+    },
+    "api": {
+      "base_url": "https://api.medroundtable.io",
+      "version": "v1",
+      "auth_type": "bearer"
+    }
+  },
+  
+  "integration": {
+    "second_me": {
+      "compatible": true,
+      "features": [
+        "ai_space_participation",
+        "agent_collaboration", 
+        "memory_sync",
+        "roleplay_integration"
+      ]
+    }
+  }
+}
