@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+        .success { color: green; }
+        .error { color: red; }
+        #log { background: #f0f0f0; padding: 10px; margin-top: 20px; height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>MedRoundTable 功能测试</h1>
+    <p>点击按钮测试基本功能：</p>
+    
+    <button onclick="testAlert()">测试 Alert</button>
+    <button onclick="testConsole()">测试 Console</button>
+    <button onclick="testDOM()">测试 DOM 操作</button>
+    <button onclick="testFetch()">测试 API 连接</button>
+    <button onclick="clearLog()">清除日志</button>
+    
+    <div id="log"></div>
+    
+    <script>
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000' 
+            : 'https://mia-rating-ownership-downloads.trycloudflare.com';
+        
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const time = new Date().toLocaleTimeString();
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
+            logDiv.innerHTML += `<div class="${className}">[${time}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        function testAlert() {
+            log('点击了测试 Alert 按钮');
+            alert('Alert 功能正常！');
+            log('Alert 显示成功', 'success');
+        }
+        
+        function testConsole() {
+            log('点击了测试 Console 按钮');
+            console.log('Console 日志测试');
+            console.error('Console 错误测试');
+            console.warn('Console 警告测试');
+            log('Console 输出完成，请按 F12 查看', 'success');
+        }
+        
+        function testDOM() {
+            log('点击了测试 DOM 按钮');
+            const newDiv = document.createElement('div');
+            newDiv.style.cssText = 'padding: 10px; background: #d4edda; margin: 10px 0;';
+            newDiv.textContent = 'DOM 操作成功！时间: ' + new Date().toLocaleTimeString();
+            document.body.appendChild(newDiv);
+            log('DOM 操作成功', 'success');
+        }
+        
+        async function testFetch() {
+            log('点击了测试 API 按钮');
+            log('正在连接后端: ' + API_BASE);
+            
+            try {
+                const response = await fetch(API_BASE + '/health');
+                const data = await response.json();
+                log('API 连接成功: ' + JSON.stringify(data), 'success');
+            } catch (err) {
+                log('API 连接失败: ' + err.message, 'error');
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        log('页面加载完成');
+        log('API 地址: ' + API_BASE);
+    </script>
+</body>
+</html>

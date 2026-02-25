@@ -2,523 +2,1221 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MedRoundTable - 临床科研圆桌会</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="mindmap.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
-        body { font-family: 'Noto Sans SC', sans-serif; }
-        
-        .chat-bubble {
-            max-width: 80%;
-            animation: fadeIn 0.3s ease-in;
+        * { 
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
         
+        :root {
+            --primary: #1e40af;
+            --primary-dark: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #0f172a;
+            --accent: #06b6d4;
+            --surface: #f8fafc;
+            --surface-elevated: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        
+        body { 
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            touch-action: manipulation;
+            background: var(--surface);
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        /* 移动端底部安全区域 */
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 24px); }
+        
+        /* 聊天消息样式 - 更大更专业 */
+        .chat-bubble {
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-in;
+            word-wrap: break-word;
+            font-size: 16px;
+            line-height: 1.75;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+        
+        .chat-bubble.user {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+        }
+        
+        .chat-bubble.agent {
+            background: var(--surface-elevated);
+            color: var(--text-primary);
+        }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .agent-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .typing-indicator {
-            display: flex;
-            gap: 4px;
-        }
-        
+        /* 打字动画 */
+        .typing-indicator { display: flex; gap: 4px; padding: 4px 8px; }
         .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            background: #9ca3af;
-            border-radius: 50%;
+            width: 8px; height: 8px; background: #9ca3af; border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out;
         }
-        
         .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
         .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-        
         @keyframes bounce {
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1); }
         }
         
-        .stage-indicator {
-            transition: all 0.3s ease;
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: transform 0.3s ease;
+            transform: translateX(-100%);
+        }
+        .sidebar.open { transform: translateX(0); }
+        
+        /* 模态框动画 */
+        .modal-enter { animation: modalIn 0.2s ease-out; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
         
-        .stage-indicator.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        /* 滚动条隐藏 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 按钮点击效果 */
+        .btn-press:active { transform: scale(0.95); }
+        
+        /* 输入框样式 */
+        .chat-input {
+            min-height: 44px;
+            max-height: 120px;
         }
         
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
+        /* 响应式适配 - 移动端 */
+        @media (max-width: 768px) {
+            body { font-size: 16px; }
+            .mobile-full { width: 100vw; height: 100vh; }
+            .chat-bubble { max-width: 92%; font-size: 16px; line-height: 1.7; }
+            .agent-avatar { width: 44px; height: 44px; font-size: 20px; }
+            #sidebar { width: 300px; }
+            .sidebar-md-show { display: none; }
         }
         
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        /* 响应式适配 - 平板 */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            body { font-size: 17px; }
+            #sidebar { width: 320px; }
+            main { margin-left: 320px; }
+            .chat-bubble { max-width: 80%; font-size: 17px; }
+        }
+        
+        /* 响应式适配 - 桌面端 */
+        @media (min-width: 1025px) {
+            body { font-size: 18px; }
+            #sidebar { 
+                width: 340px; 
+                transform: translateX(0) !important;
+                position: fixed;
+            }
+            main { margin-left: 340px; }
+            .chat-bubble { max-width: 75%; font-size: 18px; }
+            #sidebarOverlay { display: none !important; }
+            .mobile-menu-btn { display: none; }
+            .sidebar-close-btn { display: none; }
+        }
+        
+        /* 超小屏幕优化 */
+        @media (max-width: 375px) {
+            body { font-size: 15px; }
+            .chat-bubble { max-width: 95%; font-size: 15px; }
+            .agent-avatar { width: 40px; height: 40px; font-size: 18px; }
+            #sidebar { width: 280px; }
+        }
+        
+        /* 大屏幕优化 */
+        @media (min-width: 1440px) {
+            body { font-size: 19px; }
+            #sidebar { width: 360px; }
+            main { margin-left: 360px; }
+            .max-w-content { max-width: 1000px; margin: 0 auto; }
+            .chat-bubble { max-width: 70%; font-size: 19px; }
+        }
+        
+        /* Toast 动画 */
+        .toast-enter { animation: toastIn 0.3s ease-out; }
+        @keyframes toastIn {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* 图片优化 */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .img-loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        #sidebar ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        #sidebar ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        /* 输入框焦点样式 */
+        textarea:focus, input:focus {
+            outline: none;
+        }
+        
+        /* 按钮悬停效果 */
+        button {
+            transition: all 0.2s ease;
         }
     </style>
 </head>
-<body class="bg-gray-50 h-screen overflow-hidden">
-    <div id="app" class="h-full flex flex-col">
-        <!-- Header -->
-        <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-lg">
-            <div class="max-w-7xl mx-auto flex justify-between items-center">
+<body class="bg-slate-50 h-screen overflow-hidden">
+    <!-- 移动端侧边栏遮罩 -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
+    
+    <!-- 侧边栏 - 会话列表 -->
+    <aside id="sidebar" class="sidebar lg:translate-x-0 fixed left-0 top-0 h-full w-72 bg-slate-900 shadow-2xl z-50 flex flex-col border-r border-slate-800">
+        <!-- 侧边栏头部 - 专业深蓝配色 -->
+        <div class="p-6 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white border-b border-slate-700">
+            <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <i class="fas fa-users text-2xl"></i>
+                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-users text-lg"></i>
+                    </div>
                     <div>
-                        <h1 class="text-xl font-bold">MedRoundTable</h1>
-                        <p class="text-xs opacity-80">AI 医学科研协作平台</p>
+                        <span class="font-bold text-lg tracking-tight">MedRoundTable</span>
+                        <p class="text-xs text-blue-300">临床科研圆桌会</p>
                     </div>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="showAgentInfo()" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition text-sm">
-                        <i class="fas fa-info-circle mr-2"></i>Agent 介绍
-                    </button>
-                    <button onclick="createNewRoundTable()" class="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition text-sm font-medium">
-                        <i class="fas fa-plus mr-2"></i>新建圆桌会
-                    </button>
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-white transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 新建按钮 -->
+        <button onclick="createNewSession()" class="mx-4 mt-4 mb-2 p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center gap-3 btn-press shadow-lg shadow-blue-900/50 transition-all font-medium text-base">
+            <i class="fas fa-plus-circle"></i>
+            <span>新建圆桌会</span>
+        </button>
+        
+        <!-- 会话列表 -->
+        <div id="sessionList" class="flex-1 overflow-y-auto no-scrollbar px-3 py-2 space-y-2">
+            <!-- 动态生成 -->
+        </div>
+        
+        <!-- 功能菜单区 -->
+        <div class="p-4 border-t border-slate-800 bg-slate-800/30">
+            <p class="text-xs text-slate-500 uppercase font-semibold mb-3 px-2">功能工具</p>
+            <div class="space-y-2">
+                <!-- 1. 上传研究方案 -->
+                <button onclick="showUploadModal()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
+                        <i class="fas fa-cloud-upload-alt text-emerald-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">上传研究方案</p>
+                        <p class="text-xs text-slate-500">导入现有文档</p>
+                    </div>
+                </button>
+                
+                <!-- 2. 思维导图 -->
+                <button onclick="showMindMapFromSidebar()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center group-hover:bg-purple-600 transition-colors">
+                        <i class="fas fa-project-diagram text-purple-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">讨论思维导图</p>
+                        <p class="text-xs text-slate-500">可视化讨论脉络</p>
+                    </div>
+                </button>
+                
+                <!-- 3. 研究方案草稿下载 -->
+                <button onclick="quickDownloadDraft()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-file-download text-blue-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">方案草稿下载</p>
+                        <p class="text-xs text-slate-500">一键导出Word</p>
+                    </div>
+                </button>
+                
+                <!-- 4. 自动化数据分析 -->
+                <button onclick="showDataAnalysis()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center group-hover:bg-orange-600 transition-colors">
+                        <i class="fas fa-chart-line text-orange-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">自动化数据分析</p>
+                        <p class="text-xs text-slate-500">智能统计建议</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 用户信息区 -->
+        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+            <button onclick="showLoginModal()" id="userBtn" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition border border-slate-700">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-user text-white text-lg"></i>
                 </div>
+                <div class="text-left flex-1">
+                    <p class="font-semibold text-slate-200 text-base">点击登录</p>
+                    <p class="text-sm text-slate-500">保存历史记录</p>
+                </div>
+                <i class="fas fa-chevron-right text-slate-600"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="h-full flex flex-col bg-slate-50 relative z-10">
+        <!-- 顶部导航 - 专业样式 -->
+        <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition mobile-menu-btn">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div>
+                    <h1 id="pageTitle" class="font-bold text-xl text-slate-900 tracking-tight">临床科研圆桌会</h1>
+                    <p class="text-sm text-slate-500 hidden sm:block">AI 医学科研协作平台</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="showAgentInfo()" class="p-3 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-xl btn-press transition flex items-center gap-2">
+                    <i class="fas fa-info-circle text-lg"></i>
+                    <span class="hidden sm:inline text-sm font-medium">专家说明</span>
+                </button>
+                <button onclick="showFeedback()" class="p-3 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-xl btn-press transition flex items-center gap-2">
+                    <i class="fas fa-comment-dots text-lg"></i>
+                    <span class="hidden sm:inline text-sm font-medium">反馈</span>
+                </button>
+                <button onclick="showCitations()" id="citationBtn" class="p-3 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-xl btn-press transition flex items-center gap-2">
+                    <i class="fas fa-book text-lg"></i>
+                    <span class="hidden sm:inline text-sm font-medium">文献</span>
+                    <span id="citationCount" class="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full ml-1 hidden">0</span>
+                </button>
+                <button onclick="showMindMap()" class="p-3 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-xl btn-press transition flex items-center gap-2">
+                    <i class="fas fa-project-diagram text-lg"></i>
+                    <span class="hidden sm:inline text-sm font-medium">思维导图</span>
+                </button>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 flex overflow-hidden">
-            <!-- Left Panel - RoundTable List -->
-            <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
-                <div class="p-4 border-b border-gray-200">
-                    <h2 class="font-semibold text-gray-700">我的圆桌会</h2>
-                </div>
-                <div id="roundtable-list" class="flex-1 overflow-y-auto p-2">
-                    <!-- RoundTable items will be inserted here -->
-                    <div class="text-center text-gray-400 py-8 text-sm">
-                        <i class="fas fa-inbox text-3xl mb-2"></i>
-                        <p>暂无圆桌会</p>
-                        <p class="text-xs mt-1">点击右上角新建</p>
-                    </div>
-                </div>
-            </aside>
+        <!-- 阶段指示器 -->
+        <div id="stageBar" class="bg-slate-100 border-b border-slate-200 px-6 py-3 overflow-x-auto no-scrollbar hidden">
+            <div class="flex gap-3 min-w-max">
+                <span class="stage-pill px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 shadow-sm" data-stage="init">准备</span>
+                <span class="stage-pill px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 shadow-sm" data-stage="discussion">讨论</span>
+                <span class="stage-pill px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 shadow-sm" data-stage="design">设计</span>
+                <span class="stage-pill px-4 py-2 text-sm font-medium rounded-full bg-white text-slate-600 border border-slate-200 shadow-sm" data-stage="completed">完成</span>
+            </div>
+        </div>
 
-            <!-- Center Panel - Chat -->
-            <section class="flex-1 flex flex-col bg-gray-50">
-                <!-- Stage Progress -->
-                <div id="stage-bar" class="bg-white border-b border-gray-200 p-3 hidden">
-                    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
-                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                            问题陈述
-                        </div>
-                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                            文献调研
-                        </div>
-                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                            方案设计
-                        </div>
-                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                            统计计划
-                        </div>
-                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                            CRF设计
-                        </div>
-                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                            执行计划
-                        </div>
-                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
-                            共识达成
-                        </div>
-                    </div>
+        <!-- 聊天区域 -->
+        <div id="chatContainer" class="flex-1 overflow-y-auto no-scrollbar bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+            <!-- 欢迎消息 - 更专业大气 -->
+            <div class="text-center py-12 max-w-content px-6">
+                <div class="w-24 h-24 bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900 rounded-2xl mx-auto mb-8 flex items-center justify-center shadow-2xl">
+                    <i class="fas fa-users text-white text-4xl"></i>
                 </div>
-
-                <!-- Chat Messages -->
-                <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4">
-                    <!-- Welcome message -->
-                    <div class="text-center py-8">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                            <i class="fas fa-users text-3xl text-white"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-gray-800 mb-2">欢迎使用 MedRoundTable</h2>
-                        <p class="text-gray-600 max-w-md mx-auto mb-6">
-                            全球首个基于 A2A 架构的医学科研协作平台<br>
-                            五位 AI 专家 24小时不间断协作
-                        </p>
-                        <div class="flex justify-center gap-3">
-                            <div class="text-center">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-xl mb-1">👨‍⚕️</div>
-                                <span class="text-xs text-gray-600">临床主任</span>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl mb-1">📚</div>
-                                <span class="text-xs text-gray-600">博士生</span>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-xl mb-1">📊</div>
-                                <span class="text-xs text-gray-600">流行病学家</span>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-xl mb-1">📈</div>
-                                <span class="text-xs text-gray-600">统计专家</span>
-                            </div>
-                            <div class="text-center">
-                                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-xl mb-1">👩‍⚕️</div>
-                                <span class="text-xs text-gray-600">研究护士</span>
+                <h2 class="text-4xl font-bold text-slate-900 mb-4 tracking-tight">欢迎使用 MedRoundTable</h2>
+                <p class="text-slate-600 mb-10 px-4 text-xl max-w-2xl mx-auto">AI 医学科研协作平台，多位专家共同为您的研究出谋划策</p>
+                
+                <!-- 5位专家角色展示 -->
+                <div class="max-w-5xl mx-auto mb-12">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <!-- 临床主任 -->
+                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击临床主任'); showAgentDetail('clinical_director');">
+                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all transform hover:-translate-y-1">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-blue-100 group-hover:border-blue-300 transition-colors">
+                                    <img src="./assets/doctor1.png" alt="临床主任" class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="font-bold text-slate-900 mb-1">临床主任</h3>
+                                <p class="text-xs text-slate-500">制定研究策略</p>
+                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
+                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">研究设计</span>
+                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">终点指标</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Input Area -->
-                <div id="input-area" class="bg-white border-t border-gray-200 p-4 hidden">
-                    <div class="max-w-4xl mx-auto">
-                        <div class="flex gap-2 mb-2">
-                            <select id="target-agent" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="all">@所有人</option>
-                            </select>
+                        
+                        <!-- 博士生 -->
+                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击博士生'); showAgentDetail('phd_student');">
+                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-emerald-300 transition-all transform hover:-translate-y-1">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-emerald-100 group-hover:border-emerald-300 transition-colors">
+                                    <img src="./assets/doctor2.png" alt="博士生" class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="font-bold text-slate-900 mb-1">博士生</h3>
+                                <p class="text-xs text-slate-500">整理最新进展</p>
+                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
+                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full">文献检索</span>
+                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full">证据整合</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex gap-2">
-                            <input 
-                                type="text" 
-                                id="message-input" 
-                                placeholder="输入消息..." 
-                                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                onkeypress="if(event.key==='Enter') sendMessage()"
-                            >
-                            <button onclick="sendMessage()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                        
+                        <!-- 流行病学家 -->
+                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击流行病学家'); showAgentDetail('epidemiologist');">
+                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-purple-300 transition-all transform hover:-translate-y-1">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-purple-100 group-hover:border-purple-300 transition-colors">
+                                    <img src="./assets/doctor3.png" alt="流行病学家" class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="font-bold text-slate-900 mb-1">流行病学家</h3>
+                                <p class="text-xs text-slate-500">研究设计质控</p>
+                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
+                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">方案设计</span>
+                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">偏倚控制</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 统计学家 -->
+                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击统计学家'); showAgentDetail('statistician');">
+                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-orange-300 transition-all transform hover:-translate-y-1">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-orange-100 group-hover:border-orange-300 transition-colors">
+                                    <img src="./assets/doctor4.png" alt="统计学家" class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="font-bold text-slate-900 mb-1">统计学家</h3>
+                                <p class="text-xs text-slate-500">统计分析方案</p>
+                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
+                                    <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">样本量</span>
+                                    <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">统计方法</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 研究护士 -->
+                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击研究护士'); showAgentDetail('research_nurse');">
+                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-cyan-300 transition-all transform hover:-translate-y-1">
+                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-cyan-100 group-hover:border-cyan-300 transition-colors">
+                                    <img src="./assets/doctor5.png" alt="研究护士" class="w-full h-full object-cover">
+                                </div>
+                                <h3 class="font-bold text-slate-900 mb-1">研究护士</h3>
+                                <p class="text-xs text-slate-500">执行操作流程</p>
+                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
+                                    <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full">访视流程</span>
+                                    <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full">数据管理</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </section>
+                
+                <button onclick="document.getElementById('newSessionModal').classList.remove('hidden'); document.getElementById('newSessionModal').classList.add('flex');" class="px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-2xl shadow-2xl btn-press text-xl font-bold transition-all transform hover:scale-105">
+                    <i class="fas fa-plus-circle mr-3"></i>开始新的圆桌会
+                </button>
+                <p class="text-slate-500 mt-4 text-sm">点击上方专家头像查看详细介绍</p>
+            </div>
+        </div>
 
-            <!-- Right Panel - Output -->
-            <aside id="output-panel" class="w-80 bg-white border-l border-gray-200 hidden flex-col">
-                <div class="p-4 border-b border-gray-200">
-                    <h2 class="font-semibold text-gray-700">研究成果</h2>
-                </div>
-                <div class="flex-1 overflow-y-auto p-4">
-                    <div class="space-y-4">
-                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <h3 class="font-medium text-blue-800 mb-2"><i class="fas fa-file-medical mr-2"></i>研究方案</h3>
-                            <p class="text-sm text-blue-600">讨论完成后自动生成</p>
+        <!-- 导出报告区域 - 讨论完成后显示 -->
+        <div id="exportArea" class="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-200 p-5 hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-file-alt text-white text-xl"></i>
                         </div>
-                        <div class="p-4 bg-green-50 rounded-lg border border-green-200">
-                            <h3 class="font-medium text-green-800 mb-2"><i class="fas fa-table mr-2"></i>CRF表格</h3>
-                            <p class="text-sm text-green-600">数据采集表格模板</p>
-                        </div>
-                        <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                            <h3 class="font-medium text-purple-800 mb-2"><i class="fas fa-chart-bar mr-2"></i>分析计划</h3>
-                            <p class="text-sm text-purple-600">统计分析方案</p>
-                        </div>
-                        <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                            <h3 class="font-medium text-yellow-800 mb-2"><i class="fas fa-book mr-2"></i>操作手册</h3>
-                            <p class="text-sm text-yellow-600">研究执行SOP</p>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-lg">讨论已完成！</h3>
+                            <p class="text-slate-600 text-sm">生成完整的研究报告和文档</p>
                         </div>
                     </div>
-                </div>
-                <div class="p-4 border-t border-gray-200">
-                    <button onclick="downloadOutput()" class="w-full py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
-                        <i class="fas fa-download mr-2"></i>导出全部成果
-                    </button>
-                </div>
-            </aside>
-        </main>
-    </div>
-
-    <!-- New RoundTable Modal -->
-    <div id="new-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-lg">
-            <h2 class="text-xl font-bold mb-4">新建圆桌会</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">圆桌会标题</label>
-                    <input type="text" id="new-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如：新型降糖药心血管获益研究">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">临床问题</label>
-                    <textarea id="new-question" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请详细描述你发现的临床问题..."></textarea>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="generateStudyDesign()" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-700 border border-blue-300 rounded-xl font-medium shadow-sm transition-all flex items-center gap-2">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>研究设计</span>
+                        </button>
+                        <button onclick="exportReport('protocol')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
+                            <i class="fas fa-file-word"></i>
+                            <span>方案</span>
+                        </button>
+                        <button onclick="exportReport('crf')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
+                            <i class="fas fa-table"></i>
+                            <span>CRF表</span>
+                        </button>
+                        <button onclick="exportReport('analysis')" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>统计</span>
+                        </button>
+                        <button onclick="exportReport('all')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-lg transition-all flex items-center gap-2">
+                            <i class="fas fa-download"></i>
+                            <span>全部</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="flex justify-end gap-3 mt-6">
-                <button onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">取消</button>
-                <button onclick="submitNewRoundTable()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">创建并启动</button>
+        </div>
+
+        <!-- 输入区域 - 专业样式 -->
+        <div id="inputArea" class="bg-white border-t border-slate-200 p-4 safe-bottom hidden">
+            <div class="flex items-end gap-3 max-w-4xl mx-auto">
+                <button onclick="showQuickActions()" class="p-3 text-slate-500 hover:bg-slate-100 hover:text-blue-600 rounded-xl btn-press transition">
+                    <i class="fas fa-plus-circle text-2xl"></i>
+                </button>
+                <div class="flex-1 bg-slate-100 rounded-2xl px-5 py-3 border border-slate-200 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all">
+                    <textarea id="messageInput" rows="1" placeholder="输入消息参与讨论..." 
+                        class="w-full bg-transparent border-none outline-none resize-none chat-input text-lg text-slate-800 placeholder-slate-400"
+                        onkeydown="handleKeyDown(event)"
+                        oninput="autoResize(this)"></textarea>
+                </div>
+                <button onclick="sendMessage()" id="sendBtn" class="p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl btn-press shadow-lg transition-all">
+                    <i class="fas fa-paper-plane text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新建会话模态框 - 专业样式 -->
+    <div id="newSessionModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg modal-enter shadow-2xl border border-slate-200">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-slate-50 to-white rounded-t-2xl">
+                <div>
+                    <h3 class="font-bold text-xl text-slate-900">新建圆桌会</h3>
+                    <p class="text-sm text-slate-500 mt-1">创建新的临床研究讨论</p>
+                </div>
+                <button onclick="closeModal('newSessionModal')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div>
+                    <label class="block text-base font-semibold text-slate-700 mb-2">研究标题</label>
+                    <input type="text" id="sessionTitle" placeholder="例如：二甲双胍对2型糖尿病的疗效研究" 
+                        class="w-full px-4 py-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-base transition-all">
+                </div>
+                <div>
+                    <label class="block text-base font-semibold text-slate-700 mb-2">临床问题</label>
+                    <textarea id="sessionQuestion" rows="4" placeholder="请详细描述您的临床问题或研究需求..." 
+                        class="w-full px-4 py-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-base transition-all"></textarea>
+                </div>
+                <button id="startDiscussionBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold btn-press shadow-lg text-lg transition-all">
+                    <i class="fas fa-rocket mr-2"></i>开始讨论
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Agent Info Modal -->
-    <div id="agent-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">AI 专家团介绍</h2>
-                <button onclick="closeAgentModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+    <!-- 登录模态框 - 专业样式 -->
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md modal-enter shadow-2xl border border-slate-200">
+            <div class="p-6 text-center border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white rounded-t-2xl">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-user text-white text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-2xl text-slate-900">用户登录</h3>
+                <p class="text-slate-500 mt-2">登录以保存您的研究历史</p>
             </div>
-            <div id="agent-list" class="space-y-4">
-                <!-- Agent cards will be inserted here -->
+            <div class="p-6 space-y-4">
+                <input type="email" id="loginEmail" placeholder="邮箱地址" class="w-full px-4 py-4 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base transition-all">
+                <input type="password" id="loginPassword" placeholder="密码" class="w-full px-4 py-4 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base transition-all">
+                <button onclick="login()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold btn-press shadow-lg text-lg transition-all">登录</button>
+                <p class="text-center text-base text-slate-500">
+                    还没有账号？<a href="#" onclick="showRegister(); return false;" class="text-blue-600 hover:text-blue-700 font-semibold">立即注册</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent 信息弹窗 - 专业样式 -->
+    <div id="agentModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg modal-enter max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-200">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white rounded-t-2xl z-10">
+                <div>
+                    <h3 class="font-bold text-xl text-slate-900">AI 专家团队</h3>
+                    <p class="text-sm text-slate-500 mt-1">5位专家为您的研究保驾护航</p>
+                </div>
+                <button onclick="closeModal('agentModal')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-start gap-4 p-4 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-2xl border border-blue-100">
+                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">临床主任</h4>
+                        <p class="text-sm text-gray-600">负责临床问题把关和诊疗方案审核</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-green-50 rounded-xl">
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">博士生</h4>
+                        <p class="text-sm text-gray-600">文献检索和最新研究进展整理</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-purple-50 rounded-xl">
+                    <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">流行病学家</h4>
+                        <p class="text-sm text-gray-600">研究设计和偏倚控制</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">统计学家</h4>
+                        <p class="text-sm text-gray-600">样本量计算和统计分析方案</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- 参考文献面板 - 专业样式 -->
+    <div id="citationsPanel" class="fixed inset-y-0 right-0 w-full max-w-2xl bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-out">
+        <div class="h-full flex flex-col">
+            <!-- 头部 -->
+            <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-2xl text-slate-900">参考文献</h3>
+                    <p class="text-slate-500 mt-1">AI专家讨论引用的权威文献</p>
+                </div>
+                <button onclick="closeCitations()" class="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- 引用列表 -->
+            <div id="citationsList" class="flex-1 overflow-y-auto p-6 space-y-4">
+                <div class="text-center py-12 text-slate-500">
+                    <i class="fas fa-book-open text-5xl mb-4 text-slate-300"></i>
+                    <p class="text-lg">暂无引用文献</p>
+                    <p class="text-sm mt-2">开始讨论后，AI专家将自动引用相关文献</p>
+                </div>
+            </div>
+            
+            <!-- 底部操作 -->
+            <div class="p-6 border-t border-slate-200 bg-slate-50">
+                <button onclick="exportCitations()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold shadow-lg transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-download"></i>
+                    <span>导出参考文献列表</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- 遮罩 -->
+    <div id="citationsOverlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden" onclick="closeCitations()"></div>
+
+    <!-- 思维导图面板 - 专业样式 -->
+    <div id="mindmapPanel" class="fixed inset-0 bg-white z-50 transform translate-y-full transition-transform duration-300 ease-out">
+        <div class="h-full flex flex-col">
+            <!-- 头部 -->
+            <div class="p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeMindMap()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                    </button>
+                    <div>
+                        <h3 class="font-bold text-xl text-slate-900">讨论思维导图</h3>
+                        <p class="text-slate-500 text-sm">可视化展示讨论思路和关键要点</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="resetMindMapView()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-2">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                        <span class="hidden sm:inline">重置视图</span>
+                    </button>
+                    <button onclick="exportMindMap()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition flex items-center gap-2">
+                        <i class="fas fa-download"></i>
+                        <span class="hidden sm:inline">导出图片</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 思维导图容器 -->
+            <div id="mindmapContainer" class="flex-1 bg-slate-50 overflow-hidden">
+                <!-- D3.js思维导图将在这里渲染 -->
+            </div>
+            
+            <!-- 图例 -->
+            <div class="p-4 border-t border-slate-200 bg-white flex items-center justify-center gap-8 text-sm">
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded-full bg-blue-500"></div>
+                    <span class="text-slate-600">核心主题</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded-full bg-emerald-500"></div>
+                    <span class="text-slate-600">讨论板块</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 rounded-full bg-amber-500"></div>
+                    <span class="text-slate-600">具体要点</span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // API Configuration - 根据环境自动选择
-        const API_BASE = (() => {
-            const hostname = window.location.hostname;
-            // 本地开发
-            if (hostname === 'localhost' || hostname === '127.0.0.1') {
-                return 'http://localhost:8000/api/v1';
-            }
-            // Cloudflare 隧道 - 使用当前域名对应的API
-            if (hostname.includes('trycloudflare.com')) {
-                // 临时方案：直接使用当前已知的API地址
-                return 'https://mia-rating-ownership-downloads.trycloudflare.com/api/v1';
-            }
-            // 生产环境
-            return 'https://medroundtable-api.up.railway.app/api/v1';
-        })();
+        // 全局错误处理
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('❌ JavaScript 错误:', message, 'at', source, ':', lineno);
+            alert('页面错误: ' + message + '\n行号: ' + lineno);
+            return true;
+        };
         
-        // State
-        let currentSessionId = null;
-        let agents = [];
-        let eventSource = null;
+        // 测试JavaScript是否正常工作
+        console.log('✅ JavaScript 加载成功');
+        
+        // API 配置
+        const API_BASE = 'https://specialists-shot-chuck-accepted.trycloudflare.com';
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadAgents();
-            loadRoundTables();
+        // 全局状态
+        let currentSessionId = null;
+        let eventSource = null;
+        let token = localStorage.getItem('mrt_token');
+        let user = null;
+        try {
+            user = JSON.parse(localStorage.getItem('mrt_user') || 'null');
+        } catch (e) {
+            console.log('User parse error:', e);
+            user = null;
+        }
+        let isTyping = false;  // 是否正在打字
+        let sessionMessages = {};  // 存储会话消息
+        let typingQueue = [];  // 打字队列
+        let currentTypingElement = null;  // 当前正在打字的元素
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('✅ DOM 加载完成');
+            try {
+                loadSessions();
+                updateUserUI();
+                
+                // 绑定开始讨论按钮事件
+                const startBtn = document.getElementById('startDiscussionBtn');
+                if (startBtn) {
+                    startBtn.addEventListener('click', async function() {
+                        console.log('开始讨论按钮被点击');
+                        const title = document.getElementById('sessionTitle').value.trim();
+                        const question = document.getElementById('sessionQuestion').value.trim();
+                        
+                        if (!title || !question) {
+                            alert('请填写完整信息');
+                            return;
+                        }
+                        
+                        try {
+                            console.log('发送创建请求...');
+                            const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ title, clinical_question: question })
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error('HTTP ' + response.status);
+                            }
+                            
+                            const session = await response.json();
+                            console.log('会话创建成功:', session.id);
+                            
+                            // 关闭模态框
+                            document.getElementById('newSessionModal').classList.add('hidden');
+                            document.getElementById('newSessionModal').classList.remove('flex');
+                            
+                            // 开始讨论
+                            console.log('启动讨论...');
+                            await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
+                            
+                            alert('圆桌会已开始！');
+                            
+                            // 刷新页面显示讨论
+                            window.location.reload();
+                        } catch (e) {
+                            console.error('错误:', e);
+                            alert('出错: ' + e.message);
+                        }
+                    });
+                    console.log('✅ 开始讨论按钮事件绑定成功');
+                }
+                
+                console.log('✅ 初始化完成');
+            } catch (err) {
+                console.error('❌ 初始化错误:', err);
+                alert('页面初始化出错，请刷新重试');
+            }
         });
 
-        // Load Agents
-        async function loadAgents() {
+        // ============ UI 控制 ============
+        
+        function toggleSidebar() {
+            console.log('toggleSidebar 被调用');
+            // 在桌面端（大屏幕）不切换侧边栏，始终显示
+            if (window.innerWidth >= 1025) {
+                return;
+            }
             try {
-                const response = await fetch(`${API_BASE}/agents`);
-                agents = await response.json();
-                updateAgentSelect();
-                renderAgentInfo();
-            } catch (error) {
-                console.error('Failed to load agents:', error);
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                if (!sidebar || !overlay) {
+                    console.error('sidebar 或 overlay 元素未找到');
+                    return;
+                }
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('hidden');
+            } catch (err) {
+                console.error('toggleSidebar 错误:', err);
             }
         }
 
-        // Update Agent Select Dropdown
-        function updateAgentSelect() {
-            const select = document.getElementById('target-agent');
-            select.innerHTML = '<option value="all">@所有人</option>';
-            agents.forEach(agent => {
-                select.innerHTML += `<option value="${agent.role}">${agent.avatar} ${agent.name}</option>`;
-            });
-        }
-
-        // Render Agent Info
-        function renderAgentInfo() {
-            const container = document.getElementById('agent-list');
-            container.innerHTML = agents.map(agent => `
-                <div class="p-4 bg-gray-50 rounded-lg">
-                    <div class="flex items-start gap-3">
-                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">${agent.avatar}</div>
-                        <div class="flex-1">
-                            <h3 class="font-bold text-gray-800">${agent.name}</h3>
-                            <p class="text-sm text-gray-500 mb-2">${agent.expertise.join(' · ')}</p>
-                            <div class="flex flex-wrap gap-2">
-                                ${agent.expertise.map(exp => `<span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">${exp}</span>`).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Load RoundTables
-        async function loadRoundTables() {
+        function showModal(id) {
+            console.log('showModal 被调用:', id);
             try {
-                const response = await fetch(`${API_BASE}/roundtables`);
-                const roundtables = await response.json();
-                renderRoundTableList(roundtables);
-            } catch (error) {
-                console.error('Failed to load roundtables:', error);
+                const el = document.getElementById(id);
+                if (!el) {
+                    console.error('元素未找到:', id);
+                    return;
+                }
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+                console.log('showModal 成功:', id);
+            } catch (err) {
+                console.error('showModal 错误:', id, err);
             }
         }
 
-        // Render RoundTable List
-        function renderRoundTableList(roundtables) {
-            const container = document.getElementById('roundtable-list');
-            if (roundtables.length === 0) {
+        function closeModal(id) {
+            console.log('closeModal 被调用:', id);
+            try {
+                const el = document.getElementById(id);
+                if (!el) {
+                    console.error('元素未找到:', id);
+                    return;
+                }
+                el.classList.add('hidden');
+                el.classList.remove('flex');
+                console.log('closeModal 成功:', id);
+            } catch (err) {
+                console.error('closeModal 错误:', id, err);
+            }
+        }
+
+        function createNewSession() {
+            console.log('=== createNewSession 开始 ===');
+            try {
+                // 获取模态框元素
+                const modal = document.getElementById('newSessionModal');
+                if (!modal) {
+                    console.error('newSessionModal 元素未找到');
+                    alert('页面错误：找不到模态框元素');
+                    return;
+                }
+                
+                console.log('显示 newSessionModal');
+                // 直接操作DOM显示模态框
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                console.log('=== createNewSession 完成 ===');
+            } catch (err) {
+                console.error('=== createNewSession 错误 ===', err);
+                alert('创建会话出错: ' + err.message);
+            }
+        }
+
+        function showAgentInfo() {
+            console.log('showAgentInfo 被调用');
+            showModal('agentModal');
+        }
+
+        function showLoginModal() {
+            console.log('showLoginModal 被调用');
+            toggleSidebar();
+            showModal('loginModal');
+        }
+
+        function showFeedback() {
+            console.log('showFeedback 被调用');
+            window.open('/feedback-v2.html', '_blank');
+        }
+
+        // ============ 会话管理 ============
+        
+        async function loadSessions() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/roundtables`);
+                const sessions = await response.json();
+                renderSessionList(sessions);
+            } catch (err) {
+                console.error('Failed to load sessions:', err);
+            }
+        }
+
+        function renderSessionList(sessions) {
+            const container = document.getElementById('sessionList');
+            if (!sessions || sessions.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center text-gray-400 py-8 text-sm">
-                        <i class="fas fa-inbox text-3xl mb-2"></i>
-                        <p>暂无圆桌会</p>
-                        <p class="text-xs mt-1">点击右上角新建</p>
+                    <div class="text-center py-10 text-slate-500">
+                        <div class="w-16 h-16 bg-slate-800 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                            <i class="fas fa-inbox text-2xl text-slate-600"></i>
+                        </div>
+                        <p class="text-base">暂无会话</p>
+                        <p class="text-sm text-slate-600 mt-1">点击上方按钮创建</p>
                     </div>
                 `;
                 return;
             }
-
-            container.innerHTML = roundtables.map(rt => `
-                <div onclick="selectRoundTable('${rt.id}')" 
-                     class="p-3 rounded-lg cursor-pointer transition ${currentSessionId === rt.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-100 border border-transparent'}">
-                    <h3 class="font-medium text-gray-800 truncate">${rt.title}</h3>
-                    <p class="text-xs text-gray-500 truncate">${rt.clinical_question}</p>
-                    <div class="flex items-center gap-2 mt-2">
-                        <span class="px-2 py-0.5 text-xs rounded ${getStatusClass(rt.status)}">${getStatusText(rt.status)}</span>
-                        <span class="text-xs text-gray-400">${rt.participants.length} 位专家</span>
+            
+            container.innerHTML = sessions.map(s => `
+                <div onclick="selectSession('${s.id}')" 
+                    class="p-4 rounded-xl cursor-pointer transition-all border ${currentSessionId === s.id ? 'bg-blue-900/30 border-blue-500/50 shadow-lg' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-800 hover:border-slate-600'}">
+                    <h4 class="font-semibold text-base text-slate-200 truncate mb-2">${s.title}</h4>
+                    <p class="text-sm text-slate-400 line-clamp-2 leading-relaxed">${s.clinical_question}</p>
+                    <div class="flex items-center gap-3 mt-3">
+                        <span class="text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(s.status)}">${getStatusText(s.status)}</span>
+                        <span class="text-xs text-slate-500">${formatTime(s.created_at)}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        function getStatusClass(status) {
-            const classes = {
-                'init': 'bg-gray-100 text-gray-600',
-                'problem_presentation': 'bg-blue-100 text-blue-600',
-                'discussion_round_1': 'bg-yellow-100 text-yellow-600',
-                'scenario_design': 'bg-purple-100 text-purple-600',
-                'crf_design': 'bg-pink-100 text-pink-600',
-                'execution_plan': 'bg-indigo-100 text-indigo-600',
-                'consensus_reached': 'bg-green-100 text-green-600',
-                'output_generation': 'bg-orange-100 text-orange-600',
-                'completed': 'bg-green-100 text-green-600'
+        function getStatusColor(status) {
+            const colors = {
+                'init': 'bg-slate-700 text-slate-300 border border-slate-600',
+                'discussion': 'bg-blue-900/50 text-blue-300 border border-blue-700/50',
+                'design': 'bg-purple-900/50 text-purple-300 border border-purple-700/50',
+                'completed': 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'
             };
-            return classes[status] || 'bg-gray-100 text-gray-600';
+            return colors[status] || 'bg-slate-700 text-slate-300 border border-slate-600';
         }
 
         function getStatusText(status) {
             const texts = {
-                'init': '待开始',
-                'problem_presentation': '问题陈述',
-                'discussion_round_1': '第一轮讨论',
-                'scenario_design': '方案设计',
-                'crf_design': 'CRF设计',
-                'execution_plan': '执行计划',
-                'consensus_reached': '达成共识',
-                'output_generation': '生成成果',
+                'init': '准备',
+                'discussion': '讨论中',
+                'design': '设计中',
                 'completed': '已完成'
             };
             return texts[status] || status;
         }
 
-        // Create New RoundTable
-        function createNewRoundTable() {
-            document.getElementById('new-modal').classList.remove('hidden');
-            document.getElementById('new-modal').classList.add('flex');
+        function formatTime(time) {
+            const date = new Date(time);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            return date.toLocaleDateString('zh-CN');
         }
 
-        function closeModal() {
-            document.getElementById('new-modal').classList.add('hidden');
-            document.getElementById('new-modal').classList.remove('flex');
-        }
-
-        async function submitNewRoundTable() {
-            const title = document.getElementById('new-title').value;
-            const question = document.getElementById('new-question').value;
-
-            if (!title || !question) {
-                alert('请填写完整信息');
+        // ============ 聊天功能 ============
+        
+        async function submitNewSession() {
+            console.log('=== submitNewSession 开始 ===');
+            
+            const titleInput = document.getElementById('sessionTitle');
+            const questionInput = document.getElementById('sessionQuestion');
+            
+            console.log('步骤1: 获取输入元素', {titleInput, questionInput});
+            
+            if (!titleInput || !questionInput) {
+                console.error('输入元素未找到');
+                showToast('页面错误，请刷新重试', 'error');
                 return;
             }
+            
+            const title = titleInput.value.trim();
+            const question = questionInput.value.trim();
+            
+            console.log('步骤2: 获取输入值', {title, question});
+            
+            if (!title || !question) {
+                console.log('验证失败: 信息不完整');
+                showToast('请填写完整信息', 'error');
+                return;
+            }
+            
+            console.log('步骤3: 准备发送请求到', API_BASE);
 
             try {
-                const response = await fetch(`${API_BASE}/roundtables`, {
+                console.log('步骤4: 发送创建请求');
+                const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title, clinical_question: question })
                 });
                 
-                const rt = await response.json();
-                closeModal();
+                console.log('步骤5: 收到响应', response.status);
                 
-                // Start discussion
-                await fetch(`${API_BASE}/roundtables/${rt.id}/start`, { method: 'POST' });
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
                 
-                loadRoundTables();
-                selectRoundTable(rt.id);
-            } catch (error) {
-                console.error('Failed to create roundtable:', error);
-                alert('创建失败，请检查后端服务是否运行');
+                const session = await response.json();
+                console.log('步骤6: 解析响应', session);
+                
+                console.log('步骤7: 关闭模态框');
+                closeModal('newSessionModal');
+                
+                console.log('步骤8: 清空输入');
+                document.getElementById('sessionTitle').value = '';
+                document.getElementById('sessionQuestion').value = '';
+                
+                console.log('步骤9: 开始讨论');
+                await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
+                
+                console.log('步骤10: 加载会话列表');
+                loadSessions();
+                
+                console.log('步骤11: 选择会话');
+                selectSession(session.id);
+                
+                console.log('步骤12: 显示成功提示');
+                showToast('圆桌会已开始', 'success');
+                
+                console.log('=== submitNewSession 完成 ===');
+            } catch (err) {
+                console.error('=== submitNewSession 错误 ===', err);
+                showToast('创建失败: ' + err.message, 'error');
             }
         }
 
-        // Select RoundTable
-        async function selectRoundTable(sessionId) {
+        async function selectSession(sessionId) {
             currentSessionId = sessionId;
             
-            // Show UI elements
-            document.getElementById('stage-bar').classList.remove('hidden');
-            document.getElementById('input-area').classList.remove('hidden');
-            document.getElementById('output-panel').classList.remove('hidden');
-            document.getElementById('output-panel').classList.add('flex');
+            // 移动端关闭侧边栏
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.add('hidden');
             
-            // Clear chat
-            document.getElementById('chat-container').innerHTML = '';
+            // 显示聊天界面
+            document.getElementById('stageBar').classList.remove('hidden');
+            document.getElementById('inputArea').classList.remove('hidden');
+            document.getElementById('chatContainer').innerHTML = '';
             
-            // Load messages
+            // 加载消息
             await loadMessages(sessionId);
-            
-            // Connect to SSE
+
+            // 连接 SSE
             connectEventSource(sessionId);
             
-            // Refresh list
-            loadRoundTables();
+            // 刷新列表高亮
+            loadSessions();
         }
 
-        // Load Messages
         async function loadMessages(sessionId) {
             try {
-                const response = await fetch(`${API_BASE}/roundtables/${sessionId}/messages`);
+                const response = await fetch(`${API_BASE}/api/v1/roundtables/${sessionId}/messages`);
                 const messages = await response.json();
-                
                 messages.forEach(msg => renderMessage(msg));
-            } catch (error) {
-                console.error('Failed to load messages:', error);
+            } catch (err) {
+                console.error('Failed to load messages:', err);
             }
         }
 
-        // Connect EventSource
         function connectEventSource(sessionId) {
-            if (eventSource) {
-                eventSource.close();
-            }
+            if (eventSource) eventSource.close();
             
-            eventSource = new EventSource(`${API_BASE}/roundtables/${sessionId}/stream`);
+            eventSource = new EventSource(`${API_BASE}/api/v1/roundtables/${sessionId}/stream`);
             
             eventSource.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 if (data.type !== 'ping') {
-                    renderMessage(data);
+                    // AI消息使用打字机效果
+                    if (data.from_role !== 'user') {
+                        renderMessageWithTyping(data);
+                    } else {
+                        renderMessage(data);
+                    }
                 }
             };
             
-            eventSource.onerror = (error) => {
-                console.error('EventSource error:', error);
+            eventSource.onerror = () => {
+                console.log('SSE connection error');
             };
         }
 
-        // Render Message
-        function renderMessage(message) {
-            const container = document.getElementById('chat-container');
-            const isUser = message.from_role === 'user';
-            const agent = agents.find(a => a.role === message.from_role);
+        // 打字机效果渲染消息
+        async function renderMessageWithTyping(msg) {
+            const container = document.getElementById('chatContainer');
             
-            const avatar = isUser ? '👤' : (agent ? agent.avatar : '🤖');
-            const name = isUser ? '我' : (agent ? agent.name : message.from_role);
-            const bgClass = isUser ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200';
-            const alignClass = isUser ? 'ml-auto' : '';
+            const agentColors = {
+                'clinical_director': 'bg-blue-500',
+                'phd_student': 'bg-green-500',
+                'epidemiologist': 'bg-purple-500',
+                'statistician': 'bg-orange-500',
+                'research_nurse': 'bg-pink-500'
+            };
+            
+            const agentNames = {
+                'clinical_director': '临床主任',
+                'phd_student': '博士生',
+                'epidemiologist': '流行病学家',
+                'statistician': '统计学家',
+                'research_nurse': '研究护士'
+            };
+            
+            const agentIcons = {
+                'clinical_director': 'fa-user-md',
+                'phd_student': 'fa-graduation-cap',
+                'epidemiologist': 'fa-chart-line',
+                'statistician': 'fa-calculator',
+                'research_nurse': 'fa-user-nurse'
+            };
+            
+            const color = agentColors[msg.from_role] || 'bg-gray-500';
+            const name = agentNames[msg.from_role] || msg.from_role;
+            const icon = agentIcons[msg.from_role] || 'fa-robot';
+            
+            // 创建消息元素
+            const msgId = 'msg-' + Date.now();
+            const html = `
+                <div id="${msgId}" class="flex justify-start mb-5">
+                    <div class="agent-avatar ${color} text-white flex-shrink-0 mr-3 rounded-2xl flex items-center justify-center shadow-md">
+                        <i class="fas ${icon} text-lg"></i>
+                    </div>
+                    <div class="chat-bubble agent rounded-2xl px-5 py-4">
+                        <p class="text-sm font-bold ${color.replace('bg-', 'text-')} mb-2">${name}</p>
+                        <p class="leading-relaxed typing-content"></p>
+                        <p class="text-xs text-slate-400 mt-2 text-right font-medium">${formatTime(msg.created_at)}</p>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+            
+            // 打字机效果
+            const contentElement = document.querySelector(`#${msgId} .typing-content`);
+            const content = msg.content;
+            isTyping = true;
+            currentTypingElement = msgId;
+            
+            // 将内容分段显示，模拟打字效果
+            const segments = content.split(/(?<=\n)|(?<=\.)|(?<=。)|(?<=；)/); // 按句子或换行分割
+            let displayedText = '';
+            
+            for (let i = 0; i < segments.length; i++) {
+                // 检查是否被用户中断
+                if (!isTyping || currentTypingElement !== msgId) {
+                    // 显示完整内容
+                    contentElement.innerHTML = formatContent(content);
+                    return;
+                }
+                
+                displayedText += segments[i];
+                contentElement.innerHTML = formatContent(displayedText);
+                container.scrollTop = container.scrollHeight;
+                
+                // 根据段落长度调整延迟
+                const delay = Math.min(300, Math.max(100, segments[i].length * 15));
+                await sleep(delay);
+            }
+            
+            isTyping = false;
+            currentTypingElement = null;
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function renderMessage(msg) {
+            const container = document.getElementById('chatContainer');
+            
+            const agentColors = {
+                'clinical_director': 'bg-blue-500',
+                'phd_student': 'bg-green-500',
+                'epidemiologist': 'bg-purple-500',
+                'statistician': 'bg-orange-500',
+                'research_nurse': 'bg-pink-500'
+            };
+            
+            const agentNames = {
+                'clinical_director': '临床主任',
+                'phd_student': '博士生',
+                'epidemiologist': '流行病学家',
+                'statistician': '统计学家',
+                'research_nurse': '研究护士'
+            };
+            
+            const agentIcons = {
+                'clinical_director': 'fa-user-md',
+                'phd_student': 'fa-graduation-cap',
+                'epidemiologist': 'fa-chart-line',
+                'statistician': 'fa-calculator',
+                'research_nurse': 'fa-user-nurse'
+            };
+            
+            const isUser = msg.from_role === 'user';
+            const color = agentColors[msg.from_role] || 'bg-gray-500';
+            const name = isUser ? '我' : (agentNames[msg.from_role] || msg.from_role);
+            const icon = agentIcons[msg.from_role] || 'fa-robot';
+            
+            const bubbleClass = isUser ? 'user' : 'agent';
             
             const html = `
-                <div class="chat-bubble ${alignClass} flex gap-3 ${isUser ? 'flex-row-reverse' : ''}">
-                    <div class="agent-avatar bg-gray-100 flex-shrink-0">${avatar}</div>
-                    <div class="${bgClass} rounded-2xl px-4 py-3 shadow-sm max-w-[80%]">
-                        <div class="text-xs opacity-70 mb-1">${name}</div>
-                        <div class="text-sm whitespace-pre-wrap">${message.content}</div>
-                        <div class="text-xs opacity-50 mt-1 text-right">${new Date(message.created_at).toLocaleTimeString()}</div>
+                <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-5">
+                    ${!isUser ? `
+                        <div class="agent-avatar ${color} text-white flex-shrink-0 mr-3 rounded-2xl flex items-center justify-center shadow-md">
+                            <i class="fas ${icon} text-lg"></i>
+                        </div>
+                    ` : ''}
+                    <div class="chat-bubble ${bubbleClass} rounded-2xl px-5 py-4">
+                        ${!isUser ? `<p class="text-sm font-bold ${color.replace('bg-', 'text-')} mb-2">${name}</p>` : ''}
+                        <p class="leading-relaxed">${formatContent(msg.content)}</p>
+                        <p class="text-xs ${isUser ? 'text-blue-200' : 'text-slate-400'} mt-2 text-right font-medium">${formatTime(msg.created_at)}</p>
                     </div>
                 </div>
             `;
@@ -527,58 +1225,1108 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // Send Message
+        function formatContent(content) {
+            return content.replace(/\n/g, '<br>');
+        }
+
         async function sendMessage() {
-            const input = document.getElementById('message-input');
-            const target = document.getElementById('target-agent');
+            const input = document.getElementById('messageInput');
             const content = input.value.trim();
-            
+
             if (!content || !currentSessionId) return;
-            
+
+            // 如果有正在进行的打字，中断它
+            if (isTyping) {
+                isTyping = false;
+                // 显示完整内容（在打字函数中会处理）
+            }
+
+            input.value = '';
+            input.style.height = 'auto';
+
+            // 显示用户消息（立即显示，不打字效果）
+            renderMessage({
+                from_role: 'user',
+                content: content,
+                created_at: new Date().toISOString()
+            });
+
+            // 显示用户正在输入的提示
+            showToast('您的消息已发送，AI专家将在下轮回应', 'info');
+
             try {
-                await fetch(`${API_BASE}/roundtables/${currentSessionId}/messages`, {
+                await fetch(`${API_BASE}/api/v1/roundtables/${currentSessionId}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content, to_role: target.value })
+                    body: JSON.stringify({ content })
                 });
-                
-                input.value = '';
-            } catch (error) {
-                console.error('Failed to send message:', error);
+            } catch (err) {
+                showToast('发送失败', 'error');
             }
         }
 
-        // Show Agent Info
-        function showAgentInfo() {
-            document.getElementById('agent-modal').classList.remove('hidden');
-            document.getElementById('agent-modal').classList.add('flex');
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
         }
 
-        function closeAgentModal() {
-            document.getElementById('agent-modal').classList.add('hidden');
-            document.getElementById('agent-modal').classList.remove('flex');
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
 
-        // Download Output
-        async function downloadOutput() {
+        // ============ 导出功能 ============
+        
+        async function generateStudyDesign() {
+            if (!currentSessionId) {
+                showToast('请先选择一个会话', 'error');
+                return;
+            }
+            
+            showToast('正在生成研究设计方案...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/export/study-design/${currentSessionId}`);
+                const data = await response.json();
+                
+                // 显示研究设计
+                showStudyDesignModal(data);
+            } catch (err) {
+                showToast('生成研究设计失败', 'error');
+                console.error(err);
+            }
+        }
+        
+        function showStudyDesignModal(data) {
+            // 创建模态框显示研究设计
+            const modal = document.createElement('div');
+            modal.id = 'studyDesignModal';
+            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            
+            const design = data.design;
+            
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto shadow-2xl modal-enter">
+                    <div class="p-6 border-b border-slate-100 sticky top-0 bg-white rounded-t-2xl z-10 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-bold text-2xl text-slate-900">研究设计方案</h3>
+                            <p class="text-slate-500 mt-1">基于专家讨论自动生成</p>
+                        </div>
+                        <button onclick="document.getElementById('studyDesignModal').remove()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <!-- 基本信息 -->
+                        <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                            <h4 class="font-bold text-blue-900 mb-2">研究标题</h4>
+                            <p class="text-slate-800">${design.title}</p>
+                        </div>
+                        
+                        <!-- 研究设计 -->
+                        <div>
+                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-flask text-blue-600"></i>研究设计
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="bg-slate-50 p-3 rounded-lg">
+                                    <span class="text-slate-500 text-sm">设计类型</span>
+                                    <p class="font-medium text-slate-800">${design.study_design.design_type}</p>
+                                </div>
+                                <div class="bg-slate-50 p-3 rounded-lg">
+                                    <span class="text-slate-500 text-sm">研究周期</span>
+                                    <p class="font-medium text-slate-800">${design.study_design.duration}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 样本量 -->
+                        <div>
+                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-users text-emerald-600"></i>研究人群
+                            </h4>
+                            <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-emerald-800 font-medium">计划样本量</span>
+                                    <span class="text-2xl font-bold text-emerald-700">${design.population.sample_size}例</span>
+                                </div>
+                                <div class="text-sm text-emerald-700">
+                                    试验组：${design.population.sample_size/2}例 | 对照组：${design.population.sample_size/2}例
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 纳入排除标准 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-2">纳入标准</h4>
+                                <ul class="space-y-1">
+                                    ${design.population.inclusion.map(item => `<li class="text-sm text-slate-700 flex items-start gap-2"><i class="fas fa-check-circle text-emerald-500 mt-0.5"></i>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-900 mb-2">排除标准</h4>
+                                <ul class="space-y-1">
+                                    ${design.population.exclusion.map(item => `<li class="text-sm text-slate-700 flex items-start gap-2"><i class="fas fa-times-circle text-red-500 mt-0.5"></i>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- 研究终点 -->
+                        <div>
+                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-bullseye text-purple-600"></i>研究终点
+                            </h4>
+                            <div class="bg-purple-50 rounded-xl p-4 border border-purple-100 mb-3">
+                                <span class="text-purple-800 font-medium text-sm">主要终点</span>
+                                <p class="text-slate-800 mt-1">${design.endpoints.primary}</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                ${design.endpoints.secondary.map(ep => `
+                                    <div class="bg-slate-50 p-2 rounded-lg text-sm text-slate-700">
+                                        <i class="fas fa-dot-circle text-purple-400 mr-2"></i>${ep}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <!-- 统计分析 -->
+                        <div>
+                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-chart-line text-orange-600"></i>统计分析
+                            </h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <div class="bg-orange-50 p-3 rounded-lg text-center">
+                                    <div class="text-xs text-orange-600 mb-1">显著性水平</div>
+                                    <div class="font-bold text-slate-800">${design.statistics.significance_level}</div>
+                                </div>
+                                <div class="bg-orange-50 p-3 rounded-lg text-center">
+                                    <div class="text-xs text-orange-600 mb-1">检验效能</div>
+                                    <div class="font-bold text-slate-800">${design.statistics.power}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                        <button onclick="document.getElementById('studyDesignModal').remove()" class="px-6 py-3 text-slate-600 hover:bg-slate-200 rounded-xl font-medium transition">
+                            关闭
+                        </button>
+                        <button onclick="exportReport('complete')" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg transition flex items-center gap-2">
+                            <i class="fas fa-download"></i>导出完整报告
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // ============ 参考文献功能 ============
+        
+        function showCitations() {
+            const panel = document.getElementById('citationsPanel');
+            const overlay = document.getElementById('citationsOverlay');
+            panel.classList.remove('translate-x-full');
+            overlay.classList.remove('hidden');
+            
+            // 加载当前会话的引用
+            if (currentSessionId) {
+                loadCitations();
+            }
+        }
+        
+        function closeCitations() {
+            const panel = document.getElementById('citationsPanel');
+            const overlay = document.getElementById('citationsOverlay');
+            panel.classList.add('translate-x-full');
+            overlay.classList.add('hidden');
+        }
+        
+        async function loadCitations() {
             if (!currentSessionId) return;
             
             try {
-                const response = await fetch(`${API_BASE}/roundtables/${currentSessionId}/output`);
-                const output = await response.json();
+                const response = await fetch(`${API_BASE}/api/v1/export/citations/${currentSessionId}`);
+                const data = await response.json();
                 
-                // Create and download JSON
-                const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `medroundtable-output-${currentSessionId}.json`;
-                a.click();
-            } catch (error) {
-                console.error('Failed to download output:', error);
-                alert('导出失败');
+                const citationsList = document.getElementById('citationsList');
+                const citationBtn = document.getElementById('citationBtn');
+                const citationCount = document.getElementById('citationCount');
+                
+                if (data.citations && data.citations.length > 0) {
+                    // 显示按钮和数量
+                    citationBtn.classList.remove('hidden');
+                    citationCount.textContent = data.citations.length;
+                    citationCount.classList.remove('hidden');
+                    
+                    // 渲染引用列表
+                    citationsList.innerHTML = data.citations.map((cite, index) => `
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 hover:shadow-md transition-shadow">
+                            <div class="flex items-start gap-3">
+                                <span class="bg-blue-100 text-blue-700 font-bold px-2 py-1 rounded-lg text-sm flex-shrink-0">[${index + 1}]</span>
+                                <div class="flex-1">
+                                    <p class="text-slate-800 leading-relaxed">
+                                        <span class="font-semibold">${cite.authors}</span>. 
+                                        ${cite.title}. 
+                                        <span class="italic">${cite.journal}</span>
+                                        ${cite.year ? `, ${cite.year}` : ''}
+                                        ${cite.volume ? `;${cite.volume}` : ''}
+                                        ${cite.pages ? `:${cite.pages}` : ''}
+                                    </p>
+                                    ${cite.doi ? `<p class="text-sm text-blue-600 mt-2">DOI: ${cite.doi}</p>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    citationsList.innerHTML = `
+                        <div class="text-center py-12 text-slate-500">
+                            <i class="fas fa-book-open text-5xl mb-4 text-slate-300"></i>
+                            <p class="text-lg">暂无引用文献</p>
+                            <p class="text-sm mt-2">开始讨论后，AI专家将自动引用相关文献</p>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error('Failed to load citations:', err);
             }
         }
+        
+        function exportCitations() {
+            if (!currentSessionId) {
+                showToast('请先选择一个会话', 'error');
+                return;
+            }
+            
+            // 导出参考文献为文本
+            const citationsList = document.getElementById('citationsList');
+            const citationItems = citationsList.querySelectorAll('.bg-slate-50');
+            
+            if (citationItems.length === 0) {
+                showToast('没有可导出的参考文献', 'error');
+                return;
+            }
+            
+            let text = '参考文献\n\n';
+            citationItems.forEach((item, index) => {
+                text += `[${index + 1}] ${item.innerText}\n\n`;
+            });
+            
+            // 创建下载
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `参考文献_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('参考文献已导出', 'success');
+        }
+        
+        // 定期刷新引用（当有新消息时）
+        function refreshCitations() {
+            if (currentSessionId && !document.getElementById('citationsPanel').classList.contains('translate-x-full')) {
+                loadCitations();
+            }
+        }
+
+        // ============ 思维导图功能 ============
+
+        let mindMap = null;
+
+        function showMindMap() {
+            const panel = document.getElementById('mindmapPanel');
+            panel.classList.remove('translate-y-full');
+
+            // 加载思维导图
+            setTimeout(() => {
+                loadMindMap();
+            }, 300);
+        }
+
+        function closeMindMap() {
+            const panel = document.getElementById('mindmapPanel');
+            panel.classList.add('translate-y-full');
+            // 关闭详情弹窗
+            const detailModal = document.getElementById('nodeDetailModal');
+            if (detailModal) {
+                detailModal.remove();
+            }
+        }
+
+        function loadMindMap() {
+            if (!currentSessionId || !sessionMessages[currentSessionId]) return;
+
+            const messages = sessionMessages[currentSessionId];
+            const clinicalQuestion = messages.length > 0 ? messages[0].content : '';
+
+            // 初始化或更新思维导图
+            if (!mindMap) {
+                mindMap = new DiscussionMindMap('mindmapContainer');
+            }
+
+            const data = mindMap.parseDiscussion(messages, clinicalQuestion);
+            mindMap.render(data);
+        }
+
+        function resetMindMapView() {
+            if (mindMap) {
+                mindMap.resetView();
+            }
+        }
+
+        function exportMindMap() {
+            if (mindMap) {
+                mindMap.exportImage();
+                showToast('思维导图已导出', 'success');
+            }
+        }
+
+        // 显示节点详情
+        function showNodeDetail(nodeData) {
+            // 移除已存在的详情弹窗
+            const existingModal = document.getElementById('nodeDetailModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // 确定节点类型和颜色
+            let typeName = '';
+            let typeColor = '';
+            let typeBg = '';
+            switch(nodeData.type) {
+                case 'root':
+                    typeName = '核心主题';
+                    typeColor = 'text-blue-600';
+                    typeBg = 'bg-blue-50';
+                    break;
+                case 'category':
+                    typeName = '讨论板块';
+                    typeColor = 'text-emerald-600';
+                    typeBg = 'bg-emerald-50';
+                    break;
+                default:
+                    typeName = '讨论要点';
+                    typeColor = 'text-amber-600';
+                    typeBg = 'bg-amber-50';
+            }
+
+            // 创建详情弹窗
+            const modal = document.createElement('div');
+            modal.id = 'nodeDetailModal';
+            modal.className = 'fixed inset-0 bg-slate-900/30 backdrop-blur-sm z-[60] flex items-center justify-center p-4';
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            };
+
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg modal-enter transform transition-all">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="${typeBg} ${typeColor} px-3 py-1 rounded-full text-sm font-semibold">${typeName}</span>
+                            </div>
+                            <button onclick="document.getElementById('nodeDetailModal').remove()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <p class="text-lg text-slate-800 leading-relaxed">${nodeData.label}</p>
+                        </div>
+                        <div class="mt-4 text-sm text-slate-500">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            点击空白处关闭
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        // ============ 专家详情展示 ============
+        
+        function showAgentDetail(role) {
+            console.log('showAgentDetail 被调用:', role);
+            try {
+            const agentInfo = {
+                'clinical_director': {
+                    name: '临床主任',
+                    title: '主任医师 / PI',
+                    avatar: './assets/doctor1.png',
+                    color: 'blue',
+                    description: '临床研究领域的资深专家，拥有丰富的临床试验设计和执行经验。',
+                    responsibilities: [
+                        '制定整体研究策略和方向',
+                        '确定研究终点指标和临床意义',
+                        '审核研究方案的科学性和可行性',
+                        '协调各专家之间的意见',
+                        '最终研究决策和质量把控'
+                    ],
+                    expertise: ['临床试验设计', '终点指标选择', '医学写作', '伦理审查']
+                },
+                'phd_student': {
+                    name: '博士生',
+                    title: '在读医学博士 / 文献专家',
+                    avatar: './assets/doctor2.png',
+                    color: 'emerald',
+                    description: '医学博士研究生，专注于医学文献检索、证据整合和最新研究进展分析。',
+                    responsibilities: [
+                        '系统检索相关文献和指南',
+                        '整理最新研究进展和证据',
+                        '分析现有研究的优缺点',
+                        '为研究设计提供文献支持',
+                        '识别研究空白和创新点'
+                    ],
+                    expertise: ['文献检索', 'Meta分析', '证据等级评价', '研究趋势分析']
+                },
+                'epidemiologist': {
+                    name: '流行病学家',
+                    title: '流行病学博士',
+                    avatar: './assets/doctor3.png',
+                    color: 'purple',
+                    description: '精通临床研究方法论，专注于研究设计和偏倚控制。',
+                    responsibilities: [
+                        '设计研究方案和流程',
+                        '制定纳入排除标准',
+                        '控制选择偏倚和信息偏倚',
+                        '评估研究的可行性',
+                        '优化研究质量和效率'
+                    ],
+                    expertise: ['研究设计', '偏倚控制', '质量控制', '方法学咨询']
+                },
+                'statistician': {
+                    name: '统计学家',
+                    title: '生物统计学家',
+                    avatar: './assets/doctor4.png',
+                    avatarPosition: '75% 0%',
+                    color: 'orange',
+                    description: '专业的生物统计专家，擅长临床试验统计分析和样本量计算。',
+                    responsibilities: [
+                        '计算所需样本量',
+                        '制定统计分析计划',
+                        '设计随机化方案',
+                        '确定统计方法和假设',
+                        '处理缺失数据和多重比较'
+                    ],
+                    expertise: ['样本量计算', '统计分析', '随机化', '效能分析']
+                },
+                'research_nurse': {
+                    name: '研究护士',
+                    title: '临床研究协调员',
+                    avatar: './assets/doctor5.png',
+                    color: 'cyan',
+                    description: '临床研究执行专家，熟悉GCP规范和现场操作流程。',
+                    responsibilities: [
+                        '制定访视流程和时间表',
+                        '设计CRF表单',
+                        '规划数据管理流程',
+                        '制定患者招募策略',
+                        '协调多中心研究执行'
+                    ],
+                    expertise: ['GCP规范', '数据管理', '患者招募', '质量控制']
+                }
+            };
+            
+            const agent = agentInfo[role];
+            if (!agent) return;
+            
+            const colorClasses = {
+                blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100' },
+                emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', badge: 'bg-emerald-100' },
+                purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', badge: 'bg-purple-100' },
+                orange: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', badge: 'bg-orange-100' },
+                cyan: { bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-700', badge: 'bg-cyan-100' }
+            };
+            
+            const c = colorClasses[agent.color];
+            
+            const modal = document.createElement('div');
+            modal.id = 'agentDetailModal';
+            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            modal.onclick = function(e) {
+                if (e.target === modal) modal.remove();
+            };
+            
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl w-full max-w-lg modal-enter shadow-2xl overflow-hidden">
+                    <div class="h-32 ${c.bg} relative">
+                        <button onclick="document.getElementById('agentDetailModal').remove()" class="absolute top-4 right-4 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition">
+                            <i class="fas fa-times text-slate-600"></i>
+                        </button>
+                    </div>
+                    <div class="px-6 pb-6">
+                        <div class="relative -mt-16 mb-4">
+                            <div class="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden mx-auto bg-white">
+                                <img src="${agent.avatar}" alt="${agent.name}" class="w-full h-full object-cover">
+                            </div>
+                        </div>
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-slate-900 mb-1">${agent.name}</h3>
+                            <p class="${c.text} font-medium">${agent.title}</p>
+                        </div>
+                        <div class="mb-6">
+                            <p class="text-slate-600 leading-relaxed">${agent.description}</p>
+                        </div>
+                        <div class="mb-6">
+                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-tasks ${c.text}"></i>
+                                主要职责
+                            </h4>
+                            <ul class="space-y-2">
+                                ${agent.responsibilities.map(r => `
+                                    <li class="flex items-start gap-3 text-slate-600">
+                                        <i class="fas fa-check-circle ${c.text} mt-0.5"></i>
+                                        <span>${r}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
+                                <i class="fas fa-star ${c.text}"></i>
+                                专业领域
+                            </h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${agent.expertise.map(e => `
+                                    <span class="px-3 py-1 ${c.badge} ${c.text} text-sm rounded-full font-medium">${e}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            } catch (err) {
+                console.error('showAgentDetail 错误:', err);
+                alert('显示专家详情时出错，请查看控制台');
+            }
+        }
+
+        // ============ 侧边栏功能 ============
+        
+        // 1. 上传研究方案
+        function showUploadModal() {
+            // 关闭移动端侧边栏
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+            
+            // 创建上传模态框
+            const modal = document.createElement('div');
+            modal.id = 'uploadModal';
+            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            modal.onclick = function(e) {
+                if (e.target === modal) modal.remove();
+            };
+            
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl w-full max-w-lg modal-enter shadow-2xl">
+                    <div class="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white rounded-t-2xl">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-cloud-upload-alt text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-xl text-slate-900">上传研究方案</h3>
+                                    <p class="text-slate-500 text-sm">导入您的现有研究文档</p>
+                                </div>
+                            </div>
+                            <button onclick="document.getElementById('uploadModal').remove()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <!-- 拖拽上传区域 -->
+                        <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-emerald-500 hover:bg-emerald-50 transition-all cursor-pointer">
+                            <input type="file" id="fileInput" class="hidden" accept=".doc,.docx,.pdf,.txt,.md" multiple>
+                            <div class="text-emerald-500 mb-3">
+                                <i class="fas fa-cloud-upload-alt text-4xl"></i>
+                            </div>
+                            <p class="text-slate-700 font-medium mb-2">点击或拖拽文件到这里</p>
+                            <p class="text-slate-500 text-sm">支持 Word、PDF、TXT、Markdown</p>
+                            <p class="text-slate-400 text-xs mt-2">最多5个文件，每个不超过10MB</p>
+                        </div>
+                        
+                        <!-- 文件列表 -->
+                        <div id="uploadFileList" class="space-y-2 hidden">
+                            <p class="text-sm font-medium text-slate-700">已选择文件：</p>
+                            <div id="fileItems" class="space-y-2"></div>
+                        </div>
+                        
+                        <!-- 选项 -->
+                        <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+                            <p class="font-medium text-slate-700">导入选项</p>
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" id="autoExtract" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500" checked>
+                                <span class="text-slate-700">自动提取关键信息（研究问题、终点指标等）</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer">
+                                <input type="checkbox" id="createNewSession" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500" checked>
+                                <span class="text-slate-700">基于文档创建新圆桌会</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                        <button onclick="document.getElementById('uploadModal').remove()" class="px-6 py-3 text-slate-600 hover:bg-slate-200 rounded-xl font-medium transition">
+                            取消
+                        </button>
+                        <button onclick="processUpload()" id="uploadBtn" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium shadow-lg transition flex items-center gap-2" disabled>
+                            <i class="fas fa-upload"></i>
+                            <span>开始导入</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 绑定文件选择事件
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            
+            dropZone.onclick = () => fileInput.click();
+            
+            fileInput.onchange = (e) => handleFiles(e.target.files);
+            
+            // 拖拽事件
+            dropZone.ondragover = (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-emerald-500', 'bg-emerald-50');
+            };
+            
+            dropZone.ondragleave = () => {
+                dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
+            };
+            
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
+                handleFiles(e.dataTransfer.files);
+            };
+        }
+        
+        let selectedFiles = [];
+        
+        function handleFiles(files) {
+            selectedFiles = Array.from(files).filter(f => {
+                const validTypes = ['.doc', '.docx', '.pdf', '.txt', '.md'];
+                return validTypes.some(type => f.name.toLowerCase().endsWith(type));
+            }).slice(0, 5);
+            
+            if (selectedFiles.length === 0) {
+                showToast('请选择有效的文件格式', 'error');
+                return;
+            }
+            
+            const fileList = document.getElementById('uploadFileList');
+            const fileItems = document.getElementById('fileItems');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            fileList.classList.remove('hidden');
+            fileItems.innerHTML = selectedFiles.map((file, index) => `
+                <div class="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200">
+                    <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-emerald-600"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-slate-700 truncate">${file.name}</p>
+                        <p class="text-xs text-slate-500">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <button onclick="removeFile(${index})" class="p-2 text-slate-400 hover:text-red-500 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+            
+            uploadBtn.disabled = false;
+        }
+        
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            if (selectedFiles.length === 0) {
+                document.getElementById('uploadFileList').classList.add('hidden');
+                document.getElementById('uploadBtn').disabled = true;
+            } else {
+                handleFiles(selectedFiles);
+            }
+        }
+        
+        async function processUpload() {
+            if (selectedFiles.length === 0) return;
+            
+            const autoExtract = document.getElementById('autoExtract').checked;
+            const createNew = document.getElementById('createNewSession').checked;
+            
+            showToast('正在处理文件...', 'info');
+            
+            try {
+                // 模拟上传处理
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                document.getElementById('uploadModal').remove();
+                showToast('文件导入成功！', 'success');
+                
+                if (createNew) {
+                    // 基于文档创建新会话
+                    setTimeout(() => {
+                        createNewSession();
+                        showToast('已基于文档创建新圆桌会', 'success');
+                    }, 500);
+                }
+            } catch (err) {
+                showToast('导入失败，请重试', 'error');
+            }
+        }
+        
+        // 2. 思维导图（从侧边栏调用）
+        function showMindMapFromSidebar() {
+            // 关闭移动端侧边栏
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+            
+            if (!currentSessionId) {
+                showToast('请先开始一个圆桌讨论', 'error');
+                return;
+            }
+            
+            showMindMap();
+        }
+        
+        // 3. 研究方案草稿一键下载
+        async function quickDownloadDraft() {
+            // 关闭移动端侧边栏
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+            
+            if (!currentSessionId) {
+                showToast('请先开始一个圆桌讨论', 'error');
+                return;
+            }
+            
+            showToast('正在生成研究方案草稿...', 'info');
+            
+            try {
+                const url = `${API_BASE}/api/v1/export/generate-report/${currentSessionId}`;
+                const response = await fetch(url, { method: 'POST' });
+                
+                if (!response.ok) throw new Error('Export failed');
+                
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = `研究方案草稿_${new Date().toISOString().split('T')[0]}.docx`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(downloadUrl);
+                
+                showToast('研究方案草稿下载成功！', 'success');
+            } catch (err) {
+                showToast('下载失败，请重试', 'error');
+                console.error(err);
+            }
+        }
+        
+        // 4. 自动化数据分析
+        function showDataAnalysis() {
+            // 关闭移动端侧边栏
+            if (window.innerWidth < 1024) {
+                toggleSidebar();
+            }
+            
+            const modal = document.createElement('div');
+            modal.id = 'dataAnalysisModal';
+            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+            modal.onclick = function(e) {
+                if (e.target === modal) modal.remove();
+            };
+            
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden modal-enter shadow-2xl flex flex-col">
+                    <div class="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-chart-line text-white text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-xl text-slate-900">自动化数据分析</h3>
+                                <p class="text-slate-500 text-sm">智能统计分析与可视化建议</p>
+                            </div>
+                        </div>
+                        <button onclick="document.getElementById('dataAnalysisModal').remove()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex-1 overflow-y-auto p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <!-- 功能卡片 -->
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('sample')">
+                                <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-3">
+                                    <i class="fas fa-calculator text-white text-xl"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-900 mb-2">样本量计算器</h4>
+                                <p class="text-slate-600 text-sm">根据研究设计、效应量、检验效能自动计算所需样本量</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 border border-purple-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('randomization')">
+                                <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-3">
+                                    <i class="fas fa-random text-white text-xl"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-900 mb-2">随机化方案</h4>
+                                <p class="text-slate-600 text-sm">生成随机分组方案、分配隐藏策略</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-5 border border-emerald-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('statplan')">
+                                <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mb-3">
+                                    <i class="fas fa-file-alt text-white text-xl"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-900 mb-2">统计分析计划</h4>
+                                <p class="text-slate-600 text-sm">自动生成SAP文档，包括分析方法、假设检验、缺失值处理</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-5 border border-orange-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('power')">
+                                <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-3">
+                                    <i class="fas fa-chart-bar text-white text-xl"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-900 mb-2">效能分析</h4>
+                                <p class="text-slate-600 text-sm">绘制功效曲线、效应量与样本量关系图</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 快速分析 -->
+                        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                            <h4 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                                <i class="fas fa-bolt text-yellow-500"></i>
+                                快速分析建议
+                            </h4>
+                            <div id="quickAnalysisContent" class="space-y-3">
+                                <p class="text-slate-600">请先开始一个圆桌讨论，系统将基于您的研究问题提供个性化的统计分析建议。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // 如果当前有会话，加载相关分析建议
+            if (currentSessionId) {
+                loadQuickAnalysis();
+            }
+        }
+        
+        function showAnalysisTool(tool) {
+            const toolNames = {
+                'sample': '样本量计算器',
+                'randomization': '随机化方案',
+                'statplan': '统计分析计划',
+                'power': '效能分析'
+            };
+            
+            showToast(`${toolNames[tool]}功能开发中，敬请期待！`, 'info');
+        }
+        
+        async function loadQuickAnalysis() {
+            // 基于当前会话内容生成分析建议
+            const content = document.getElementById('quickAnalysisContent');
+            if (!content || !sessionMessages[currentSessionId]) return;
+            
+            // 简单的分析建议（实际应用中应调用后端API）
+            content.innerHTML = `
+                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-lightbulb text-blue-500"></i>
+                        <span class="font-semibold text-slate-800">基于当前讨论的分析建议</span>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-2">
+                        <li class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-emerald-500 mt-0.5"></i>
+                            <span>建议采用优效性检验，显著性水平α=0.05（双侧）</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-emerald-500 mt-0.5"></i>
+                            <span>主要终点建议使用ITT分析集，缺失值采用LOCF法</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fas fa-check-circle text-emerald-500 mt-0.5"></i>
+                            <span>考虑到多重比较，建议采用序贯检验策略</span>
+                        </li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // ============ 导出功能 ============
+        
+        async function exportReport(type) {
+            if (!currentSessionId) {
+                showToast('请先选择一个会话', 'error');
+                return;
+            }
+            
+            const typeNames = {
+                'protocol': '研究方案',
+                'crf': 'CRF表格',
+                'analysis': '统计分析计划',
+                'all': '完整资料包',
+                'complete': '完整研究报告'
+            };
+            
+            showToast(`正在生成${typeNames[type]}...`, 'info');
+            
+            try {
+                let url;
+                if (type === 'complete') {
+                    url = `${API_BASE}/api/v1/export/generate-report/${currentSessionId}`;
+                } else {
+                    url = `${API_BASE}/api/v1/export/${type === 'all' ? 'all' : type}/${currentSessionId}`;
+                }
+                
+                // 使用fetch下载文件
+                const response = await fetch(url, { method: 'POST' });
+                if (!response.ok) throw new Error('Export failed');
+                
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                
+                // 获取文件名
+                const contentDisposition = response.headers.get('content-disposition');
+                let filename = `${typeNames[type]}.docx`;
+                if (contentDisposition) {
+                    const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                    if (match) filename = match[1];
+                }
+                
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(downloadUrl);
+                
+                showToast(`${typeNames[type]}下载成功！`, 'success');
+            } catch (err) {
+                showToast('导出失败，请重试', 'error');
+                console.error(err);
+            }
+        }
+
+        // ============ 用户认证 ============
+        
+        function updateUserUI() {
+            const btn = document.getElementById('userBtn');
+            if (user) {
+                btn.innerHTML = `
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="text-left flex-1">
+                        <p class="font-medium text-sm">${user.name}</p>
+                        <p class="text-xs text-gray-500">${user.email}</p>
+                    </div>
+                    <button onclick="logout(event)" class="p-2 text-gray-400 hover:text-red-500">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                `;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/user/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    token = data.access_token;
+                    user = data.user;
+                    localStorage.setItem('mrt_token', token);
+                    localStorage.setItem('mrt_user', JSON.stringify(user));
+                    updateUserUI();
+                    closeModal('loginModal');
+                    showToast('登录成功', 'success');
+                } else {
+                    showToast('登录失败', 'error');
+                }
+            } catch (err) {
+                showToast('网络错误', 'error');
+            }
+        }
+
+        function logout(e) {
+            e.stopPropagation();
+            token = null;
+            user = null;
+            localStorage.removeItem('mrt_token');
+            localStorage.removeItem('mrt_user');
+            location.reload();
+        }
+
+        // ============ 工具函数 ============
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            toast.className = `toast-enter ${colors[type]} text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium`;
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showQuickActions() {
+            // 快捷操作菜单
+            showToast('功能开发中', 'info');
+        }
+
+        function showRegister() {
+            showToast('注册功能开发中，请稍后重试', 'info');
+        }
+
+        // 防止双击缩放
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>

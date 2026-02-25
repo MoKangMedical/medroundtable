@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     const tokenData = tokenResult.data
 
-    const profileResponse = await fetch('https://app.mindos.com/gate/lab/api/secondme/user/info', {
+    const profileResponse = await fetch('https://api.mindverse.com/gate/lab/api/secondme/user/info', {
       headers: { 'Authorization': `Bearer ${tokenData.accessToken}` },
     })
 

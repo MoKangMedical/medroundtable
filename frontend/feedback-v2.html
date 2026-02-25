@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>用户反馈 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans SC', sans-serif; touch-action: manipulation; }
+        
+        /* 移动端优化 */
+        @media (max-width: 640px) {
+            .feedback-type-card { padding: 1rem !important; }
+            .feedback-type-card h3 { font-size: 0.875rem; }
+            .feedback-type-card p { font-size: 0.75rem; }
+            main { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+            .max-w-6xl { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+        }
+        
+        .btn-press:active { transform: scale(0.95); }
+        .star-rating { display: flex; gap: 0.5rem; }
+        .star-rating i { cursor: pointer; transition: all 0.2s; }
+        .star-rating i:hover, .star-rating i.active { color: #fbbf24; }
+        .feedback-type-card { cursor: pointer; transition: all 0.3s; }
+        .feedback-type-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .feedback-type-card.selected { border-color: #3b82f6; background-color: #eff6ff; }
+        .toast { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .modal { backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-users text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-gray-800">MedRoundTable</h1>
+                    <p class="text-xs text-gray-500">临床科研圆桌会</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-gray-600 hover:text-blue-600 transition">
+                    <i class="fas fa-home mr-1"></i> 返回首页
+                </a>
+                <div id="userSection" class="hidden flex items-center gap-2">
+                    <span class="text-sm text-gray-600" id="userName"></span>
+                    <button onclick="logout()" class="text-sm text-red-600 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt"></i> 退出
+                    </button>
+                </div>
+                <button id="loginBtn" onclick="showLoginModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-user mr-1"></i> 登录
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- 页面标题 -->
+        <div class="text-center mb-10">
+            <h2 class="text-3xl font-bold text-gray-800 mb-3">我们重视您的反馈</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">
+                您的建议是我们改进的动力。无论是功能建议、问题报告还是使用体验，都请告诉我们。
+            </p>
+        </div>
+
+        <!-- 反馈类型选择 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="feedback-type-card bg-white p-6 rounded-xl border-2 border-transparent shadow-sm" data-type="feature" onclick="selectType(this)">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <i class="fas fa-lightbulb text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 text-center">功能建议</h3>
+                <p class="text-sm text-gray-500 text-center mt-1">希望添加的新功能</p>
+            </div>
+            <div class="feedback-type-card bg-white p-6 rounded-xl border-2 border-transparent shadow-sm" data-type="bug" onclick="selectType(this)">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <i class="fas fa-bug text-red-600 text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 text-center">问题报告</h3>
+                <p class="text-sm text-gray-500 text-center mt-1">遇到的错误或异常</p>
+            </div>
+            <div class="feedback-type-card bg-white p-6 rounded-xl border-2 border-transparent shadow-sm" data-type="improvement" onclick="selectType(this)">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 text-center">改进意见</h3>
+                <p class="text-sm text-gray-500 text-center mt-1">现有功能优化建议</p>
+            </div>
+            <div class="feedback-type-card bg-white p-6 rounded-xl border-2 border-transparent shadow-sm" data-type="other" onclick="selectType(this)">
+                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+                    <i class="fas fa-comment-dots text-purple-600 text-xl"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 text-center">其他反馈</h3>
+                <p class="text-sm text-gray-500 text-center mt-1">任何想告诉我们的</p>
+            </div>
+        </div>
+
+        <!-- 反馈表单 -->
+        <form id="feedbackForm" class="bg-white rounded-xl shadow-sm p-8">
+            <!-- 评分 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-star text-yellow-500 mr-1"></i> 总体评分
+                </label>
+                <div class="star-rating text-2xl" id="starRating">
+                    <i class="far fa-star text-gray-300" data-rating="1"></i>
+                    <i class="far fa-star text-gray-300" data-rating="2"></i>
+                    <i class="far fa-star text-gray-300" data-rating="3"></i>
+                    <i class="far fa-star text-gray-300" data-rating="4"></i>
+                    <i class="far fa-star text-gray-300" data-rating="5"></i>
+                </div>
+                <p class="text-sm text-gray-500 mt-1" id="ratingText">点击星星评分</p>
+            </div>
+
+            <!-- 反馈类别 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-folder text-blue-500 mr-1"></i> 反馈类别
+                </label>
+                <select id="category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">请选择类别</option>
+                    <option value="ui">界面设计</option>
+                    <option value="ai_response">AI回答质量</option>
+                    <option value="export">导出功能</option>
+                    <option value="literature">文献检索</option>
+                    <option value="template">研究模板</option>
+                    <option value="performance">性能速度</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+
+            <!-- 标题 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-heading text-blue-500 mr-1"></i> 标题 <span class="text-red-500">*</span>
+                </label>
+                <input type="text" id="title" required placeholder="请简要描述您的反馈" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- 详细内容 -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-align-left text-blue-500 mr-1"></i> 详细描述 <span class="text-red-500">*</span>
+                </label>
+                <textarea id="content" required rows="6" placeholder="请详细描述您的问题或建议..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"></textarea>
+                <p class="text-sm text-gray-500 mt-1">支持 Markdown 格式</p>
+            </div>
+
+            <!-- 会话ID（可选） -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-link text-blue-500 mr-1"></i> 相关会话ID（可选）
+                </label>
+                <input type="text" id="sessionId" placeholder="如果有相关会话，请填写会话ID"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <p class="text-sm text-gray-500 mt-1">在应用中可以找到您的会话ID</p>
+            </div>
+
+            <!-- 匿名联系邮箱（未登录时显示） -->
+            <div id="anonymousEmail" class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-envelope text-blue-500 mr-1"></i> 联系邮箱（可选）
+                </label>
+                <input type="email" id="contactEmail" placeholder="如需回复，请留下您的邮箱"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="flex justify-end gap-4">
+                <button type="button" onclick="resetForm()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                    重置
+                </button>
+                <button type="submit" id="submitBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>提交反馈</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- 常见问题 -->
+        <div class="mt-12 bg-white rounded-xl shadow-sm p-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-question-circle text-blue-500 mr-2"></i>常见问题
+            </h3>
+            <div class="space-y-4">
+                <div class="border-b pb-4">
+                    <h4 class="font-medium text-gray-800 mb-2">反馈后多久能收到回复？</h4>
+                    <p class="text-gray-600 text-sm">我们通常在 1-2 个工作日内查看反馈。如果您留下了邮箱，我们会尽快与您联系。</p>
+                </div>
+                <div class="border-b pb-4">
+                    <h4 class="font-medium text-gray-800 mb-2">如何查看我之前的反馈？</h4>
+                    <p class="text-gray-600 text-sm">登录后，您可以在用户中心查看您提交的所有反馈及其处理状态。</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-gray-800 mb-2">紧急问题如何联系？</h4>
+                    <p class="text-gray-600 text-sm">对于紧急问题，请在反馈类型中选择"问题报告"并提供详细的错误信息。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">用户登录</h3>
+                <button onclick="closeLoginModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="loginForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                    <input type="email" id="loginEmail" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="loginPassword" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                    登录
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-4">
+                还没有账号？<a href="#" onclick="showRegisterModal(); return false;" class="text-blue-600 hover:underline">立即注册</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">注册账号</h3>
+                <button onclick="closeRegisterModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="registerForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                    <input type="text" id="registerName" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">邮箱</label>
+                    <input type="email" id="registerEmail" required 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="registerPassword" required minlength="6"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">机构（可选）</label>
+                    <input type="text" id="registerInstitution"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                    注册
+                </button>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-4">
+                已有账号？<a href="#" onclick="showLoginModal(); closeRegisterModal(); return false;" class="text-blue-600 hover:underline">立即登录</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // API 配置
+        const API_BASE = 'https://mia-rating-ownership-downloads.trycloudflare.com';
+        
+        // 状态管理
+        let currentRating = 0;
+        let selectedType = '';
+        let token = localStorage.getItem('token');
+        let user = JSON.parse(localStorage.getItem('user') || 'null');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateUserUI();
+            setupStarRating();
+            setupForms();
+        });
+
+        // 更新用户界面
+        function updateUserUI() {
+            if (token && user) {
+                document.getElementById('userSection').classList.remove('hidden');
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('anonymousEmail').classList.add('hidden');
+            } else {
+                document.getElementById('userSection').classList.add('hidden');
+                document.getElementById('loginBtn').classList.remove('hidden');
+                document.getElementById('anonymousEmail').classList.remove('hidden');
+            }
+        }
+
+        // 设置星级评分
+        function setupStarRating() {
+            const stars = document.querySelectorAll('#starRating i');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    currentRating = parseInt(star.dataset.rating);
+                    updateStars();
+                    updateRatingText();
+                });
+                star.addEventListener('mouseenter', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    stars.forEach((s, i) => {
+                        if (i < rating) {
+                            s.classList.remove('far');
+                            s.classList.add('fas');
+                        } else {
+                            s.classList.remove('fas');
+                            s.classList.add('far');
+                        }
+                    });
+                });
+            });
+            document.getElementById('starRating').addEventListener('mouseleave', updateStars);
+        }
+
+        function updateStars() {
+            const stars = document.querySelectorAll('#starRating i');
+            stars.forEach((star, i) => {
+                if (i < currentRating) {
+                    star.classList.remove('far', 'text-gray-300');
+                    star.classList.add('fas', 'active');
+                } else {
+                    star.classList.remove('fas', 'active');
+                    star.classList.add('far', 'text-gray-300');
+                }
+            });
+        }
+
+        function updateRatingText() {
+            const texts = ['', '很差', '较差', '一般', '不错', '非常满意'];
+            document.getElementById('ratingText').textContent = texts[currentRating] || '点击星星评分';
+        }
+
+        // 选择反馈类型
+        function selectType(element) {
+            document.querySelectorAll('.feedback-type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedType = element.dataset.type;
+        }
+
+        // 设置表单
+        function setupForms() {
+            // 反馈表单
+            document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await submitFeedback();
+            });
+
+            // 登录表单
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await login();
+            });
+
+            // 注册表单
+            document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await register();
+            });
+        }
+
+        // 提交反馈
+        async function submitFeedback() {
+            if (!selectedType) {
+                showToast('请选择反馈类型', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 提交中...';
+
+            try {
+                const data = {
+                    feedback_type: selectedType,
+                    category: document.getElementById('category').value,
+                    rating: currentRating || null,
+                    title: document.getElementById('title').value,
+                    content: document.getElementById('content').value,
+                    page_url: window.location.href,
+                    session_id: document.getElementById('sessionId').value || null,
+                    contact_email: !token ? document.getElementById('contactEmail').value : null
+                };
+
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`${API_BASE}/api/v1/user/feedback`, {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    showToast('感谢您的反馈！我们会尽快处理', 'success');
+                    resetForm();
+                } else {
+                    const error = await response.json();
+                    showToast(error.detail || '提交失败', 'error');
+                }
+            } catch (err) {
+                showToast('网络错误，请稍后重试', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> 提交反馈';
+            }
+        }
+
+        // 登录
+        async function login() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/user/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    token = data.access_token;
+                    user = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    updateUserUI();
+                    closeLoginModal();
+                    showToast('登录成功', 'success');
+                } else {
+                    const error = await response.json();
+                    showToast(error.detail || '登录失败', 'error');
+                }
+            } catch (err) {
+                showToast('网络错误', 'error');
+            }
+        }
+
+        // 注册
+        async function register() {
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/user/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('registerName').value,
+                        email: document.getElementById('registerEmail').value,
+                        password: document.getElementById('registerPassword').value,
+                        institution: document.getElementById('registerInstitution').value
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    token = data.access_token;
+                    user = data.user;
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    updateUserUI();
+                    closeRegisterModal();
+                    showToast('注册成功', 'success');
+                } else {
+                    const error = await response.json();
+                    showToast(error.detail || '注册失败', 'error');
+                }
+            } catch (err) {
+                showToast('网络错误', 'error');
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            token = null;
+            user = null;
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            updateUserUI();
+            showToast('已退出登录', 'info');
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById('feedbackForm').reset();
+            currentRating = 0;
+            selectedType = '';
+            updateStars();
+            document.getElementById('ratingText').textContent = '点击星星评分';
+            document.querySelectorAll('.feedback-type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+
+        // 显示 Toast
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.className = `toast ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2`;
+            toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${message}`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // 模态框控制
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('flex');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('flex');
+        }
+
+        function showRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+            document.getElementById('registerModal').classList.add('flex');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.add('hidden');
+            document.getElementById('registerModal').classList.remove('flex');
+        }
+
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

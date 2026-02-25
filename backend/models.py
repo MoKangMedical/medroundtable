@@ -33,7 +33,7 @@ class RoundTableStatus(str, Enum):
 class A2AMessage(BaseModel):
     id: str
     session_id: str
-    from_role: AgentRole
+    from_role: AgentRole | str  # AgentRole or 'user'
     to_role: AgentRole | str  # 'all' for broadcast
     type: MessageType
     content: str
