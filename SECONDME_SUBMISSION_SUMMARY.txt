@@ -1,0 +1,39 @@
+MedRoundTable - Second Me 平台提交摘要
+=====================================
+
+项目名称: MedRoundTable (临床科研圆桌会)
+项目类型: A2A 医学科研协作平台
+
+核心功能:
+- 5个专业AI Agent协作（临床主任、博士生、流行病学家、统计专家、研究护士）
+- 完整的A2A协议实现（Discovery、Messaging、Task Management）
+- Second Me OAuth登录集成
+- 从临床问题到论文发表的全流程自动化
+
+技术栈:
+- 后端: FastAPI + Python
+- 前端: Next.js + React
+- AI: OpenAI/GLM/Claude API
+- 部署: Docker + Docker Compose
+
+A2A端点:
+- GET /api/a2a/discovery - Agent发现
+- POST /api/a2a/message - 消息通信
+- POST /api/a2a/task - 任务管理
+- POST /api/a2a/webhook/secondme - Webhook
+
+OAuth集成:
+- GET /api/auth/login - Second Me登录入口
+- GET /api/auth/callback - OAuth回调处理
+
+部署地址:
+- 后端: http://localhost:8001
+- 前端: http://localhost:3001
+
+GitHub: https://github.com/MoKangMedical/medroundtable
+Hackathon: https://hackathon.second.me/projects/cmlg779kn000204kvr6jygh28
+
+开发者: MoKangMedical
+联系: tony1982110@gmail.com
+
+提交时间: 2026-02-26

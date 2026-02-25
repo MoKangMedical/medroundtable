@@ -12,7 +12,8 @@ COPY backend/ ./backend/
 COPY agents/ ./agents/
 
 # 创建 requirements.txt
-RUN echo "fastapi==0.109.0\nuvicorn[standard]==0.27.0\npydantic==2.5.0\npython-multipart==0.0.6" > requirements.txt
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
 

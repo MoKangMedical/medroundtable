@@ -2,12 +2,12 @@
   "schema_version": "1.0",
   "name": "MedRoundTable",
   "display_name": "临床科研圆桌会",
-  "description": "基于A2A架构的医学科研协作平台 - 五位专业AI Agent助力临床研究",
+  "description": "全球首个基于A2A架构的医学科研协作平台 - 五位专业AI Agent实现从临床问题到科研成果的全流程自动化协作",
   "version": "1.0.0",
   "author": "MoKangMedical",
   "license": "MIT",
   "homepage": "https://github.com/MoKangMedical/medroundtable",
-  "icon": "https://raw.githubusercontent.com/MoKangMedical/medroundtable/main/assets/icon.png",
+  "icon": "https://raw.githubusercontent.com/MoKangMedical/medroundtable/main/frontend/assets/doctors.jpg",
   
   "a2a_protocol": {
     "version": "1.0",
@@ -15,13 +15,14 @@
       "agent_discovery",
       "agent_communication",
       "task_orchestration",
-      "memory_sharing"
+      "memory_sharing",
+      "oauth_integration"
     ],
     "endpoints": {
       "discovery": "/api/a2a/discovery",
       "message": "/api/a2a/message",
       "task": "/api/a2a/task",
-      "status": "/api/a2a/status"
+      "webhook": "/api/a2a/webhook/secondme"
     }
   },
   
@@ -29,58 +30,58 @@
     {
       "id": "clinical_director",
       "name": "资深临床主任",
-      "role": "临床问题识别与研究价值评估",
+      "role": "clinical_problem_identification",
       "avatar": "👨‍⚕️",
-      "description": "识别临床科研价值，提出研究假设",
+      "description": "识别临床科研价值，提出研究假设，评估可行性",
       "skills": ["临床问题识别", "研究价值评估", "可行性判断"],
       "personality": "权威、严谨、经验丰富"
     },
     {
       "id": "phd_student", 
       "name": "临床博士生",
-      "role": "文献检索与研究协调",
+      "role": "research_coordination",
       "avatar": "📚",
       "description": "文献检索、综述撰写、协调推进",
-      "skills": ["文献检索", "综述撰写", "进度管理"],
+      "skills": ["文献检索", "综述撰写", "进度管理", "伦理申请"],
       "personality": "勤奋、细致、好学"
     },
     {
       "id": "epidemiologist",
       "name": "临床流行病学专家", 
-      "role": "研究设计与方案制定",
+      "role": "study_design",
       "avatar": "📊",
-      "description": "研究设计、纳入排除标准制定",
-      "skills": ["研究设计", "标准制定", "质量控制"],
+      "description": "研究设计、纳入排除标准制定、质量控制",
+      "skills": ["研究设计", "标准制定", "质量控制", "偏倚评估"],
       "personality": "专业、系统、注重细节"
     },
     {
       "id": "statistician",
       "name": "数据统计专家",
-      "role": "统计分析与数据管理",
+      "role": "statistical_analysis",
       "avatar": "📈", 
       "description": "CRF设计、统计分析、图表生成",
-      "skills": ["统计分析", "CRF设计", "数据可视化"],
+      "skills": ["统计分析", "CRF设计", "数据可视化", "样本量计算"],
       "personality": "精确、逻辑性强、数据驱动"
     },
     {
       "id": "research_nurse",
       "name": "研究护士",
-      "role": "数据采集与质量控制",
+      "role": "data_collection",
       "avatar": "👩‍⚕️",
-      "description": "数据采集、质量核查、问题反馈",
-      "skills": ["数据采集", "质量控制", "操作规范"],
+      "description": "数据采集、质量核查、操作规范",
+      "skills": ["数据采集", "质量控制", "GCP合规", "患者随访"],
       "personality": "细心、耐心、执行力强"
     }
   ],
   
   "interfaces": {
     "web": {
-      "url": "https://medroundtable.vercel.app",
-      "width": 1200,
-      "height": 800
+      "url": "http://localhost:3001",
+      "width": 1400,
+      "height": 900
     },
     "api": {
-      "base_url": "https://api.medroundtable.io",
+      "base_url": "http://localhost:8001",
       "version": "v1",
       "auth_type": "bearer"
     }
@@ -89,12 +90,28 @@
   "integration": {
     "second_me": {
       "compatible": true,
+      "oauth": {
+        "enabled": true,
+        "login_url": "/api/auth/login",
+        "callback_url": "/api/auth/callback"
+      },
       "features": [
         "ai_space_participation",
         "agent_collaboration", 
         "memory_sync",
-        "roleplay_integration"
+        "roleplay_integration",
+        "user_shades_sync",
+        "softmemory_access"
       ]
     }
+  },
+  
+  "deployment": {
+    "type": "docker",
+    "ports": {
+      "backend": 8001,
+      "frontend": 3001
+    },
+    "repository": "https://github.com/MoKangMedical/medroundtable"
   }
 }
