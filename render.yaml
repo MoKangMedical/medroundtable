@@ -1,0 +1,22 @@
+# MedRoundTable Render 部署配置
+# 访问 https://render.com 一键部署
+
+services:
+  - type: web
+    name: medroundtable-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        value: sqlite:///app/data/medroundtable.db
+      - key: CORS_ORIGINS
+        value: https://medroundtable-v2.vercel.app,https://app.secondme.io
