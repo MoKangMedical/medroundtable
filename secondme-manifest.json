@@ -76,12 +76,12 @@
   
   "interfaces": {
     "web": {
-      "url": "http://localhost:3001",
+      "url": "https://medroundtable-v2.vercel.app",
       "width": 1400,
       "height": 900
     },
     "api": {
-      "base_url": "http://localhost:8001",
+      "base_url": "http://43.134.3.158:8001",
       "version": "v1",
       "auth_type": "bearer"
     }
