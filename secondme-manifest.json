@@ -81,7 +81,7 @@
       "height": 900
     },
     "api": {
-      "base_url": "http://43.134.3.158:8001",
+      "base_url": "http://43.134.3.158",
       "version": "v1",
       "auth_type": "bearer"
     }
