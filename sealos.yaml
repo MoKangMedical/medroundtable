@@ -1,0 +1,81 @@
+# Sealos 部署配置
+# 国内云原生平台，支持一键部署
+# 官网: https://sealos.io / https://cloud.sealos.cn
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medroundtable-api
+  labels:
+    app: medroundtable-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: medroundtable-api
+  template:
+    metadata:
+      labels:
+        app: medroundtable-api
+    spec:
+      containers:
+      - name: api
+        image: medroundtable-api:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medroundtable-secrets
+              key: secret-key
+        - name: DEBUG
+          value: "false"
+        - name: DATABASE_URL
+          value: "sqlite:///app/data/medroundtable.db"
+        - name: CORS_ORIGINS
+          value: "https://medroundtable-v2.vercel.app,https://app.secondme.io"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: medroundtable-api-service
+spec:
+  selector:
+    app: medroundtable-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medroundtable-api-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - api.medroundtable.com
+    secretName: medroundtable-tls
+  rules:
+  - host: api.medroundtable.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: medroundtable-api-service
+            port:
+              number: 80
