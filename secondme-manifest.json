@@ -1,117 +1,95 @@
 {
-  "schema_version": "1.0",
-  "name": "MedRoundTable",
-  "display_name": "临床科研圆桌会",
-  "description": "全球首个基于A2A架构的医学科研协作平台 - 五位专业AI Agent实现从临床问题到科研成果的全流程自动化协作",
+  "manifest_version": "1.0",
+  "app_name": "MedRoundTable",
+  "app_description": "全球首个基于A2A架构的医学科研协作平台",
   "version": "1.0.0",
   "author": "MoKangMedical",
-  "license": "MIT",
-  "homepage": "https://github.com/MoKangMedical/medroundtable",
-  "icon": "https://raw.githubusercontent.com/MoKangMedical/medroundtable/main/frontend/assets/doctors.jpg",
+  "website": "https://medroundtable-v2.vercel.app",
+  "icon_url": "https://medroundtable-v2.vercel.app/logo.png",
   
   "a2a_protocol": {
     "version": "1.0",
-    "capabilities": [
-      "agent_discovery",
-      "agent_communication",
-      "task_orchestration",
-      "memory_sharing",
-      "oauth_integration"
-    ],
-    "endpoints": {
-      "discovery": "/api/a2a/discovery",
-      "message": "/api/a2a/message",
-      "task": "/api/a2a/task",
-      "webhook": "/api/a2a/webhook/secondme"
-    }
+    "discovery_endpoint": "https://medroundtable.zeabur.app/a2a/discovery",
+    "messaging_endpoint": "https://medroundtable.zeabur.app/a2a/message",
+    "task_endpoint": "https://medroundtable.zeabur.app/a2a/tasks"
   },
   
   "agents": [
     {
-      "id": "clinical_director",
-      "name": "资深临床主任",
-      "role": "clinical_problem_identification",
-      "avatar": "👨‍⚕️",
-      "description": "识别临床科研价值，提出研究假设，评估可行性",
-      "skills": ["临床问题识别", "研究价值评估", "可行性判断"],
-      "personality": "权威、严谨、经验丰富"
+      "id": "clinical-director",
+      "name": "临床主任",
+      "description": "临床研究方向规划专家",
+      "skills": ["研究设计", "方向规划", "文献指导"],
+      "endpoint": "https://medroundtable.zeabur.app/agents/clinical-director"
     },
     {
-      "id": "phd_student", 
-      "name": "临床博士生",
-      "role": "research_coordination",
-      "avatar": "📚",
-      "description": "文献检索、综述撰写、协调推进",
-      "skills": ["文献检索", "综述撰写", "进度管理", "伦理申请"],
-      "personality": "勤奋、细致、好学"
+      "id": "phd-student",
+      "name": "博士生",
+      "description": "实验设计与数据分析专家",
+      "skills": ["实验设计", "统计分析", "论文写作"],
+      "endpoint": "https://medroundtable.zeabur.app/agents/phd-student"
     },
     {
       "id": "epidemiologist",
-      "name": "临床流行病学专家", 
-      "role": "study_design",
-      "avatar": "📊",
-      "description": "研究设计、纳入排除标准制定、质量控制",
-      "skills": ["研究设计", "标准制定", "质量控制", "偏倚评估"],
-      "personality": "专业、系统、注重细节"
+      "name": "流行病学家",
+      "description": "流行病学研究专家",
+      "skills": ["队列研究", "病例对照", "生存分析"],
+      "endpoint": "https://medroundtable.zeabur.app/agents/epidemiologist"
     },
     {
       "id": "statistician",
-      "name": "数据统计专家",
-      "role": "statistical_analysis",
-      "avatar": "📈", 
-      "description": "CRF设计、统计分析、图表生成",
-      "skills": ["统计分析", "CRF设计", "数据可视化", "样本量计算"],
-      "personality": "精确、逻辑性强、数据驱动"
+      "name": "统计专家",
+      "description": "医学统计专家",
+      "skills": ["统计方法", "R语言", "样本量计算"],
+      "endpoint": "https://medroundtable.zeabur.app/agents/statistician"
     },
     {
-      "id": "research_nurse",
+      "id": "research-nurse",
       "name": "研究护士",
-      "role": "data_collection",
-      "avatar": "👩‍⚕️",
-      "description": "数据采集、质量核查、操作规范",
-      "skills": ["数据采集", "质量控制", "GCP合规", "患者随访"],
-      "personality": "细心、耐心、执行力强"
+      "description": "临床研究执行专家",
+      "skills": ["CRF设计", "数据管理", "伦理规范"],
+      "endpoint": "https://medroundtable.zeabur.app/agents/research-nurse"
     }
   ],
   
-  "interfaces": {
-    "web": {
-      "url": "https://medroundtable-v2.vercel.app",
-      "width": 1400,
-      "height": 900
-    },
-    "api": {
-      "base_url": "http://43.134.3.158",
-      "version": "v1",
-      "auth_type": "bearer"
-    }
+  "oauth2": {
+    "authorization_endpoint": "https://go.second.me/oauth/authorize",
+    "token_endpoint": "https://medroundtable.zeabur.app/api/auth/token",
+    "scopes": ["profile", "email", "shades:read", "softmemory:read"],
+    "redirect_uris": [
+      "https://medroundtable.zeabur.app/api/auth/callback",
+      "https://medroundtable-v2.vercel.app/auth/callback"
+    ]
   },
   
-  "integration": {
-    "second_me": {
-      "compatible": true,
-      "oauth": {
-        "enabled": true,
-        "login_url": "/api/auth/login",
-        "callback_url": "/api/auth/callback"
+  "webhooks": {
+    "events": ["task.completed", "message.received", "agent.assigned"],
+    "endpoint": "https://medroundtable.zeabur.app/webhooks/secondme"
+  },
+  
+  "pricing": {
+    "currency": "CNY",
+    "plans": [
+      {
+        "id": "free",
+        "name": "免费版",
+        "price": 0,
+        "description": "基础科研协作功能"
       },
-      "features": [
-        "ai_space_participation",
-        "agent_collaboration", 
-        "memory_sync",
-        "roleplay_integration",
-        "user_shades_sync",
-        "softmemory_access"
-      ]
-    }
-  },
-  
-  "deployment": {
-    "type": "docker",
-    "ports": {
-      "backend": 8001,
-      "frontend": 3001
-    },
-    "repository": "https://github.com/MoKangMedical/medroundtable"
+      {
+        "id": "pro",
+        "name": "专业版",
+        "price": 299,
+        "period": "month",
+        "description": "AI专家无限对话"
+      },
+      {
+        "id": "team",
+        "name": "团队版",
+        "price": 999,
+        "period": "month",
+        "description": "5人团队协作"
+      }
+    ]
   }
 }

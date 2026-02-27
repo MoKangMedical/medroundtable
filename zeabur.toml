@@ -1,29 +1,18 @@
-# Zeabur 部署配置
-# 国内访问友好的 Serverless 平台
-# 官网: https://zeabur.com
+name = "medroundtable"
 
 [build]
-type = "python"
+builder = "DOCKERFILE"
+dockerfile = "Dockerfile"
 
-[run]
-type = "python"
-command = "uvicorn backend.main:app --host 0.0.0.0 --port 8080"
+[deploy]
+startCommand = ""
+healthCheckPath = "/health"
+healthCheckPort = 8000
+autoDeploy = true
 
 [env]
-PYTHON_VERSION = "3.11"
-
-[[env_var]]
-key = "SECRET_KEY"
-generate = true
-
-[[env_var]]
-key = "DEBUG"
-value = "false"
-
-[[env_var]]
-key = "DATABASE_URL"
-value = "sqlite:///app/data/medroundtable.db"
-
-[[env_var]]
-key = "CORS_ORIGINS"
-value = "https://medroundtable-v2.vercel.app,https://app.secondme.io"
+DATABASE_URL = { default = "sqlite:///data/medroundtable.db" }
+SECRET_KEY = { default = "eb2154a3c1538854c69186a8c42482225b796c6ac0cfd068a3e4bdfe6606bcb1" }
+ALLOWED_ORIGINS = { default = "https://medroundtable-v2.vercel.app,https://medroundtable.zeabur.app" }
+CORS_ORIGINS = { default = "https://medroundtable-v2.vercel.app,https://medroundtable.zeabur.app" }
+SECONDME_REDIRECT_URI = { default = "https://medroundtable.zeabur.app/api/auth/callback" }
