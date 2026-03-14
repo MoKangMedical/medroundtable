@@ -2,14 +2,38 @@
   "version": 2,
   "builds": [
     {
-      "src": "frontend/index.html",
+      "src": "backend/main.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "frontend/**",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/docs",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/redoc",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/frontend/(.*)",
+      "dest": "/frontend/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
-  ]
+  ],
+  "env": {
+    "SECRET_KEY": "medroundtable-v2-production-secret-key-2026",
+    "ACCESS_TOKEN_EXPIRE_DAYS": "7"
+  }
 }

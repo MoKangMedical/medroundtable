@@ -65,8 +65,15 @@ roundtables: Dict[str, RoundTable] = {}
 async def root():
     return {
         "name": "MedRoundTable API",
-        "version": "1.0.0",
-        "description": "A2A 医学科研协作平台"
+        "version": "2.0.0",
+        "description": "A2A 医学科研协作平台 - 整合997项技能",
+        "features": ["V1.0 圆桌协作", "V2.0 技能市场", "V2.0 数据库浏览器", "V2.0 临床试验设计"],
+        "docs": {
+            "v1": "/api/v1/",
+            "v2": "/api/v2/",
+            "swagger": "/docs",
+            "redoc": "/redoc"
+        }
     }
 
 @app.get("/health")
@@ -340,7 +347,25 @@ async def startup_event():
     print("🚀 MedRoundTable API 启动成功")
     print("📚 文档地址: http://localhost:8000/docs")
 
-# 注册路由
+# ============ V2.0 新增：技能市场与数据库API ============
+
+# 技能市场API
+from backend.routes.skills.marketplace import router as skills_router
+app.include_router(skills_router, prefix="/api/v2")
+
+# 生物医学数据库API
+from backend.routes.databases.biomedical import router as databases_router
+app.include_router(databases_router, prefix="/api/v2")
+
+# 临床试验设计API
+from backend.routes.trials.designer import router as trials_router
+app.include_router(trials_router, prefix="/api/v2")
+
+# ============ 自研认证系统 (替代Second Me OAuth) ============
+from backend.routes.auth.custom_auth import router as auth_router
+app.include_router(auth_router)
+
+# 注册原有路由
 from backend.routes.export import router as export_router
 from backend.routes.literature import router as literature_router
 from backend.routes.templates import router as templates_router
@@ -351,9 +376,54 @@ app.include_router(literature_router)
 app.include_router(templates_router)
 app.include_router(user_router)
 
-# ============ Second Me A2A 集成 ============
+# ============ A2A 集成 (可选，不依赖Second Me) ============
+# 注意：A2A功能现在不强制依赖Second Me OAuth
 from backend.a2a_integration import router as a2a_router
 app.include_router(a2a_router)
+
+# ============ V2.0 API 概览端点 ============
+@app.get("/api/v2/")
+async def api_v2_root():
+    """V2.0 API 概览"""
+    return {
+        "version": "2.0.0",
+        "name": "MedRoundTable API V2",
+        "description": "整合997项技能的医学科研协作平台",
+        "features": [
+            "50+专业Agent协作",
+            "997项技能市场",
+            "40+生物医学数据库",
+            "智能临床试验设计",
+            "生物信息学分析",
+            "AI研究辅助"
+        ],
+        "endpoints": {
+            "skills": "/api/v2/skills/",
+            "databases": "/api/v2/databases/",
+            "trials": "/api/v2/trials/",
+            "agents": "/api/v1/agents",
+            "roundtables": "/api/v1/roundtables"
+        }
+    }
+
+@app.get("/api/v2/stats")
+async def api_v2_stats():
+    """V2.0 平台统计"""
+    from skills.registry import skill_registry
+    
+    return {
+        "skills": skill_registry.get_stats(),
+        "databases": {
+            "total": 17,
+            "categories": ["文献", "临床试验", "药物", "基因组", "蛋白质", "通路", "疾病", "法规"]
+        },
+        "agents": {
+            "total": 50,
+            "categories": ["临床", "研究", "生信", "法规"]
+        },
+        "version": "2.0.0",
+        "status": "operational"
+    }
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

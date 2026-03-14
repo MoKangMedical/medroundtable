@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRoundTable - 登录</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            font-size: 1.8rem;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        .logo p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+        .divider {
+            text-align: center;
+            margin: 24px 0;
+            position: relative;
+        }
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+        }
+        .divider span {
+            background: white;
+            padding: 0 16px;
+            color: #6b7280;
+            font-size: 0.875rem;
+            position: relative;
+        }
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .links a {
+            color: #4f46e5;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .alert-success {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+        .role-select {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .role-option {
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .role-option:hover {
+            border-color: #4f46e5;
+        }
+        .role-option.selected {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+        .role-option input {
+            display: none;
+        }
+        .tab-switch {
+            display: flex;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+        .tab.active {
+            color: #4f46e5;
+            border-bottom-color: #4f46e5;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🏥 MedRoundTable</h1>
+            <p>医学科研协作平台</p>
+        </div>
+
+        <div class="tab-switch">
+            <div class="tab active" onclick="switchTab('login')">登录</div>
+            <div class="tab" onclick="switchTab('register')">注册</div>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <!-- 登录表单 -->
+        <div id="login-tab" class="tab-content active">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">邮箱</label>
+                    <input type="email" id="login-email" name="email" required 
+                           placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" name="password" required 
+                           placeholder="请输入密码">
+                </div>
+                <button type="submit" class="btn btn-primary">登录</button>
+            </form>
+            <div class="links">
+                <a href="#" onclick="showForgotPassword()">忘记密码？</a>
+            </div>
+        </div>
+
+        <!-- 注册表单 -->
+        <div id="register-tab" class="tab-content">
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="reg-username">用户名</label>
+                    <input type="text" id="reg-username" name="username" required 
+                           placeholder="设置用户名">
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">邮箱</label>
+                    <input type="email" id="reg-email" name="email" required 
+                           placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">密码</label>
+                    <input type="password" id="reg-password" name="password" required 
+                           placeholder="至少8位字符">
+                </div>
+                <div class="form-group">
+                    <label for="reg-fullname">真实姓名</label>
+                    <input type="text" id="reg-fullname" name="full_name" 
+                           placeholder="您的真实姓名">
+                </div>
+                <div class="form-group">
+                    <label>身份角色</label>
+                    <div class="role-select">
+                        <label class="role-option selected">
+                            <input type="radio" name="role" value="researcher" checked>
+                            <div>👨‍🔬 研究员</div>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="clinician">
+                            <div>👨‍⚕️ 临床医生</div>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="student">
+                            <div>🎓 学生</div>
+                        </label>
+                        <label class="role-option">
+                            <input type="radio" name="role" value="guest">
+                            <div>👤 访客</div>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reg-institution">机构/医院</label>
+                    <input type="text" id="reg-institution" name="institution" 
+                           placeholder="例如：北京协和医院">
+                </div>
+                <div class="form-group">
+                    <label for="reg-department">科室/部门</label>
+                    <input type="text" id="reg-department" name="department" 
+                           placeholder="例如：心内科">
+                </div>
+                <button type="submit" class="btn btn-primary">注册</button>
+            </form>
+        </div>
+
+        <div class="divider">
+            <span>测试账号</span>
+        </div>
+
+        <div style="text-align: center; font-size: 0.85rem; color: #6b7280;">
+            <p>管理员: admin@medroundtable.com / admin123</p>
+            <p>研究员: researcher@medroundtable.com / research123</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin.replace(':8888', ':8000'); // 根据实际部署调整
+
+        // 切换标签页
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + '-tab').classList.add('active');
+        }
+
+        // 显示提示
+        function showAlert(message, type = 'error') {
+            const alert = document.getElementById('alert');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 5000);
+        }
+
+        // 登录表单提交
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v2/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 保存token
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showAlert('登录成功！', 'success');
+                    // 跳转到主页
+                    setTimeout(() => window.location.href = '/index.html', 1000);
+                } else {
+                    showAlert(data.detail || '登录失败');
+                }
+            } catch (error) {
+                showAlert('网络错误，请稍后重试');
+            }
+        });
+
+        // 注册表单提交
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                username: document.getElementById('reg-username').value,
+                email: document.getElementById('reg-email').value,
+                password: document.getElementById('reg-password').value,
+                full_name: document.getElementById('reg-fullname').value,
+                role: document.querySelector('input[name="role"]:checked').value,
+                institution: document.getElementById('reg-institution').value,
+                department: document.getElementById('reg-department').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/v2/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showAlert('注册成功！', 'success');
+                    setTimeout(() => window.location.href = '/index.html', 1000);
+                } else {
+                    showAlert(data.detail || '注册失败');
+                }
+            } catch (error) {
+                showAlert('网络错误，请稍后重试');
+            }
+        });
+
+        // 角色选择
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                option.querySelector('input').checked = true;
+            });
+        });
+
+        // 忘记密码
+        function showForgotPassword() {
+            const email = prompt('请输入您的注册邮箱：');
+            if (email) {
+                fetch(`${API_BASE_URL}/api/v2/auth/password/reset`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                })
+                .then(() => showAlert('如果该邮箱存在，我们将发送重置链接', 'success'))
+                .catch(() => showAlert('请求失败'));
+            }
+        }
+
+        // 检查是否已登录
+        if (localStorage.getItem('access_token')) {
+            // 可选：自动跳转到主页
+            // window.location.href = '/index.html';
+        }
+    </script>
+</body>
+</html>

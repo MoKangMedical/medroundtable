@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRoundTable V2.0 - 演示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        .stat-label {
+            color: #6b7280;
+            margin-top: 8px;
+        }
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .api-list {
+            display: grid;
+            gap: 12px;
+        }
+        .api-item {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #4f46e5;
+        }
+        .api-method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        .method-get { background: #dbeafe; color: #1e40af; }
+        .method-post { background: #d1fae5; color: #065f46; }
+        .api-path {
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #374151;
+        }
+        .api-desc {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .skill-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        .skill-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .badge-literature { background: #6366f1; }
+        .badge-trial { background: #14b8a6; }
+        .badge-clinical { background: #10b981; }
+        .badge-bio { background: #8b5cf6; }
+        .skill-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        .skill-desc {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .test-btn {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+        .test-btn:hover {
+            background: #4338ca;
+        }
+        .code-block {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.875rem;
+            margin-top: 16px;
+        }
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 MedRoundTable V2.0</h1>
+            <p>整合 997 项技能的医学科研协作平台</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">997</div>
+                <div class="stat-label">总技能数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">40+</div>
+                <div class="stat-label">数据库</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">API端点</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">专业Agent</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔧 技能市场 API</h2>
+            <div class="api-list">
+                <div class="api-item">
+                    <span class="api-method method-get">GET</span>
+                    <span class="api-path">/api/v2/skills/</span>
+                    <div class="api-desc">获取所有技能列表，支持分类筛选</div>
+                </div>
+                <div class="api-item">
+                    <span class="api-method method-get">GET</span>
+                    <span class="api-path">/api/v2/skills/search?q={query}</span>
+                    <div class="api-desc">搜索技能</div>
+                </div>
+                <div class="api-item">
+                    <span class="api-method method-get">GET</span>
+                    <span class="api-path">/api/v2/skills/categories</span>
+                    <div class="api-desc">获取技能分类</div>
+                </div>
+                <div class="api-item">
+                    <span class="api-method method-post">POST</span>
+                    <span class="api-path">/api/v2/skills/{id}/invoke</span>
+                    <div class="api-desc">调用指定技能</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🗄️ 数据库浏览器 API</h2>
+            <div class="api-list">
+                <div class="api-item">
+                    <span class="api-method method-get">GET</span>
+                    <span class="api-path">/api/v2/databases/</span>
+                    <div class="api-desc">获取所有数据库列表 (PubMed, ClinicalTrials, DrugBank等)</div>
+                </div>
+                <div class="api-item">
+                    <span class="api-method method-post">POST</span>
+                    <span class="api-path">/api/v2/databases/query</span>
+                    <div class="api-desc">统一查询接口</div>
+                </div>
+                <div class="api-item">
+                    <span class="api-method method-get">GET</span>
+                    <span class="api-path">/api/v2/databases/pubmed/advanced</span>
+                    <div class="api-desc">高级PubMed搜索</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🏥 临床试验设计器 API</h2>
+            <div class="api-list">
+                <div class="api-item">
+                    <span class="api-method method-post">POST</span>
+                    <span class="api-path">/api/v2/trials/design</span>
+                    <div class="api-desc">智能生成临床试验方案</div>
+                </div>
+                <div class="api-item">
+                    <span class="api-method method-post">POST</span>
+                    <span class="api-path">/api/v2/trials/eligibility</span>
+                    <div class="api-desc">患者入排标准评估</div>
+                </div>
+                <div class="api-item">
+                    <span class="api-method method-post">POST</span>
+                    <span class="api-path">/api/v2/trials/match</span>
+                    <div class="api-desc">患者-试验智能匹配</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📚 示例技能 (40项核心)</h2>
+            <div class="skill-grid">
+                <div class="skill-card">
+                    <span class="skill-badge badge-literature">文献</span>
+                    <div class="skill-name">PubMed搜索</div>
+                    <div class="skill-desc">PubMed文献高级检索</div>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-badge badge-trial">临床试验</span>
+                    <div class="skill-name">试验设计</div>
+                    <div class="skill-desc">智能临床试验方案生成</div>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-badge badge-clinical">临床</span>
+                    <div class="skill-name">临床决策支持</div>
+                    <div class="skill-desc">AI辅助临床决策</div>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-badge badge-bio">生物信息</span>
+                    <div class="skill-name">单细胞分析</div>
+                    <div class="skill-desc">scRNA-seq数据分析</div>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-badge badge-trial">临床试验</span>
+                    <div class="skill-name">患者匹配</div>
+                    <div class="skill-desc">患者-试验智能匹配</div>
+                </div>
+                <div class="skill-card">
+                    <span class="skill-badge badge-literature">文献</span>
+                    <div class="skill-name">文献综述</div>
+                    <div class="skill-desc">自动生成文献综述</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🚀 快速测试</h2>
+            <p>使用以下命令测试API：</p>
+            <div class="code-block">
+# 查看V2 API概览
+curl http://localhost:8000/api/v2/
+
+# 获取技能列表
+curl http://localhost:8000/api/v2/skills/
+
+# 搜索技能
+curl "http://localhost:8000/api/v2/skills/search?q=pubmed"
+
+# 获取数据库列表
+curl http://localhost:8000/api/v2/databases/
+
+# 设计临床试验
+curl -X POST http://localhost:8000/api/v2/trials/design \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "糖尿病新药III期试验",
+    "disease": "2型糖尿病",
+    "intervention": "GLP-1受体激动剂",
+    "study_type": "RCT",
+    "phase": "PHASE_III",
+    "primary_endpoint": "HbA1c较基线变化"
+  }'
+            </div>
+            <button class="test-btn" onclick="alert('请复制上方命令到终端执行')">📋 复制测试命令</button>
+        </div>
+
+        <div class="section">
+            <h2>📁 项目文档</h2>
+            <ul style="line-height: 2;">
+                <li>📄 <strong>整合报告</strong>: MEDROUNDTABLE_V2_INTEGRATION_REPORT.md</li>
+                <li>📄 <strong>升级方案</strong>: docs/MEDROUNDTABLE_V2_UPGRADE_PLAN.md</li>
+                <li>📄 <strong>技能总表</strong>: docs/COMPLETE_SKILLS_INVENTORY.md</li>
+                <li>🔧 <strong>测试脚本</strong>: test-v2-api.sh</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>MedRoundTable V2.0 | 整合 997 项技能 | 为大圣的医学科研事业助力 🌸💜</p>
+            <p>完成时间: 2026-03-14</p>
+        </div>
+    </div>
+</body>
+</html>
