@@ -1,11 +1,12 @@
 # MedRoundTable Render 部署配置
-# 访问 https://render.com 一键部署
+# 一键部署：https://render.com/deploy?repo=https://github.com/MoKangMedical/medroundtable
 
 services:
   - type: web
     name: medroundtable-api
     runtime: python
     plan: free
+    branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
@@ -13,10 +14,18 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: SECRET_KEY
-        generateValue: true
+        value: 0a1267066319f509476a44ea41c17798df616b97f93882b7d5e6ed88c065b475
       - key: DEBUG
         value: false
       - key: DATABASE_URL
         value: sqlite:///app/data/medroundtable.db
       - key: CORS_ORIGINS
         value: https://medroundtable-v2.vercel.app,https://app.secondme.io
+      - key: SECONDME_CLIENT_ID
+        value: 19b5f08b-2256-41aa-b196-2f98491099f7
+      - key: SECONDME_CLIENT_SECRET
+        value: f9f406e3d8dc4fe8e8363853865e1afea2957e7b0a33d75e96cbc5a22c4c20f3
+      - key: SECONDME_REDIRECT_URI
+        value: https://medroundtable-api.onrender.com/api/auth/callback
+      - key: SECONDME_API_BASE
+        value: https://api.mindverse.com/gate/lab
