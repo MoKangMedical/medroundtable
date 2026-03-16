@@ -1,4 +1,4 @@
-# Railway 部署配置
+# MedRoundTable Railway 部署配置
 # 访问 https://railway.app 一键部署
 
 [build]
@@ -10,3 +10,13 @@ healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 10
+
+[variables]
+SECRET_KEY = "0a1267066319f509476a44ea41c17798df616b97f93882b7d5e6ed88c065b475"
+DEBUG = "false"
+DATABASE_URL = "sqlite:///app/data/medroundtable.db"
+CORS_ORIGINS = "https://medroundtable-v2.vercel.app,https://app.secondme.io"
+SECONDME_CLIENT_ID = "19b5f08b-2256-41aa-b196-2f98491099f7"
+SECONDME_CLIENT_SECRET = "f9f406e3d8dc4fe8e8363853865e1afea2957e7b0a33d75e96cbc5a22c4c20f3"
+SECONDME_REDIRECT_URI = "https://medroundtable-api.railway.app/api/auth/callback"
+SECONDME_API_BASE = "https://api.mindverse.com/gate/lab"
