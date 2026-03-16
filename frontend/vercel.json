@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/roundtables/(.*)",
+      "dest": "/roundtables.html"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "https://medroundtable-api.onrender.com/api/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/roundtables/:id",
+      "destination": "/roundtables.html"
+    }
+  ]
+}

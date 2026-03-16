@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRoundTable - 科研圆桌</title>
+    <script>
+        // 单页应用路由处理
+        const path = window.location.pathname;
+        if (path.startsWith('/roundtables/')) {
+            const id = path.split('/')[2];
+            sessionStorage.setItem('roundtable_id', id);
+            window.location.href = '/index.html?roundtable=' + id;
+        } else {
+            window.location.href = '/index.html';
+        }
+    </script>
+</head>
+<body>
+    <p>正在跳转...</p>
+</body>
+</html>
