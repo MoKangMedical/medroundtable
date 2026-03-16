@@ -13,6 +13,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: PYTHONPATH
+        value: /app
       - key: SECRET_KEY
         value: 0a1267066319f509476a44ea41c17798df616b97f93882b7d5e6ed88c065b475
       - key: DEBUG
