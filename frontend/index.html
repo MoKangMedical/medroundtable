@@ -716,8 +716,13 @@
         // 测试JavaScript是否正常工作
         console.log('✅ JavaScript 加载成功');
         
-        // API 配置
-        const API_BASE = 'https://specialists-shot-chuck-accepted.trycloudflare.com';
+        // API 配置 - 使用 Render 后端
+        const API_BASE = 'https://medroundtable-api.onrender.com';
+        
+        // 模拟数据模式（当后端不可用时使用）
+        const MOCK_MODE = true;
+        let mockSessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+        let mockSessionId = parseInt(localStorage.getItem('mockSessionId') || '0');
 
         // 全局状态
         let currentSessionId = null;
@@ -894,11 +899,23 @@
         
         async function loadSessions() {
             try {
-                const response = await fetch(`${API_BASE}/api/v1/roundtables`);
-                const sessions = await response.json();
+                let sessions;
+                
+                if (MOCK_MODE) {
+                    // 模拟模式：从本地存储加载
+                    sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                    console.log('模拟模式加载会话:', sessions);
+                } else {
+                    // 真实 API 模式
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables`);
+                    sessions = await response.json();
+                }
+                
                 renderSessionList(sessions);
             } catch (err) {
                 console.error('Failed to load sessions:', err);
+                // 如果加载失败，显示空列表
+                renderSessionList([]);
             }
         }
 
@@ -991,21 +1008,42 @@
             console.log('步骤3: 准备发送请求到', API_BASE);
 
             try {
-                console.log('步骤4: 发送创建请求');
-                const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, clinical_question: question })
-                });
+                let session;
                 
-                console.log('步骤5: 收到响应', response.status);
-                
-                if (!response.ok) {
-                    throw new Error('HTTP error! status: ' + response.status);
+                if (MOCK_MODE) {
+                    // 模拟模式：创建本地会话
+                    console.log('步骤4: 模拟模式创建会话');
+                    mockSessionId++;
+                    session = {
+                        id: mockSessionId,
+                        title: title,
+                        clinical_question: question,
+                        status: 'active',
+                        created_at: new Date().toISOString(),
+                        participants: ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse']
+                    };
+                    mockSessions.push(session);
+                    localStorage.setItem('mockSessions', JSON.stringify(mockSessions));
+                    localStorage.setItem('mockSessionId', mockSessionId.toString());
+                    console.log('步骤5: 模拟会话创建成功', session);
+                } else {
+                    // 真实 API 模式
+                    console.log('步骤4: 发送创建请求');
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, clinical_question: question })
+                    });
+                    
+                    console.log('步骤5: 收到响应', response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    
+                    session = await response.json();
+                    console.log('步骤6: 解析响应', session);
                 }
-                
-                const session = await response.json();
-                console.log('步骤6: 解析响应', session);
                 
                 console.log('步骤7: 关闭模态框');
                 closeModal('newSessionModal');
