@@ -283,6 +283,15 @@
                 'epidemiologist': '流行病学家',
                 'statistician': '统计专家',
                 'research_nurse': '研究护士',
+                'clawbio_pharmgx': '药物基因组学专家',
+                'clawbio_gwas': 'GWAS专家',
+                'clawbio_sc_rna': '单细胞测序分析师',
+                'clawbio_galaxy': 'Galaxy桥接器',
+                'ux_researcher': 'UX研究员',
+                'ai_data_engineer': 'AI数据工程师',
+                'trend_researcher': '趋势研究员',
+                'experiment_tracker': '实验追踪员',
+                'model_qa': '模型QA专家',
                 'user': '我'
             };
             return names[role] || role;
@@ -324,23 +333,48 @@
             showTypingIndicator();
             
             if (MOCK_MODE) {
-                // 模拟模式：2秒后显示专家回复
+                // 模拟模式：2秒后显示专家回复 - 14个Agent轮流回复
                 setTimeout(() => {
                     hideTypingIndicator();
                     
-                    const responses = [
-                        { role: 'clinical_director', content: '这是一个很有价值的临床问题。从循证医学角度来看，我建议我们先进行系统性文献回顾，了解当前研究的现状和空白。' },
-                        { role: 'phd_student', content: '我已经开始检索相关文献。初步发现有12篇相关研究，但大多数样本量较小。我们可以考虑设计一个多中心研究。' },
-                        { role: 'epidemiologist', content: '从研究设计角度，我建议采用前瞻性队列研究。样本量计算需要基于预期的效应值，我可以稍后给出具体计算。' },
-                        { role: 'statistician', content: '关于统计分析，我建议采用混合效应模型来处理多中心数据的聚类问题。我也会设计相应的CRF表格。' },
-                        { role: 'research_nurse', content: '从执行角度，我们需要考虑患者招募策略和数据质量控制。我建议制定详细的SOP文件。' }
-                    ];
+                    // 根据消息内容选择相关度最高的专家回复
+                    const content_lower = content.toLowerCase();
+                    let selectedAgent = null;
                     
-                    // 随机选择一个专家回复
-                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    // 关键词匹配选择Agent
+                    if (content_lower.includes('基因') || content_lower.includes('药物') || content_lower.includes('用药')) {
+                        selectedAgent = { role: 'clawbio_pharmgx', content: '基于药物基因组学分析，我建议检测CYP2D6、CYP2C19等核心基因。根据CPIC指南，这可以帮助预测患者对特定药物的代谢能力，实现真正的个性化用药。' };
+                    } else if (content_lower.includes('gwas') || content_lower.includes('变异') || content_lower.includes('snp')) {
+                        selectedAgent = { role: 'clawbio_gwas', content: '我已查询了GWAS Catalog和ClinVar数据库。发现该疾病有47个显著相关的SNP位点，其中rs1801133在多个人群中都显示出强关联性（p < 5e-8）。' };
+                    } else if (content_lower.includes('单细胞') || content_lower.includes('scrna') || content_lower.includes('细胞')) {
+                        selectedAgent = { role: 'clawbio_sc_rna', content: '单细胞测序分析显示，该疾病涉及3种主要细胞类型的异常。UMAP聚类图显示清晰的细胞亚群分离，差异表达分析鉴定出156个关键标记基因。' };
+                    } else if (content_lower.includes('工具') || content_lower.includes('分析') || content_lower.includes('workflow')) {
+                        selectedAgent = { role: 'clawbio_galaxy', content: '根据您的分析需求，我推荐以下Galaxy工具组合：FastQC进行质控 → STAR比对 → featureCounts定量 → DESeq2差异分析。整个工作流已配置好，可以直接运行。' };
+                    } else if (content_lower.includes('用户') || content_lower.includes('体验') || content_lower.includes('界面')) {
+                        selectedAgent = { role: 'ux_researcher', content: '从用户体验研究角度，我建议进行可用性测试。可以设计5-8个典型任务，观察用户完成时间和错误率，收集定性反馈来优化研究工具的设计。' };
+                    } else if (content_lower.includes('数据') || content_lower.includes('质量') || content_lower.includes('清洗')) {
+                        selectedAgent = { role: 'ai_data_engineer', content: '我检测到数据中存在12%的缺失值和3个异常值。建议使用多重插补法处理缺失数据，对异常值进行敏感性分析。我已自动生成数据修复脚本。' };
+                    } else if (content_lower.includes('趋势') || content_lower.includes('市场') || content_lower.includes('竞争')) {
+                        selectedAgent = { role: 'trend_researcher', content: '根据最新市场情报分析，该研究领域在过去3年增长了340%，吸引了大量投资。竞争格局显示前3名机构占据了65%的研究资源，建议寻找差异化定位。' };
+                    } else if (content_lower.includes('实验') || content_lower.includes('ab测试') || content_lower.includes('假设')) {
+                        selectedAgent = { role: 'experiment_tracker', content: '我设计了严格的A/B测试方案：对照组和干预组各需要150例样本，检验效能80%，显著性水平0.05。随机化采用分层区组设计，确保基线均衡。' };
+                    } else if (content_lower.includes('模型') || content_lower.includes('算法') || content_lower.includes('偏差')) {
+                        selectedAgent = { role: 'model_qa', content: '我对当前AI模型进行了全面测试。发现准确率达到92.3%，但在特定亚组中存在轻微偏差（<5%）。建议增加该亚组的训练数据，并进行公平性评估。' };
+                    } else {
+                        // 默认选择核心临床团队
+                        const coreResponses = [
+                            { role: 'clinical_director', content: '这是一个很有价值的临床问题。从循证医学角度来看，我建议我们先进行系统性文献回顾，了解当前研究的现状和空白。我会评估这个研究的临床意义和创新点。' },
+                            { role: 'phd_student', content: '我已经开始检索PubMed和Cochrane数据库。初步发现12篇相关RCT研究，但大多数样本量较小且存在选择偏倚。我建议我们设计一个多中心、大样本的研究来弥补这些不足。' },
+                            { role: 'epidemiologist', content: '从研究设计角度，我建议采用前瞻性队列研究设计。样本量计算显示需要至少300例才能达到80%的检验效能。我会设计严格的纳入排除标准来控制混杂因素。' },
+                            { role: 'statistician', content: '关于统计分析计划，我建议采用混合效应模型来处理多中心数据的聚类问题。主要终点使用ITT分析，缺失数据采用多重插补法。我会设计相应的CRF表格确保数据质量。' },
+                            { role: 'research_nurse', content: '从执行角度，我们需要考虑患者招募策略和数据质量控制。我建议制定详细的SOP文件，培训所有研究中心的研究人员，并建立实时数据监控系统。' }
+                        ];
+                        selectedAgent = coreResponses[Math.floor(Math.random() * coreResponses.length)];
+                    }
+                    
                     const agentMessage = {
-                        from_role: response.role,
-                        content: response.content,
+                        from_role: selectedAgent.role,
+                        content: selectedAgent.content,
                         created_at: new Date().toISOString()
                     };
                     

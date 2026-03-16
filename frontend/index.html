@@ -433,80 +433,200 @@
                     </p>
                 </div>
                 
-                <!-- 5位专家角色展示 -->
-                <div class="max-w-5xl mx-auto mb-12">
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <!-- 临床主任 -->
-                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击临床主任'); showAgentDetail('clinical_director');">
-                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all transform hover:-translate-y-1">
-                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-blue-100 group-hover:border-blue-300 transition-colors">
-                                    <img src="./assets/doctor1.png" alt="临床主任" class="w-full h-full object-cover">
+                <!-- 14位专家角色展示 -->
+                <div class="max-w-6xl mx-auto mb-12">
+                    <h3 class="text-xl font-bold text-slate-800 mb-6">
+                        <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">14位 AI 专家</span> 
+                        为您的研究保驾护航
+                    </h3>
+                    
+                    <!-- 核心临床团队 (5个) -->
+                    <div class="mb-8">
+                        <p class="text-sm text-slate-500 mb-4 font-medium">
+                            <i class="fas fa-hospital-user text-blue-500 mr-2"></i>核心临床团队
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <!-- 临床主任 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clinical_director')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-2xl">👨‍⚕️</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">临床主任</h3>
+                                    <p class="text-xs text-slate-500">研究策略制定</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">研究设计</span>
+                                    </div>
                                 </div>
-                                <h3 class="font-bold text-slate-900 mb-1">临床主任</h3>
-                                <p class="text-xs text-slate-500">制定研究策略</p>
-                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
-                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">研究设计</span>
-                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">终点指标</span>
+                            </div>
+                            
+                            <!-- 博士生 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('phd_student')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-emerald-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-2xl">📚</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">博士生</h3>
+                                    <p class="text-xs text-slate-500">文献检索整理</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full">文献综述</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 流行病学家 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('epidemiologist')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-purple-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-2xl">📊</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">流行病学家</h3>
+                                    <p class="text-xs text-slate-500">研究设计质控</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">方案设计</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 统计学家 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('statistician')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-orange-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-2xl">📈</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">统计学家</h3>
+                                    <p class="text-xs text-slate-500">统计分析方案</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">统计分析</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 研究护士 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('research_nurse')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-cyan-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-700 flex items-center justify-center text-2xl">👩‍⚕️</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">研究护士</h3>
+                                    <p class="text-xs text-slate-500">数据质量控制</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full">数据管理</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- 博士生 -->
-                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击博士生'); showAgentDetail('phd_student');">
-                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-emerald-300 transition-all transform hover:-translate-y-1">
-                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-emerald-100 group-hover:border-emerald-300 transition-colors">
-                                    <img src="./assets/doctor2.png" alt="博士生" class="w-full h-full object-cover">
+                    </div>
+                    
+                    <!-- ClawBio 生物信息学套件 (4个) -->
+                    <div class="mb-8">
+                        <p class="text-sm text-slate-500 mb-4 font-medium">
+                            <i class="fas fa-dna text-green-500 mr-2"></i>ClawBio 生物信息学套件
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- 药物基因组学 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_pharmgx')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-green-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-2xl">💊</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">药物基因组学</h3>
+                                    <p class="text-xs text-slate-500">个性化用药</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">PGx分析</span>
+                                    </div>
                                 </div>
-                                <h3 class="font-bold text-slate-900 mb-1">博士生</h3>
-                                <p class="text-xs text-slate-500">整理最新进展</p>
-                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
-                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full">文献检索</span>
-                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full">证据整合</span>
+                            </div>
+                            
+                            <!-- GWAS专家 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_gwas')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-indigo-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-2xl">🧬</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">GWAS专家</h3>
+                                    <p class="text-xs text-slate-500">全基因组关联</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">变异查询</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 单细胞测序 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_sc_rna')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-pink-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center text-2xl">🔬</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">单细胞测序</h3>
+                                    <p class="text-xs text-slate-500">scRNA-seq分析</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full">细胞聚类</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Galaxy桥接器 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_galaxy')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-violet-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-2xl">🌌</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">Galaxy桥接器</h3>
+                                    <p class="text-xs text-slate-500">8000+生信工具</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-violet-100 text-violet-700 text-xs rounded-full">工具编排</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- 流行病学家 -->
-                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击流行病学家'); showAgentDetail('epidemiologist');">
-                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-purple-300 transition-all transform hover:-translate-y-1">
-                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-purple-100 group-hover:border-purple-300 transition-colors">
-                                    <img src="./assets/doctor3.png" alt="流行病学家" class="w-full h-full object-cover">
-                                </div>
-                                <h3 class="font-bold text-slate-900 mb-1">流行病学家</h3>
-                                <p class="text-xs text-slate-500">研究设计质控</p>
-                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
-                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">方案设计</span>
-                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">偏倚控制</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 统计学家 -->
-                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击统计学家'); showAgentDetail('statistician');">
-                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-orange-300 transition-all transform hover:-translate-y-1">
-                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-orange-100 group-hover:border-orange-300 transition-colors">
-                                    <img src="./assets/doctor4.png" alt="统计学家" class="w-full h-full object-cover">
-                                </div>
-                                <h3 class="font-bold text-slate-900 mb-1">统计学家</h3>
-                                <p class="text-xs text-slate-500">统计分析方案</p>
-                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
-                                    <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">样本量</span>
-                                    <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">统计方法</span>
+                    </div>
+                    
+                    <!-- 专业研究Agent (5个) -->
+                    <div class="mb-8">
+                        <p class="text-sm text-slate-500 mb-4 font-medium">
+                            <i class="fas fa-user-graduate text-amber-500 mr-2"></i>专业研究支持团队
+                        </p>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <!-- UX研究员 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('ux_researcher')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-amber-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl">🔬</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">UX研究员</h3>
+                                    <p class="text-xs text-slate-500">用户体验研究</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">用户研究</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <!-- 研究护士 -->
-                        <div class="group cursor-pointer relative z-20" onclick="console.log('点击研究护士'); showAgentDetail('research_nurse');">
-                            <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-cyan-300 transition-all transform hover:-translate-y-1">
-                                <div class="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-4 border-cyan-100 group-hover:border-cyan-300 transition-colors">
-                                    <img src="./assets/doctor5.png" alt="研究护士" class="w-full h-full object-cover">
+                            
+                            <!-- AI数据工程师 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('ai_data_engineer')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-teal-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-2xl">🧬</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">AI数据工程师</h3>
+                                    <p class="text-xs text-slate-500">数据管道修复</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-teal-100 text-teal-700 text-xs rounded-full">数据工程</span>
+                                    </div>
                                 </div>
-                                <h3 class="font-bold text-slate-900 mb-1">研究护士</h3>
-                                <p class="text-xs text-slate-500">执行操作流程</p>
-                                <div class="mt-3 flex flex-wrap gap-1 justify-center">
-                                    <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full">访视流程</span>
-                                    <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full">数据管理</span>
+                            </div>
+                            
+                            <!-- 趋势研究员 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('trend_researcher')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-rose-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-2xl">🔭</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">趋势研究员</h3>
+                                    <p class="text-xs text-slate-500">市场情报分析</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded-full">趋势研究</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 实验追踪员 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('experiment_tracker')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-lime-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-lime-500 to-lime-700 flex items-center justify-center text-2xl">🧪</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">实验追踪员</h3>
+                                    <p class="text-xs text-slate-500">实验设计管理</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-lime-100 text-lime-700 text-xs rounded-full">A/B测试</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 模型QA专家 -->
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('model_qa')">
+                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-sky-300 transition-all transform hover:-translate-y-1">
+                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-2xl">🔬</div>
+                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">模型QA专家</h3>
+                                    <p class="text-xs text-slate-500">AI质量保证</p>
+                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
+                                        <span class="px-2 py-0.5 bg-sky-100 text-sky-700 text-xs rounded-full">偏差检测</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
