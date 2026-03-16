@@ -15,12 +15,16 @@
       }
     },
     {
-      "src": "/roundtables/(.*)",
-      "dest": "/frontend/index.html?roundtable=$1"
+      "src": "/roundtables/",
+      "dest": "/frontend/roundtables/index.html"
     },
     {
       "src": "/roundtables",
-      "dest": "/frontend/roundtables.html"
+      "dest": "/frontend/roundtables/index.html"
+    },
+    {
+      "src": "/roundtables/(.*)",
+      "dest": "/frontend/index.html?roundtable=$1"
     },
     {
       "src": "/login",
