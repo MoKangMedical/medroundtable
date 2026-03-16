@@ -2327,6 +2327,27 @@
             }
             lastTouchEnd = now;
         }, false);
+
+        // ============ 处理圆桌路由 ============
+        
+        function handleRoundtableRoute() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roundtableId = urlParams.get('roundtable') || sessionStorage.getItem('roundtable_id');
+            
+            if (roundtableId) {
+                console.log('Loading roundtable:', roundtableId);
+                // 存储到 sessionStorage
+                sessionStorage.setItem('roundtable_id', roundtableId);
+                // 这里可以调用加载圆桌详情的函数
+                // loadRoundtableDetail(roundtableId);
+                showToast(`正在加载圆桌 #${roundtableId}`, 'info');
+            }
+        }
+
+        // 页面加载时处理路由
+        document.addEventListener('DOMContentLoaded', function() {
+            handleRoundtableRoute();
+        });
     </script>
 </body>
 </html>
