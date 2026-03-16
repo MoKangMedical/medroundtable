@@ -175,6 +175,11 @@
         const MOCK_MODE = true;
         let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
         
+        // 调试信息
+        console.log('=== 圆桌详情页加载 ===');
+        console.log('圆桌ID:', roundtableId);
+        console.log('localStorage mockSessions:', localStorage.getItem('mockSessions'));
+        
         // 加载圆桌信息
         async function loadRoundtableInfo() {
             try {
@@ -182,9 +187,23 @@
                 
                 if (MOCK_MODE) {
                     // 从本地存储查找圆桌
-                    const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
-                    data = sessions.find(s => s.id == roundtableId);
-                    if (!data) throw new Error('Roundtable not found');
+                    const sessionsStr = localStorage.getItem('mockSessions') || '[]';
+                    console.log('读取到的sessions字符串:', sessionsStr);
+                    const sessions = JSON.parse(sessionsStr);
+                    console.log('解析后的sessions:', sessions);
+                    console.log('查找ID:', roundtableId, '类型:', typeof roundtableId);
+                    
+                    data = sessions.find(s => {
+                        console.log('比较:', s.id, '==', roundtableId, '结果:', s.id == roundtableId);
+                        return s.id == roundtableId;
+                    });
+                    
+                    if (!data) {
+                        console.error('未找到圆桌, ID:', roundtableId);
+                        console.error('可用ID列表:', sessions.map(s => s.id));
+                        throw new Error('Roundtable not found in localStorage');
+                    }
+                    console.log('找到圆桌数据:', data);
                 } else {
                     const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}`);
                     if (!response.ok) throw new Error('Failed to load');
@@ -196,7 +215,11 @@
             } catch (err) {
                 console.error('加载圆桌信息失败:', err);
                 document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
-                document.getElementById('roundtableStatus').textContent = '模拟模式';
+                document.getElementById('roundtableStatus').textContent = '未找到 (请重新创建)';
+                
+                // 显示错误提示
+                alert('圆桌不存在或数据已丢失。将返回首页。\n错误: ' + err.message);
+                window.location.href = '/';
             }
         }
         

@@ -1052,13 +1052,19 @@
                 document.getElementById('sessionTitle').value = '';
                 document.getElementById('sessionQuestion').value = '';
                 
-                console.log('步骤9: 开始讨论');
-                await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
+                if (!MOCK_MODE) {
+                    console.log('步骤9: 开始讨论(API模式)');
+                    await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
+                } else {
+                    console.log('步骤9: 模拟模式，跳过API调用');
+                }
                 
                 console.log('步骤10: 加载会话列表');
                 loadSessions();
                 
                 console.log('步骤11: 跳转到圆桌详情页');
+                console.log('跳转URL:', `/roundtables/${session.id}`);
+                console.log('当前localStorage:', localStorage.getItem('mockSessions'));
                 window.location.href = `/roundtables/${session.id}`;
                 
                 console.log('=== submitNewSession 完成 ===');
