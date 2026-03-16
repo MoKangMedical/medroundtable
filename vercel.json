@@ -1,39 +1,30 @@
 {
   "version": 2,
+  "name": "medroundtable",
   "builds": [
     {
       "src": "backend/main.py",
-      "use": "@vercel/python"
-    },
-    {
-      "src": "frontend/**",
-      "use": "@vercel/static"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/docs",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/redoc",
-      "dest": "backend/main.py"
-    },
-    {
-      "src": "/frontend/(.*)",
-      "dest": "/frontend/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "backend/main.py"
     }
   ],
   "env": {
-    "SECRET_KEY": "medroundtable-v2-production-secret-key-2026",
-    "ACCESS_TOKEN_EXPIRE_DAYS": "7"
-  }
+    "PYTHONPATH": ".",
+    "PORT": "8000",
+    "DATABASE_URL": "sqlite:///tmp/medroundtable.db",
+    "SECRET_KEY": "0a1267066319f509476a44ea41c17798df616b97f93882b7d5e6ed88c065b475",
+    "SECONDME_CLIENT_ID": "19b5f08b-2256-41aa-b196-2f98491099f7",
+    "SECONDME_CLIENT_SECRET": "f9f406e3d8dc4fe8e8363853865e1afea2957e7b0a33d75e96cbc5a22c4c20f3",
+    "SECONDME_REDIRECT_URI": "https://medroundtable-v2.vercel.app/api/auth/callback",
+    "SECONDME_API_BASE": "https://api.mindverse.com/gate/lab"
+  },
+  "regions": ["hkg1"]
 }
