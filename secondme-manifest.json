@@ -5,15 +5,15 @@
   "app_description": "全球首个基于A2A架构的医学科研协作平台，14位专业AI Agent实现从临床问题到科研成果的全流程自动化协作",
   "version": "2.0.0",
   "author": "MoKangMedical",
-  "website": "https://medroundtable.zeabur.app",
-  "icon_url": "https://medroundtable.zeabur.app/assets/doctors.jpg",
+  "website": "https://medroundtable-v2.vercel.app",
+  "icon_url": "https://medroundtable-v2.vercel.app/assets/doctors.jpg",
   
   "a2a_protocol": {
     "version": "1.0",
-    "discovery_endpoint": "https://medroundtable.zeabur.app/api/a2a/discovery",
-    "messaging_endpoint": "https://medroundtable.zeabur.app/api/a2a/message",
-    "task_endpoint": "https://medroundtable.zeabur.app/api/a2a/task",
-    "status_endpoint": "https://medroundtable.zeabur.app/api/a2a/status"
+    "discovery_endpoint": "https://medroundtable-v2.vercel.app/api/a2a/discovery",
+    "messaging_endpoint": "https://medroundtable-v2.vercel.app/api/a2a/message",
+    "task_endpoint": "https://medroundtable-v2.vercel.app/api/a2a/task",
+    "status_endpoint": "https://medroundtable-v2.vercel.app/api/a2a/status"
   },
   
   "agents": [
@@ -173,16 +173,16 @@
   
   "oauth2": {
     "authorization_endpoint": "https://go.second.me/oauth/authorize",
-    "token_endpoint": "https://medroundtable.zeabur.app/api/auth/token",
+    "token_endpoint": "https://medroundtable-v2.vercel.app/api/auth/token",
     "scopes": ["profile", "email", "shades:read", "softmemory:read"],
     "redirect_uris": [
-      "https://medroundtable.zeabur.app/api/auth/callback"
+      "https://medroundtable-v2.vercel.app/api/auth/callback"
     ]
   },
   
   "webhooks": {
     "events": ["task.completed", "message.received", "agent.assigned", "workflow.completed"],
-    "endpoint": "https://medroundtable.zeabur.app/api/a2a/webhook/secondme"
+    "endpoint": "https://medroundtable-v2.vercel.app/api/a2a/webhook/secondme"
   },
   
   "pricing": {
@@ -227,7 +227,7 @@
   "links": {
     "github": "https://github.com/MoKangMedical/medroundtable",
     "hackathon": "https://hackathon.second.me/projects/cmlg779kn000204kvr6jygh28",
-    "docs": "https://medroundtable.zeabur.app/docs",
-    "api_docs": "https://medroundtable.zeabur.app/docs"
+    "docs": "https://medroundtable-v2.vercel.app/docs",
+    "api_docs": "https://medroundtable-v2.vercel.app/docs"
   }
 }
