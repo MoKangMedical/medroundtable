@@ -30,6 +30,14 @@
             --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
             --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            
+            /* 顶级医学期刊配色 */
+            --nejm-blue: #003366;
+            --lancet-red: #bf1e2e;
+            --jama-blue: #004793;
+            --natmed-purple: #6b4c9a;
+            --bmj-blue: #2e5c8a;
+            --cell-black: #1a1a1a;
         }
         
         body { 
@@ -381,7 +389,49 @@
                     <i class="fas fa-users text-white text-4xl"></i>
                 </div>
                 <h2 class="text-4xl font-bold text-slate-900 mb-4 tracking-tight">欢迎使用 MedRoundTable</h2>
-                <p class="text-slate-600 mb-10 px-4 text-xl max-w-2xl mx-auto">AI 医学科研协作平台，多位专家共同为您的研究出谋划策</p>
+                <p class="text-slate-600 mb-6 px-4 text-xl max-w-2xl mx-auto">AI 医学科研协作平台，多位专家共同为您的研究出谋划策</p>
+                
+                <!-- 顶级期刊配色展示 -->
+                <div class="mb-10 py-6 px-4">
+                    <p class="text-sm text-slate-500 mb-4 font-medium">
+                        <i class="fas fa-award text-yellow-500 mr-2"></i>符合顶级医学期刊标准
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
+                        <!-- NEJM - 深蓝色 -->
+                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
+                            <div class="w-4 h-4 rounded-full" style="background: #003366;"></div>
+                            <span class="text-sm font-semibold text-slate-700">NEJM</span>
+                            <span class="text-xs text-slate-400">IF: 91.2</span>
+                        </div>
+                        <!-- Lancet - 红色 -->
+                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
+                            <div class="w-4 h-4 rounded-full" style="background: #bf1e2e;"></div>
+                            <span class="text-sm font-semibold text-slate-700">The Lancet</span>
+                            <span class="text-xs text-slate-400">IF: 168.9</span>
+                        </div>
+                        <!-- JAMA - 蓝色 -->
+                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
+                            <div class="w-4 h-4 rounded-full" style="background: #004793;"></div>
+                            <span class="text-sm font-semibold text-slate-700">JAMA</span>
+                            <span class="text-xs text-slate-400">IF: 120.7</span>
+                        </div>
+                        <!-- Nature Medicine - 紫色 -->
+                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
+                            <div class="w-4 h-4 rounded-full" style="background: #6b4c9a;"></div>
+                            <span class="text-sm font-semibold text-slate-700">Nature Medicine</span>
+                            <span class="text-xs text-slate-400">IF: 82.9</span>
+                        </div>
+                        <!-- BMJ - 蓝色 -->
+                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
+                            <div class="w-4 h-4 rounded-full" style="background: #2e5c8a;"></div>
+                            <span class="text-sm font-semibold text-slate-700">BMJ</span>
+                            <span class="text-xs text-slate-400">IF: 105.7</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-4">
+                        我们的研究设计方案、数据可视化和文献引用均遵循顶级期刊标准
+                    </p>
+                </div>
                 
                 <!-- 5位专家角色展示 -->
                 <div class="max-w-5xl mx-auto mb-12">
