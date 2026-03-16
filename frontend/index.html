@@ -324,16 +324,16 @@
         
         <!-- 用户信息区 -->
         <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-            <button onclick="showLoginModal()" id="userBtn" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition border border-slate-700">
+            <a href="/login-v2.html" id="userBtn" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition border border-slate-700">
                 <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
                     <i class="fas fa-user text-white text-lg"></i>
                 </div>
                 <div class="text-left flex-1">
-                    <p class="font-semibold text-slate-200 text-base">点击登录</p>
-                    <p class="text-sm text-slate-500">保存历史记录</p>
+                    <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
+                    <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
                 </div>
                 <i class="fas fa-chevron-right text-slate-600"></i>
-            </button>
+            </a>
         </div>
     </aside>
 
@@ -1139,7 +1139,8 @@
         function showLoginModal() {
             console.log('showLoginModal 被调用');
             toggleSidebar();
-            showModal('loginModal');
+            // 跳转到新的登录页面（支持国内访问）
+            window.location.href = '/login-v2.html';
         }
 
         function showFeedback() {
