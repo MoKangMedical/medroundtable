@@ -172,11 +172,13 @@
   ],
   
   "oauth2": {
+    "client_id": "19b5f08b-2256-41aa-b196-2f98491099f7",
     "authorization_endpoint": "https://go.second.me/oauth/authorize",
     "token_endpoint": "https://medroundtable-v2.vercel.app/api/auth/token",
     "scopes": ["profile", "email", "shades:read", "softmemory:read"],
     "redirect_uris": [
-      "https://medroundtable-v2.vercel.app/api/auth/callback"
+      "https://medroundtable-v2.vercel.app/api/auth/callback",
+      "http://localhost:3000/api/auth/callback"
     ]
   },
   
