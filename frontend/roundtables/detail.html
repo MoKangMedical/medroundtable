@@ -171,30 +171,60 @@
             ? 'http://localhost:8000' 
             : 'https://medroundtable-api.onrender.com';
         
+        // 模拟数据模式
+        const MOCK_MODE = true;
+        let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
+        
         // 加载圆桌信息
         async function loadRoundtableInfo() {
             try {
-                const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}`);
-                if (!response.ok) throw new Error('Failed to load');
-                const data = await response.json();
+                let data;
+                
+                if (MOCK_MODE) {
+                    // 从本地存储查找圆桌
+                    const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                    data = sessions.find(s => s.id == roundtableId);
+                    if (!data) throw new Error('Roundtable not found');
+                } else {
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}`);
+                    if (!response.ok) throw new Error('Failed to load');
+                    data = await response.json();
+                }
                 
                 document.getElementById('roundtableTitle').textContent = data.title || '未命名圆桌';
                 document.getElementById('roundtableStatus').textContent = data.status === 'active' ? '进行中' : data.status;
             } catch (err) {
                 console.error('加载圆桌信息失败:', err);
                 document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
+                document.getElementById('roundtableStatus').textContent = '模拟模式';
             }
         }
         
         // 加载历史消息
         async function loadMessages() {
             try {
-                const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`);
-                if (!response.ok) return;
-                const messages = await response.json();
+                let messages;
+                
+                if (MOCK_MODE) {
+                    // 从本地存储加载消息
+                    messages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
+                } else {
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`);
+                    if (!response.ok) return;
+                    messages = await response.json();
+                }
                 
                 const container = document.getElementById('chatContainer');
                 container.innerHTML = '';
+                
+                // 添加欢迎消息
+                if (messages.length === 0) {
+                    renderMessage({
+                        from_role: 'clinical_director',
+                        content: '欢迎来到 MedRoundTable！我是临床主任，将协调这次科研讨论。请提出您的临床问题，我们的专家团队会一起帮您设计研究方案。',
+                        created_at: new Date().toISOString()
+                    });
+                }
                 
                 messages.forEach(msg => renderMessage(msg));
             } catch (err) {
@@ -251,33 +281,67 @@
             // 清空输入
             input.value = '';
             
-            // 显示用户消息
-            renderMessage({
+            // 保存用户消息
+            const userMessage = {
                 from_role: 'user',
                 content: content,
                 created_at: new Date().toISOString()
-            });
+            };
+            
+            // 显示用户消息
+            renderMessage(userMessage);
+            
+            // 模拟模式：保存到本地
+            if (MOCK_MODE) {
+                mockMessages.push(userMessage);
+                localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
+            }
             
             // 显示输入中提示
             showTypingIndicator();
             
-            try {
-                const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content, to_role: 'all' })
-                });
-                
-                if (!response.ok) throw new Error('发送失败');
-                
-                // 移除输入中提示
-                hideTypingIndicator();
-                
-                // 加载最新回复
-                setTimeout(loadMessages, 1000);
-            } catch (err) {
-                hideTypingIndicator();
-                alert('发送失败: ' + err.message);
+            if (MOCK_MODE) {
+                // 模拟模式：2秒后显示专家回复
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    const responses = [
+                        { role: 'clinical_director', content: '这是一个很有价值的临床问题。从循证医学角度来看，我建议我们先进行系统性文献回顾，了解当前研究的现状和空白。' },
+                        { role: 'phd_student', content: '我已经开始检索相关文献。初步发现有12篇相关研究，但大多数样本量较小。我们可以考虑设计一个多中心研究。' },
+                        { role: 'epidemiologist', content: '从研究设计角度，我建议采用前瞻性队列研究。样本量计算需要基于预期的效应值，我可以稍后给出具体计算。' },
+                        { role: 'statistician', content: '关于统计分析，我建议采用混合效应模型来处理多中心数据的聚类问题。我也会设计相应的CRF表格。' },
+                        { role: 'research_nurse', content: '从执行角度，我们需要考虑患者招募策略和数据质量控制。我建议制定详细的SOP文件。' }
+                    ];
+                    
+                    // 随机选择一个专家回复
+                    const response = responses[Math.floor(Math.random() * responses.length)];
+                    const agentMessage = {
+                        from_role: response.role,
+                        content: response.content,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    renderMessage(agentMessage);
+                    mockMessages.push(agentMessage);
+                    localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
+                }, 2000);
+            } else {
+                // 真实 API 模式
+                try {
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content, to_role: 'all' })
+                    });
+                    
+                    if (!response.ok) throw new Error('发送失败');
+                    
+                    hideTypingIndicator();
+                    setTimeout(loadMessages, 1000);
+                } catch (err) {
+                    hideTypingIndicator();
+                    alert('发送失败: ' + err.message);
+                }
             }
         }
         
