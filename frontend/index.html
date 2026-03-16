@@ -1020,11 +1020,8 @@
                 console.log('步骤10: 加载会话列表');
                 loadSessions();
                 
-                console.log('步骤11: 选择会话');
-                selectSession(session.id);
-                
-                console.log('步骤12: 显示成功提示');
-                showToast('圆桌会已开始', 'success');
+                console.log('步骤11: 跳转到圆桌详情页');
+                window.location.href = `/roundtables/${session.id}`;
                 
                 console.log('=== submitNewSession 完成 ===');
             } catch (err) {

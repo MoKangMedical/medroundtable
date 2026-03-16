@@ -8,33 +8,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { 
+        * {
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
         }
-        
-        body { 
+
+        body {
             font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
-        
+
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .roundtable-card {
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         .roundtable-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
-        
+
         .agent-avatar {
             width: 40px;
             height: 40px;
@@ -46,28 +46,28 @@
             border: 2px solid white;
             margin-left: -8px;
         }
-        
+
         .agent-avatar:first-child {
             margin-left: 0;
         }
-        
+
         .status-badge {
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
-        
+
         .status-active {
             background: #dcfce7;
             color: #166534;
         }
-        
+
         .status-pending {
             background: #fef3c7;
             color: #92400e;
         }
-        
+
         .status-completed {
             background: #e0e7ff;
             color: #3730a3;
@@ -245,8 +245,7 @@
 
         // 创建新圆桌
         function createRoundtable() {
-            // 跳转到首页创建
-            window.location.href = '/index.html?action=create';
+            window.location.href = '/?action=create';
         }
 
         // 过滤圆桌
