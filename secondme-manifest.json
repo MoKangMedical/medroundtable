@@ -1,54 +1,173 @@
 {
-  "manifest_version": "1.0",
+  "manifest_version": "2.0",
   "app_name": "MedRoundTable",
-  "app_description": "全球首个基于A2A架构的医学科研协作平台",
-  "version": "1.0.0",
+  "app_name_zh": "临床科研圆桌会",
+  "app_description": "全球首个基于A2A架构的医学科研协作平台，14位专业AI Agent实现从临床问题到科研成果的全流程自动化协作",
+  "version": "2.0.0",
   "author": "MoKangMedical",
-  "website": "https://medroundtable-v2.vercel.app",
-  "icon_url": "https://medroundtable-v2.vercel.app/logo.png",
+  "website": "https://medroundtable.zeabur.app",
+  "icon_url": "https://medroundtable.zeabur.app/assets/doctors.jpg",
   
   "a2a_protocol": {
     "version": "1.0",
-    "discovery_endpoint": "https://medroundtable.zeabur.app/a2a/discovery",
-    "messaging_endpoint": "https://medroundtable.zeabur.app/a2a/message",
-    "task_endpoint": "https://medroundtable.zeabur.app/a2a/tasks"
+    "discovery_endpoint": "https://medroundtable.zeabur.app/api/a2a/discovery",
+    "messaging_endpoint": "https://medroundtable.zeabur.app/api/a2a/message",
+    "task_endpoint": "https://medroundtable.zeabur.app/api/a2a/task",
+    "status_endpoint": "https://medroundtable.zeabur.app/api/a2a/status"
   },
   
   "agents": [
     {
       "id": "clinical-director",
-      "name": "临床主任",
-      "description": "临床研究方向规划专家",
-      "skills": ["研究设计", "方向规划", "文献指导"],
-      "endpoint": "https://medroundtable.zeabur.app/agents/clinical-director"
+      "name": "资深临床主任",
+      "name_en": "Senior Clinical Director",
+      "description": "临床问题识别与研究价值评估专家",
+      "avatar": "👨‍⚕️",
+      "skills": ["clinical_assessment", "research_design", "feasibility_analysis", "evidence_based_medicine"],
+      "category": "clinical",
+      "endpoint": "/api/a2a/agents/clinical-director"
     },
     {
       "id": "phd-student",
-      "name": "博士生",
-      "description": "实验设计与数据分析专家",
-      "skills": ["实验设计", "统计分析", "论文写作"],
-      "endpoint": "https://medroundtable.zeabur.app/agents/phd-student"
+      "name": "临床博士生",
+      "name_en": "PhD Student",
+      "description": "文献检索、综述撰写、协调推进专家",
+      "avatar": "📚",
+      "skills": ["literature_review", "coordination", "documentation", "academic_writing"],
+      "category": "research",
+      "endpoint": "/api/a2a/agents/phd-student"
     },
     {
       "id": "epidemiologist",
-      "name": "流行病学家",
-      "description": "流行病学研究专家",
-      "skills": ["队列研究", "病例对照", "生存分析"],
-      "endpoint": "https://medroundtable.zeabur.app/agents/epidemiologist"
+      "name": "临床流行病学专家",
+      "name_en": "Clinical Epidemiologist",
+      "description": "研究设计、纳入排除标准制定专家",
+      "avatar": "📊",
+      "skills": ["study_design", "protocol_development", "quality_control", "methodology"],
+      "category": "research",
+      "endpoint": "/api/a2a/agents/epidemiologist"
     },
     {
       "id": "statistician",
-      "name": "统计专家",
-      "description": "医学统计专家",
-      "skills": ["统计方法", "R语言", "样本量计算"],
-      "endpoint": "https://medroundtable.zeabur.app/agents/statistician"
+      "name": "数据统计专家",
+      "name_en": "Biostatistician",
+      "description": "CRF设计、统计分析、图表生成专家",
+      "avatar": "📈",
+      "skills": ["statistical_analysis", "data_management", "visualization", "sample_size_calculation"],
+      "category": "research",
+      "endpoint": "/api/a2a/agents/statistician"
     },
     {
       "id": "research-nurse",
       "name": "研究护士",
-      "description": "临床研究执行专家",
-      "skills": ["CRF设计", "数据管理", "伦理规范"],
-      "endpoint": "https://medroundtable.zeabur.app/agents/research-nurse"
+      "name_en": "Research Nurse",
+      "description": "数据采集、质量核查、问题反馈专家",
+      "avatar": "👩‍⚕️",
+      "skills": ["data_collection", "quality_assurance", "operations", "gcp_compliance"],
+      "category": "clinical",
+      "endpoint": "/api/a2a/agents/research-nurse"
+    },
+    {
+      "id": "clawbio-pharmgx",
+      "name": "ClawBio药物基因组学专家",
+      "name_en": "ClawBio PharmGx Analyst",
+      "description": "药物基因组学分析、个性化用药指导",
+      "avatar": "💊",
+      "skills": ["pharmacogenomics", "cpic_guidelines", "personalized_medicine", "dtc_genetic_testing"],
+      "category": "bioinformatics",
+      "endpoint": "/api/a2a/agents/clawbio/pharmgx-reporter",
+      "input_formats": ["23andMe", "AncestryDNA", "VCF"],
+      "output_formats": ["json", "md", "html"]
+    },
+    {
+      "id": "clawbio-gwas",
+      "name": "ClawBio GWAS专家",
+      "name_en": "ClawBio GWAS Specialist",
+      "description": "全基因组关联分析、变异-疾病关联",
+      "avatar": "🧬",
+      "skills": ["gwas", "variant_query", "disease_association", "genomic_databases"],
+      "category": "bioinformatics",
+      "endpoint": "/api/a2a/agents/clawbio/gwas-lookup"
+    },
+    {
+      "id": "clawbio-scrna",
+      "name": "ClawBio单细胞测序分析师",
+      "name_en": "ClawBio scRNA Analyst",
+      "description": "单细胞RNA测序自动化分析",
+      "avatar": "🔬",
+      "skills": ["scrna_seq", "scanpy", "cell_clustering", "differential_expression"],
+      "category": "bioinformatics",
+      "endpoint": "/api/a2a/agents/clawbio/scrna-orchestrator"
+    },
+    {
+      "id": "clawbio-galaxy",
+      "name": "ClawBio Galaxy桥接器",
+      "name_en": "ClawBio Galaxy Bridge",
+      "description": "连接8000+生物信息学工具",
+      "avatar": "🌌",
+      "skills": ["galaxy", "tool_discovery", "workflow_orchestration", "bioinformatics"],
+      "category": "bioinformatics",
+      "endpoint": "/api/a2a/agents/clawbio/galaxy-bridge"
+    },
+    {
+      "id": "ux-researcher",
+      "name": "UX研究员",
+      "name_en": "UX Researcher",
+      "description": "用户体验研究、行为分析",
+      "avatar": "🔬",
+      "skills": ["user_research", "usability_testing", "behavior_analysis", "data_analysis"],
+      "category": "design",
+      "endpoint": "/api/a2a/agents/ux-researcher"
+    },
+    {
+      "id": "ai-data-engineer",
+      "name": "AI数据工程师",
+      "name_en": "AI Data Engineer",
+      "description": "自修复数据管道、语义聚类",
+      "avatar": "🧬",
+      "skills": ["data_engineering", "ai_remediation", "data_quality", "automation_pipeline"],
+      "category": "engineering",
+      "endpoint": "/api/a2a/agents/ai-data-engineer"
+    },
+    {
+      "id": "trend-researcher",
+      "name": "趋势研究员",
+      "name_en": "Trend Researcher",
+      "description": "市场情报分析、新兴趋势识别",
+      "avatar": "🔭",
+      "skills": ["trend_research", "market_intelligence", "competitive_analysis", "strategic_forecasting"],
+      "category": "product",
+      "endpoint": "/api/a2a/agents/trend-researcher"
+    },
+    {
+      "id": "experiment-tracker",
+      "name": "实验追踪员",
+      "name_en": "Experiment Tracker",
+      "description": "实验设计、追踪管理",
+      "avatar": "🧪",
+      "skills": ["experiment_design", "ab_testing", "hypothesis_testing", "research_management"],
+      "category": "project_management",
+      "endpoint": "/api/a2a/agents/experiment-tracker"
+    },
+    {
+      "id": "model-qa",
+      "name": "模型QA专家",
+      "name_en": "Model QA Specialist",
+      "description": "AI模型质量保证、偏差检测",
+      "avatar": "🔬",
+      "skills": ["model_testing", "qa", "bias_detection", "quality_assurance"],
+      "category": "specialized",
+      "endpoint": "/api/a2a/agents/model-qa"
+    }
+  ],
+  
+  "workflows": [
+    {
+      "id": "clinical-research",
+      "name": "临床研究设计",
+      "description": "从临床问题到研究方案的完整流程",
+      "stages": ["problem_identification", "literature_review", "study_design", "crf_design", "data_collection", "genomic_analysis", "data_analysis", "interpretation", "publication"],
+      "estimated_duration": "3-6个月"
     }
   ],
   
@@ -57,14 +176,13 @@
     "token_endpoint": "https://medroundtable.zeabur.app/api/auth/token",
     "scopes": ["profile", "email", "shades:read", "softmemory:read"],
     "redirect_uris": [
-      "https://medroundtable.zeabur.app/api/auth/callback",
-      "https://medroundtable-v2.vercel.app/auth/callback"
+      "https://medroundtable.zeabur.app/api/auth/callback"
     ]
   },
   
   "webhooks": {
-    "events": ["task.completed", "message.received", "agent.assigned"],
-    "endpoint": "https://medroundtable.zeabur.app/webhooks/secondme"
+    "events": ["task.completed", "message.received", "agent.assigned", "workflow.completed"],
+    "endpoint": "https://medroundtable.zeabur.app/api/a2a/webhook/secondme"
   },
   
   "pricing": {
@@ -73,23 +191,43 @@
       {
         "id": "free",
         "name": "免费版",
+        "name_en": "Free",
         "price": 0,
-        "description": "基础科研协作功能"
+        "description": "5次/月基础分析",
+        "features": ["基础Agent协作", "标准响应速度", "社区支持"]
       },
       {
         "id": "pro",
         "name": "专业版",
+        "name_en": "Pro",
         "price": 299,
         "period": "month",
-        "description": "AI专家无限对话"
+        "description": "无限次分析 + 优先响应",
+        "features": ["14个Agent无限使用", "优先响应", "高级导出功能", "邮件支持"]
       },
       {
         "id": "team",
         "name": "团队版",
+        "name_en": "Team",
         "price": 999,
         "period": "month",
-        "description": "5人团队协作"
+        "description": "多用户协作 + 定制Agent",
+        "features": ["最多5人协作", "定制Agent", "API访问", "专属客服"]
       }
     ]
+  },
+  
+  "stats": {
+    "total_agents": 14,
+    "total_skills": 30,
+    "database_connections": 17,
+    "supported_languages": ["zh-CN", "en"]
+  },
+  
+  "links": {
+    "github": "https://github.com/MoKangMedical/medroundtable",
+    "hackathon": "https://hackathon.second.me/projects/cmlg779kn000204kvr6jygh28",
+    "docs": "https://medroundtable.zeabur.app/docs",
+    "api_docs": "https://medroundtable.zeabur.app/docs"
   }
 }
