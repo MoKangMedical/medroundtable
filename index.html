@@ -223,7 +223,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 h-screen overflow-hidden">
+<body class="bg-slate-50 min-h-screen">
     <!-- 移动端侧边栏遮罩 -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
     
@@ -344,7 +344,7 @@
     </aside>
 
     <!-- 主内容区 -->
-    <main class="h-full flex flex-col bg-slate-50 relative z-10">
+    <main class="min-h-screen flex flex-col bg-slate-50 relative z-10">
         <!-- 顶部导航 - 专业样式 -->
         <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
             <div class="flex items-center gap-4">
