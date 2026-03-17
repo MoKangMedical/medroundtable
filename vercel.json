@@ -1,53 +1,43 @@
 {
   "version": 2,
-  "name": "medroundtable-frontend",
-  "buildCommand": null,
-  "outputDirectory": "frontend",
+  "public": true,
+  "github": {
+    "enabled": true,
+    "silent": true
+  },
+  "builds": [
+    {
+      "src": "frontend/**/*",
+      "use": "@vercel/static"
+    }
+  ],
   "routes": [
     {
+      "handle": "filesystem"
+    },
+    {
       "src": "/api/(.*)",
-      "dest": "https://medroundtable-api.onrender.com/api/$1",
-      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
-      }
-    },
-    {
-      "src": "/roundtables/",
-      "dest": "/frontend/roundtables/index.html"
-    },
-    {
-      "src": "/roundtables",
-      "dest": "/frontend/roundtables/index.html"
+      "dest": "https://medroundtable-api.onrender.com/api/$1"
     },
     {
       "src": "/roundtables/([0-9]+)",
       "dest": "/frontend/roundtables/detail.html"
     },
     {
-      "src": "/login",
-      "dest": "/frontend/login.html"
+      "src": "/roundtables/?$",
+      "dest": "/frontend/roundtables/index.html"
     },
     {
-      "src": "/",
-      "dest": "/frontend/index.html"
+      "src": "/tools",
+      "dest": "/frontend/tools.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/frontend/login-v2.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/frontend/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
+      "dest": "/frontend/index.html"
     }
   ]
 }
