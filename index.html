@@ -221,6 +221,14 @@
         button {
             transition: all 0.2s ease;
         }
+        
+        /* Hero背景图片 */
+        .hero-bg {
+            background-image: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(30, 64, 175, 0.9) 50%, rgba(30, 58, 138, 0.95) 100%), url('./assets/hero-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -732,8 +740,77 @@
             </div>
         </div>
 
+        <!-- 顶级医学期刊展示 -->
+        <div class="py-12 px-4 bg-slate-50">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+                        <i class="fas fa-book-medical text-blue-600 mr-2"></i>顶级医学期刊标准
+                    </h2>
+                    <p class="text-slate-600">符合国际顶级医学期刊的研究标准与发表要求</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    <!-- NEJM -->
+                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#003366] hover:shadow-xl transition">
+                        <div class="h-24 bg-gradient-to-br from-[#003366] to-[#004080] rounded-lg mb-3 flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">NEJM</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900">New England</h3>
+                        <p class="text-sm text-slate-600">Journal of Medicine</p>
+                        <div class="mt-2 flex items-center gap-1">
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 91.2</span>
+                        </div>
+                    </div>
+                    <!-- The Lancet -->
+                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#bf1e2e] hover:shadow-xl transition">
+                        <div class="h-24 bg-gradient-to-br from-[#bf1e2e] to-[#d13030] rounded-lg mb-3 flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">LANCET</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900">The Lancet</h3>
+                        <p class="text-sm text-slate-600">Weekly General</p>
+                        <div class="mt-2 flex items-center gap-1">
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 168.9</span>
+                        </div>
+                    </div>
+                    <!-- JAMA -->
+                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#004793] hover:shadow-xl transition">
+                        <div class="h-24 bg-gradient-to-br from-[#004793] to-[#0059b3] rounded-lg mb-3 flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">JAMA</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900">JAMA</h3>
+                        <p class="text-sm text-slate-600">Medical Association</p>
+                        <div class="mt-2 flex items-center gap-1">
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 120.7</span>
+                        </div>
+                    </div>
+                    <!-- Nature Medicine -->
+                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#6b4c9a] hover:shadow-xl transition">
+                        <div class="h-24 bg-gradient-to-br from-[#6b4c9a] to-[#7d5cb0] rounded-lg mb-3 flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">Nature<br>Medicine</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900">Nature</h3>
+                        <p class="text-sm text-slate-600">Medicine</p>
+                        <div class="mt-2 flex items-center gap-1">
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 82.9</span>
+                        </div>
+                    </div>
+                    <!-- BMJ -->
+                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#2e5c8a] hover:shadow-xl transition">
+                        <div class="h-24 bg-gradient-to-br from-[#2e5c8a] to-[#3d7ab3] rounded-lg mb-3 flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">BMJ</span>
+                        </div>
+                        <h3 class="font-bold text-slate-900">British Medical</h3>
+                        <p class="text-sm text-slate-600">Journal</p>
+                        <div class="mt-2 flex items-center gap-1">
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 105.7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- V2.0 核心数据 -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 py-12 px-4 text-white">
+        <div class="hero-bg py-16 px-4 text-white">
             <div class="max-w-6xl mx-auto">
                 <div class="text-center mb-8">
                     <h2 class="text-2xl md:text-3xl font-bold mb-2">🚀 MedRoundTable V2.0</h2>
