@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRoundTable V2.0 - 997项AI技能 · 医学科研协作平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .skill-card { transition: all 0.3s ease; }
+        .skill-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">MedRoundTable</h1>
+                        <p class="text-sm text-slate-500">临床科研圆桌会 V2.0</p>
+                    </div>
+                </div>
+                <nav class="hidden md:flex gap-6">
+                    <a href="./index.html" class="text-slate-600 hover:text-blue-600 font-medium">首页</a>
+                    <a href="./v2-features.html" class="text-blue-600 font-medium">V2.0能力</a>
+                    <a href="./tools.html" class="text-slate-600 hover:text-blue-600 font-medium">工具生态</a>
+                    <a href="./login.html" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">登录</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-block px-4 py-1 bg-blue-500/20 rounded-full text-blue-300 text-sm font-medium mb-6">
+                🚀 V2.0 全新升级 · 997项AI技能
+            </div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                全球首个 <span class="text-blue-400">A2A架构</span><br>
+                医学科研协作平台
+            </h1>
+            <p class="text-xl text-slate-300 max-w-3xl mx-auto mb-8">
+                整合 <span class="text-blue-400 font-bold">997项</span> 专业AI技能，覆盖从临床问题到科研成果的全流程自动化协作
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="#skills" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold transition">
+                    <i class="fas fa-rocket mr-2"></i> 探索技能市场
+                </a>
+                <a href="#databases" class="px-8 py-4 bg-white/10 hover:bg-white/20 rounded-xl font-semibold transition">
+                    <i class="fas fa-database mr-2"></i> 浏览数据库
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="stat-number">997</div>
+                    <p class="text-slate-600 font-medium">AI专业技能</p>
+                </div>
+                <div>
+                    <div class="stat-number">40+</div>
+                    <p class="text-slate-600 font-medium">生物医学数据库</p>
+                </div>
+                <div>
+                    <div class="stat-number">14</div>
+                    <p class="text-slate-600 font-medium">AI专家Agent</p>
+                </div>
+                <div>
+                    <div class="stat-number">50%+</div>
+                    <p class="text-slate-600 font-medium">研究周期缩短</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Proposition -->
+    <section class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-4">核心价值主张</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+                <div class="glass-card rounded-2xl p-6 shadow-lg">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="font-bold text-lg mb-2">降低科研门槛</h3>
+                    <p class="text-slate-600 text-sm">AI辅助完成复杂的研究设计、数据分析、论文撰写</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 shadow-lg">
+                    <div class="text-4xl mb-4">⚡</div>
+                    <h3 class="font-bold text-lg mb-2">提升科研效率</h3>
+                    <p class="text-slate-600 text-sm">多Agent并行协作，研究周期缩短50%+</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 shadow-lg">
+                    <div class="text-4xl mb-4">🔬</div>
+                    <h3 class="font-bold text-lg mb-2">专业医学支持</h3>
+                    <p class="text-slate-600 text-sm">深度整合生物医学数据库和临床指南</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 shadow-lg">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h3 class="font-bold text-lg mb-2">协作无界限</h3>
+                    <p class="text-slate-600 text-sm">支持多中心、跨机构科研协作</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Users -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-bold text-center mb-12">目标用户</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card rounded-2xl p-6 border-2 border-blue-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">👨‍⚕️</div>
+                        <div>
+                            <h3 class="font-bold">临床医生</h3>
+                            <span class="text-blue-600 font-bold text-2xl">30%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm">临床实践中的科研问题</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-2 border-purple-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">🧬</div>
+                        <div>
+                            <h3 class="font-bold">生物信息学研究者</h3>
+                            <span class="text-purple-600 font-bold text-2xl">40%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm">多组学数据分析</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-2 border-green-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">🎓</div>
+                        <div>
+                            <h3 class="font-bold">医学研究生</h3>
+                            <span class="text-green-600 font-bold text-2xl">20%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm">毕业论文、课题设计</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-2 border-orange-100">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">🔬</div>
+                        <div>
+                            <h3 class="font-bold">医学科研人员</h3>
+                            <span class="text-orange-600 font-bold text-2xl">10%</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm">基金申请、论文发表</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Marketplace -->
+    <section id="skills" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">技能市场</h2>
+                <p class="text-slate-600">整合 <span class="text-blue-600 font-bold">997项</span> 专业AI技能</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="skill-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-xl">📚</div>
+                        <div>
+                            <h3 class="font-bold">文献检索</h3>
+                            <span class="text-sm text-slate-500">50+ 项技能</span>
+                        </div>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-1">
+                        <li>• PubMed高级搜索</li>
+                        <li>• 文献综述生成</li>
+                        <li>• 深度文献挖掘</li>
+                    </ul>
+                </div>
+                <div class="skill-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-xl">🧪</div>
+                        <div>
+                            <h3 class="font-bold">临床试验</h3>
+                            <span class="text-sm text-slate-500">120+ 项技能</span>
+                        </div>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-1">
+                        <li>• 试验设计优化</li>
+                        <li>• 患者匹配算法</li>
+                        <li>• 入排评估系统</li>
+                    </ul>
+                </div>
+                <div class="skill-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-xl">🩺</div>
+                        <div>
+                            <h3 class="font-bold">临床决策</h3>
+                            <span class="text-sm text-slate-500">80+ 项技能</span>
+                        </div>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-1">
+                        <li>• 诊断推理辅助</li>
+                        <li>• 病历NLP提取</li>
+                        <li>• 临床指南查询</li>
+                    </ul>
+                </div>
+                <div class="skill-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-xl">🧬</div>
+                        <div>
+                            <h3 class="font-bold">生物信息学</h3>
+                            <span class="text-sm text-slate-500">300+ 项技能</span>
+                        </div>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-1">
+                        <li>• 单细胞RNA测序分析</li>
+                        <li>• 变异注释与过滤</li>
+                        <li>• 通路富集分析</li>
+                    </ul>
+                </div>
+                <div class="skill-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center text-xl">💊</div>
+                        <div>
+                            <h3 class="font-bold">药物研发</h3>
+                            <span class="text-sm text-slate-500">200+ 项技能</span>
+                        </div>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-1">
+                        <li>• AI药物发现</li>
+                        <li>• ADMET预测</li>
+                        <li>• BindingDB查询</li>
+                    </ul>
+                </div>
+                <div class="skill-card bg-white rounded-2xl p-6 shadow-lg">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-xl">⚖️</div>
+                        <div>
+                            <h3 class="font-bold">法规合规</h3>
+                            <span class="text-sm text-slate-500">100+ 项技能</span>
+                        </div>
+                    </div>
+                    <ul class="text-sm text-slate-600 space-y-1">
+                        <li>• FDA/MDR/NMPA查询</li>
+                        <li>• 合规性检查</li>
+                        <li>• 法规更新追踪</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Database Browser -->
+    <section id="databases" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">数据库浏览器</h2>
+                <p class="text-slate-600">统一访问 <span class="text-blue-600 font-bold">40+</span> 生物医学数据库</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 shadow-lg border-l-4 border-blue-500">
+                    <h3 class="font-bold text-lg mb-4"><i class="fas fa-book text-blue-500 mr-2"></i>文献数据库</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex justify-between"><span>PubMed</span><span class="text-slate-500">3300万+</span></li>
+                        <li class="flex justify-between"><span>PubMed Central</span><span class="text-slate-500">免费全文</span></li>
+                        <li class="flex justify-between"><span>Europe PMC</span><span class="text-slate-500">欧洲PMC</span></li>
+                    </ul>
+                </div>
+                <div class="glass-card rounded-2xl p-6 shadow-lg border-l-4 border-purple-500">
+                    <h3 class="font-bold text-lg mb-4"><i class="fas fa-flask text-purple-500 mr-2"></i>临床试验数据库</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex justify-between"><span>ClinicalTrials.gov</span><span class="text-slate-500">50万+试验</span></li>
+                        <li class="flex justify-between"><span>中国CDE平台</span><span class="text-slate-500">官方登记</span></li>
+                        <li class="flex justify-between"><span>EU CTR</span><span class="text-slate-500">欧盟试验库</span></li>
+                    </ul>
+                </div>
+                <div class="glass-card rounded-2xl p-6 shadow-lg border-l-4 border-green-500">
+                    <h3 class="font-bold text-lg mb-4"><i class="fas fa-pills text-green-500 mr-2"></i>药物数据库</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li class="flex justify-between"><span>DrugBank</span><span class="text-slate-500">1.5万+药物</span></li>
+                        <li class="flex justify-between"><span>ChEMBL</span><span class="text-slate-500">生物活性</span></li>
+                        <li class="flex justify-between"><span>BindingDB</span><span class="text-slate-500">结合亲和力</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">开始您的医学科研之旅</h2>
+            <p class="text-xl text-blue-100 mb-8">加入全球首个A2A架构医学科研协作平台</p>
+            <a href="./login.html" class="inline-block px-8 py-4 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition">
+                <i class="fas fa-rocket mr-2"></i> 立即开始
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2024 MedRoundTable. 全球首个A2A架构医学科研协作平台.</p>
+        </div>
+    </footer>
+</body>
+</html>
