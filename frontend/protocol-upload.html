@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上传研究方案 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+        .drag-active { border-color: #3b82f6; background-color: #eff6ff; }
+        .progress-bar { transition: width 0.3s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="./index.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg">MedRoundTable</h1>
+                        <p class="text-xs text-slate-500">研究方案上传</p>
+                    </div>
+                </a>
+            </div>
+            <a href="./data-dashboard.html" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
+                <i class="fas fa-folder-open mr-1"></i> 数据管理
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">
+                <i class="fas fa-file-upload text-blue-600 mr-2"></i>上传研究方案
+            </h2>
+            <p class="text-slate-600 max-w-2xl mx-auto">
+                上传您的研究方案文档，AI专家将协助分析和完善
+            </p>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <!-- Drag & Drop Zone -->
+            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center cursor-pointer hover:border-blue-400 transition mb-8">
+                <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.md,.txt">
+                <div class="w-20 h-20 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-blue-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">拖拽文件到此处</h3>
+                <p class="text-slate-500 mb-4">或点击选择文件</p>
+                <p class="text-sm text-slate-400">
+                    支持格式: PDF, Word (.doc/.docx), Markdown, TXT<br>
+                    最大文件大小: 50MB
+                </p>
+            </div>
+
+            <!-- Selected File Info -->
+            <div id="fileInfo" class="hidden mb-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p id="fileName" class="font-semibold text-slate-800"></p>
+                        <p id="fileSize" class="text-sm text-slate-500"></p>
+                    </div>
+                    <button id="removeFile" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-times-circle text-xl"></i>
+                    </button>
+                </div>
+                <!-- Progress Bar -->
+                <div id="progressContainer" class="hidden mt-4">
+                    <div class="w-full bg-slate-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-blue-600 h-2 rounded-full progress-bar" style="width: 0%"></div>
+                    </div>
+                    <p id="progressText" class="text-sm text-slate-500 mt-2 text-center">0%</p>
+                </div>
+            </div>
+
+            <!-- Form Fields -->
+            <form id="uploadForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        <i class="fas fa-heading mr-1 text-blue-500"></i>方案标题 *
+                    </label>
+                    <input type="text" id="title" required
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                        placeholder="请输入研究方案标题">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        <i class="fas fa-align-left mr-1 text-blue-500"></i>方案描述
+                    </label>
+                    <textarea id="description" rows="4"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition resize-none"
+                        placeholder="简要描述研究方案的内容和目标"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">
+                        <i class="fas fa-users mr-1 text-blue-500"></i>关联圆桌会
+                    </label>
+                    <select id="roundtableId"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white">
+                        <option value="">-- 选择圆桌会（可选）--</option>
+                        <option value="rt_001">心血管疾病研究圆桌会</option>
+                        <option value="rt_002">肿瘤免疫治疗圆桌会</option>
+                        <option value="rt_003">糖尿病管理圆桌会</option>
+                    </select>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" id="submitBtn" disabled
+                        class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-upload mr-2"></i>开始上传
+                    </button>
+                </div>
+            </form>
+
+            <!-- Result Message -->
+            <div id="resultMessage" class="hidden mt-6 p-4 rounded-xl"></div>
+        </div>
+
+        <!-- Features -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                <div class="w-14 h-14 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-robot text-2xl text-green-600"></i>
+                </div>
+                <h3 class="font-semibold text-slate-800 mb-2">AI智能分析</h3>
+                <p class="text-sm text-slate-600">自动分析研究设计、终点指标、统计方法</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                <div class="w-14 h-14 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="font-semibold text-slate-800 mb-2">安全存储</h3>
+                <p class="text-sm text-slate-600">加密存储，访问控制，审计日志</p>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-md text-center">
+                <div class="w-14 h-14 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-history text-2xl text-amber-600"></i>
+                </div>
+                <h3 class="font-semibold text-slate-800 mb-2">版本管理</h3>
+                <p class="text-sm text-slate-600">支持多版本管理，历史记录追溯</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2024 MedRoundTable · 全球首个A2A架构医学科研协作平台</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const removeFile = document.getElementById('removeFile');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const uploadForm = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultMessage = document.getElementById('resultMessage');
+
+        let selectedFile = null;
+
+        // Drag & Drop Events
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-active');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-active');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        // Handle File Selection
+        function handleFile(file) {
+            // Validate file type
+            const allowedTypes = ['.pdf', '.doc', '.docx', '.md', '.txt'];
+            const ext = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedTypes.includes(ext)) {
+                showResult('error', '不支持的文件类型。请上传 PDF, Word, Markdown 或 TXT 文件。');
+                return;
+            }
+
+            // Validate file size (50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                showResult('error', '文件大小超过限制（最大50MB）');
+                return;
+            }
+
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.classList.remove('hidden');
+            submitBtn.disabled = false;
+        }
+
+        // Remove File
+        removeFile.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            fileInfo.classList.add('hidden');
+            progressContainer.classList.add('hidden');
+            submitBtn.disabled = true;
+        });
+
+        // Format File Size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Form Submit
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!selectedFile) {
+                showResult('error', '请选择要上传的文件');
+                return;
+            }
+
+            const title = document.getElementById('title').value;
+            if (!title.trim()) {
+                showResult('error', '请输入方案标题');
+                return;
+            }
+
+            // Prepare FormData
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('title', title);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('roundtable_id', document.getElementById('roundtableId').value);
+
+            // Show Progress
+            progressContainer.classList.remove('hidden');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>上传中...';
+
+            try {
+                // Simulate Progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    if (progress <= 90) {
+                        progressBar.style.width = progress + '%';
+                        progressText.textContent = progress + '%';
+                    }
+                }, 200);
+
+                // API Call
+                const response = await fetch('/api/protocols/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressText.textContent = '100%';
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showResult('success', `上传成功！方案ID: ${result.id}`);
+                    setTimeout(() => {
+                        window.location.href = './data-dashboard.html';
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    showResult('error', '上传失败: ' + (error.detail || '未知错误'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>重新上传';
+                }
+            } catch (error) {
+                showResult('error', '网络错误: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>重新上传';
+            }
+        });
+
+        // Show Result Message
+        function showResult(type, message) {
+            resultMessage.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'bg-red-100', 'text-red-800');
+            if (type === 'success') {
+                resultMessage.classList.add('bg-green-100', 'text-green-800');
+                resultMessage.innerHTML = '<i class="fas fa-check-circle mr-2"></i>' + message;
+            } else {
+                resultMessage.classList.add('bg-red-100', 'text-red-800');
+                resultMessage.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>' + message;
+            }
+        }
+    </script>
+</body>
+</html>

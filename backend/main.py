@@ -11,6 +11,9 @@ import uvicorn
 from backend.models import RoundTable, A2AMessage, RoundTableStatus, ResearchOutput
 from agents.orchestrator import orchestrator
 
+# 导入新的路由
+from backend.routers import protocols, databases, analysis
+
 app = FastAPI(
     title="MedRoundTable API",
     description="A2A 医学科研协作平台 API",
@@ -424,6 +427,11 @@ async def api_v2_stats():
         "version": "2.0.0",
         "status": "operational"
     }
+
+# ============ 注册新路由 ============
+app.include_router(protocols.router)
+app.include_router(databases.router)
+app.include_router(analysis.router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

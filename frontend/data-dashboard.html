@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据管理 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="./index.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center text-white">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg">MedRoundTable</h1>
+                        <p class="text-xs text-slate-500">数据管理中心</p>
+                    </div>
+                </a>
+            </div>
+            <div class="flex gap-3">
+                <a href="./protocol-upload.html" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
+                    <i class="fas fa-file-medical mr-1"></i> 上传方案
+                </a>
+                <a href="./database-upload.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition">
+                    <i class="fas fa-database mr-1"></i> 上传数据
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">研究方案</p>
+                        <p class="text-3xl font-bold text-blue-600" id="protocolCount">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-medical text-blue-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">数据库</p>
+                        <p class="text-3xl font-bold text-green-600" id="databaseCount">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-database text-green-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">分析任务</p>
+                        <p class="text-3xl font-bold text-purple-600" id="analysisCount">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-md">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500">存储使用</p>
+                        <p class="text-3xl font-bold text-amber-600" id="storageUsed">0 MB</p>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-hdd text-amber-600 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="border-b border-slate-200">
+                <nav class="flex">
+                    <button onclick="switchTab('protocols')" id="tab-protocols" class="px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600">
+                        <i class="fas fa-file-medical mr-2"></i>研究方案
+                    </button>
+                    <button onclick="switchTab('databases')" id="tab-databases" class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-database mr-2"></i>数据库
+                    </button>
+                    <button onclick="switchTab('analysis')" id="tab-analysis" class="px-6 py-4 text-sm font-medium border-b-2 border-transparent text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-chart-line mr-2"></i>分析任务
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Protocols Tab -->
+            <div id="content-protocols" class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">研究方案列表</h2>
+                    <a href="./protocol-upload.html" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        <i class="fas fa-plus mr-1"></i> 新建方案
+                    </a>
+                </div>
+                <div id="protocolsList" class="space-y-4">
+                    <div class="text-center py-12 text-slate-400">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Databases Tab -->
+            <div id="content-databases" class="p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">数据库列表</h2>
+                    <a href="./database-upload.html" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-plus mr-1"></i> 新建数据库
+                    </a>
+                </div>
+                <div id="databasesList" class="space-y-4">
+                    <div class="text-center py-12 text-slate-400">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Tab -->
+            <div id="content-analysis" class="p-6 hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">分析任务列表</h2>
+                    <a href="./analysis.html" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                        <i class="fas fa-plus mr-1"></i> 新建分析
+                    </a>
+                </div>
+                <div id="analysisList" class="space-y-4">
+                    <div class="text-center py-12 text-slate-400">
+                        <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                        <p>加载中...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2024 MedRoundTable · 全球首个A2A架构医学科研协作平台</p>
+        </div>
+    </footer>
+
+    <script>
+        let currentTab = 'protocols';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            // Update nav
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('border-blue-500', 'text-blue-600');
+                btn.classList.add('border-transparent', 'text-slate-500');
+            });
+            document.getElementById(`tab-${tab}`).classList.remove('border-transparent', 'text-slate-500');
+            document.getElementById(`tab-${tab}`).classList.add('border-blue-500', 'text-blue-600');
+
+            // Update content
+            document.querySelectorAll('[id^="content-"]').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+
+            // Load data
+            if (tab === 'protocols') loadProtocols();
+            if (tab === 'databases') loadDatabases();
+            if (tab === 'analysis') loadAnalysis();
+        }
+
+        async function loadProtocols() {
+            try {
+                const response = await fetch('/api/protocols');
+                const protocols = await response.json();
+                document.getElementById('protocolCount').textContent = protocols.length;
+
+                const list = document.getElementById('protocolsList');
+                if (protocols.length === 0) {
+                    list.innerHTML = `
+                        <div class="text-center py-12 text-slate-400">
+                            <i class="fas fa-file-medical text-6xl mb-4"></i>
+                            <p>暂无研究方案</p>
+                            <a href="./protocol-upload.html" class="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">上传第一个方案</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.innerHTML = protocols.map(p => `
+                    <div class="bg-slate-50 rounded-xl p-4 flex items-center justify-between hover:shadow-md transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">${p.title}</h3>
+                                <p class="text-sm text-slate-500">${p.file_type.toUpperCase()} · ${formatSize(p.file_size)} · ${new Date(p.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="/api/protocols/${p.id}/download" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
+                                <i class="fas fa-download text-slate-600"></i>
+                            </a>
+                            <button onclick="analyzeProtocol('${p.id}')" class="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition" title="AI分析">
+                                <i class="fas fa-robot"></i>
+                            </button>
+                            <button onclick="deleteProtocol('${p.id}')" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" title="删除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('protocolsList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+            }
+        }
+
+        async function loadDatabases() {
+            try {
+                const response = await fetch('/api/databases');
+                const databases = await response.json();
+                document.getElementById('databaseCount').textContent = databases.length;
+
+                let totalSize = databases.reduce((sum, d) => sum + (d.file_size || 0), 0);
+                document.getElementById('storageUsed').textContent = formatSize(totalSize);
+
+                const list = document.getElementById('databasesList');
+                if (databases.length === 0) {
+                    list.innerHTML = `
+                        <div class="text-center py-12 text-slate-400">
+                            <i class="fas fa-database text-6xl mb-4"></i>
+                            <p>暂无数据库</p>
+                            <a href="./database-upload.html" class="inline-block mt-4 px-4 py-2 bg-green-600 text-white rounded-lg">上传第一个数据库</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.innerHTML = databases.map(d => `
+                    <div class="bg-slate-50 rounded-xl p-4 flex items-center justify-between hover:shadow-md transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-table text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">${d.name}</h3>
+                                <p class="text-sm text-slate-500">
+                                    ${d.file_type.toUpperCase()} · ${formatSize(d.file_size)} · 
+                                    ${d.row_count || 0}行 × ${d.column_count || 0}列
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="previewDatabase('${d.id}')" class="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition" title="预览">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <a href="/api/databases/${d.id}/download" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
+                                <i class="fas fa-download text-slate-600"></i>
+                            </a>
+                            <button onclick="deleteDatabase('${d.id}')" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" title="删除">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('databasesList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+            }
+        }
+
+        async function loadAnalysis() {
+            try {
+                const response = await fetch('/api/analysis/tasks');
+                const tasks = await response.json();
+                document.getElementById('analysisCount').textContent = tasks.length;
+
+                const list = document.getElementById('analysisList');
+                if (tasks.length === 0) {
+                    list.innerHTML = `
+                        <div class="text-center py-12 text-slate-400">
+                            <i class="fas fa-chart-line text-6xl mb-4"></i>
+                            <p>暂无分析任务</p>
+                            <a href="./analysis.html" class="inline-block mt-4 px-4 py-2 bg-purple-600 text-white rounded-lg">创建第一个分析</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const statusColors = {
+                    'pending': 'bg-amber-100 text-amber-700',
+                    'running': 'bg-blue-100 text-blue-700',
+                    'completed': 'bg-green-100 text-green-700',
+                    'failed': 'bg-red-100 text-red-700'
+                };
+
+                list.innerHTML = tasks.map(t => `
+                    <div class="bg-slate-50 rounded-xl p-4 flex items-center justify-between hover:shadow-md transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-pie text-purple-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-slate-800">${t.name}</h3>
+                                <p class="text-sm text-slate-500">${t.analysis_type} · ${new Date(t.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[t.status] || 'bg-slate-100 text-slate-700'}">
+                                ${t.status}
+                            </span>
+                            <button onclick="viewResult('${t.id}')" class="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition" title="查看结果">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                document.getElementById('analysisList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+            }
+        }
+
+        function formatSize(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        async function deleteProtocol(id) {
+            if (!confirm('确定要删除这个研究方案吗？')) return;
+            try {
+                await fetch(`/api/protocols/${id}`, { method: 'DELETE' });
+                loadProtocols();
+            } catch (e) {
+                alert('删除失败');
+            }
+        }
+
+        async function deleteDatabase(id) {
+            if (!confirm('确定要删除这个数据库吗？')) return;
+            try {
+                await fetch(`/api/databases/${id}`, { method: 'DELETE' });
+                loadDatabases();
+            } catch (e) {
+                alert('删除失败');
+            }
+        }
+
+        async function analyzeProtocol(id) {
+            try {
+                const response = await fetch(`/api/protocols/${id}/analyze`, { method: 'POST' });
+                if (response.ok) {
+                    alert('AI分析已启动，请稍后查看结果');
+                } else {
+                    alert('分析启动失败');
+                }
+            } catch (e) {
+                alert('请求失败');
+            }
+        }
+
+        function previewDatabase(id) {
+            window.open(`/api/databases/${id}/preview`, '_blank');
+        }
+
+        function viewResult(taskId) {
+            window.open(`./analysis.html?task=${taskId}`, '_blank');
+        }
+
+        // Initial load
+        loadProtocols();
+    </script>
+</body>
+</html>
