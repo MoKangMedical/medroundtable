@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MedRoundTable - 圆桌详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { 
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        
+        body { 
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            touch-action: manipulation;
+            background: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .chat-bubble {
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-in;
+            word-wrap: break-word;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        
+        .chat-bubble.user {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            color: white;
+        }
+        
+        .chat-bubble.agent {
+            background: white;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .typing-indicator { display: flex; gap: 4px; padding: 8px 12px; }
+        .typing-indicator span {
+            width: 8px; height: 8px; background: #9ca3af; border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .agent-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stage-bar {
+            background: linear-gradient(90deg, #1e40af, #3b82f6);
+        }
+        
+        .input-area {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+            <a href="/" class="text-gray-600 hover:text-gray-800">
+                <i class="fas fa-arrow-left text-lg"></i>
+            </a>
+            <div>
+                <h1 id="roundtableTitle" class="font-bold text-gray-800 text-lg">加载中...</h1>
+                <p id="roundtableStatus" class="text-xs text-gray-500">准备中</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <div class="flex -space-x-2">
+                <div class="agent-avatar bg-blue-100 text-lg" title="临床主任">👨‍⚕️</div>
+                <div class="agent-avatar bg-green-100 text-lg" title="博士生">📚</div>
+                <div class="agent-avatar bg-yellow-100 text-lg" title="流行病学家">📊</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 阶段进度条 -->
+    <div class="stage-bar text-white px-4 py-2 shrink-0">
+        <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-1">
+                <i class="fas fa-circle text-xs"></i>
+                <span>问题识别</span>
+            </div>
+            <i class="fas fa-chevron-right text-xs opacity-60"></i>
+            <div class="flex items-center gap-1 opacity-60">
+                <span>文献回顾</span>
+            </div>
+            <i class="fas fa-chevron-right text-xs opacity-60"></i>
+            <div class="flex items-center gap-1 opacity-60">
+                <span>研究设计</span>
+            </div>
+            <i class="fas fa-chevron-right text-xs opacity-60"></i>
+            <div class="flex items-center gap-1 opacity-60">
+                <span>数据分析</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 聊天区域 -->
+    <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
+        <!-- 欢迎消息 -->
+        <div class="text-center text-gray-400 text-sm py-8">
+            <i class="fas fa-users text-4xl mb-3 opacity-30"></i>
+            <p>圆桌会已开始</p>
+            <p class="text-xs mt-1">五位专家正在等待您的提问</p>
+        </div>
+    </div>
+
+    <!-- 输入区域 -->
+    <div class="input-area px-4 py-3 shrink-0">
+        <div class="flex gap-2">
+            <input 
+                id="messageInput" 
+                type="text" 
+                placeholder="输入您的问题..."
+                class="flex-1 px-4 py-3 bg-gray-100 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+            >
+            <button 
+                onclick="sendMessage()"
+                class="btn-primary text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+            >
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <div class="flex justify-between items-center mt-2 text-xs text-gray-400">
+            <span>按 Enter 发送</span>
+            <div class="flex gap-3">
+                <button class="hover:text-gray-600"><i class="fas fa-paperclip mr-1"></i>附件</button>
+                <button class="hover:text-gray-600"><i class="fas fa-microphone mr-1"></i>语音</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取圆桌ID
+        const pathParts = window.location.pathname.split('/');
+        const roundtableId = pathParts[pathParts.length - 1];
+        
+        // API 基础地址
+        const API_BASE = window.location.origin.includes('localhost') 
+            ? 'http://localhost:8000' 
+            : 'https://medroundtable-api.onrender.com';
+        
+        // 模拟数据模式
+        const MOCK_MODE = true;
+        let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
+        
+        // 调试信息
+        console.log('=== 圆桌详情页加载 ===');
+        console.log('圆桌ID:', roundtableId);
+        console.log('localStorage mockSessions:', localStorage.getItem('mockSessions'));
+        
+        // 加载圆桌信息
+        async function loadRoundtableInfo() {
+            try {
+                let data;
+                
+                if (MOCK_MODE) {
+                    // 从本地存储查找圆桌
+                    const sessionsStr = localStorage.getItem('mockSessions') || '[]';
+                    console.log('读取到的sessions字符串:', sessionsStr);
+                    const sessions = JSON.parse(sessionsStr);
+                    console.log('解析后的sessions:', sessions);
+                    console.log('查找ID:', roundtableId, '类型:', typeof roundtableId);
+                    
+                    data = sessions.find(s => {
+                        console.log('比较:', s.id, '==', roundtableId, '结果:', s.id == roundtableId);
+                        return s.id == roundtableId;
+                    });
+                    
+                    if (!data) {
+                        console.error('未找到圆桌, ID:', roundtableId);
+                        console.error('可用ID列表:', sessions.map(s => s.id));
+                        throw new Error('Roundtable not found in localStorage');
+                    }
+                    console.log('找到圆桌数据:', data);
+                } else {
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}`);
+                    if (!response.ok) throw new Error('Failed to load');
+                    data = await response.json();
+                }
+                
+                document.getElementById('roundtableTitle').textContent = data.title || '未命名圆桌';
+                document.getElementById('roundtableStatus').textContent = data.status === 'active' ? '进行中' : data.status;
+            } catch (err) {
+                console.error('加载圆桌信息失败:', err);
+                document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
+                document.getElementById('roundtableStatus').textContent = '未找到 (请重新创建)';
+                
+                // 显示错误提示
+                alert('圆桌不存在或数据已丢失。将返回首页。\n错误: ' + err.message);
+                window.location.href = '/';
+            }
+        }
+        
+        // 加载历史消息
+        async function loadMessages() {
+            try {
+                let messages;
+                
+                if (MOCK_MODE) {
+                    // 从本地存储加载消息
+                    messages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
+                } else {
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`);
+                    if (!response.ok) return;
+                    messages = await response.json();
+                }
+                
+                const container = document.getElementById('chatContainer');
+                container.innerHTML = '';
+                
+                // 添加欢迎消息
+                if (messages.length === 0) {
+                    renderMessage({
+                        from_role: 'clinical_director',
+                        content: '欢迎来到 MedRoundTable！我是临床主任，将协调这次科研讨论。请提出您的临床问题，我们的专家团队会一起帮您设计研究方案。',
+                        created_at: new Date().toISOString()
+                    });
+                }
+                
+                messages.forEach(msg => renderMessage(msg));
+            } catch (err) {
+                console.error('加载消息失败:', err);
+            }
+        }
+        
+        // 渲染消息
+        function renderMessage(msg) {
+            const container = document.getElementById('chatContainer');
+            const isUser = msg.from_role === 'user';
+            
+            const div = document.createElement('div');
+            div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            
+            div.innerHTML = `
+                <div class="chat-bubble ${isUser ? 'user' : 'agent'} rounded-2xl px-4 py-3">
+                    ${!isUser ? `<div class="text-xs font-semibold mb-1 ${isUser ? 'text-blue-200' : 'text-blue-600'}">${getAgentName(msg.from_role)}</div>` : ''}
+                    <div class="leading-relaxed">${msg.content}</div>
+                    <div class="text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-400'} text-right">${formatTime(msg.created_at)}</div>
+                </div>
+            `;
+            
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // 获取专家名称
+        function getAgentName(role) {
+            const names = {
+                'clinical_director': '临床主任',
+                'phd_student': '博士生',
+                'epidemiologist': '流行病学家',
+                'statistician': '统计专家',
+                'research_nurse': '研究护士',
+                'clawbio_pharmgx': '药物基因组学专家',
+                'clawbio_gwas': 'GWAS专家',
+                'clawbio_sc_rna': '单细胞测序分析师',
+                'clawbio_galaxy': 'Galaxy桥接器',
+                'ux_researcher': 'UX研究员',
+                'ai_data_engineer': 'AI数据工程师',
+                'trend_researcher': '趋势研究员',
+                'experiment_tracker': '实验追踪员',
+                'model_qa': '模型QA专家',
+                'user': '我'
+            };
+            return names[role] || role;
+        }
+        
+        // 格式化时间
+        function formatTime(time) {
+            if (!time) return '';
+            const date = new Date(time);
+            return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // 发送消息
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            if (!content) return;
+            
+            // 清空输入
+            input.value = '';
+            
+            // 保存用户消息
+            const userMessage = {
+                from_role: 'user',
+                content: content,
+                created_at: new Date().toISOString()
+            };
+            
+            // 显示用户消息
+            renderMessage(userMessage);
+            
+            // 模拟模式：保存到本地
+            if (MOCK_MODE) {
+                mockMessages.push(userMessage);
+                localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
+            }
+            
+            // 显示输入中提示
+            showTypingIndicator();
+            
+            if (MOCK_MODE) {
+                // 模拟模式：2秒后显示专家回复 - 14个Agent轮流回复
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    
+                    // 根据消息内容选择相关度最高的专家回复
+                    const content_lower = content.toLowerCase();
+                    let selectedAgent = null;
+                    
+                    // 关键词匹配选择Agent
+                    if (content_lower.includes('基因') || content_lower.includes('药物') || content_lower.includes('用药')) {
+                        selectedAgent = { role: 'clawbio_pharmgx', content: '基于药物基因组学分析，我建议检测CYP2D6、CYP2C19等核心基因。根据CPIC指南，这可以帮助预测患者对特定药物的代谢能力，实现真正的个性化用药。' };
+                    } else if (content_lower.includes('gwas') || content_lower.includes('变异') || content_lower.includes('snp')) {
+                        selectedAgent = { role: 'clawbio_gwas', content: '我已查询了GWAS Catalog和ClinVar数据库。发现该疾病有47个显著相关的SNP位点，其中rs1801133在多个人群中都显示出强关联性（p < 5e-8）。' };
+                    } else if (content_lower.includes('单细胞') || content_lower.includes('scrna') || content_lower.includes('细胞')) {
+                        selectedAgent = { role: 'clawbio_sc_rna', content: '单细胞测序分析显示，该疾病涉及3种主要细胞类型的异常。UMAP聚类图显示清晰的细胞亚群分离，差异表达分析鉴定出156个关键标记基因。' };
+                    } else if (content_lower.includes('工具') || content_lower.includes('分析') || content_lower.includes('workflow')) {
+                        selectedAgent = { role: 'clawbio_galaxy', content: '根据您的分析需求，我推荐以下Galaxy工具组合：FastQC进行质控 → STAR比对 → featureCounts定量 → DESeq2差异分析。整个工作流已配置好，可以直接运行。' };
+                    } else if (content_lower.includes('用户') || content_lower.includes('体验') || content_lower.includes('界面')) {
+                        selectedAgent = { role: 'ux_researcher', content: '从用户体验研究角度，我建议进行可用性测试。可以设计5-8个典型任务，观察用户完成时间和错误率，收集定性反馈来优化研究工具的设计。' };
+                    } else if (content_lower.includes('数据') || content_lower.includes('质量') || content_lower.includes('清洗')) {
+                        selectedAgent = { role: 'ai_data_engineer', content: '我检测到数据中存在12%的缺失值和3个异常值。建议使用多重插补法处理缺失数据，对异常值进行敏感性分析。我已自动生成数据修复脚本。' };
+                    } else if (content_lower.includes('趋势') || content_lower.includes('市场') || content_lower.includes('竞争')) {
+                        selectedAgent = { role: 'trend_researcher', content: '根据最新市场情报分析，该研究领域在过去3年增长了340%，吸引了大量投资。竞争格局显示前3名机构占据了65%的研究资源，建议寻找差异化定位。' };
+                    } else if (content_lower.includes('实验') || content_lower.includes('ab测试') || content_lower.includes('假设')) {
+                        selectedAgent = { role: 'experiment_tracker', content: '我设计了严格的A/B测试方案：对照组和干预组各需要150例样本，检验效能80%，显著性水平0.05。随机化采用分层区组设计，确保基线均衡。' };
+                    } else if (content_lower.includes('模型') || content_lower.includes('算法') || content_lower.includes('偏差')) {
+                        selectedAgent = { role: 'model_qa', content: '我对当前AI模型进行了全面测试。发现准确率达到92.3%，但在特定亚组中存在轻微偏差（<5%）。建议增加该亚组的训练数据，并进行公平性评估。' };
+                    } else {
+                        // 默认选择核心临床团队
+                        const coreResponses = [
+                            { role: 'clinical_director', content: '这是一个很有价值的临床问题。从循证医学角度来看，我建议我们先进行系统性文献回顾，了解当前研究的现状和空白。我会评估这个研究的临床意义和创新点。' },
+                            { role: 'phd_student', content: '我已经开始检索PubMed和Cochrane数据库。初步发现12篇相关RCT研究，但大多数样本量较小且存在选择偏倚。我建议我们设计一个多中心、大样本的研究来弥补这些不足。' },
+                            { role: 'epidemiologist', content: '从研究设计角度，我建议采用前瞻性队列研究设计。样本量计算显示需要至少300例才能达到80%的检验效能。我会设计严格的纳入排除标准来控制混杂因素。' },
+                            { role: 'statistician', content: '关于统计分析计划，我建议采用混合效应模型来处理多中心数据的聚类问题。主要终点使用ITT分析，缺失数据采用多重插补法。我会设计相应的CRF表格确保数据质量。' },
+                            { role: 'research_nurse', content: '从执行角度，我们需要考虑患者招募策略和数据质量控制。我建议制定详细的SOP文件，培训所有研究中心的研究人员，并建立实时数据监控系统。' }
+                        ];
+                        selectedAgent = coreResponses[Math.floor(Math.random() * coreResponses.length)];
+                    }
+                    
+                    const agentMessage = {
+                        from_role: selectedAgent.role,
+                        content: selectedAgent.content,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    renderMessage(agentMessage);
+                    mockMessages.push(agentMessage);
+                    localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
+                }, 2000);
+            } else {
+                // 真实 API 模式
+                try {
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content, to_role: 'all' })
+                    });
+                    
+                    if (!response.ok) throw new Error('发送失败');
+                    
+                    hideTypingIndicator();
+                    setTimeout(loadMessages, 1000);
+                } catch (err) {
+                    hideTypingIndicator();
+                    alert('发送失败: ' + err.message);
+                }
+            }
+        }
+        
+        // 显示输入中
+        function showTypingIndicator() {
+            const container = document.getElementById('chatContainer');
+            const div = document.createElement('div');
+            div.id = 'typingIndicator';
+            div.className = 'flex justify-start';
+            div.innerHTML = `
+                <div class="chat-bubble agent rounded-2xl px-4 py-3">
+                    <div class="text-xs font-semibold mb-1 text-blue-600">专家团</div>
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // 隐藏输入中
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) indicator.remove();
+        }
+        
+        // 回车发送
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRoundtableInfo();
+            loadMessages();
+        });
+    </script>
+</body>
+</html>

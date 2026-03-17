@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRoundTable - 医学研究工具生态</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .tool-card {
+            transition: all 0.3s ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- 头部 -->
+        <header class="glass-card rounded-2xl p-6 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+                        <i class="fas fa-toolbox text-indigo-600 mr-2"></i>
+                        医学研究工具生态
+                    </h1>
+                    <p class="text-gray-600">MedRoundTable 精选工具，助力医学科研全流程</p>
+                </div>
+                <div class="flex gap-3">
+                    <a href="/index.html" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                        <i class="fas fa-home mr-1"></i> 返回首页
+                    </a>
+                    <a href="/roundtables/" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        <i class="fas fa-users mr-1"></i> 我的圆桌
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- 介绍 -->
+        <div class="glass-card rounded-2xl p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                为什么选择这些工具？
+            </h2>
+            <p class="text-gray-600 leading-relaxed">
+                MedRoundTable 不仅提供 AI 协作圆桌，还与全球顶尖医学研究工具深度合作，
+                为您提供从<span class="text-indigo-600 font-semibold">临床试验追踪</span>到
+                <span class="text-indigo-600 font-semibold">数据可视化</span>的全流程支持。
+                这些工具经过严格筛选，与我们的 AI 专家系统无缝衔接。
+            </p>
+        </div>
+
+        <!-- 工具卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Clinical Trials Reviewer -->
+            <div class="glass-card tool-card rounded-2xl p-6">
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="feature-icon bg-blue-100 text-blue-600">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">Clinical Trials Reviewer</h3>
+                        <p class="text-sm text-gray-500">全球临床试验追踪与评论平台</p>
+                    </div>
+                </div>
+                
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    追踪全球最新临床试验动态，提供专业评论和分析。帮助研究者了解试验进展、
+                    评估设计方案、发现合作机会。
+                </p>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>实时追踪 ClinicalTrials.gov 等数据库</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>专业评论与同行评审</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>试验设计与伦理审查支持</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>与 MedRoundTable 研究设计专家联动</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <a href="https://clinicaltrialsreviewer.vip/" target="_blank" 
+                       class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl text-center font-semibold hover:bg-blue-700 transition">
+                        <i class="fas fa-external-link-alt mr-2"></i>访问平台
+                    </a>
+                    <button onclick="showIntegrationInfo('clinicaltrials')" 
+                            class="px-4 py-3 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-200 transition">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MediVisual -->
+            <div class="glass-card tool-card rounded-2xl p-6">
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="feature-icon bg-purple-100 text-purple-600">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">MediVisual Artist</h3>
+                        <p class="text-sm text-gray-500">医学数据可视化专家</p>
+                    </div>
+                </div>
+                
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    将复杂的医学数据转化为直观、美观的可视化图表。支持临床数据、
+                    基因数据、影像数据等多种类型的专业可视化。
+                </p>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>医学级专业图表生成</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>支持期刊发表标准</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>交互式数据探索</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>与 MedRoundTable 统计专家协作</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <a href="https://medivisual.org/" target="_blank" 
+                       class="flex-1 px-4 py-3 bg-purple-600 text-white rounded-xl text-center font-semibold hover:bg-purple-700 transition">
+                        <i class="fas fa-external-link-alt mr-2"></i>访问平台
+                    </a>
+                    <button onclick="showIntegrationInfo('medivisual')" 
+                            class="px-4 py-3 bg-purple-100 text-purple-700 rounded-xl hover:bg-purple-200 transition">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 使用场景 -->
+        <div class="glass-card rounded-2xl p-6 mt-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-sitemap text-indigo-600 mr-2"></i>
+                完整研究流程中的工具协作
+            </h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm shrink-0">1</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-1">文献回顾与试验发现</h4>
+                        <p class="text-sm text-gray-600">
+                            使用 <span class="text-blue-600 font-medium">Clinical Trials Reviewer</span> 
+                            发现全球相关临床试验，了解研究现状，寻找创新点。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100">
+                    <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold text-sm shrink-0">2</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-1">研究设计与方案制定</h4>
+                        <p class="text-sm text-gray-600">
+                            在 <span class="text-indigo-600 font-medium">MedRoundTable</span> 
+                            中与 AI 专家团讨论研究设计，优化方案。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 font-bold text-sm shrink-0">3</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-1">数据分析与可视化</h4>
+                        <p class="text-sm text-gray-600">
+                            使用 <span class="text-purple-600 font-medium">MediVisual Artist</span> 
+                            生成专业图表，满足期刊发表要求。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4 p-4 bg-white rounded-xl border border-gray-100">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 font-bold text-sm shrink-0">4</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-1">结果发表与社区分享</h4>
+                        <p class="text-sm text-gray-600">
+                            在 <span class="text-blue-600 font-medium">Clinical Trials Reviewer</span> 
+                            分享研究成果，获取同行反馈。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部 CTA -->
+        <div class="glass-card rounded-2xl p-6 mt-6 text-center">
+            <h3 class="text-xl font-bold text-gray-800 mb-2">准备好开始您的研究了吗？</h3>
+            <p class="text-gray-600 mb-4">使用 MedRoundTable AI 专家团，结合强大的工具生态</p>
+            <a href="/index.html" class="inline-block px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition">
+                <i class="fas fa-rocket mr-2"></i>立即创建圆桌会
+            </a>
+        </div>
+    </div>
+
+    <!-- 集成信息弹窗 -->
+    <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="glass-card rounded-2xl p-6 max-w-lg mx-4">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-800 mb-4"></h3>
+            <div id="modalContent" class="text-gray-600 mb-6"></div>
+            <button onclick="closeModal()" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                关闭
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const integrationInfo = {
+            clinicaltrials: {
+                title: 'Clinical Trials Reviewer 集成说明',
+                content: `
+                    <p class="mb-3"><strong>如何在 MedRoundTable 中使用：</strong></p>
+                    <ul class="list-disc pl-5 space-y-2 mb-4">
+                        <li>在研究设计阶段，使用 CTR 查找相关临床试验</li>
+                        <li>将 CTR 的评论和分析分享给 MedRoundTable 专家团</li>
+                        <li>参考 CTR 上的试验设计方案优化您的研究</li>
+                        <li>研究完成后，在 CTR 上发布您的试验结果</li>
+                    </ul>
+                    <p class="text-sm text-gray-500">提示：建议在创建圆桌会前，先在 CTR 上了解相关领域的研究现状。</p>
+                `
+            },
+            medivisual: {
+                title: 'MediVisual Artist 集成说明',
+                content: `
+                    <p class="mb-3"><strong>如何在 MedRoundTable 中使用：</strong></p>
+                    <ul class="list-disc pl-5 space-y-2 mb-4">
+                        <li>数据分析阶段，让 MediVisual 生成专业图表</li>
+                        <li>将可视化结果分享给 MedRoundTable 统计专家讨论</li>
+                        <li>使用期刊标准模板生成可直接发表的图表</li>
+                        <li>创建交互式图表用于学术报告和答辩</li>
+                    </ul>
+                    <p class="text-sm text-gray-500">提示：MediVisual 支持将 MedRoundTable 讨论中的数据直接可视化。</p>
+                `
+            }
+        };
+
+        function showIntegrationInfo(tool) {
+            const info = integrationInfo[tool];
+            document.getElementById('modalTitle').textContent = info.title;
+            document.getElementById('modalContent').innerHTML = info.content;
+            document.getElementById('infoModal').classList.remove('hidden');
+            document.getElementById('infoModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').classList.add('hidden');
+            document.getElementById('infoModal').classList.remove('flex');
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('infoModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>
