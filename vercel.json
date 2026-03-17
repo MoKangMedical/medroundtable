@@ -5,39 +5,32 @@
     "enabled": true,
     "silent": true
   },
-  "builds": [
+  "buildCommand": "echo 'Static deployment'",
+  "outputDirectory": "frontend",
+  "framework": null,
+  "rewrites": [
     {
-      "src": "frontend/**/*",
-      "use": "@vercel/static"
+      "source": "/api/(.*)",
+      "destination": "https://medroundtable-api.onrender.com/api/$1"
+    },
+    {
+      "source": "/roundtables/([0-9]+)",
+      "destination": "/roundtables/detail.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/$1"
     }
   ],
-  "routes": [
+  "headers": [
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "https://medroundtable-api.onrender.com/api/$1"
-    },
-    {
-      "src": "/roundtables/([0-9]+)",
-      "dest": "/frontend/roundtables/detail.html"
-    },
-    {
-      "src": "/roundtables/?$",
-      "dest": "/frontend/roundtables/index.html"
-    },
-    {
-      "src": "/tools",
-      "dest": "/frontend/tools.html"
-    },
-    {
-      "src": "/login",
-      "dest": "/frontend/login-v2.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
     }
   ]
 }
