@@ -1,36 +1,4 @@
 {
   "version": 2,
-  "public": true,
-  "github": {
-    "enabled": true,
-    "silent": true
-  },
-  "buildCommand": "echo 'Static deployment'",
-  "outputDirectory": "frontend",
-  "framework": null,
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://medroundtable-api.onrender.com/api/$1"
-    },
-    {
-      "source": "/roundtables/([0-9]+)",
-      "destination": "/roundtables/detail.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/$1"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    }
-  ]
+  "public": true
 }
