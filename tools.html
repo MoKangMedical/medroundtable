@@ -171,6 +171,54 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Lancet CHARLS Research Platform -->
+            <div class="glass-card tool-card rounded-2xl p-6">
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="feature-icon bg-red-100 text-red-600">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">Lancet CHARLS</h3>
+                        <p class="text-sm text-gray-500">中国健康与养老追踪调查平台</p>
+                    </div>
+                </div>
+                
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    Lancet 合作的中国健康与养老追踪调查（CHARLS）数据平台，提供大规模纵向队列数据，
+                    支持老龄化、健康经济学等领域的深度研究。
+                </p>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>覆盖28个省份、150个县区</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>45岁+中老年人群追踪数据</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>Lancet 合作顶级数据平台</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>与 MedRoundTable AI 专家协作分析</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <a href="https://charlstolancet.club/" target="_blank" 
+                       class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl text-center font-semibold hover:bg-red-700 transition">
+                        <i class="fas fa-external-link-alt mr-2"></i>访问平台
+                    </a>
+                    <button onclick="showIntegrationInfo('charls')" 
+                            class="px-4 py-3 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- 使用场景 -->
@@ -274,6 +322,19 @@
                         <li>创建交互式图表用于学术报告和答辩</li>
                     </ul>
                     <p class="text-sm text-gray-500">提示：MediVisual 支持将 MedRoundTable 讨论中的数据直接可视化。</p>
+                `
+            },
+            charls: {
+                title: 'Lancet CHARLS 集成说明',
+                content: `
+                    <p class="mb-3"><strong>如何在 MedRoundTable 中使用：</strong></p>
+                    <ul class="list-disc pl-5 space-y-2 mb-4">
+                        <li>在 CHARLS 平台获取中国老龄化与健康追踪数据</li>
+                        <li>将数据导入 MedRoundTable 与 AI 专家共同分析</li>
+                        <li>利用 14 位专家的知识开展深度研究设计</li>
+                        <li>结合 CHARLS 数据发表高质量论文</li>
+                    </ul>
+                    <p class="text-sm text-gray-500">提示：CHARLS 数据特别适合开展中国中老年健康、养老政策相关研究。</p>
                 `
             }
         };
