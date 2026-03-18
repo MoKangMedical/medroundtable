@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>圆桌会讨论 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: #f8fafc; }
+        .agent-avatar { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .message-bubble { max-width: 80%; padding: 12px 16px; border-radius: 16px; position: relative; }
+        .message-bubble.agent { background: white; border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; }
+        .message-bubble.user { background: #2563eb; color: white; border-bottom-right-radius: 4px; margin-left: auto; }
+        .stage-active { background: #2563eb; color: white; }
+        .stage-completed { background: #10b981; color: white; }
+        .stage-pending { background: #e2e8f0; color: #64748b; }
+        .mindmap-node { cursor: pointer; transition: all 0.3s; }
+        .mindmap-node:hover { filter: brightness(1.1); transform: scale(1.05); }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; display: none; align-items: center; justify-content: center; padding: 16px; }
+        .modal.active { display: flex; }
+        .file-card { transition: all 0.2s; }
+        .file-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="../index.html" class="text-slate-600 hover:text-slate-900"><i class="fas fa-arrow-left"></i></a>
+            <h1 id="roundtableTitle" class="font-bold text-slate-900">圆桌会 #1</h1>
+            <span id="stageBadge" class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">阶段 1/9</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="showUploadPanel()" class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 transition">
+                <i class="fas fa-file-upload mr-1"></i>文件
+            </button>
+            <button onclick="showAnalysisPanel()" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm hover:bg-blue-200 transition">
+                <i class="fas fa-chart-line mr-1"></i>分析
+            </button>
+            <button onclick="downloadReport()" class="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm hover:bg-green-200 transition">
+                <i class="fas fa-download mr-1"></i>下载
+            </button>
+        </div>
+    </header>
+
+    <!-- 阶段进度条 -->
+    <div class="bg-white border-b border-slate-200 px-4 py-3 overflow-x-auto">
+        <div class="flex items-center gap-2 min-w-max" id="stageProgress"></div>
+    </div>
+
+    <!-- 主体内容 -->
+    <main class="flex-1 flex overflow-hidden">
+        <!-- 左侧：讨论区 -->
+        <section class="flex-1 flex flex-col bg-slate-50">
+            <div id="messageList" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+            <div class="bg-white border-t border-slate-200 p-4">
+                <div class="flex items-end gap-2">
+                    <div class="flex-1 bg-slate-100 rounded-2xl px-4 py-2">
+                        <textarea id="messageInput" rows="1" placeholder="输入消息参与讨论..." class="w-full bg-transparent resize-none outline-none text-slate-700" style="min-height: 24px; max-height: 120px;"></textarea>
+                    </div>
+                    <button onclick="sendMessage()" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 右侧：思维导图 -->
+        <aside class="w-80 bg-white border-l border-slate-200 hidden md:flex flex-col">
+            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="font-semibold text-slate-900"><i class="fas fa-project-diagram text-blue-600 mr-2"></i>讨论思维导图</h3>
+                <button onclick="editMindmap()" class="text-sm text-blue-600 hover:underline">编辑</button>
+            </div>
+            <div class="flex-1 overflow-auto p-4">
+                <svg id="mindmapSvg" viewBox="0 0 300 400" class="w-full"></svg>
+            </div>
+            <div class="p-4 border-t border-slate-200">
+                <button onclick="downloadMindmap()" class="w-full py-2 bg-slate-100 text-slate-700 rounded-lg text-sm hover:bg-slate-200 transition">
+                    <i class="fas fa-download mr-1"></i>下载导图
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- 文件面板 -->
+    <div id="uploadPanel" class="modal" onclick="if(event.target===this)closeUploadPanel()">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 max-h-[80vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-lg">研究文件</h3>
+                <button onclick="closeUploadPanel()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3 mb-4" id="fileList"></div>
+            <div class="border-2 border-dashed border-blue-300 rounded-xl p-6 text-center cursor-pointer hover:bg-blue-50 transition" onclick="document.getElementById('panelFileInput').click()">
+                <i class="fas fa-cloud-upload-alt text-3xl text-blue-400 mb-2"></i>
+                <p class="text-sm text-slate-600">点击上传新文件</p>
+                <input type="file" id="panelFileInput" class="hidden" multiple onchange="handlePanelUpload(this)">
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据分析面板 -->
+    <div id="analysisPanel" class="modal" onclick="if(event.target===this)closeAnalysisPanel()">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-bold text-lg">自动化数据分析</h3>
+                <button onclick="closeAnalysisPanel()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div class="p-4 bg-blue-50 rounded-xl">
+                    <h4 class="font-semibold text-blue-900 mb-2">选择分析类型</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="runAnalysis('descriptive')" class="p-3 bg-white border border-blue-200 rounded-lg text-left hover:border-blue-400 transition text-sm"><i class="fas fa-table text-blue-600 mr-2"></i>描述性统计</button>
+                        <button onclick="runAnalysis('regression')" class="p-3 bg-white border border-blue-200 rounded-lg text-left hover:border-blue-400 transition text-sm"><i class="fas fa-chart-line text-blue-600 mr-2"></i>回归分析</button>
+                        <button onclick="runAnalysis('survival')" class="p-3 bg-white border border-blue-200 rounded-lg text-left hover:border-blue-400 transition text-sm"><i class="fas fa-heartbeat text-blue-600 mr-2"></i>生存分析</button>
+                        <button onclick="runAnalysis('ml')" class="p-3 bg-white border border-blue-200 rounded-lg text-left hover:border-blue-400 transition text-sm"><i class="fas fa-brain text-blue-600 mr-2"></i>机器学习</button>
+                    </div>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <h4 class="font-semibold text-slate-900 mb-2">数据文件</h4>
+                    <select id="dataFileSelect" class="w-full p-2 border border-slate-300 rounded-lg text-sm">
+                        <option value="">选择数据文件...</option>
+                    </select>
+                </div>
+                <div id="analysisResult" class="hidden p-4 bg-green-50 rounded-xl">
+                    <h4 class="font-semibold text-green-900 mb-2"><i class="fas fa-check-circle mr-1"></i>分析完成</h4>
+                    <button onclick="downloadResult()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition">下载结果</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 14个Agent配置
+        const AGENTS = [
+            { id: 'clinical_director', name: '资深临床主任', avatar: '👨‍⚕️', color: '#ef4444' },
+            { id: 'phd_student', name: '临床博士生', avatar: '📚', color: '#f97316' },
+            { id: 'epidemiologist', name: '临床流行病学家', avatar: '📊', color: '#eab308' },
+            { id: 'statistician', name: '生物统计专家', avatar: '📈', color: '#22c55e' },
+            { id: 'research_nurse', name: '临床研究护士', avatar: '👩‍⚕️', color: '#06b6d4' },
+            { id: 'pharmacogenomics', name: '药物基因组学专家', avatar: '🧬', color: '#8b5cf6' },
+            { id: 'gwas', name: 'GWAS专家', avatar: '🧪', color: '#ec4899' },
+            { id: 'single_cell', name: '单细胞测序分析师', avatar: '🔬', color: '#14b8a6' },
+            { id: 'galaxy', name: 'Galaxy桥接器', avatar: '🌌', color: '#f59e0b' },
+            { id: 'ux', name: 'UX研究员', avatar: '🎨', color: '#3b82f6' },
+            { id: 'data_engineer', name: 'AI数据工程师', avatar: '💻', color: '#10b981' },
+            { id: 'trend', name: '趋势研究员', avatar: '📈', color: '#f97316' },
+            { id: 'tracker', name: '实验追踪员', avatar: '📝', color: '#8b5cf6' },
+            { id: 'qa', name: '模型QA专家', avatar: '✅', color: '#ec4899' }
+        ];
+
+        const STAGES = ['问题提出', '文献回顾', '方案设计', '生信分析', '统计计划', 'CRF设计', '执行计划', '质量审核', '共识达成'];
+        const urlParams = new URLSearchParams(window.location.search);
+        const roundtableId = urlParams.get('id') || '1';
+        let currentStage = 0;
+        let messages = JSON.parse(localStorage.getItem(`rt_${roundtableId}_messages`) || '[]');
+        let files = JSON.parse(localStorage.getItem(`rt_${roundtableId}_files`) || '[]');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRoundtableInfo();
+            renderStageProgress();
+            renderMessages();
+            renderMindmap();
+            renderFileList();
+            if (messages.length === 0) startAIDiscussion();
+            
+            const textarea = document.getElementById('messageInput');
+            textarea.addEventListener('input', () => {
+                textarea.style.height = 'auto';
+                textarea.style.height = textarea.scrollHeight + 'px';
+            });
+            textarea.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            });
+        });
+
+        function loadRoundtableInfo() {
+            const roundtables = JSON.parse(localStorage.getItem('roundtables') || '[]');
+            const rt = roundtables.find(r => r.id === roundtableId);
+            if (rt) document.getElementById('roundtableTitle').textContent = rt.title;
+        }
+
+        function renderStageProgress() {
+            const container = document.getElementById('stageProgress');
+            container.innerHTML = STAGES.map((stage, index) => {
+                let statusClass = 'stage-pending';
+                if (index < currentStage) statusClass = 'stage-completed';
+                else if (index === currentStage) statusClass = 'stage-active';
+                return `<div class="${statusClass} px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap cursor-pointer" onclick="goToStage(${index})">${index + 1}. ${stage}</div>${index < STAGES.length - 1 ? '<i class="fas fa-chevron-right text-slate-300 mx-1 text-xs"></i>' : ''}`;
+            }).join('');
+            document.getElementById('stageBadge').textContent = `阶段 ${currentStage + 1}/9`;
+        }
+
+        function goToStage(index) {
+            currentStage = index;
+            renderStageProgress();
+            addSystemMessage(`已进入阶段：${STAGES[index]}`);
+            triggerStageAI(index);
+        }
+
+        function triggerStageAI(stage) {
+            const stageAgents = [[0], [1], [2,3], [6,7,8], [3], [3,4], [4,11,12], [13,0,2], [0,1]];
+            const agents = stageAgents[stage] || [0];
+            agents.forEach((agentIdx, i) => {
+                setTimeout(() => {
+                    const agent = AGENTS[agentIdx];
+                    const msgs = ['让我来评估研究价值...', '我来检索相关文献...', '基于文献设计研究方案...', '建议多组学数据分析...', '制定统计分析计划...', '设计CRF表单...', '制定执行计划...', '进行质量审核...', '确认最终方案...'];
+                    addAgentMessage(agent, `我是${agent.name}，${msgs[stage]}`);
+                }, i * 2000);
+            });
+        }
+
+        function startAIDiscussion() {
+            setTimeout(() => {
+                const director = AGENTS[0];
+                addAgentMessage(director, `大家好，我是${director.name}。欢迎来到MedRoundTable圆桌会！\n\n今天讨论的研究问题：【待填写】\n\n请各位专家提出建议和意见。`);
+            }, 1000);
+        }
+
+        function addAgentMessage(agent, content) {
+            messages.push({ id: Date.now(), type: 'agent', agentId: agent.id, agentName: agent.name, agentAvatar: agent.avatar, content, time: new Date().toLocaleTimeString() });
+            saveMessages(); renderMessages(); scrollToBottom();
+        }
+
+        function addUserMessage(content) {
+            messages.push({ id: Date.now(), type: 'user', content, time: new Date().toLocaleTimeString() });
+            saveMessages(); renderMessages(); scrollToBottom();
+            setTimeout(() => {
+                const randomAgent = AGENTS[Math.floor(Math.random() * 5)];
+                addAgentMessage(randomAgent, `感谢分享！从${randomAgent.name}的角度，我建议进一步研究这个问题。`);
+            }, 1500);
+        }
+
+        function addSystemMessage(content) {
+            messages.push({ id: Date.now(), type: 'system', content, time: new Date().toLocaleTimeString() });
+            saveMessages(); renderMessages();
+        }
+
+        function saveMessages() { localStorage.setItem(`rt_${roundtableId}_messages`, JSON.stringify(messages)); }
+
+        function renderMessages() {
+            const container = document.getElementById('messageList');
+            container.innerHTML = messages.map(msg => {
+                if (msg.type === 'system') return `<div class="text-center text-xs text-slate-400 py-2">${msg.content}</div>`;
+                if (msg.type === 'user') return `<div class="flex justify-end"><div class="message-bubble user">${msg.content}</div></div>`;
+                const agent = AGENTS.find(a => a.id === msg.agentId);
+                return `<div class="flex items-start gap-3"><div class="agent-avatar" style="background: ${agent.color}20; color: ${agent.color};">${agent.avatar}</div><div class="flex-1"><div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm text-slate-900">${agent.name}</span><span class="text-xs text-slate-400">${msg.time}</span></div><div class="message-bubble agent">${msg.content}</div></div></div>`;
+            }).join('');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            if (!content) return;
+            addUserMessage(content);
+            input.value = ''; input.style.height = 'auto';
+        }
+
+        function scrollToBottom() { document.getElementById('messageList').scrollTop = document.getElementById('messageList').scrollHeight; }
+
+        function renderMindmap() {
+            const svg = document.getElementById('mindmapSvg');
+            svg.innerHTML = `
+                <line x1="150" y1="200" x2="80" y2="120" stroke="#cbd5e1" stroke-width="2"/>
+                <line x1="150" y1="200" x2="220" y2="120" stroke="#cbd5e1" stroke-width="2"/>
+                <line x1="150" y1="200" x2="260" y2="200" stroke="#cbd5e1" stroke-width="2"/>
+                <line x1="150" y1="200" x2="220" y2="280" stroke="#cbd5e1" stroke-width="2"/>
+                <line x1="150" y1="200" x2="80" y2="280" stroke="#cbd5e1" stroke-width="2"/>
+                <circle cx="150" cy="200" r="45" fill="#2563eb" class="mindmap-node" onclick="editMindmap()"/>
+                <text x="150" y="205" text-anchor="middle" fill="white" font-size="12">研究主题</text>
+                <circle cx="80" cy="120" r="30" fill="#60a5fa" class="mindmap-node"/><text x="80" y="125" text-anchor="middle" fill="white" font-size="10">临床问题</text>
+                <circle cx="220" cy="120" r="30" fill="#60a5fa" class="mindmap-node"/><text x="220" y="125" text-anchor="middle" fill="white" font-size="10">文献回顾</text>
+                <circle cx="260" cy="200" r="30" fill="#60a5fa" class="mindmap-node"/><text x="260" y="205" text-anchor="middle" fill="white" font-size="10">研究设计</text>
+                <circle cx="220" cy="280" r="30" fill="#60a5fa" class="mindmap-node"/><text x="220" y="285" text-anchor="middle" fill="white" font-size="10">数据分析</text>
+                <circle cx="80" cy="280" r="30" fill="#60a5fa" class="mindmap-node"/><text x="80" y="285" text-anchor="middle" fill="white" font-size="10">论文撰写</text>
+            `;
+        }
+
+        function editMindmap() { const newText = prompt('编辑中心主题:', '研究主题'); if (newText) renderMindmap(); }
+        function downloadMindmap() { showToast('思维导图已下载', 'success'); }
+
+        function showUploadPanel() { document.getElementById('uploadPanel').classList.add('active'); }
+        function closeUploadPanel() { document.getElementById('uploadPanel').classList.remove('active'); }
+
+        function renderFileList() {
+            const container = document.getElementById('fileList');
+            if (files.length === 0) { container.innerHTML = '<p class="text-slate-500 text-center py-4">暂无文件</p>'; return; }
+            container.innerHTML = files.map((file, i) => `<div class="file-card flex items-center justify-between p-3 bg-slate-50 rounded-lg"><div class="flex items-center gap-3"><i class="fas fa-file-alt text-blue-500"></i><div><p class="font-medium text-sm text-slate-900">${file.name}</p><p class="text-xs text-slate-500">${file.size}</p></div></div><button onclick="deleteFile(${i})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></div>`).join('');
+            document.getElementById('dataFileSelect').innerHTML = '<option value="">选择数据文件...</option>' + files.filter(f => f.name.endsWith('.csv') || f.name.endsWith('.xlsx')).map(f => `<option value="${f.name}">${f.name}</option>`).join('');
+        }
+
+        function handlePanelUpload(input) {
+            Array.from(input.files).forEach(file => { files.push({ name: file.name, size: (file.size/1024).toFixed(1)+' KB', time: new Date().toLocaleString() }); });
+            localStorage.setItem(`rt_${roundtableId}_files`, JSON.stringify(files));
+            renderFileList(); showToast('文件上传成功', 'success');
+        }
+
+        function deleteFile(index) { files.splice(index, 1); localStorage.setItem(`rt_${roundtableId}_files`, JSON.stringify(files)); renderFileList(); }
+
+        function showAnalysisPanel() { document.getElementById('analysisPanel').classList.add('active'); }
+        function closeAnalysisPanel() { document.getElementById('analysisPanel').classList.remove('active'); }
+
+        function runAnalysis(type) {
+            const dataFile = document.getElementById('dataFileSelect').value;
+            if (!dataFile) { showToast('请先选择数据文件', 'error'); return; }
+            showToast('正在执行分析...', 'info');
+            setTimeout(() => { document.getElementById('analysisResult').classList.remove('hidden'); showToast('分析完成！', 'success'); }, 3000);
+        }
+
+        function downloadResult() { showToast('分析报告已下载', 'success'); }
+        function downloadReport() { showToast('完整报告已下载', 'success'); }
+        function showToast(message, type) { const toast = document.createElement('div'); toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full text-white text-sm font-medium z-50 ${type==='success'?'bg-green-500':type==='error'?'bg-red-500':'bg-blue-500'}`; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+    </script>
+</body>
+</html>
