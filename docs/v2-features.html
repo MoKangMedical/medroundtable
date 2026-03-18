@@ -301,23 +301,39 @@
         function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
         
         function handleLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            if (!email || !password) { showToast('请填写邮箱和密码', 'error'); return; }
-            currentUser = { email: email, name: email.split('@')[0] };
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            closeLoginModal();
-            updateUI();
-            showToast('登录成功！', 'success');
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (!email) { showToast('请输入邮箱', 'error'); return; }
+            if (!password) { showToast('请输入密码', 'error'); return; }
+            
+            try {
+                currentUser = { email: email, name: email.split('@')[0] };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                closeLoginModal();
+                updateUI();
+                showToast('登录成功！', 'success');
+            } catch (e) {
+                showToast('登录失败，请检查浏览器设置', 'error');
+                console.error('Login error:', e);
+            }
         }
         
         function showRegister() { showToast('注册功能：请输入邮箱和密码后点击登录', 'info'); }
         
         function updateUI() {
             if (currentUser) {
-                const loginBtn = document.querySelector('nav button');
-                loginBtn.textContent = currentUser.name;
-                loginBtn.onclick = () => showToast('已登录', 'info');
+                const loginBtn = document.querySelector('nav button:last-child');
+                if (loginBtn) {
+                    loginBtn.innerHTML = `<i class="fas fa-user mr-1"></i>${currentUser.name}`;
+                    loginBtn.onclick = () => {
+                        if (confirm('是否退出登录？')) {
+                            localStorage.removeItem('currentUser');
+                            currentUser = null;
+                            location.reload();
+                        }
+                    };
+                }
             }
         }
         
@@ -350,8 +366,15 @@
         function showClinicalTrials() { showToast('临床试验追踪功能：实时同步ClinicalTrials.gov数据', 'info'); }
         
         document.addEventListener('DOMContentLoaded', () => {
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) { currentUser = JSON.parse(savedUser); updateUI(); }
+            try {
+                const savedUser = localStorage.getItem('currentUser');
+                if (savedUser) { 
+                    currentUser = JSON.parse(savedUser); 
+                    updateUI(); 
+                }
+            } catch (e) {
+                console.error('Failed to restore user:', e);
+            }
             renderRoundtableList();
         });
         
