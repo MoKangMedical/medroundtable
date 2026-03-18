@@ -2716,7 +2716,7 @@
             }
             
             if (!currentSessionId) {
-                showToast('请先开始一个圆桌讨论', 'error');
+                window.location.href = './docs/workflow.html';
                 return;
             }
             
@@ -2853,14 +2853,7 @@
         }
         
         function showAnalysisTool(tool) {
-            const toolNames = {
-                'sample': '样本量计算器',
-                'randomization': '随机化方案',
-                'statplan': '统计分析计划',
-                'power': '效能分析'
-            };
-            
-            showToast(`${toolNames[tool]}功能开发中，敬请期待！`, 'info');
+            window.location.href = `./frontend/analysis-tools.html?tool=${encodeURIComponent(tool)}`;
         }
         
         async function loadQuickAnalysis() {
@@ -3026,8 +3019,7 @@
         }
 
         function showQuickActions() {
-            // 快捷操作菜单
-            showToast('功能开发中', 'info');
+            window.location.href = './frontend/action-center.html';
         }
 
         function showRegister() {

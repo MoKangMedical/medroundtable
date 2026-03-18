@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快捷操作中心 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+        :root {
+            --ink: #11213f;
+            --muted: #4c5f82;
+            --line: rgba(17, 33, 63, 0.12);
+            --paper: #f7f6f2;
+            --blue: #2558d9;
+            --green: #0f9f7a;
+            --amber: #d18a1f;
+            --rose: #c54b6c;
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(37, 88, 217, 0.18), transparent 28%),
+                radial-gradient(circle at top right, rgba(197, 75, 108, 0.12), transparent 24%),
+                linear-gradient(180deg, #fcfcfb 0%, var(--paper) 100%);
+            color: var(--ink);
+        }
+        h1, h2, h3 { font-family: 'Noto Serif SC', serif; }
+        .panel {
+            backdrop-filter: blur(18px);
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid var(--line);
+            box-shadow: 0 30px 80px rgba(26, 38, 68, 0.08);
+        }
+        .action-card {
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 22px 40px rgba(37, 88, 217, 0.12);
+            border-color: rgba(37, 88, 217, 0.25);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="max-w-7xl mx-auto px-4 py-8 md:py-14">
+        <div class="panel rounded-[2rem] overflow-hidden">
+            <div class="px-6 py-10 md:px-12 md:py-14 border-b border-slate-200/80">
+                <a href="../index.html" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition">
+                    <i class="fas fa-arrow-left"></i> 返回首页
+                </a>
+                <div class="mt-6 max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold">
+                        <i class="fas fa-compass"></i> Quick Navigation
+                    </div>
+                    <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">研究快捷操作中心</h1>
+                    <p class="mt-4 text-lg text-slate-600 leading-8">
+                        把首页里的核心动作收敛成一张真正可走通的导航图。无论你是要上传方案、启动统计分析、查看专家，还是先逛工具生态，这里都有明确下一步。
+                    </p>
+                </div>
+            </div>
+
+            <div class="px-6 py-8 md:px-12 md:py-12">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <a href="./protocol-upload.html" class="action-card block rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h2 class="mt-5 text-2xl font-bold">上传研究方案</h2>
+                        <p class="mt-3 text-slate-600">导入既有 protocol、草稿文档或结构化研究材料，作为圆桌会输入。</p>
+                        <div class="mt-5 text-sm font-semibold text-blue-700">进入上传页 <i class="fas fa-arrow-right ml-1"></i></div>
+                    </a>
+
+                    <a href="./trial-designer.html" class="action-card block rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <h2 class="mt-5 text-2xl font-bold">设计临床试验</h2>
+                        <p class="mt-3 text-slate-600">从研究问题、终点、样本量到随机化方案，逐步生成完整试验设计。</p>
+                        <div class="mt-5 text-sm font-semibold text-emerald-700">打开设计器 <i class="fas fa-arrow-right ml-1"></i></div>
+                    </a>
+
+                    <a href="./analysis-tools.html" class="action-card block rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl">
+                            <i class="fas fa-chart-column"></i>
+                        </div>
+                        <h2 class="mt-5 text-2xl font-bold">进入统计工具</h2>
+                        <p class="mt-3 text-slate-600">查看样本量、效能、SAP 与随机化等统计工具的入口和适用场景。</p>
+                        <div class="mt-5 text-sm font-semibold text-purple-700">查看统计导航 <i class="fas fa-arrow-right ml-1"></i></div>
+                    </a>
+
+                    <a href="./experts.html" class="action-card block rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl">
+                            <i class="fas fa-user-doctor"></i>
+                        </div>
+                        <h2 class="mt-5 text-2xl font-bold">查看 AI 专家</h2>
+                        <p class="mt-3 text-slate-600">快速了解 14 位专家的角色分工、研究支持边界和协作方式。</p>
+                        <div class="mt-5 text-sm font-semibold text-amber-700">浏览专家页 <i class="fas fa-arrow-right ml-1"></i></div>
+                    </a>
+
+                    <a href="./tools.html" class="action-card block rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-2xl">
+                            <i class="fas fa-screwdriver-wrench"></i>
+                        </div>
+                        <h2 class="mt-5 text-2xl font-bold">探索工具生态</h2>
+                        <p class="mt-3 text-slate-600">从 CTR、MediVisual 到 NHANES/SEER，浏览外部工具与 MedRoundTable 的衔接方式。</p>
+                        <div class="mt-5 text-sm font-semibold text-rose-700">进入工具生态 <i class="fas fa-arrow-right ml-1"></i></div>
+                    </a>
+
+                    <a href="./help.html" class="action-card block rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center text-2xl">
+                            <i class="fas fa-life-ring"></i>
+                        </div>
+                        <h2 class="mt-5 text-2xl font-bold">帮助与反馈</h2>
+                        <p class="mt-3 text-slate-600">遇到入口不清楚、流程卡住或部署问题时，先从帮助中心和反馈页继续。</p>
+                        <div class="mt-5 text-sm font-semibold text-slate-700">前往支持页 <i class="fas fa-arrow-right ml-1"></i></div>
+                    </a>
+                </div>
+
+                <section class="mt-10 rounded-[2rem] bg-slate-900 text-white p-8 md:p-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-8 items-start">
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-bold">推荐路径</h2>
+                            <ol class="mt-5 space-y-4 text-sm md:text-base text-slate-200">
+                                <li>1. 先在 <a href="./tools.html" class="text-blue-300 hover:text-white">工具生态</a> 或 <a href="./experts.html" class="text-blue-300 hover:text-white">AI 专家</a> 里确认适合的研究支持组合。</li>
+                                <li>2. 如果已有文档，直接走 <a href="./protocol-upload.html" class="text-blue-300 hover:text-white">上传研究方案</a>；如果还在构思阶段，先用 <a href="./trial-designer.html" class="text-blue-300 hover:text-white">试验设计器</a>。</li>
+                                <li>3. 需要样本量、随机化、SAP 或功效分析时，再进入 <a href="./analysis-tools.html" class="text-blue-300 hover:text-white">统计工具导航</a>。</li>
+                            </ol>
+                        </div>
+                        <div class="rounded-3xl bg-white/10 border border-white/15 p-6">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-300">Direct Access</p>
+                            <div class="mt-4 space-y-3">
+                                <a href="../index.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
+                                    <span>返回主站首页</span><i class="fas fa-up-right-from-square text-sm"></i>
+                                </a>
+                                <a href="./feedback-v2.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
+                                    <span>打开反馈中心</span><i class="fas fa-up-right-from-square text-sm"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

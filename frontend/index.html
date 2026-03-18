@@ -931,7 +931,7 @@
                 <input type="password" id="loginPassword" placeholder="密码" class="w-full px-4 py-4 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base transition-all">
                 <button onclick="login()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold btn-press shadow-lg text-lg transition-all">登录</button>
                 <p class="text-center text-base text-slate-500">
-                    还没有账号？<a href="#" onclick="showRegister(); return false;" class="text-blue-600 hover:text-blue-700 font-semibold">立即注册</a>
+                    还没有账号？<a href="./login.html" onclick="showRegister(); return false;" class="text-blue-600 hover:text-blue-700 font-semibold">立即注册</a>
                 </p>
             </div>
         </div>
@@ -1253,19 +1253,22 @@
 
         function showAgentInfo() {
             console.log('showAgentInfo 被调用');
+            if (!currentSessionId) {
+                window.location.href = './experts.html';
+                return;
+            }
             showModal('agentModal');
         }
 
         function showLoginModal() {
             console.log('showLoginModal 被调用');
             toggleSidebar();
-            // 跳转到新的登录页面（支持国内访问）
-            window.location.href = '/login-v2.html';
+            window.location.href = './login.html';
         }
 
         function showFeedback() {
             console.log('showFeedback 被调用');
-            window.open('/feedback-v2.html', '_blank');
+            window.location.href = './feedback-v2.html';
         }
 
         // ============ 会话管理 ============
@@ -1840,6 +1843,10 @@
         // ============ 参考文献功能 ============
         
         function showCitations() {
+            if (!currentSessionId) {
+                window.location.href = './journals.html';
+                return;
+            }
             const panel = document.getElementById('citationsPanel');
             const overlay = document.getElementById('citationsOverlay');
             panel.classList.remove('translate-x-full');
@@ -1954,6 +1961,10 @@
         let mindMap = null;
 
         function showMindMap() {
+            if (!currentSessionId) {
+                window.location.href = '../docs/workflow.html';
+                return;
+            }
             const panel = document.getElementById('mindmapPanel');
             panel.classList.remove('translate-y-full');
 
@@ -2229,6 +2240,10 @@
         
         // 1. 上传研究方案
         function showUploadModal() {
+            if (!currentSessionId) {
+                window.location.href = './protocol-upload.html';
+                return;
+            }
             // 关闭移动端侧边栏
             if (window.innerWidth < 1024) {
                 toggleSidebar();
@@ -2411,7 +2426,7 @@
             }
             
             if (!currentSessionId) {
-                showToast('请先开始一个圆桌讨论', 'error');
+                window.location.href = '../docs/workflow.html';
                 return;
             }
             
@@ -2426,7 +2441,7 @@
             }
             
             if (!currentSessionId) {
-                showToast('请先开始一个圆桌讨论', 'error');
+                window.location.href = './trial-designer.html';
                 return;
             }
             
@@ -2457,6 +2472,10 @@
         
         // 4. 自动化数据分析
         function showDataAnalysis() {
+            if (!currentSessionId) {
+                window.location.href = './analysis.html';
+                return;
+            }
             // 关闭移动端侧边栏
             if (window.innerWidth < 1024) {
                 toggleSidebar();
@@ -2545,14 +2564,7 @@
         }
         
         function showAnalysisTool(tool) {
-            const toolNames = {
-                'sample': '样本量计算器',
-                'randomization': '随机化方案',
-                'statplan': '统计分析计划',
-                'power': '效能分析'
-            };
-            
-            showToast(`${toolNames[tool]}功能开发中，敬请期待！`, 'info');
+            window.location.href = `./analysis-tools.html?tool=${encodeURIComponent(tool)}`;
         }
         
         async function loadQuickAnalysis() {
@@ -2718,12 +2730,11 @@
         }
 
         function showQuickActions() {
-            // 快捷操作菜单
-            showToast('功能开发中', 'info');
+            window.location.href = './action-center.html';
         }
 
         function showRegister() {
-            showToast('注册功能开发中，请稍后重试', 'info');
+            window.location.href = './login.html';
         }
 
         // 防止双击缩放
