@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-from backend.models.upload_models import (
+from backend.upload_models import (
     AnalysisTask, AnalysisCreate, AnalysisConfig, AnalysisResult,
     ExternalAPICall, ExternalAPIResponse, APICallLog
 )

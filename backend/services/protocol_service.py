@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
-from backend.models.upload_models import (
+from backend.upload_models import (
     ResearchProtocol, ProtocolCreate, ProtocolUpdate, ProtocolResponse
 )
 

@@ -1,6 +1,6 @@
 from enum import Enum
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel
+from typing import Optional, List, Dict, Any, Union
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 class AgentRole(str, Enum):
@@ -47,12 +47,12 @@ class RoundTableStatus(str, Enum):
 class A2AMessage(BaseModel):
     id: str
     session_id: str
-    from_role: AgentRole | str  # AgentRole or 'user'
-    to_role: AgentRole | str  # 'all' for broadcast
+    from_role: Union[AgentRole, str]  # AgentRole or 'user'
+    to_role: Union[AgentRole, str]  # 'all' for broadcast
     type: MessageType
     content: str
-    metadata: Dict[str, Any] = {}
-    created_at: datetime = datetime.utcnow()
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class StudyDesign(BaseModel):
     study_type: str
@@ -86,16 +86,16 @@ class ResearchOutput(BaseModel):
     crf_template: CRFTemplate
     analysis_plan: AnalysisPlan
     operation_manual: str
-    generated_at: datetime = datetime.utcnow()
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class RoundTable(BaseModel):
     id: str
     title: str
     clinical_question: str
     status: RoundTableStatus = RoundTableStatus.INIT
-    participants: List[AgentRole] = []
-    messages: List[A2AMessage] = []
+    participants: List[AgentRole] = Field(default_factory=list)
+    messages: List[A2AMessage] = Field(default_factory=list)
     current_round: int = 0
-    created_at: datetime = datetime.utcnow()
+    created_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = None
     output: Optional[ResearchOutput] = None

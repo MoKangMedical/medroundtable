@@ -7,7 +7,7 @@ from typing import Optional, List
 import uuid
 from datetime import datetime
 
-from backend.models.upload_models import (
+from backend.upload_models import (
     ProtocolCreate, ProtocolUpdate, ProtocolResponse, ResearchProtocol
 )
 from backend.services.protocol_service import ProtocolService

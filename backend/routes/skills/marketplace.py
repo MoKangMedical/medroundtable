@@ -21,6 +21,10 @@ class SkillResponse(BaseModel):
     source: str
     version: str
     enabled: bool
+    package_id: Optional[str] = None
+    wrapper_type: Optional[str] = None
+    tags: List[str] = []
+    metadata: Dict[str, Any] = {}
 
 class SkillCategoryResponse(BaseModel):
     name: str
@@ -29,9 +33,21 @@ class SkillCategoryResponse(BaseModel):
 
 class SkillStatsResponse(BaseModel):
     total_skills: int
+    openclaw_wrapped_skills: int
     by_category: Dict[str, int]
     by_source: Dict[str, int]
     enabled: int
+    source_packages: Dict[str, Dict[str, Any]]
+
+class SkillPackageResponse(BaseModel):
+    id: str
+    name: str
+    source: str
+    total_skills: int
+    description: str
+    packaging: str
+    version: str
+    metadata: Dict[str, Any]
 
 class SkillInvokeRequest(BaseModel):
     skill_id: str
@@ -42,6 +58,22 @@ class SkillInvokeResponse(BaseModel):
     skill_id: str
     result: Any
     message: str
+
+
+def _serialize_skill(skill) -> SkillResponse:
+    return SkillResponse(
+        id=skill.id,
+        name=skill.name,
+        description=skill.description,
+        category=skill.category.value,
+        source=skill.source.value,
+        version=skill.version,
+        enabled=skill.enabled,
+        package_id=skill.package_id,
+        wrapper_type=skill.wrapper_type,
+        tags=skill.tags,
+        metadata=skill.metadata,
+    )
 
 # ============ API端点 ============
 
@@ -79,18 +111,7 @@ async def get_all_skills(
     if enabled_only:
         skills = [s for s in skills if s.enabled]
     
-    return [
-        SkillResponse(
-            id=s.id,
-            name=s.name,
-            description=s.description,
-            category=s.category.value,
-            source=s.source.value,
-            version=s.version,
-            enabled=s.enabled
-        )
-        for s in skills
-    ]
+    return [_serialize_skill(skill) for skill in skills]
 
 @router.get("/search")
 async def search_skills(
@@ -105,18 +126,7 @@ async def search_skills(
     - limit: 最大返回数量
     """
     results = skill_registry.search_skills(q)[:limit]
-    return [
-        SkillResponse(
-            id=s.id,
-            name=s.name,
-            description=s.description,
-            category=s.category.value,
-            source=s.source.value,
-            version=s.version,
-            enabled=s.enabled
-        )
-        for s in results
-    ]
+    return [_serialize_skill(skill) for skill in results]
 
 @router.get("/categories", response_model=List[SkillCategoryResponse])
 async def get_categories():
@@ -128,6 +138,19 @@ async def get_stats():
     """获取技能统计信息"""
     stats = skill_registry.get_stats()
     return SkillStatsResponse(**stats)
+
+@router.get("/packages", response_model=List[SkillPackageResponse])
+async def get_skill_packages():
+    """获取技能包信息"""
+    return [SkillPackageResponse(**package) for package in skill_registry.get_packages()]
+
+@router.get("/packages/{package_id}", response_model=SkillPackageResponse)
+async def get_skill_package(package_id: str):
+    """获取单个技能包详情"""
+    package = skill_registry.get_package(package_id)
+    if not package:
+        raise HTTPException(status_code=404, detail=f"技能包 {package_id} 不存在")
+    return SkillPackageResponse(**package)
 
 @router.get("/{skill_id}")
 async def get_skill(skill_id: str):
@@ -141,15 +164,7 @@ async def get_skill(skill_id: str):
     if not skill:
         raise HTTPException(status_code=404, detail=f"技能 {skill_id} 不存在")
     
-    return SkillResponse(
-        id=skill.id,
-        name=skill.name,
-        description=skill.description,
-        category=skill.category.value,
-        source=skill.source.value,
-        version=skill.version,
-        enabled=skill.enabled
-    )
+    return _serialize_skill(skill)
 
 @router.post("/{skill_id}/invoke", response_model=SkillInvokeResponse)
 async def invoke_skill(skill_id: str, request: SkillInvokeRequest):
@@ -188,6 +203,18 @@ async def _execute_skill(skill, parameters: Dict) -> Any:
     """执行技能"""
     # 这里根据技能类型调用不同的执行逻辑
     # 实际实现需要集成具体的技能工具
+
+    if skill.source == SkillSource.MEDICAL_SKILLS:
+        return {
+            "skill": skill.name,
+            "action": "openclaw_wrapper",
+            "package_id": skill.package_id,
+            "wrapper_type": skill.wrapper_type,
+            "recommended_agent": skill.metadata.get("recommended_agent"),
+            "execution_mode": "adapter",
+            "parameters": parameters,
+            "message": "该技能通过 OpenClaw Medical Skills 包装层接入，已可被 STELLA 编排调用。",
+        }
     
     if skill.category == SkillCategory.LITERATURE:
         return await _execute_literature_skill(skill, parameters)
@@ -271,18 +298,7 @@ async def get_recommended_skills(
     if clinical_skills:
         recommended.append(clinical_skills[0])
     
-    return [
-        SkillResponse(
-            id=s.id,
-            name=s.name,
-            description=s.description,
-            category=s.category.value,
-            source=s.source.value,
-            version=s.version,
-            enabled=s.enabled
-        )
-        for s in recommended
-    ]
+    return [_serialize_skill(skill) for skill in recommended]
 
 @router.get("/featured/new")
 async def get_new_skills():
@@ -292,18 +308,7 @@ async def get_new_skills():
     # 按某种逻辑排序，这里简化处理
     new_skills = all_skills[-10:]  # 返回最后10个
     
-    return [
-        SkillResponse(
-            id=s.id,
-            name=s.name,
-            description=s.description,
-            category=s.category.value,
-            source=s.source.value,
-            version=s.version,
-            enabled=s.enabled
-        )
-        for s in new_skills
-    ]
+    return [_serialize_skill(skill) for skill in new_skills]
 
 @router.get("/featured/popular")
 async def get_popular_skills():
@@ -325,15 +330,4 @@ async def get_popular_skills():
         if skill:
             popular.append(skill)
     
-    return [
-        SkillResponse(
-            id=s.id,
-            name=s.name,
-            description=s.description,
-            category=s.category.value,
-            source=s.source.value,
-            version=s.version,
-            enabled=s.enabled
-        )
-        for s in popular
-    ]
+    return [_serialize_skill(skill) for skill in popular]

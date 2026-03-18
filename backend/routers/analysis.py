@@ -4,7 +4,7 @@
 from fastapi import APIRouter, HTTPException
 from typing import Optional, List
 
-from backend.models.upload_models import (
+from backend.upload_models import (
     AnalysisCreate, AnalysisTask, AnalysisResult,
     ExternalAPICall, ExternalAPIResponse
 )

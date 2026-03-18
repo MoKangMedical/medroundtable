@@ -87,7 +87,7 @@
     <!-- 顶部导航 -->
     <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-3">
-            <a href="/" class="text-gray-600 hover:text-gray-800">
+            <a href="../index.html" class="text-gray-600 hover:text-gray-800">
                 <i class="fas fa-arrow-left text-lg"></i>
             </a>
             <div>
@@ -163,8 +163,10 @@
 
     <script>
         // 获取圆桌ID
+        const urlParams = new URLSearchParams(window.location.search);
         const pathParts = window.location.pathname.split('/');
-        const roundtableId = pathParts[pathParts.length - 1];
+        const pathTail = pathParts[pathParts.length - 1];
+        const roundtableId = urlParams.get('sessionId') || (pathTail.endsWith('.html') ? '' : pathTail);
         
         // API 基础地址
         const API_BASE = window.location.origin.includes('localhost') 
@@ -219,7 +221,7 @@
                 
                 // 显示错误提示
                 alert('圆桌不存在或数据已丢失。将返回首页。\n错误: ' + err.message);
-                window.location.href = '/';
+                window.location.href = '../index.html';
             }
         }
         
