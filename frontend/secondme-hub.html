@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecondMe 协作入口 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 28%),
+                radial-gradient(circle at 85% 10%, rgba(129, 140, 248, 0.18), transparent 22%),
+                linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+            color: #0f172a;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(14px);
+        }
+
+        .select-card {
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .select-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+        }
+
+        .select-card.active {
+            border-color: rgba(29, 78, 216, 0.35);
+            box-shadow: 0 22px 44px rgba(29, 78, 216, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen px-4 py-10 md:px-6">
+        <div class="mx-auto max-w-7xl space-y-8">
+            <header class="glass-card rounded-[2rem] px-6 py-7 md:px-8">
+                <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">SecondMe Collaboration Gateway</p>
+                        <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-slate-950 md:text-5xl">让更多真人研究者和 AI 分身进入同一个医学科研圆桌</h1>
+                        <p class="mt-4 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+                            这不是单纯的登录页，而是把“谁来主导、带不带 SecondMe 分身、哪组 AI 先接管”一次定清楚。配置完成后会直接把阵容回填到主页创建流程。
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="../index.html" class="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                            返回主页
+                        </a>
+                        <button type="button" onclick="launchSelectedSetup()" class="rounded-full bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-800">
+                            带着阵容进入圆桌
+                        </button>
+                    </div>
+                </div>
+                <div id="identityBanner" class="mt-5 hidden rounded-[1.4rem] border border-blue-100 bg-gradient-to-r from-white to-blue-50 px-5 py-4">
+                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div class="flex items-center gap-4">
+                            <img id="identityBannerAvatar" src="../assets/secondme/director.png" alt="SecondMe 用户头像" class="h-14 w-14 rounded-2xl object-cover ring-2 ring-blue-100">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">Signed In Via SecondMe</p>
+                                <h2 id="identityBannerName" class="mt-1 text-xl font-bold text-slate-950">SecondMe 用户</h2>
+                                <p id="identityBannerMeta" class="mt-1 text-sm text-slate-600">身份将被带回主页和圆桌详情页。</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="clearSecondMeIdentity()" class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-50">
+                            清除身份
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                    <div class="rounded-[1.5rem] bg-slate-950 px-5 py-5 text-white">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Three Steps</p>
+                                <h2 class="mt-2 text-2xl font-bold">先选真人，再选分身，最后指定 AI 阵容</h2>
+                            </div>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">Ready for handoff</span>
+                        </div>
+                        <div class="mt-5 grid gap-3 md:grid-cols-3">
+                            <div class="rounded-3xl bg-white/8 p-4 ring-1 ring-white/10">
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Step 1</p>
+                                <h3 class="mt-2 text-lg font-bold">确定真人角色</h3>
+                                <p class="mt-2 text-sm leading-6 text-slate-200">让系统知道谁是发起人、谁负责证据、谁是共同作者。</p>
+                            </div>
+                            <div class="rounded-3xl bg-white/8 p-4 ring-1 ring-white/10">
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Step 2</p>
+                                <h3 class="mt-2 text-lg font-bold">装载 SecondMe 分身</h3>
+                                <p class="mt-2 text-sm leading-6 text-slate-200">把你的临床判断、文献记忆或多组学上下文带进本次会话。</p>
+                            </div>
+                            <div class="rounded-3xl bg-white/8 p-4 ring-1 ring-white/10">
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">Step 3</p>
+                                <h3 class="mt-2 text-lg font-bold">指定 AI 接管顺序</h3>
+                                <p class="mt-2 text-sm leading-6 text-slate-200">直接决定由哪一组 AI agent 作为首轮执行底盘。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-[1.5rem] px-5 py-5">
+                        <div class="flex items-center gap-3">
+                            <img src="../assets/secondme/director.png" alt="SecondMe 临床主任" class="h-14 w-14 rounded-2xl object-cover ring-2 ring-blue-100">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">Visual Bridge</p>
+                                <h3 class="text-xl font-bold text-slate-950">SecondMe 角色头像已接入</h3>
+                            </div>
+                        </div>
+                        <div class="mt-4 grid grid-cols-5 gap-2">
+                            <img src="../assets/secondme/director.png" alt="director" class="h-14 w-full rounded-2xl object-cover">
+                            <img src="../assets/secondme/student.png" alt="student" class="h-14 w-full rounded-2xl object-cover">
+                            <img src="../assets/secondme/epi.png" alt="epi" class="h-14 w-full rounded-2xl object-cover">
+                            <img src="../assets/secondme/stats.png" alt="stats" class="h-14 w-full rounded-2xl object-cover">
+                            <img src="../assets/secondme/nurse.png" alt="nurse" class="h-14 w-full rounded-2xl object-cover">
+                        </div>
+                        <p class="mt-4 text-sm leading-7 text-slate-600">这些头像和角色口径会作为正式站里的协作阵容展示，不再只是孤立的登录概念。</p>
+                    </div>
+                </div>
+            </header>
+
+            <section class="grid gap-5 xl:grid-cols-3">
+                <div class="glass-card rounded-[2rem] p-6 xl:col-span-2">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Quick Scenarios</p>
+                            <h2 class="mt-2 text-2xl font-bold text-slate-950">先用一键场景，5 秒内把最常见的协作阵容带回首页</h2>
+                        </div>
+                        <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">Three presets</span>
+                    </div>
+                    <div id="scenarioGrid" class="mt-5 grid gap-4 lg:grid-cols-3"></div>
+                </div>
+                <div class="glass-card rounded-[2rem] p-6">
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Handoff Preview</p>
+                    <h2 class="mt-2 text-2xl font-bold text-slate-950">即将带回主页的协作阵容</h2>
+                    <p id="selectionSummary" class="mt-3 text-sm leading-7 text-slate-600">选择下方角色和 AI 阵容后，这里会生成预览。</p>
+                    <div class="mt-5 space-y-4">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">真人成员</p>
+                            <div id="summaryHumans" class="mt-2 flex flex-wrap gap-2"></div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">SecondMe 分身</p>
+                            <div id="summaryShades" class="mt-2 flex flex-wrap gap-2"></div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">AI 阵容</p>
+                            <div id="summaryAiPack" class="mt-2 flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="launchSelectedSetup()" class="mt-6 w-full rounded-2xl bg-blue-700 px-4 py-4 text-base font-semibold text-white transition hover:bg-blue-800">
+                        带着这个阵容进入圆桌
+                    </button>
+                </div>
+            </section>
+
+            <section class="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
+                <div class="glass-card rounded-[2rem] p-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Human Roles</p>
+                            <h2 class="mt-2 text-2xl font-bold text-slate-950">谁作为真实研究者加入</h2>
+                        </div>
+                        <label class="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">
+                            <input id="includeCoauthor" type="checkbox" class="rounded border-slate-300 text-blue-700 focus:ring-blue-500">
+                            同时带上共同作者
+                        </label>
+                    </div>
+                    <div id="humanRoleGrid" class="mt-5 space-y-3"></div>
+                </div>
+                <div class="grid gap-5">
+                    <div class="glass-card rounded-[2rem] p-6">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">SecondMe Shades</p>
+                        <h2 class="mt-2 text-2xl font-bold text-slate-950">要不要把你的 SecondMe 分身一起带进来</h2>
+                        <div class="mt-5 grid gap-3 md:grid-cols-3" id="shadeGrid"></div>
+                    </div>
+                    <div class="glass-card rounded-[2rem] p-6">
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">AI Packs</p>
+                        <h2 class="mt-2 text-2xl font-bold text-slate-950">哪一组 AI 作为首轮协作底盘</h2>
+                        <div class="mt-5 grid gap-3 md:grid-cols-3" id="aiPackGrid"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="./secondme-identity.js"></script>
+    <script src="./secondme-collaboration.js"></script>
+    <script>
+        const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
+        const secondMeCollaboration = window.MedRoundTableSecondMe || null;
+        const params = new URLSearchParams(window.location.search);
+        let selectedHuman = params.get('human') || 'research_lead';
+        let selectedShade = params.get('shade') || 'clinical_memory';
+        let selectedPack = params.get('pack') || 'secondme_core_clinical';
+        let selectedScenario = params.get('scenario') || null;
+        let activeIdentity = secondMeIdentityStore ? secondMeIdentityStore.loadIdentity() : null;
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function applyScenario(scenarioId) {
+            const scenario = secondMeCollaboration.getScenario(scenarioId);
+            if (!scenario) return;
+            selectedScenario = scenarioId;
+            selectedHuman = scenario.humanRole;
+            selectedShade = scenario.shadeId;
+            selectedPack = scenario.aiPackId;
+            renderAll();
+        }
+
+        function renderScenarios() {
+            const container = document.getElementById('scenarioGrid');
+            container.innerHTML = secondMeCollaboration.scenarios.map((scenario) => {
+                const active = scenario.id === selectedScenario;
+                return `
+                    <button type="button" onclick="applyScenario('${scenario.id}')" class="select-card ${active ? 'active' : ''} rounded-[1.6rem] border border-slate-200 bg-white p-5 text-left">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-blue-700">Scenario</p>
+                                <h3 class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(scenario.title)}</h3>
+                            </div>
+                            <i class="fas fa-wand-magic-sparkles text-blue-600"></i>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(scenario.description)}</p>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderHumanRoles() {
+            const container = document.getElementById('humanRoleGrid');
+            container.innerHTML = secondMeCollaboration.humanRoles.map((role) => `
+                <button type="button" onclick="selectedScenario = null; selectedHuman = '${role.id}'; renderAll();" class="select-card ${selectedHuman === role.id ? 'active' : ''} w-full rounded-[1.6rem] border border-slate-200 bg-white p-4 text-left">
+                    <div class="flex items-start gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background:${role.accent}">
+                            <i class="fas ${role.icon}"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-3">
+                                <h3 class="text-lg font-bold text-slate-950">${escapeHtml(role.name)}</h3>
+                                <span class="text-xs font-semibold text-slate-500">${escapeHtml(role.subtitle)}</span>
+                            </div>
+                            <p class="mt-2 text-sm leading-7 text-slate-600">${escapeHtml(role.description)}</p>
+                        </div>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function renderShades() {
+            const container = document.getElementById('shadeGrid');
+            container.innerHTML = `
+                <button type="button" onclick="selectedScenario = null; selectedShade = ''; renderAll();" class="select-card ${!selectedShade ? 'active' : ''} rounded-[1.6rem] border border-slate-200 bg-white p-4 text-left">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Skip</p>
+                    <h3 class="mt-2 text-lg font-bold text-slate-950">这轮不带入分身</h3>
+                    <p class="mt-2 text-sm leading-7 text-slate-600">先用真人 + AI 阵容快速起步，后续再把 SecondMe 分身补进来。</p>
+                </button>
+            ` + secondMeCollaboration.shadeTemplates.map((shade) => `
+                <button type="button" onclick="selectedScenario = null; selectedShade = '${shade.id}'; renderAll();" class="select-card ${selectedShade === shade.id ? 'active' : ''} rounded-[1.6rem] border border-slate-200 bg-white p-4 text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl text-white" style="background:${shade.accent}">
+                            <i class="fas ${shade.icon}"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-950">${escapeHtml(shade.name)}</h3>
+                            <p class="text-xs font-semibold text-slate-500">${escapeHtml(shade.subtitle)}</p>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(shade.description)}</p>
+                </button>
+            `).join('');
+        }
+
+        function renderAiPacks() {
+            const container = document.getElementById('aiPackGrid');
+            container.innerHTML = secondMeCollaboration.aiPacks.map((pack) => `
+                <button type="button" onclick="selectedScenario = null; selectedPack = '${pack.id}'; renderAll();" class="select-card ${selectedPack === pack.id ? 'active' : ''} rounded-[1.6rem] border border-slate-200 bg-white p-4 text-left">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color:${pack.accent}">AI Pack</p>
+                            <h3 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(pack.name)}</h3>
+                        </div>
+                        <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold text-white" style="background:${pack.accent}">
+                            ${pack.expertRoles.length} 位
+                        </span>
+                    </div>
+                    <p class="mt-2 text-sm leading-7 text-slate-600">${escapeHtml(pack.subtitle)}</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        ${pack.outcomes.map((outcome) => `<span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">${escapeHtml(outcome)}</span>`).join('')}
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function renderSelectionSummary() {
+            const includeCoauthor = document.getElementById('includeCoauthor').checked;
+            const setup = secondMeCollaboration.createCollaborationSetup({
+                humanRole: selectedHuman,
+                shadeId: selectedShade || null,
+                aiPackId: selectedPack,
+                includeCoauthor
+            });
+
+            const human = secondMeCollaboration.getHumanRole(selectedHuman);
+            const shade = selectedShade ? secondMeCollaboration.getShadeTemplate(selectedShade) : null;
+            const aiPack = secondMeCollaboration.getAiPack(selectedPack);
+
+            document.getElementById('selectionSummary').textContent =
+                `${human.name}将作为真人主导者进入，${shade ? `同时带入${shade.name}` : '本轮暂不加载 SecondMe 分身'}，并由${aiPack.name}作为首轮协作底盘。`;
+
+            document.getElementById('summaryHumans').innerHTML = setup.humans.map((member) => `
+                <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200">
+                    <i class="fas fa-user text-blue-600"></i>${escapeHtml(member.name)}
+                </span>
+            `).join('');
+            document.getElementById('summaryShades').innerHTML = setup.shades.length > 0
+                ? setup.shades.map((member) => `<span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200"><i class="fas fa-brain text-cyan-600"></i>${escapeHtml(member.name)}</span>`).join('')
+                : '<span class="text-sm text-slate-500">这轮不带入 SecondMe 分身</span>';
+            document.getElementById('summaryAiPack').innerHTML = `<span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200"><i class="fas fa-users-gear text-violet-600"></i>${escapeHtml(aiPack.name)}</span>`;
+        }
+
+        function buildLaunchPayload() {
+            const includeCoauthor = document.getElementById('includeCoauthor').checked;
+            const human = secondMeCollaboration.getHumanRole(selectedHuman);
+            const shade = selectedShade ? secondMeCollaboration.getShadeTemplate(selectedShade) : null;
+            const aiPack = secondMeCollaboration.getAiPack(selectedPack);
+            const collaborationSetup = secondMeCollaboration.createCollaborationSetup({
+                humanRole: selectedHuman,
+                shadeId: selectedShade || null,
+                aiPackId: selectedPack,
+                includeCoauthor
+            });
+
+            return {
+                type: 'start-session',
+                preferredExpert: aiPack.recommendedExpert,
+                title: `SecondMe 协作圆桌：${human.name} x ${aiPack.name}`,
+                question: `${shade ? shade.prompt : ''}请把${human.name}带入本次圆桌。先由推荐专家介入，并结合${aiPack.name}的协作阵容快速判断下一步该怎么推进。`,
+                collaborationSetup
+            };
+        }
+
+        function renderIdentityBanner() {
+            const banner = document.getElementById('identityBanner');
+            const avatar = document.getElementById('identityBannerAvatar');
+            const name = document.getElementById('identityBannerName');
+            const meta = document.getElementById('identityBannerMeta');
+            if (!banner || !avatar || !name || !meta) return;
+
+            if (!activeIdentity || !activeIdentity.name) {
+                banner.classList.add('hidden');
+                return;
+            }
+
+            banner.classList.remove('hidden');
+            avatar.src = activeIdentity.avatar || '../assets/secondme/director.png';
+            name.textContent = activeIdentity.name;
+            meta.textContent = activeIdentity.email
+                ? `${activeIdentity.email} · 身份将被带回主页和圆桌详情页。`
+                : '身份将被带回主页和圆桌详情页。';
+        }
+
+        function clearSecondMeIdentity() {
+            if (secondMeIdentityStore) {
+                secondMeIdentityStore.clearIdentity();
+            }
+            activeIdentity = null;
+            renderIdentityBanner();
+        }
+
+        function launchSelectedSetup() {
+            const payload = buildLaunchPayload();
+            localStorage.setItem('mrt_pending_home_action', JSON.stringify(payload));
+            window.location.href = '../index.html';
+        }
+
+        function renderAll() {
+            renderScenarios();
+            renderHumanRoles();
+            renderShades();
+            renderAiPacks();
+            renderSelectionSummary();
+            renderIdentityBanner();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (secondMeIdentityStore) {
+                activeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
+            }
+            if (selectedScenario && secondMeCollaboration.getScenario(selectedScenario)) {
+                applyScenario(selectedScenario);
+            } else {
+                renderAll();
+            }
+            document.getElementById('includeCoauthor').addEventListener('change', renderSelectionSummary);
+        });
+    </script>
+</body>
+</html>

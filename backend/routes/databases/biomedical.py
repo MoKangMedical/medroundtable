@@ -1,10 +1,15 @@
 """
-数据库查询API - 统一访问40+生物医学数据库
+数据库查询 API
+
+统一访问平台已编目的生物医学数据库目录。
 """
 
+from typing import Any, Dict, List, Optional
+
 from fastapi import APIRouter, HTTPException, Query
-from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
+
+from backend.services.platform_catalog import get_platform_databases
 
 router = APIRouter(prefix="/api/v2/databases", tags=["数据库查询"])
 
@@ -34,173 +39,19 @@ class QueryResponse(BaseModel):
 # ============ 数据库注册表 ============
 
 DATABASES = {
-    # 文献数据库
-    "pubmed": {
-        "id": "pubmed",
-        "name": "PubMed",
-        "description": "生物医学文献数据库，包含3300万+文献",
-        "category": "文献",
-        "url": "https://pubmed.ncbi.nlm.nih.gov/",
-        "enabled": True
-    },
-    "pubmed-central": {
-        "id": "pubmed-central",
-        "name": "PubMed Central",
-        "description": "免费全文生物医学文献库",
-        "category": "文献",
-        "url": "https://www.ncbi.nlm.nih.gov/pmc/",
-        "enabled": True
-    },
-    
-    # 临床试验数据库
-    "clinicaltrials": {
-        "id": "clinicaltrials",
-        "name": "ClinicalTrials.gov",
-        "description": "美国临床试验注册库，包含50万+试验",
-        "category": "临床试验",
-        "url": "https://clinicaltrials.gov/",
-        "enabled": True
-    },
-    "chinadrugtrials": {
-        "id": "chinadrugtrials",
-        "name": "中国药物临床试验登记平台",
-        "description": "中国临床试验注册库",
-        "category": "临床试验",
-        "url": "http://www.chinadrugtrials.org.cn/",
-        "enabled": True
-    },
-    "eu-ctr": {
-        "id": "eu-ctr",
-        "name": "EU Clinical Trials Register",
-        "description": "欧盟临床试验注册库",
-        "category": "临床试验",
-        "url": "https://www.clinicaltrialsregister.eu/",
-        "enabled": True
-    },
-    
-    # 药物数据库
-    "drugbank": {
-        "id": "drugbank",
-        "name": "DrugBank",
-        "description": "药物和药物靶标数据库，包含1.5万+药物",
-        "category": "药物",
-        "url": "https://go.drugbank.com/",
-        "enabled": True
-    },
-    "chembl": {
-        "id": "chembl",
-        "name": "ChEMBL",
-        "description": "生物活性数据库",
-        "category": "药物",
-        "url": "https://www.ebi.ac.uk/chembl/",
-        "enabled": True
-    },
-    "bindingdb": {
-        "id": "bindingdb",
-        "name": "BindingDB",
-        "description": "药物结合亲和力数据库",
-        "category": "药物",
-        "url": "https://www.bindingdb.org/",
-        "enabled": True
-    },
-    
-    # 基因组/变异数据库
-    "clinvar": {
-        "id": "clinvar",
-        "name": "ClinVar",
-        "description": "人类变异与临床解释数据库",
-        "category": "基因组",
-        "url": "https://www.ncbi.nlm.nih.gov/clinvar/",
-        "enabled": True
-    },
-    "dbsnp": {
-        "id": "dbsnp",
-        "name": "dbSNP",
-        "description": "单核苷酸多态性数据库",
-        "category": "基因组",
-        "url": "https://www.ncbi.nlm.nih.gov/snp/",
-        "enabled": True
-    },
-    "gnomad": {
-        "id": "gnomad",
-        "name": "gnomAD",
-        "description": "基因组聚合数据库",
-        "category": "基因组",
-        "url": "https://gnomad.broadinstitute.org/",
-        "enabled": True
-    },
-    
-    # 蛋白质数据库
-    "uniprot": {
-        "id": "uniprot",
-        "name": "UniProt",
-        "description": "蛋白质序列和功能信息数据库",
-        "category": "蛋白质",
-        "url": "https://www.uniprot.org/",
-        "enabled": True
-    },
-    "pdb": {
-        "id": "pdb",
-        "name": "Protein Data Bank",
-        "description": "蛋白质三维结构数据库",
-        "category": "蛋白质",
-        "url": "https://www.rcsb.org/",
-        "enabled": True
-    },
-    
-    # 通路数据库
-    "kegg": {
-        "id": "kegg",
-        "name": "KEGG",
-        "description": "京都基因与基因组百科全书",
-        "category": "通路",
-        "url": "https://www.kegg.jp/",
-        "enabled": True
-    },
-    "reactome": {
-        "id": "reactome",
-        "name": "Reactome",
-        "description": "人类生物学通路数据库",
-        "category": "通路",
-        "url": "https://reactome.org/",
-        "enabled": True
-    },
-    
-    # 疾病数据库
-    "omim": {
-        "id": "omim",
-        "name": "OMIM",
-        "description": "在线人类孟德尔遗传数据库",
-        "category": "疾病",
-        "url": "https://omim.org/",
-        "enabled": True
-    },
-    "orphanet": {
-        "id": "orphanet",
-        "name": "Orphanet",
-        "description": "罕见病数据库",
-        "category": "疾病",
-        "url": "https://www.orpha.net/",
-        "enabled": True
-    },
-    
-    # 法规数据库
-    "fda": {
-        "id": "fda",
-        "name": "FDA数据库",
-        "description": "美国FDA药物和器械数据库",
-        "category": "法规",
-        "url": "https://www.fda.gov/",
-        "enabled": True
-    },
-    "ema": {
-        "id": "ema",
-        "name": "EMA数据库",
-        "description": "欧洲药品管理局数据库",
-        "category": "法规",
-        "url": "https://www.ema.europa.eu/",
-        "enabled": True
+    database["id"]: {
+        "id": database["id"],
+        "name": database["name"],
+        "description": database["description"],
+        "category": database["category"],
+        "url": database["url"],
+        "enabled": True,
+        "access_mode": database.get("access_mode"),
+        "integration": database.get("integration"),
+        "recommended_agent": database.get("recommended_agent"),
+        "tags": database.get("tags", []),
     }
+    for database in get_platform_databases()
 }
 
 # ============ API端点 ============

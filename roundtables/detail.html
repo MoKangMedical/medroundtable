@@ -100,6 +100,17 @@
         </div>
     </header>
 
+    <section id="identityContext" class="hidden shrink-0 border-b border-slate-200 bg-white px-4 py-3">
+        <div class="flex items-center gap-4">
+            <img id="identityAvatar" src="../assets/secondme/director.png" alt="SecondMe 用户头像" class="h-14 w-14 rounded-2xl object-cover ring-2 ring-slate-100">
+            <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Signed In Via SecondMe</p>
+                <h2 id="identityName" class="mt-1 text-lg font-bold text-slate-950">SecondMe 用户</h2>
+                <p id="identityMeta" class="mt-1 text-sm text-slate-600">该身份已回填到当前圆桌详情页。</p>
+            </div>
+        </div>
+    </section>
+
     <!-- 阶段进度条 -->
     <div class="stage-bar text-white px-4 py-2 shrink-0">
         <div class="flex items-center justify-between text-xs">
@@ -121,6 +132,16 @@
             </div>
         </div>
     </div>
+
+    <section id="collaborationContext" class="hidden shrink-0 border-b border-slate-200 bg-white/95 px-4 py-3">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">SecondMe Context</p>
+                <p id="collaborationSummary" class="mt-1 text-sm leading-6 text-slate-600">本轮未配置额外协作上下文。</p>
+            </div>
+            <div class="flex flex-wrap gap-2" id="collaborationBadges"></div>
+        </div>
+    </section>
 
     <!-- 聊天区域 -->
     <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
@@ -157,6 +178,8 @@
         </div>
     </div>
 
+    <script src="../frontend/secondme-identity.js"></script>
+    <script src="../frontend/secondme-collaboration.js"></script>
     <script src="../frontend/expert-data.js"></script>
     <script>
         // 获取圆桌ID
@@ -172,9 +195,21 @@
         
         // 模拟数据模式
         const MOCK_MODE = true;
+        const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
+        const secondMeCollaboration = window.MedRoundTableSecondMe || null;
         let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
         const expertCatalog = window.MedRoundTableExperts || null;
         const fallbackParticipants = ['clinical_director', 'phd_student', 'epidemiologist'];
+        let secondMeIdentity = secondMeIdentityStore ? secondMeIdentityStore.loadIdentity() : null;
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
         function loadSessionPreferences() {
             try {
@@ -220,6 +255,60 @@
                 return `<div class="agent-avatar bg-blue-100 text-sm font-semibold text-blue-700" title="${name}">${name.slice(0, 2)}</div>`;
             }).join('');
         }
+
+        function renderCollaborationContext(session) {
+            const section = document.getElementById('collaborationContext');
+            const summary = document.getElementById('collaborationSummary');
+            const badges = document.getElementById('collaborationBadges');
+            if (!section || !summary || !badges) return;
+
+            const humans = session && Array.isArray(session.human_participants) ? session.human_participants : [];
+            const shades = session && Array.isArray(session.secondme_shades) ? session.secondme_shades : [];
+            const aiPack = session && session.ai_pack ? session.ai_pack : null;
+
+            if (humans.length === 0 && shades.length === 0 && !aiPack) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            summary.textContent = `${humans.length} 位真人成员${shades.length > 0 ? ` + ${shades.length} 个 SecondMe 分身` : ''}${aiPack ? ` + ${aiPack.name}` : ''} 已进入本轮圆桌上下文。`;
+
+            const humanBadges = humans.map((member) => `
+                <span class="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+                    <i class="fas fa-user"></i>${escapeHtml(member.name)}
+                </span>
+            `);
+            const shadeBadges = shades.map((member) => `
+                <span class="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-3 py-2 text-xs font-semibold text-cyan-800">
+                    <i class="fas fa-brain"></i>${escapeHtml(member.name)}
+                </span>
+            `);
+            const packBadge = aiPack
+                ? [`<span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-800"><i class="fas fa-users-gear"></i>${escapeHtml(aiPack.name)}</span>`]
+                : [];
+            badges.innerHTML = [...humanBadges, ...shadeBadges, ...packBadge].join('');
+        }
+
+        function renderIdentityContext() {
+            const section = document.getElementById('identityContext');
+            const avatar = document.getElementById('identityAvatar');
+            const name = document.getElementById('identityName');
+            const meta = document.getElementById('identityMeta');
+            if (!section || !avatar || !name || !meta) return;
+
+            if (!secondMeIdentity || !secondMeIdentity.name) {
+                section.classList.add('hidden');
+                return;
+            }
+
+            section.classList.remove('hidden');
+            avatar.src = secondMeIdentity.avatar || '../assets/secondme/director.png';
+            name.textContent = secondMeIdentity.name;
+            meta.textContent = secondMeIdentity.email
+                ? `${secondMeIdentity.email} · 该身份已回填到当前圆桌详情页。`
+                : '该身份已回填到当前圆桌详情页。';
+        }
         
         // 调试信息
         console.log('=== 圆桌详情页加载 ===');
@@ -262,6 +351,7 @@
                     ? `由 ${preferredExpert.name} 先介入`
                     : (data.status === 'active' ? '进行中' : data.status);
                 renderParticipantAvatars(getRoundtableParticipants(data));
+                renderCollaborationContext(data);
             } catch (err) {
                 console.error('加载圆桌信息失败:', err);
                 document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
@@ -295,11 +385,14 @@
                     const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
                     const currentSession = sessions.find(s => s.id == roundtableId);
                     const preferredExpert = getPreferredExpert(currentSession);
+                    const collaborationNote = currentSession && currentSession.collaboration_label
+                        ? `当前已加载 ${currentSession.collaboration_label}。`
+                        : '';
                     renderMessage({
                         from_role: preferredExpert ? preferredExpert.role : 'clinical_director',
                         content: preferredExpert
-                            ? `欢迎来到 MedRoundTable！本次由我作为首位介入专家。${preferredExpert.prompt}`
-                            : '欢迎来到 MedRoundTable！我是临床主任，将协调这次科研讨论。请提出您的临床问题，我们的专家团队会一起帮您设计研究方案。',
+                            ? `欢迎来到 MedRoundTable！本次由我作为首位介入专家。${collaborationNote}${preferredExpert.prompt}`
+                            : `欢迎来到 MedRoundTable！我是临床主任，将协调这次科研讨论。${collaborationNote}请提出您的临床问题，我们的专家团队会一起帮您设计研究方案。`,
                         created_at: new Date().toISOString()
                     });
                 }
@@ -496,6 +589,10 @@
         
         // 页面加载
         document.addEventListener('DOMContentLoaded', function() {
+            if (secondMeIdentityStore) {
+                secondMeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
+            }
+            renderIdentityContext();
             loadRoundtableInfo();
             loadMessages();
         });

@@ -399,6 +399,7 @@ app.include_router(a2a_router)
 @app.get("/api/v2/")
 async def api_v2_root():
     """V2.0 API 概览"""
+    from backend.services.platform_catalog import get_platform_stats
     return {
         "version": "2.0.0",
         "name": "MedRoundTable API V2",
@@ -408,7 +409,7 @@ async def api_v2_root():
             "STELLA Manager-Dev-Critic",
             "997项技能市场",
             "869项 OpenClaw Medical Skills 包装层",
-            "40+生物医学数据库",
+            f"{get_platform_stats()['database_total']}个已编目生物医学数据库",
             "智能临床试验设计",
             "生物信息学分析",
             "AI研究辅助"
@@ -417,6 +418,7 @@ async def api_v2_root():
             "skills": "/api/v2/skills/",
             "stella": "/api/v2/stella/architecture",
             "databases": "/api/v2/databases/",
+            "capabilities": "/api/v2/capabilities",
             "trials": "/api/v2/trials/",
             "agents": "/api/v1/agents",
             "roundtables": "/api/v1/roundtables"
@@ -427,24 +429,56 @@ async def api_v2_root():
 async def api_v2_stats():
     """V2.0 平台统计"""
     from skills.registry import skill_registry
+    from backend.services.platform_catalog import (
+        get_platform_capability_lanes,
+        get_platform_source_packages,
+        get_platform_stats,
+    )
+
+    platform_stats = get_platform_stats()
     
     return {
         "skills": skill_registry.get_stats(),
         "databases": {
-            "total": 17,
-            "categories": ["文献", "临床试验", "药物", "基因组", "蛋白质", "通路", "疾病", "法规"]
+            "total": platform_stats["database_total"],
+            "categories": platform_stats["database_categories"],
+            "category_count": platform_stats["database_categories_total"],
         },
         "agents": {
-            "total": 14,
+            "total": platform_stats["experts_total"],
             "categories": ["核心临床团队", "生信套件", "研究支持团队"]
         },
         "stella": {
-            "meta_roles": 3,
+            "meta_roles": platform_stats["stella_meta_roles"],
             "architecture": "Manager-Dev-Critic",
             "status": "integrated"
         },
+        "algorithms": {
+            "total_lanes": platform_stats["capability_total"],
+            "capability_lanes": get_platform_capability_lanes(),
+            "source_packages": get_platform_source_packages(),
+        },
         "version": "2.0.0",
         "status": "operational"
+    }
+
+
+@app.get("/api/v2/capabilities")
+async def api_v2_capabilities():
+    """平台数据库与算法能力总览"""
+    from backend.services.platform_catalog import (
+        get_platform_capability_lanes,
+        get_platform_databases,
+        get_platform_source_packages,
+        get_platform_stats,
+    )
+
+    stats = get_platform_stats()
+    return {
+        "stats": stats,
+        "capability_lanes": get_platform_capability_lanes(),
+        "source_packages": get_platform_source_packages(),
+        "databases": get_platform_databases(),
     }
 
 # ============ 注册新路由 ============

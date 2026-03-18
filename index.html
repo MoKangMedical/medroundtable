@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MedRoundTable V2.0 - 14位AI专家医学科研协作平台</title>
+    <link rel="icon" href="./assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -229,6 +230,71 @@
             background-position: center;
             background-attachment: fixed;
         }
+
+        .landing-command {
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 34%),
+                radial-gradient(circle at 92% 12%, rgba(14, 165, 233, 0.16), transparent 24%),
+                linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 30px 70px rgba(15, 23, 42, 0.08);
+        }
+
+        .decision-card {
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .decision-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 20px 38px rgba(30, 64, 175, 0.12);
+        }
+
+        .triage-card {
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 18px 42px rgba(15, 23, 42, 0.07);
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .triage-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.11);
+        }
+
+        .triage-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 22px;
+            object-fit: cover;
+            background: linear-gradient(135deg, rgba(219, 234, 254, 0.7), rgba(224, 231, 255, 0.75));
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+        }
+
+        .metrics-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.9));
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        .quick-start-chip {
+            border: 1px solid rgba(191, 219, 254, 0.9);
+            background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(248, 250, 252, 0.94));
+            transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+        }
+
+        .quick-start-chip:hover {
+            border-color: rgba(59, 130, 246, 0.42);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(30, 64, 175, 0.12);
+        }
+
+        .mobile-cta-bar {
+            box-shadow: 0 18px 44px rgba(15, 23, 42, 0.22);
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -410,7 +476,7 @@
                             <div class="text-sm text-blue-100">AI专业技能</div>
                         </div>
                         <div class="bg-white/10 backdrop-blur rounded-2xl p-4">
-                            <div class="text-4xl font-bold mb-1">40+</div>
+                            <div class="text-4xl font-bold mb-1">46</div>
                             <div class="text-sm text-blue-100">生物医学数据库</div>
                         </div>
                         <div class="bg-white/10 backdrop-blur rounded-2xl p-4">
@@ -420,6 +486,33 @@
                         <div class="bg-white/10 backdrop-blur rounded-2xl p-4">
                             <div class="text-4xl font-bold mb-1">50%+</div>
                             <div class="text-sm text-blue-100">研究周期缩短</div>
+                        </div>
+                    </div>
+                    <div class="mt-8 max-w-4xl mx-auto">
+                        <div class="rounded-[2rem] border border-white/15 bg-slate-950/20 px-5 py-5 backdrop-blur-xl shadow-2xl">
+                            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                <div class="text-left">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-100/90">Primary CTA</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-white">不用先看完全部介绍，直接创建圆桌会</h3>
+                                    <p class="mt-2 text-sm leading-7 text-blue-100/90">输入一句临床问题，平台会先安排首位介入专家，再把后续协作链路自动展开。</p>
+                                </div>
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                                    <button onclick="openNewSessionModal({ forceRefill: false })" class="rounded-2xl bg-white px-6 py-4 text-base font-semibold text-blue-900 shadow-lg transition hover:bg-blue-50">
+                                        <i class="fas fa-rocket mr-2"></i>立即创建圆桌会
+                                    </button>
+                                    <a href="#expert-command-center" class="rounded-2xl border border-white/25 px-5 py-4 text-center text-sm font-semibold text-white/90 transition hover:bg-white/10">
+                                        不知道先找谁？看专家分诊
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-blue-100/90">
+                                <a href="./frontend/database-browser.html" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
+                                    <i class="fas fa-database"></i>查看 46 个数据库目录
+                                </a>
+                                <a href="./frontend/capability-matrix.html" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
+                                    <i class="fas fa-wave-square"></i>查看算法能力矩阵
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -472,7 +565,7 @@
                                     <strong>整合方式：</strong>利用NHANES公开数据库，快速生成符合Lancet发表标准的研究论文
                                 </p>
                             </div>
-                            <a href="https://nhanesanalyz-8bn77uby.manus.space/" target="_blank" class="block w-full py-2.5 bg-teal-600 text-white rounded-xl text-center font-semibold hover:bg-teal-700 transition">
+                            <a href="https://nhanesanalyz-8bn77uby.manus.space/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-teal-600 text-white rounded-xl text-center font-semibold hover:bg-teal-700 transition">
                                 访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                             </a>
                         </div>
@@ -508,7 +601,7 @@
                                     <strong>整合方式：</strong>基于SEER数据库开展肿瘤流行病学研究，生成BMJ标准学术论文
                                 </p>
                             </div>
-                            <a href="https://seertotoponcology.vip/" target="_blank" class="block w-full py-2.5 bg-rose-600 text-white rounded-xl text-center font-semibold hover:bg-rose-700 transition">
+                            <a href="https://seertotoponcology.vip/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-rose-600 text-white rounded-xl text-center font-semibold hover:bg-rose-700 transition">
                                 访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                             </a>
                         </div>
@@ -544,7 +637,7 @@
                                     <strong>整合方式：</strong>在研究设计阶段引用 CTR 数据，让我们的 AI 专家基于全球最新试验为您提供建议
                                 </p>
                             </div>
-                            <a href="https://clinicaltrialsreviewer.vip/" target="_blank" class="block w-full py-2.5 bg-blue-600 text-white rounded-xl text-center font-semibold hover:bg-blue-700 transition">
+                            <a href="https://clinicaltrialsreviewer.vip/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-blue-600 text-white rounded-xl text-center font-semibold hover:bg-blue-700 transition">
                                 访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                             </a>
                         </div>
@@ -580,7 +673,7 @@
                                     <strong>整合方式：</strong>数据分析阶段使用 MediVisual 生成图表，与我们的统计专家一起优化可视化效果
                                 </p>
                             </div>
-                            <a href="https://medivisual.org/" target="_blank" class="block w-full py-2.5 bg-purple-600 text-white rounded-xl text-center font-semibold hover:bg-purple-700 transition">
+                            <a href="https://medivisual.org/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-purple-600 text-white rounded-xl text-center font-semibold hover:bg-purple-700 transition">
                                 访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                             </a>
                         </div>
@@ -616,7 +709,7 @@
                                     <strong>整合方式：</strong>结合 CHARLS 数据资源，我们的 AI 专家协助您开展中国老龄化与健康领域的深度研究
                                 </p>
                             </div>
-                            <a href="https://charlstolancet.club/" target="_blank" class="block w-full py-2.5 bg-red-600 text-white rounded-xl text-center font-semibold hover:bg-red-700 transition">
+                            <a href="https://charlstolancet.club/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-red-600 text-white rounded-xl text-center font-semibold hover:bg-red-700 transition">
                                 访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                             </a>
                         </div>
@@ -638,7 +731,7 @@
                             <div class="space-y-2 mb-4">
                                 <div class="flex items-center gap-2 text-sm text-slate-600">
                                     <i class="fas fa-check text-green-500 text-xs"></i>
-                                    <span>5位 AI 专家协作</span>
+                                    <span>14位 AI 专家协作</span>
                                 </div>
                                 <div class="flex items-center gap-2 text-sm text-slate-600">
                                     <i class="fas fa-check text-green-500 text-xs"></i>
@@ -655,7 +748,7 @@
                                     <strong>核心枢纽：</strong>连接所有工具，协调 AI 专家团队，是您医学科研的中心平台
                                 </p>
                             </div>
-                            <button onclick="openSessionLaunchpad()" class="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-center font-semibold hover:bg-indigo-700 transition">
+                            <button onclick="openNewSessionModal({ forceRefill: false })" class="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-center font-semibold hover:bg-indigo-700 transition">
                                 开始圆桌会 <i class="fas fa-plus-circle ml-1 text-sm"></i>
                             </button>
                         </div>
@@ -705,345 +798,120 @@
                 </div>
             </div>
 
-            <!-- 欢迎消息 - 更专业大气 -->
-            <div class="text-center py-12 max-w-content px-6">
-                <div class="w-24 h-24 bg-gradient-to-br from-blue-600 via-blue-700 to-slate-900 rounded-2xl mx-auto mb-8 flex items-center justify-center shadow-2xl">
-                    <i class="fas fa-users text-white text-4xl"></i>
-                </div>
-                <h2 class="text-4xl font-bold text-slate-900 mb-4 tracking-tight">欢迎使用 MedRoundTable</h2>
-                <p class="text-slate-600 mb-6 px-4 text-xl max-w-2xl mx-auto">AI 医学科研协作平台，多位专家共同为您的研究出谋划策</p>
-                
-                <!-- 顶级期刊配色展示 -->
-                <div class="mb-10 py-6 px-4">
-                    <p class="text-sm text-slate-500 mb-4 font-medium">
-                        <i class="fas fa-award text-yellow-500 mr-2"></i>符合顶级医学期刊标准
-                    </p>
-                    <div class="flex flex-wrap justify-center gap-3 max-w-4xl mx-auto">
-                        <!-- NEJM - 深蓝色 -->
-                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
-                            <div class="w-4 h-4 rounded-full" style="background: #003366;"></div>
-                            <span class="text-sm font-semibold text-slate-700">NEJM</span>
-                            <span class="text-xs text-slate-400">IF: 91.2</span>
+            <div class="px-4 py-14">
+                <div class="max-w-6xl mx-auto space-y-8">
+                    <section class="landing-command rounded-[2rem] px-5 py-6 md:px-8 md:py-8">
+                        <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+                            <div>
+                                <div class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-800">
+                                    <i class="fas fa-command"></i> 快速决策入口
+                                </div>
+                                <h2 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">把首页的第一步收紧成一件事：直接创建圆桌会</h2>
+                                <p class="mt-4 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
+                                    不用先读完整个平台。你现在只需要决定自己是从零起题、带着已有方案进入，还是先找一位专家首位介入。
+                                </p>
+                                <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                                    <button onclick="openNewSessionModal({ forceRefill: false })" class="rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-800">
+                                        <i class="fas fa-rocket mr-2"></i>立即创建圆桌会
+                                    </button>
+                                    <a href="./frontend/protocol-upload.html" class="rounded-2xl bg-white px-5 py-4 text-center text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50">
+                                        已有方案，直接导入
+                                    </a>
+                                </div>
+                                <div id="primaryDecisionDeck" class="mt-6 grid gap-3 md:grid-cols-3"></div>
+                            </div>
+                            <div class="rounded-[1.75rem] bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-slate-900/20">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-200">Your Command Post</p>
+                                        <h3 class="mt-2 text-2xl font-bold">当前参与快照</h3>
+                                    </div>
+                                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-blue-100">实时由本地进度生成</span>
+                                </div>
+                                <div id="secondMeIdentityCard" class="mt-5 hidden rounded-[1.35rem] bg-white/8 p-4 ring-1 ring-white/10">
+                                    <div class="flex items-start gap-3">
+                                        <img id="secondMeIdentityAvatar" src="./assets/secondme/director.png" alt="SecondMe 用户头像" class="h-14 w-14 rounded-2xl object-cover ring-2 ring-white/10">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div>
+                                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">SecondMe Identity</p>
+                                                    <h4 id="secondMeIdentityName" class="mt-1 text-lg font-bold text-white">SecondMe 用户</h4>
+                                                </div>
+                                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-cyan-100">已登录</span>
+                                            </div>
+                                            <p id="secondMeIdentityMeta" class="mt-2 text-sm leading-6 text-slate-300">该身份会回填到本次圆桌和详情页。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="engagementStats" class="mt-5 grid grid-cols-2 gap-3"></div>
+                                <div class="mt-6 rounded-[1.5rem] bg-white/6 p-4 ring-1 ring-white/10">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-white">最近动作</p>
+                                            <p class="text-xs text-slate-300">继续上次圆桌，或者从最常见任务重新起步</p>
+                                        </div>
+                                        <a href="./experts.html" class="text-xs font-semibold text-blue-200 hover:text-white">查看 14 位专家</a>
+                                    </div>
+                                    <div id="recentActionList" class="mt-4 space-y-3"></div>
+                                </div>
+                            </div>
                         </div>
-                        <!-- Lancet - 红色 -->
-                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
-                            <div class="w-4 h-4 rounded-full" style="background: #bf1e2e;"></div>
-                            <span class="text-sm font-semibold text-slate-700">The Lancet</span>
-                            <span class="text-xs text-slate-400">IF: 168.9</span>
-                        </div>
-                        <!-- JAMA - 蓝色 -->
-                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
-                            <div class="w-4 h-4 rounded-full" style="background: #004793;"></div>
-                            <span class="text-sm font-semibold text-slate-700">JAMA</span>
-                            <span class="text-xs text-slate-400">IF: 120.7</span>
-                        </div>
-                        <!-- Nature Medicine - 紫色 -->
-                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
-                            <div class="w-4 h-4 rounded-full" style="background: #6b4c9a;"></div>
-                            <span class="text-sm font-semibold text-slate-700">Nature Medicine</span>
-                            <span class="text-xs text-slate-400">IF: 82.9</span>
-                        </div>
-                        <!-- BMJ - 蓝色 -->
-                        <div class="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-md border border-slate-100">
-                            <div class="w-4 h-4 rounded-full" style="background: #2e5c8a;"></div>
-                            <span class="text-sm font-semibold text-slate-700">BMJ</span>
-                            <span class="text-xs text-slate-400">IF: 105.7</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-slate-400 mt-4">
-                        我们的研究设计方案、数据可视化和文献引用均遵循顶级期刊标准
-                    </p>
-                </div>
-                
-                <!-- 核心价值主张 -->
-                <div class="max-w-5xl mx-auto mb-12">
-                    <h3 class="text-2xl font-bold text-slate-800 mb-8 text-center">
-                        <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">核心价值主张</span>
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="bg-white rounded-2xl p-5 shadow-lg border border-blue-100 text-center">
-                            <div class="text-4xl mb-3">🎯</div>
-                            <h4 class="font-bold text-slate-900 mb-2">降低科研门槛</h4>
-                            <p class="text-sm text-slate-600">AI辅助完成复杂的研究设计、数据分析、论文撰写</p>
-                        </div>
-                        <div class="bg-white rounded-2xl p-5 shadow-lg border border-purple-100 text-center">
-                            <div class="text-4xl mb-3">⚡</div>
-                            <h4 class="font-bold text-slate-900 mb-2">提升科研效率</h4>
-                            <p class="text-sm text-slate-600">多Agent并行协作，研究周期缩短50%+</p>
-                        </div>
-                        <div class="bg-white rounded-2xl p-5 shadow-lg border border-green-100 text-center">
-                            <div class="text-4xl mb-3">🔬</div>
-                            <h4 class="font-bold text-slate-900 mb-2">专业医学支持</h4>
-                            <p class="text-sm text-slate-600">深度整合生物医学数据库和临床指南</p>
-                        </div>
-                        <div class="bg-white rounded-2xl p-5 shadow-lg border border-orange-100 text-center">
-                            <div class="text-4xl mb-3">🤝</div>
-                            <h4 class="font-bold text-slate-900 mb-2">协作无界限</h4>
-                            <p class="text-sm text-slate-600">支持多中心、跨机构科研协作</p>
-                        </div>
-                    </div>
-                </div>
+                    </section>
 
-                <!-- 目标用户 -->
-                <div class="max-w-5xl mx-auto mb-12">
-                    <h3 class="text-2xl font-bold text-slate-800 mb-8 text-center">
-                        <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">目标用户</span>
-                    </h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="bg-white rounded-2xl p-4 shadow-lg border-l-4 border-blue-500">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-2xl">👨‍⚕️</span>
-                                <span class="text-2xl font-bold text-blue-600">30%</span>
+                    <section id="secondme-command-center" class="rounded-[2rem] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-5 py-6 text-white shadow-2xl shadow-slate-900/30 md:px-8 md:py-8">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">SecondMe Collaboration Layer</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">把真人研究者、SecondMe 分身和 AI agent 真正放进同一个圆桌</h3>
+                                <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
+                                    先决定谁作为真人主导者进入、是否带上你的 SecondMe 分身，再选择一组 AI agent 作为协作底盘。完成后会直接回填到首页创建流程。
+                                </p>
                             </div>
-                            <h4 class="font-bold text-slate-900">临床医生</h4>
-                            <p class="text-xs text-slate-600">临床实践中的科研问题</p>
+                            <a href="./frontend/secondme-hub.html" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
+                                配置 SecondMe 阵容 <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                        <div class="bg-white rounded-2xl p-4 shadow-lg border-l-4 border-purple-500">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-2xl">🧬</span>
-                                <span class="text-2xl font-bold text-purple-600">40%</span>
+                        <div id="secondMeScenarioGrid" class="mt-6 grid gap-4 xl:grid-cols-3"></div>
+                        <div class="mt-6 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+                            <div class="rounded-[1.75rem] bg-white/8 p-5 ring-1 ring-white/10 backdrop-blur">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">推荐 AI 阵容</p>
+                                        <p class="text-xs text-slate-300">把 SecondMe 的参与方式和 MedRoundTable 的专家分诊台合并成一个可执行入口。</p>
+                                    </div>
+                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">AI Packs</span>
+                                </div>
+                                <div id="secondMeAiPackGrid" class="mt-4 grid gap-3 md:grid-cols-3"></div>
                             </div>
-                            <h4 class="font-bold text-slate-900">生物信息学研究者</h4>
-                            <p class="text-xs text-slate-600">多组学数据分析</p>
-                        </div>
-                        <div class="bg-white rounded-2xl p-4 shadow-lg border-l-4 border-green-500">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-2xl">🎓</span>
-                                <span class="text-2xl font-bold text-green-600">20%</span>
+                            <div class="rounded-[1.75rem] bg-white/8 p-5 ring-1 ring-white/10 backdrop-blur">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">真人加入方式</p>
+                                        <p class="text-xs text-slate-300">给使用者明确角色，不再只有“游客”一种模糊状态。</p>
+                                    </div>
+                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">Human Roles</span>
+                                </div>
+                                <div id="secondMeHumanRoleGrid" class="mt-4 space-y-3"></div>
                             </div>
-                            <h4 class="font-bold text-slate-900">医学研究生</h4>
-                            <p class="text-xs text-slate-600">毕业论文、课题设计</p>
                         </div>
-                        <div class="bg-white rounded-2xl p-4 shadow-lg border-l-4 border-orange-500">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-2xl">🔬</span>
-                                <span class="text-2xl font-bold text-orange-600">10%</span>
-                            </div>
-                            <h4 class="font-bold text-slate-900">医学科研人员</h4>
-                            <p class="text-xs text-slate-600">基金申请、论文发表</p>
-                        </div>
-                    </div>
-                </div>
+                    </section>
 
-                <!-- 14位专家角色展示 -->
-                <div class="max-w-6xl mx-auto mb-12">
-                    <h3 class="text-xl font-bold text-slate-800 mb-6">
-                        <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">14位 AI 专家</span> 
-                        为您的研究保驾护航
-                    </h3>
-                    
-                    <!-- 核心临床团队 (5个) -->
-                    <div class="mb-8">
-                        <p class="text-sm text-slate-500 mb-4 font-medium">
-                            <i class="fas fa-hospital-user text-blue-500 mr-2"></i>核心临床团队
-                        </p>
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                            <!-- 临床主任 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clinical_director')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-2xl">👨‍⚕️</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">临床主任</h3>
-                                    <p class="text-xs text-slate-500">研究策略制定</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">研究设计</span>
-                                    </div>
-                                </div>
+                    <section id="expert-command-center" class="rounded-[2rem] border border-slate-200 bg-white px-5 py-6 shadow-xl shadow-slate-200/70 md:px-8 md:py-8">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">Expert Triage</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">14 位 AI 专家不再只是身份展示，而是你的任务分诊台</h3>
+                                <p class="mt-3 max-w-3xl text-base leading-8 text-slate-600">
+                                    按你当前卡住的位置选首位介入专家。每张卡都会告诉你“什么时候先找 TA”，并允许直接让这位专家带着你进入圆桌会。
+                                </p>
                             </div>
-                            
-                            <!-- 博士生 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('phd_student')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-emerald-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-2xl">📚</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">博士生</h3>
-                                    <p class="text-xs text-slate-500">文献检索整理</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs rounded-full">文献综述</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 流行病学家 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('epidemiologist')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-purple-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-2xl">📊</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">流行病学家</h3>
-                                    <p class="text-xs text-slate-500">研究设计质控</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">方案设计</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 统计学家 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('statistician')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-orange-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-2xl">📈</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">统计学家</h3>
-                                    <p class="text-xs text-slate-500">统计分析方案</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full">统计分析</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 研究护士 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('research_nurse')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-cyan-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-700 flex items-center justify-center text-2xl">👩‍⚕️</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">研究护士</h3>
-                                    <p class="text-xs text-slate-500">数据质量控制</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-cyan-100 text-cyan-700 text-xs rounded-full">数据管理</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <a href="./experts.html" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                                查看专家全图 <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </div>
-                    
-                    <!-- ClawBio 生物信息学套件 (4个) -->
-                    <div class="mb-8">
-                        <p class="text-sm text-slate-500 mb-4 font-medium">
-                            <i class="fas fa-dna text-green-500 mr-2"></i>ClawBio 生物信息学套件
-                        </p>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <!-- 药物基因组学 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_pharmgx')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-green-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-2xl">💊</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">药物基因组学</h3>
-                                    <p class="text-xs text-slate-500">个性化用药</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">PGx分析</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- GWAS专家 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_gwas')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-indigo-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-2xl">🧬</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">GWAS专家</h3>
-                                    <p class="text-xs text-slate-500">全基因组关联</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">变异查询</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 单细胞测序 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_sc_rna')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-pink-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center text-2xl">🔬</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">单细胞测序</h3>
-                                    <p class="text-xs text-slate-500">scRNA-seq分析</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full">细胞聚类</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Galaxy桥接器 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clawbio_galaxy')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-violet-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-2xl">🌌</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">Galaxy桥接器</h3>
-                                    <p class="text-xs text-slate-500">8000+生信工具</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-violet-100 text-violet-700 text-xs rounded-full">工具编排</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- 专业研究Agent (5个) -->
-                    <div class="mb-8">
-                        <p class="text-sm text-slate-500 mb-4 font-medium">
-                            <i class="fas fa-user-graduate text-amber-500 mr-2"></i>专业研究支持团队
-                        </p>
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                            <!-- UX研究员 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('ux_researcher')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-amber-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl">🔬</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">UX研究员</h3>
-                                    <p class="text-xs text-slate-500">用户体验研究</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">用户研究</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- AI数据工程师 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('ai_data_engineer')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-teal-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-2xl">🧬</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">AI数据工程师</h3>
-                                    <p class="text-xs text-slate-500">数据管道修复</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-teal-100 text-teal-700 text-xs rounded-full">数据工程</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 趋势研究员 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('trend_researcher')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-rose-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-2xl">🔭</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">趋势研究员</h3>
-                                    <p class="text-xs text-slate-500">市场情报分析</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-rose-100 text-rose-700 text-xs rounded-full">趋势研究</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 实验追踪员 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('experiment_tracker')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-lime-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-lime-500 to-lime-700 flex items-center justify-center text-2xl">🧪</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">实验追踪员</h3>
-                                    <p class="text-xs text-slate-500">实验设计管理</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-lime-100 text-lime-700 text-xs rounded-full">A/B测试</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 模型QA专家 -->
-                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('model_qa')">
-                                <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-sky-300 transition-all transform hover:-translate-y-1">
-                                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-2xl">🔬</div>
-                                    <h3 class="font-bold text-slate-900 mb-1 text-sm">模型QA专家</h3>
-                                    <p class="text-xs text-slate-500">AI质量保证</p>
-                                    <div class="mt-2 flex flex-wrap gap-1 justify-center">
-                                        <span class="px-2 py-0.5 bg-sky-100 text-sky-700 text-xs rounded-full">偏差检测</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <a href="https://medroundtable-v2.vercel.app/" target="_blank" class="inline-block px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-2xl shadow-2xl btn-press text-xl font-bold transition-all transform hover:scale-105">
-                    <i class="fas fa-plus-circle mr-3"></i>开始新的圆桌会
-                </a>
-                <p class="text-slate-500 mt-4 text-sm">点击上方专家头像查看详细介绍</p>
-                
-                <!-- 工具生态入口 -->
-                <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl border border-blue-100">
-                    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div class="text-left">
-                            <h4 class="font-bold text-gray-800 mb-1">
-                                <i class="fas fa-toolbox text-blue-600 mr-2"></i>扩展工具生态
-                            </h4>
-                            <p class="text-sm text-gray-600">整合 Clinical Trials Reviewer、MediVisual 等专业工具</p>
-                        </div>
-                        <a href="./frontend/tools.html" class="px-6 py-3 bg-white text-blue-700 border-2 border-blue-200 rounded-xl font-semibold hover:bg-blue-50 hover:border-blue-300 transition-all flex items-center gap-2">
-                            <span>探索工具</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </a>
-                    </div>
+                        <div id="expertTriageHighlights" class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div>
+                        <div id="expertTriageBoard" class="mt-6 space-y-6"></div>
+                    </section>
                 </div>
             </div>
         </div>
@@ -1156,6 +1024,21 @@
             </div>
         </div>
 
+        <div id="mobileQuickStartBar" class="mobile-cta-bar fixed bottom-4 left-4 right-4 z-40 hidden lg:hidden">
+            <button onclick="openNewSessionModal({ forceRefill: false })" class="w-full rounded-2xl bg-slate-950 px-5 py-4 text-left text-white shadow-2xl">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <div class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">Quick Start</div>
+                        <div class="mt-1 text-base font-bold">立即创建圆桌会</div>
+                        <div class="mt-1 text-xs text-slate-300">直接输入一句临床问题，平台先安排首位介入专家</div>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg">
+                        <i class="fas fa-arrow-up-right-from-square"></i>
+                    </div>
+                </div>
+            </button>
+        </div>
+
         <!-- 输入区域 - 专业样式 -->
         <div id="inputArea" class="bg-white border-t border-slate-200 p-4 safe-bottom hidden">
             <div class="flex items-end gap-3 max-w-4xl mx-auto">
@@ -1209,6 +1092,44 @@
                         </div>
                     </div>
                 </div>
+                <div id="collaborationRosterPanel" class="hidden rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-cyan-50 p-4">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">SecondMe Roster</p>
+                            <h4 class="mt-1 text-lg font-bold text-slate-900">本次圆桌将带入协作阵容</h4>
+                            <p id="collaborationRosterSummary" class="mt-2 text-sm leading-6 text-slate-600">尚未配置 SecondMe 协作阵容。</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="./frontend/secondme-hub.html" class="rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-white">
+                                调整阵容
+                            </a>
+                            <button type="button" onclick="clearPendingCollaboration()" class="rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+                                清除
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">真人成员</p>
+                            <div id="collaborationHumanList" class="mt-2 flex flex-wrap gap-2"></div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">SecondMe 分身</p>
+                            <div id="collaborationShadeList" class="mt-2 flex flex-wrap gap-2"></div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">AI 阵容</p>
+                            <div id="collaborationAiPackList" class="mt-2 flex flex-wrap gap-2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="mb-2 flex items-center justify-between gap-3">
+                        <label class="block text-base font-semibold text-slate-700">快捷起步模板</label>
+                        <span class="text-xs font-medium text-slate-400">一键带入常见科研任务</span>
+                    </div>
+                    <div id="quickStartTemplateList" class="grid grid-cols-1 gap-2 sm:grid-cols-2"></div>
+                </div>
                 <div>
                     <label class="block text-base font-semibold text-slate-700 mb-2">研究标题</label>
                     <input type="text" id="sessionTitle" placeholder="例如：二甲双胍对2型糖尿病的疗效研究" 
@@ -1253,7 +1174,7 @@
             <div class="p-6 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white rounded-t-2xl z-10">
                 <div>
                     <h3 class="font-bold text-xl text-slate-900">AI 专家团队</h3>
-                    <p class="text-sm text-slate-500 mt-1">5位专家为您的研究保驾护航</p>
+                    <p class="text-sm text-slate-500 mt-1">14位专家为您的研究保驾护航</p>
                 </div>
                 <button onclick="closeModal('agentModal')" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
                     <i class="fas fa-times text-xl"></i>
@@ -1387,6 +1308,8 @@
         </div>
     </div>
 
+    <script src="./frontend/secondme-identity.js"></script>
+    <script src="./frontend/secondme-collaboration.js"></script>
     <script src="./frontend/expert-data.js"></script>
     <script>
         // 全局错误处理
@@ -1406,9 +1329,12 @@
         const MOCK_MODE = true;
         let mockSessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
         let mockSessionId = parseInt(localStorage.getItem('mockSessionId') || '0');
+        const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
+        const secondMeCollaboration = window.MedRoundTableSecondMe || null;
         const expertCatalog = window.MedRoundTableExperts || null;
         const coreClinicalRoles = ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse'];
         let preferredExpertRole = localStorage.getItem('mrt_preferred_expert') || null;
+        let pendingCollaborationSetup = loadPendingCollaborationSetup();
 
         // 全局状态
         let currentSessionId = null;
@@ -1421,15 +1347,86 @@
             console.log('User parse error:', e);
             user = null;
         }
+        let secondMeIdentity = secondMeIdentityStore ? secondMeIdentityStore.loadIdentity() : null;
         let isTyping = false;  // 是否正在打字
         let sessionMessages = {};  // 存储会话消息
         let typingQueue = [];  // 打字队列
         let currentTypingElement = null;  // 当前正在打字的元素
+        const quickStartTemplates = [
+            {
+                id: 'idea_validation',
+                title: '从零起题：先判断是否值得立项',
+                description: '适合只有临床痛点，还没收敛成研究问题时。',
+                expertRole: 'clinical_director',
+                question: '请先从临床主任视角帮我判断这个临床问题是否值得立项，并建议主问题、终点和发表定位。'
+            },
+            {
+                id: 'literature_gap',
+                title: '补证据空白：先看文献和创新点',
+                description: '适合已经有方向，但还不清楚证据空白时。',
+                expertRole: 'phd_student',
+                question: '请先做一轮系统文献扫描，告诉我这个方向已有研究、争议点以及还能切入的创新空间。'
+            },
+            {
+                id: 'protocol_design',
+                title: '打磨方案：先做研究设计与偏倚控制',
+                description: '适合已经有题目，下一步需要 protocol 骨架时。',
+                expertRole: 'epidemiologist',
+                question: '请从流行病学家视角先介入，帮我把研究问题转成规范方案，并指出最需要控制的偏倚。'
+            },
+            {
+                id: 'stats_plan',
+                title: '统计起步：先搭建 SAP 与样本量',
+                description: '适合终点和数据来源已初步明确时。',
+                expertRole: 'statistician',
+                question: '请先作为统计学家介入，基于我的终点和样本来源给出样本量与统计分析计划框架。'
+            }
+        ];
+        const primaryDecisionCards = [
+            {
+                title: '从零启动',
+                body: '只有一句临床问题，也可以直接开会。',
+                action: `openNewSessionModal({ forceRefill: false })`,
+                accent: 'text-blue-700'
+            },
+            {
+                title: '已有方案导入',
+                body: '把 protocol、课题书或摘要直接带进平台。',
+                href: './frontend/protocol-upload.html',
+                accent: 'text-emerald-700'
+            },
+            {
+                title: '先做专家分诊',
+                body: '不确定谁该先介入，就按任务选第一位专家。',
+                href: '#expert-command-center',
+                accent: 'text-violet-700'
+            }
+        ];
+        const expertHighlightRoles = ['clinical_director', 'phd_student', 'epidemiologist', 'statistician'];
+        const expertTaskPlaybook = {
+            clinical_director: { trigger: '题目还没收敛', outcome: '先做研究定位与主问题判断' },
+            phd_student: { trigger: '想先补文献证据', outcome: '先扫研究现状、空白与创新点' },
+            epidemiologist: { trigger: '需要规范方案', outcome: '先搭 protocol 骨架与偏倚控制' },
+            statistician: { trigger: '终点初步明确', outcome: '先给样本量、SAP 与结果框架' },
+            research_nurse: { trigger: '执行和随访复杂', outcome: '先梳理访视、CRF 与现场流程' },
+            clawbio_pharmgx: { trigger: '药物与基因一起分析', outcome: '先看 PGx 分层是否成立' },
+            clawbio_gwas: { trigger: '想做遗传关联研究', outcome: '先判断表型、QC 与 GWAS 路径' },
+            clawbio_sc_rna: { trigger: '要做单细胞分析', outcome: '先梳理样本设计与聚类解读' },
+            clawbio_galaxy: { trigger: '工作流和工具太多', outcome: '先把生信流程编排成可跑路径' },
+            ux_researcher: { trigger: '需要优化研究者流程', outcome: '先找出页面与任务路径阻塞点' },
+            ai_data_engineer: { trigger: '数据口径不统一', outcome: '先整理字段、结构与下游管道' },
+            trend_researcher: { trigger: '不清楚热点和窗口', outcome: '先判断题目趋势与竞品布局' },
+            experiment_tracker: { trigger: '项目执行容易失控', outcome: '先建立里程碑与偏差追踪' },
+            model_qa: { trigger: '担心结论不稳', outcome: '先做偏差、稳定性与 QA 复核' }
+        };
 
         // 初始化
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('✅ DOM 加载完成');
             try {
+                if (secondMeIdentityStore) {
+                    secondMeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
+                }
                 await loadSessions();
                 updateUserUI();
                 await consumePendingHomepageAction();
@@ -1486,6 +1483,7 @@
                 if (id === 'newSessionModal') {
                     updatePreferredExpertSelection(false);
                 }
+                updateMobileQuickStartBar();
                 console.log('showModal 成功:', id);
             } catch (err) {
                 console.error('showModal 错误:', id, err);
@@ -1502,6 +1500,7 @@
                 }
                 el.classList.add('hidden');
                 el.classList.remove('flex');
+                updateMobileQuickStartBar();
                 console.log('closeModal 成功:', id);
             } catch (err) {
                 console.error('closeModal 错误:', id, err);
@@ -1509,7 +1508,7 @@
         }
 
         function createNewSession() {
-            openSessionLaunchpad();
+            openNewSessionModal({ forceRefill: false });
         }
 
         function showAgentInfo() {
@@ -1548,12 +1547,14 @@
                     const response = await fetch(`${API_BASE}/api/v1/roundtables`);
                     sessions = await response.json();
                 }
-                
+                mockSessions = sessions;
                 renderSessionList(sessions);
+                renderHomepageLanding(sessions);
             } catch (err) {
                 console.error('Failed to load sessions:', err);
                 // 如果加载失败，显示空列表
                 renderSessionList([]);
+                renderHomepageLanding([]);
             }
         }
 
@@ -1573,15 +1574,25 @@
             }
             
             container.innerHTML = sessions.map(s => `
+                ${(() => {
+                    const leadRole = getSessionLeadRole(s);
+                    const leadExpert = leadRole ? getExpertMeta(leadRole) : null;
+                    const leadBadge = leadExpert
+                        ? `<span class="text-[11px] px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-200 border border-blue-500/20">${leadExpert.name}先介入</span>`
+                        : '';
+                    return `
                 <div onclick="selectSession('${s.id}')" 
                     class="p-4 rounded-xl cursor-pointer transition-all border ${currentSessionId === s.id ? 'bg-blue-900/30 border-blue-500/50 shadow-lg' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-800 hover:border-slate-600'}">
                     <h4 class="font-semibold text-base text-slate-200 truncate mb-2">${s.title}</h4>
                     <p class="text-sm text-slate-400 line-clamp-2 leading-relaxed">${s.clinical_question}</p>
-                    <div class="flex items-center gap-3 mt-3">
+                    <div class="flex flex-wrap items-center gap-2 mt-3">
+                        ${leadBadge}
                         <span class="text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(s.status)}">${getStatusText(s.status)}</span>
                         <span class="text-xs text-slate-500">${formatTime(s.created_at)}</span>
                     </div>
                 </div>
+                    `;
+                })()}
             `).join('');
         }
 
@@ -1616,6 +1627,198 @@
             return date.toLocaleDateString('zh-CN');
         }
 
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getSessionLeadRole(session) {
+            const preferences = loadSessionPreferences();
+            return session.preferred_expert || preferences[String(session.id)] || null;
+        }
+
+        function calculateEngagementStreak(sessions) {
+            if (!sessions.length) return 0;
+            const uniqueDays = [...new Set(sessions.map((session) => new Date(session.created_at).toISOString().slice(0, 10)))].sort().reverse();
+            let streak = 0;
+            let cursor = new Date(uniqueDays[0]);
+            for (const day of uniqueDays) {
+                const current = new Date(day);
+                if (current.toISOString().slice(0, 10) !== cursor.toISOString().slice(0, 10)) {
+                    break;
+                }
+                streak += 1;
+                cursor.setDate(cursor.getDate() - 1);
+            }
+            return streak;
+        }
+
+        function renderPrimaryDecisionDeck() {
+            const container = document.getElementById('primaryDecisionDeck');
+            if (!container) return;
+
+            container.innerHTML = primaryDecisionCards.map((card) => {
+                const body = `
+                    <div class="decision-card rounded-3xl p-4">
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] ${card.accent}">${escapeHtml(card.title)}</div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(card.body)}</p>
+                    </div>
+                `;
+
+                if (card.href) {
+                    return `<a href="${card.href}" class="block">${body}</a>`;
+                }
+
+                return `<button type="button" onclick="${card.action}" class="block w-full text-left">${body}</button>`;
+            }).join('');
+        }
+
+        function renderQuickStartTemplates() {
+            const container = document.getElementById('quickStartTemplateList');
+            if (!container) return;
+
+            container.innerHTML = quickStartTemplates.map((template) => `
+                <button type="button" onclick="applyQuickStartTemplate('${template.id}')" class="quick-start-chip rounded-2xl p-3 text-left">
+                    <div class="text-sm font-semibold text-slate-900">${escapeHtml(template.title)}</div>
+                    <p class="mt-1 text-xs leading-6 text-slate-500">${escapeHtml(template.description)}</p>
+                </button>
+            `).join('');
+        }
+
+        function renderEngagementSnapshot(sessions) {
+            const stats = document.getElementById('engagementStats');
+            const recent = document.getElementById('recentActionList');
+            if (!stats || !recent) return;
+
+            const normalized = [...(sessions || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            const uniqueExperts = new Set(normalized.map((session) => getSessionLeadRole(session)).filter(Boolean));
+            const streak = calculateEngagementStreak(normalized);
+            const metrics = [
+                { label: '活跃圆桌', value: normalized.length || 0 },
+                { label: '已激活专家', value: uniqueExperts.size || 0 },
+                { label: '连续推进', value: `${streak || 0}天` },
+                { label: '最近状态', value: normalized[0] ? formatTime(normalized[0].created_at) : '尚未开始' }
+            ];
+
+            stats.innerHTML = metrics.map((metric) => `
+                <div class="metrics-card rounded-2xl p-4">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">${escapeHtml(metric.label)}</div>
+                    <div class="mt-2 text-2xl font-bold text-slate-950">${escapeHtml(metric.value)}</div>
+                </div>
+            `).join('');
+
+            if (!normalized.length) {
+                recent.innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-white/15 px-4 py-4 text-sm leading-7 text-slate-300">
+                        你还没有开始第一场圆桌会。建议直接点击上方主 CTA，或者按下面的专家分诊卡选择首位介入者。
+                    </div>
+                `;
+                return;
+            }
+
+            recent.innerHTML = normalized.slice(0, 3).map((session) => {
+                const leadRole = getSessionLeadRole(session);
+                const leadExpert = leadRole ? getExpertMeta(leadRole) : null;
+                const leadText = leadExpert ? `由 ${leadExpert.name} 先介入` : '未指定首位专家';
+                return `
+                    <button type="button" onclick="window.location.href='${getRoundtableDetailUrl(session.id)}'" class="block w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left transition hover:bg-white/10">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="truncate text-sm font-semibold text-white">${escapeHtml(session.title)}</div>
+                                <div class="mt-1 text-xs text-slate-300">${escapeHtml(leadText)}</div>
+                            </div>
+                            <div class="text-[11px] font-medium text-blue-200">${escapeHtml(formatTime(session.created_at))}</div>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderExpertTriage() {
+            const board = document.getElementById('expertTriageBoard');
+            const highlights = document.getElementById('expertTriageHighlights');
+            if (!board || !highlights || !expertCatalog) return;
+
+            highlights.innerHTML = expertHighlightRoles.map((role) => {
+                const expert = getExpertMeta(role);
+                const playbook = expertTaskPlaybook[role];
+                return `
+                    <button type="button" onclick="startExpertGuidedSession('${role}')" class="decision-card rounded-3xl p-4 text-left">
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">${escapeHtml(playbook.trigger)}</div>
+                        <div class="mt-3 text-lg font-bold text-slate-950">${escapeHtml(expert.name)}</div>
+                        <p class="mt-2 text-sm leading-7 text-slate-600">${escapeHtml(playbook.outcome)}</p>
+                    </button>
+                `;
+            }).join('');
+
+            board.innerHTML = expertCatalog.groups.map((group) => {
+                const experts = expertCatalog.getExpertsByGroup(group.id);
+                return `
+                    <section class="rounded-[1.75rem] border border-slate-200 bg-slate-50/80 p-4 md:p-5">
+                        <div class="mb-4 flex items-center gap-3">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-2xl text-white" style="background:${group.accent}">
+                                <i class="fas ${group.icon}"></i>
+                            </div>
+                            <div>
+                                <div class="text-lg font-bold text-slate-950">${escapeHtml(group.name)}</div>
+                                <div class="text-sm text-slate-500">${escapeHtml(group.countLabel)}</div>
+                            </div>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            ${experts.map((expert) => {
+                                const playbook = expertTaskPlaybook[expert.role] || { trigger: expert.subtitle, outcome: expert.summary };
+                                const avatar = expertCatalog.resolveAvatar(expert);
+                                return `
+                                    <article class="triage-card rounded-[1.5rem] p-4" style="border-color:${expert.border || 'rgba(148,163,184,0.16)'}">
+                                        <div class="flex items-start gap-4">
+                                            <img src="${avatar}" alt="${escapeHtml(expert.name)}" class="triage-avatar" style="${expert.avatarPosition ? `object-position:${expert.avatarPosition};` : ''}">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${expert.accent}">${escapeHtml(playbook.trigger)}</div>
+                                                <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(expert.name)}</h4>
+                                                <p class="mt-1 text-sm font-medium text-slate-500">${escapeHtml(expert.subtitle)}</p>
+                                                <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(playbook.outcome)}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+                                            <button type="button" onclick="startExpertGuidedSession('${expert.role}')" class="flex-1 rounded-2xl px-4 py-3 text-sm font-semibold text-white transition" style="background:${expert.accent}">
+                                                让 TA 先介入
+                                            </button>
+                                            <button type="button" onclick="showAgentDetail('${expert.role}')" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                                查看详情
+                                            </button>
+                                        </div>
+                                    </article>
+                                `;
+                            }).join('')}
+                        </div>
+                    </section>
+                `;
+            }).join('');
+        }
+
+        function updateMobileQuickStartBar() {
+            const bar = document.getElementById('mobileQuickStartBar');
+            const modal = document.getElementById('newSessionModal');
+            if (!bar) return;
+            const modalVisible = modal && !modal.classList.contains('hidden');
+            bar.classList.toggle('hidden', Boolean(currentSessionId) || modalVisible);
+        }
+
+        function renderHomepageLanding(sessions) {
+            renderPrimaryDecisionDeck();
+            renderSecondMeCommandCenter();
+            renderQuickStartTemplates();
+            renderEngagementSnapshot(sessions);
+            renderExpertTriage();
+            renderSecondMeIdentityCard();
+            renderCollaborationRoster();
+            updateMobileQuickStartBar();
+        }
+
         function getExpertMeta(role) {
             if (!expertCatalog || !role) return null;
             return expertCatalog.getExpert(role);
@@ -1629,21 +1832,253 @@
             return `请以${expert.name}的视角先介入本次圆桌会。${expert.prompt}`;
         }
 
+        function loadPendingCollaborationSetup() {
+            try {
+                return JSON.parse(localStorage.getItem('mrt_pending_collaboration') || 'null');
+            } catch (err) {
+                console.error('pending collaboration parse failed:', err);
+                return null;
+            }
+        }
+
+        function persistPendingCollaborationSetup(setup) {
+            pendingCollaborationSetup = setup || null;
+            if (pendingCollaborationSetup) {
+                localStorage.setItem('mrt_pending_collaboration', JSON.stringify(pendingCollaborationSetup));
+            } else {
+                localStorage.removeItem('mrt_pending_collaboration');
+            }
+            renderCollaborationRoster();
+        }
+
+        function renderSecondMeCommandCenter() {
+            if (!secondMeCollaboration) return;
+
+            const scenarioGrid = document.getElementById('secondMeScenarioGrid');
+            const aiPackGrid = document.getElementById('secondMeAiPackGrid');
+            const humanRoleGrid = document.getElementById('secondMeHumanRoleGrid');
+
+            if (scenarioGrid) {
+                scenarioGrid.innerHTML = secondMeCollaboration.scenarios.map((scenario) => `
+                    <article class="rounded-[1.75rem] border border-white/10 bg-white/6 p-5 backdrop-blur">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Quick Path</p>
+                                <h4 class="mt-2 text-xl font-bold text-white">${escapeHtml(scenario.title)}</h4>
+                            </div>
+                            <i class="fas fa-satellite-dish text-cyan-200 text-lg"></i>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-200">${escapeHtml(scenario.description)}</p>
+                        <button type="button" onclick="launchSecondMeScenario('${scenario.id}')" class="mt-5 w-full rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
+                            一键带回首页
+                        </button>
+                    </article>
+                `).join('');
+            }
+
+            if (aiPackGrid) {
+                aiPackGrid.innerHTML = secondMeCollaboration.aiPacks.map((pack) => `
+                    <button type="button" onclick="openSecondMeHubWithPack('${pack.id}')" class="decision-card rounded-3xl p-4 text-left !bg-white/95">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color:${pack.accent}">AI Pack</p>
+                                <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(pack.name)}</h4>
+                                <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(pack.subtitle)}</p>
+                            </div>
+                            <span class="rounded-full px-2.5 py-1 text-[11px] font-semibold text-white" style="background:${pack.accent}">${pack.expertRoles.length} 位</span>
+                        </div>
+                    </button>
+                `).join('');
+            }
+
+            if (humanRoleGrid) {
+                humanRoleGrid.innerHTML = secondMeCollaboration.humanRoles.map((role) => `
+                    <button type="button" onclick="openSecondMeHubWithHuman('${role.id}')" class="w-full rounded-3xl border border-white/10 bg-white/6 px-4 py-4 text-left transition hover:bg-white/10">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-2xl text-white" style="background:${role.accent}">
+                                <i class="fas ${role.icon}"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <div class="flex items-center justify-between gap-3">
+                                    <h4 class="text-base font-bold text-white">${escapeHtml(role.name)}</h4>
+                                    <span class="text-xs font-semibold text-slate-300">${escapeHtml(role.subtitle)}</span>
+                                </div>
+                                <p class="mt-2 text-sm leading-6 text-slate-200">${escapeHtml(role.description)}</p>
+                            </div>
+                        </div>
+                    </button>
+                `).join('');
+            }
+        }
+
+        function renderCollaborationRoster() {
+            const panel = document.getElementById('collaborationRosterPanel');
+            const summary = document.getElementById('collaborationRosterSummary');
+            const humanList = document.getElementById('collaborationHumanList');
+            const shadeList = document.getElementById('collaborationShadeList');
+            const aiPackList = document.getElementById('collaborationAiPackList');
+
+            if (!panel || !summary || !humanList || !shadeList || !aiPackList) {
+                return;
+            }
+
+            if (!pendingCollaborationSetup) {
+                panel.classList.add('hidden');
+                return;
+            }
+
+            panel.classList.remove('hidden');
+            const humans = pendingCollaborationSetup.humans || [];
+            const shades = pendingCollaborationSetup.shades || [];
+            const aiPack = pendingCollaborationSetup.aiPack || null;
+
+            summary.textContent = `${humans.length} 位真人成员 + ${shades.length} 个 SecondMe 分身 + ${aiPack ? aiPack.name : '未指定 AI 阵容'}。创建圆桌后会一起进入任务上下文。`;
+            humanList.innerHTML = humans.map((human) => `
+                <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-emerald-100">
+                    <i class="fas fa-user text-emerald-600"></i>${escapeHtml(human.name)}
+                </span>
+            `).join('') || '<span class="text-sm text-slate-500">暂无真人成员</span>';
+            shadeList.innerHTML = shades.map((shade) => `
+                <span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-cyan-100">
+                    <i class="fas fa-brain text-cyan-600"></i>${escapeHtml(shade.name)}
+                </span>
+            `).join('') || '<span class="text-sm text-slate-500">本轮不带入 SecondMe 分身</span>';
+            aiPackList.innerHTML = aiPack
+                ? `<span class="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-700 ring-1 ring-blue-100"><i class="fas fa-users-gear text-blue-600"></i>${escapeHtml(aiPack.name)}</span>`
+                : '<span class="text-sm text-slate-500">暂无 AI 阵容</span>';
+        }
+
+        function clearPendingCollaboration() {
+            persistPendingCollaborationSetup(null);
+            showToast('已清除 SecondMe 协作阵容', 'info');
+        }
+
+        function getActiveUserIdentity() {
+            return secondMeIdentity || user || null;
+        }
+
+        function renderSecondMeIdentityCard() {
+            const card = document.getElementById('secondMeIdentityCard');
+            const avatar = document.getElementById('secondMeIdentityAvatar');
+            const name = document.getElementById('secondMeIdentityName');
+            const meta = document.getElementById('secondMeIdentityMeta');
+
+            if (!card || !avatar || !name || !meta) return;
+
+            if (!secondMeIdentity || !secondMeIdentity.name) {
+                card.classList.add('hidden');
+                return;
+            }
+
+            card.classList.remove('hidden');
+            avatar.src = secondMeIdentity.avatar || './assets/secondme/director.png';
+            name.textContent = secondMeIdentity.name;
+            meta.textContent = secondMeIdentity.email
+                ? `${secondMeIdentity.email} · 该身份会回填到本次圆桌和详情页。`
+                : '该身份会回填到本次圆桌和详情页。';
+        }
+
+        function launchSecondMeScenario(scenarioId) {
+            if (!secondMeCollaboration) return;
+            const payload = secondMeCollaboration.buildScenarioPayload(scenarioId);
+            if (!payload) return;
+            persistPendingCollaborationSetup(payload.collaborationSetup);
+            openNewSessionModal({
+                expertRole: payload.preferredExpert,
+                title: payload.title,
+                question: payload.question,
+                forceRefill: true
+            });
+        }
+
+        function openSecondMeHubWithPack(packId) {
+            const url = new URL('./frontend/secondme-hub.html', window.location.href);
+            url.searchParams.set('pack', packId);
+            window.location.href = url.toString();
+        }
+
+        function openSecondMeHubWithHuman(humanId) {
+            const url = new URL('./frontend/secondme-hub.html', window.location.href);
+            url.searchParams.set('human', humanId);
+            window.location.href = url.toString();
+        }
+
+        function openNewSessionModal(options = {}) {
+            const titleInput = document.getElementById('sessionTitle');
+            const questionInput = document.getElementById('sessionQuestion');
+            const expertRole = options.expertRole || null;
+
+            if (expertRole) {
+                preferredExpertRole = expertRole;
+                localStorage.setItem('mrt_preferred_expert', expertRole);
+            }
+
+            showModal('newSessionModal');
+
+            if (options.forceRefill && titleInput && questionInput) {
+                titleInput.value = '';
+                questionInput.value = '';
+            }
+
+            updatePreferredExpertSelection(Boolean(options.forceRefill));
+            renderCollaborationRoster();
+
+            if (titleInput && options.title) {
+                titleInput.value = options.title;
+            }
+
+            if (questionInput && options.question) {
+                questionInput.value = options.question;
+            }
+
+            if (titleInput) {
+                titleInput.focus();
+            }
+
+            updateMobileQuickStartBar();
+        }
+
+        function applyQuickStartTemplate(templateId) {
+            const template = quickStartTemplates.find((item) => item.id === templateId);
+            if (!template) return;
+            openNewSessionModal({
+                expertRole: template.expertRole,
+                title: template.title,
+                question: template.question,
+                forceRefill: true
+            });
+        }
+
+        function startExpertGuidedSession(role) {
+            const expert = getExpertMeta(role);
+            if (!expert) return;
+            openNewSessionModal({
+                expertRole: role,
+                title: `${expert.name}先介入：${expert.subtitle}研究讨论`,
+                question: getSuggestedSessionQuestion(expert),
+                forceRefill: true
+            });
+        }
+
         function buildSessionParticipants(role) {
+            const aiPackRoles = pendingCollaborationSetup && pendingCollaborationSetup.aiPack && Array.isArray(pendingCollaborationSetup.aiPack.expertRoles)
+                ? pendingCollaborationSetup.aiPack.expertRoles
+                : [];
+
             if (!role || !expertCatalog) {
-                return [...coreClinicalRoles];
+                return [...new Set([...aiPackRoles, ...coreClinicalRoles])];
             }
 
             const expert = expertCatalog.getExpert(role);
             if (!expert) {
-                return [...coreClinicalRoles];
+                return [...new Set([role, ...aiPackRoles, ...coreClinicalRoles])];
             }
 
             const relatedRoles = expertCatalog
                 .getExpertsByGroup(expert.groupId)
                 .map((item) => item.role);
 
-            return [...new Set([role, ...relatedRoles, ...coreClinicalRoles])];
+            return [...new Set([role, ...aiPackRoles, ...relatedRoles, ...coreClinicalRoles])];
         }
 
         function loadSessionPreferences() {
@@ -1738,6 +2173,9 @@
 
             try {
                 let session;
+                const collaborationSetup = pendingCollaborationSetup
+                    ? JSON.parse(JSON.stringify(pendingCollaborationSetup))
+                    : null;
                 
                 if (MOCK_MODE) {
                     // 模拟模式：创建本地会话
@@ -1750,7 +2188,11 @@
                         status: 'active',
                         created_at: new Date().toISOString(),
                         preferred_expert: preferredExpertRole,
-                        participants: buildSessionParticipants(preferredExpertRole)
+                        participants: buildSessionParticipants(preferredExpertRole),
+                        human_participants: collaborationSetup ? collaborationSetup.humans || [] : [],
+                        secondme_shades: collaborationSetup ? collaborationSetup.shades || [] : [],
+                        ai_pack: collaborationSetup ? collaborationSetup.aiPack || null : null,
+                        collaboration_label: collaborationSetup ? collaborationSetup.label || null : null
                     };
                     mockSessions.push(session);
                     localStorage.setItem('mockSessions', JSON.stringify(mockSessions));
@@ -1786,6 +2228,7 @@
                 localStorage.removeItem('mrt_preferred_expert');
                 preferredExpertRole = null;
                 updatePreferredExpertSelection(false);
+                persistPendingCollaborationSetup(null);
                 
                 if (!MOCK_MODE) {
                     console.log('步骤9: 开始讨论(API模式)');
@@ -1811,6 +2254,7 @@
 
         async function selectSession(sessionId) {
             currentSessionId = sessionId;
+            updateMobileQuickStartBar();
             
             // 移动端关闭侧边栏
             document.getElementById('sidebar').classList.remove('open');
@@ -2654,20 +3098,42 @@
         
         function updateUserUI() {
             const btn = document.getElementById('userBtn');
-            if (user) {
+            const activeIdentity = getActiveUserIdentity();
+            if (!btn) return;
+
+            if (activeIdentity) {
+                const avatarMarkup = activeIdentity.avatar
+                    ? `<img src="${activeIdentity.avatar}" alt="${activeIdentity.name}" class="w-12 h-12 rounded-full object-cover shadow-lg">`
+                    : `<div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg"><i class="fas fa-user text-white text-lg"></i></div>`;
+                const providerMeta = secondMeIdentity && activeIdentity === secondMeIdentity
+                    ? '来自 SecondMe 登录'
+                    : (activeIdentity.email || '已登录用户');
+
+                btn.href = secondMeIdentity && activeIdentity === secondMeIdentity ? './frontend/secondme-hub.html' : '#';
                 btn.innerHTML = `
-                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
-                        <i class="fas fa-user"></i>
-                    </div>
+                    ${avatarMarkup}
                     <div class="text-left flex-1">
-                        <p class="font-medium text-sm">${user.name}</p>
-                        <p class="text-xs text-gray-500">${user.email}</p>
+                        <p class="font-medium text-sm">${activeIdentity.name || '已登录用户'}</p>
+                        <p class="text-xs text-gray-500">${providerMeta}</p>
                     </div>
                     <button onclick="logout(event)" class="p-2 text-gray-400 hover:text-red-500">
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 `;
+                return;
             }
+
+            btn.href = './login.html';
+            btn.innerHTML = `
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-user text-white text-lg"></i>
+                </div>
+                <div class="text-left flex-1">
+                    <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
+                    <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
+                </div>
+                <i class="fas fa-chevron-right text-slate-600"></i>
+            `;
         }
 
         async function login() {
@@ -2704,6 +3170,10 @@
             user = null;
             localStorage.removeItem('mrt_token');
             localStorage.removeItem('mrt_user');
+            if (secondMeIdentityStore) {
+                secondMeIdentityStore.clearIdentity();
+            }
+            secondMeIdentity = null;
             location.reload();
         }
 
@@ -2779,11 +3249,15 @@
 
             switch (action.type) {
                 case 'start-session':
-                    preferredExpertRole = action.preferredExpert || localStorage.getItem('mrt_preferred_expert') || null;
-                    if (preferredExpertRole) {
-                        localStorage.setItem('mrt_preferred_expert', preferredExpertRole);
+                    if (action.collaborationSetup) {
+                        persistPendingCollaborationSetup(action.collaborationSetup);
                     }
-                    showModal('newSessionModal');
+                    openNewSessionModal({
+                        expertRole: action.preferredExpert || localStorage.getItem('mrt_preferred_expert') || null,
+                        title: action.title || '',
+                        question: action.question || '',
+                        forceRefill: Boolean(action.title || action.question || action.preferredExpert)
+                    });
                     break;
                 case 'open-agents':
                     showModal('agentModal');
