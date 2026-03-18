@@ -3,445 +3,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedRoundTable - 14位AI专家详情</title>
+    <title>14 位 AI 专家 - MedRoundTable</title>
+    <link rel="icon" href="./assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
-        .expert-card { transition: all 0.3s ease; }
-        .expert-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #f8fafc;
+            --ink: #0f172a;
+            --muted: #475569;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 0% 0%, rgba(15, 118, 110, 0.09), transparent 24%),
+                radial-gradient(circle at 100% 0%, rgba(190, 24, 93, 0.10), transparent 26%),
+                linear-gradient(180deg, #f8fbff 0%, #f4f7fb 100%);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 28px 90px rgba(15, 23, 42, 0.10);
+            backdrop-filter: blur(18px);
+        }
+
+        .avatar {
+            position: relative;
+            width: 78px;
+            height: 78px;
+            border-radius: 26px;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.84), rgba(241, 245, 249, 0.96));
+            border: 1px solid rgba(255, 255, 255, 0.86);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.10);
+            flex-shrink: 0;
+        }
+
+        .avatar span {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.1rem;
+            color: rgba(15, 23, 42, 0.42);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: var(--avatar-position, center);
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.74);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+        }
+
+        .team-ribbon {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-ribbon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(135deg, color-mix(in srgb, var(--team-accent) 11%, white), rgba(255, 255, 255, 0.92)),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        .expert-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .expert-card:hover {
+            transform: translateY(-3px);
+            border-color: color-mix(in srgb, var(--accent) 24%, rgba(15, 23, 42, 0.08));
+            box-shadow: 0 28px 80px rgba(15, 23, 42, 0.10);
+        }
+
+        .chip {
+            background: color-mix(in srgb, var(--accent) 11%, white);
+            color: color-mix(in srgb, var(--accent) 78%, #111827);
+            border: 1px solid color-mix(in srgb, var(--accent) 18%, white);
+        }
+
+        .architecture-badge {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.84);
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
-    <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg">MedRoundTable</h1>
-                    <p class="text-xs text-slate-500">14位AI专家团队</p>
-                </div>
+<body>
+    <main class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-10">
+        <section class="glass rounded-[2rem] p-5 md:p-8 lg:p-10">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <a href="./index.html" class="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm text-slate-600 hover:text-slate-900 transition">
+                    <i class="fas fa-arrow-left"></i> 返回首页
+                </a>
+                <a href="./frontend/session-launchpad.html" class="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition">
+                    <i class="fas fa-rocket"></i> 直接去启动圆桌会
+                </a>
             </div>
-            <a href="./index.html" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
-                <i class="fas fa-home mr-1"></i> 返回首页
-            </a>
-        </div>
-    </header>
 
-    <!-- 专家列表 -->
-    <main class="max-w-7xl mx-auto px-4 py-12">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold text-slate-900 mb-4">
-                <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">14位AI专家</span> 详情介绍
-            </h2>
-            <p class="text-slate-600 max-w-3xl mx-auto">
-                每位专家都有其独特的专业领域和研究方向，为您提供全方位的医学科研支持
-            </p>
-        </div>
+            <div class="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                <div class="min-w-0">
+                    <div class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700">
+                        <i class="fas fa-users-gear"></i> 14 位 AI 专家真实路径页
+                    </div>
+                    <h1 class="mt-5 text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+                        首页专家卡片现在不再弹层，
+                        <span class="text-slate-500">而是进入真正可浏览的专家详情流。</span>
+                    </h1>
+                    <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
+                        这里把 MedRoundTable 的 14 位 AI 专家按三层架构重新组织。你可以先总览分工，再进入单专家详情页，看职责、典型交付、合作路径和推荐提问方式。
+                    </p>
 
-        <!-- 核心临床团队 -->
-        <div class="mb-16">
-            <h3 class="text-2xl font-bold text-slate-900 mb-8 flex items-center">
-                <i class="fas fa-hospital-user text-blue-600 mr-3"></i>核心临床团队
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                
-                <!-- 1. 临床主任 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-blue-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-4xl">👨‍⚕️</div>
-                        <div>
-                            <h4 class="font-bold text-xl text-slate-900">临床主任</h4>
-                            <p class="text-blue-600 font-medium">研究策略制定专家</p>
+                    <div class="mt-8 grid gap-4 md:grid-cols-3">
+                        <div class="stat-card rounded-[1.75rem] p-5">
+                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Experts</div>
+                            <div class="mt-3 text-4xl font-bold text-slate-900">14</div>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">三层团队，覆盖临床、生信与研究支持。</p>
+                        </div>
+                        <div class="stat-card rounded-[1.75rem] p-5">
+                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Skill Layers</div>
+                            <div class="mt-3 text-4xl font-bold text-slate-900">3</div>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">核心临床团队、ClawBio 套件、专业研究支持团队。</p>
+                        </div>
+                        <div class="stat-card rounded-[1.75rem] p-5">
+                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Tooling</div>
+                            <div class="mt-3 text-4xl font-bold text-slate-900">997</div>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">已接入技能与工具生态，可继续引导到功能页。</p>
                         </div>
                     </div>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">识别科研价值，评估研究的临床意义和创新点</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">提出研究假设，设计研究框架和主要终点指标</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">制定研究策略，协调团队成员分工协作</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-blue-50 rounded-xl p-4 mb-4">
-                        <h5 class="font-semibold text-blue-800 mb-2">专业领域</h5>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">研究设计</span>
-                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">终点指标</span>
-                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">项目管理</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('clinical_director')" class="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">
-                        <i class="fas fa-comments mr-2"></i>咨询此专家
-                    </button>
                 </div>
 
-                <!-- 2. 博士生 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-emerald-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-4xl">📚</div>
-                        <div>
-                            <h4 class="font-bold text-xl text-slate-900">博士生</h4>
-                            <p class="text-emerald-600 font-medium">文献检索与综述专家</p>
+                <aside class="architecture-badge rounded-[2rem] p-4 md:p-5">
+                    <img src="./assets/diagram.png" alt="MedRoundTable 专家协作结构图" class="w-full rounded-[1.5rem] border border-slate-200 object-cover">
+                    <div class="mt-4 grid gap-3 md:grid-cols-3">
+                        <div class="rounded-2xl bg-rose-50 p-4">
+                            <div class="text-sm font-semibold text-rose-700">研究定位</div>
+                            <div class="mt-2 text-sm leading-6 text-slate-600">由临床主任、博士生、流行病学家、统计学家和研究护士把题目做实。</div>
+                        </div>
+                        <div class="rounded-2xl bg-cyan-50 p-4">
+                            <div class="text-sm font-semibold text-cyan-700">生信突破</div>
+                            <div class="mt-2 text-sm leading-6 text-slate-600">ClawBio 四位专家负责多组学、GWAS、单细胞与 Galaxy 流程。</div>
+                        </div>
+                        <div class="rounded-2xl bg-blue-50 p-4">
+                            <div class="text-sm font-semibold text-blue-700">质量兜底</div>
+                            <div class="mt-2 text-sm leading-6 text-slate-600">研究支持团队把体验、数据、趋势、追踪和 QA 接住。</div>
                         </div>
                     </div>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-emerald-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">系统性文献检索，覆盖PubMed、Cochrane等主流数据库</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-emerald-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">文献综述撰写，整理研究现状和知识空白</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-emerald-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">证据整合分析，识别研究趋势和热点</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-emerald-50 rounded-xl p-4 mb-4">
-                        <h5 class="font-semibold text-emerald-800 mb-2">专业领域</h5>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">文献检索</span>
-                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">系统综述</span>
-                            <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">证据整合</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('phd_student')" class="w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition">
-                        <i class="fas fa-comments mr-2"></i>咨询此专家
-                    </button>
-                </div>
-
-                <!-- 3. 流行病学家 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-purple-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-4xl">📊</div>
-                        <div>
-                            <h4 class="font-bold text-xl text-slate-900">流行病学家</h4>
-                            <p class="text-purple-600 font-medium">研究设计质控专家</p>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-purple-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">研究方案设计，制定纳入排除标准</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-purple-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">偏倚控制策略，确保研究质量</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-purple-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">方法学审查，评估研究可行性</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-purple-50 rounded-xl p-4 mb-4">
-                        <h5 class="font-semibold text-purple-800 mb-2">专业领域</h5>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">方案设计</span>
-                            <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">偏倚控制</span>
-                            <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">质量评估</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('epidemiologist')" class="w-full py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition">
-                        <i class="fas fa-comments mr-2"></i>咨询此专家
-                    </button>
-                </div>
-
-                <!-- 4. 统计学家 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-orange-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center text-4xl">📈</div>
-                        <div>
-                            <h4 class="font-bold text-xl text-slate-900">统计学家</h4>
-                            <p class="text-orange-600 font-medium">统计分析方案专家</p>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">样本量计算，统计效能分析</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">统计分析方法选择，制定分析计划</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">CRF表格设计，数据收集规划</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-orange-50 rounded-xl p-4 mb-4">
-                        <h5 class="font-semibold text-orange-800 mb-2">专业领域</h5>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">统计分析</span>
-                            <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">样本量</span>
-                            <span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">CRF设计</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('statistician')" class="w-full py-3 bg-orange-600 text-white rounded-xl font-semibold hover:bg-orange-700 transition">
-                        <i class="fas fa-comments mr-2"></i>咨询此专家
-                    </button>
-                </div>
-
-                <!-- 5. 研究护士 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-cyan-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-700 flex items-center justify-center text-4xl">👩‍⚕️</div>
-                        <div>
-                            <h4 class="font-bold text-xl text-slate-900">研究护士</h4>
-                            <p class="text-cyan-600 font-medium">数据质量控制专家</p>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3 mb-6">
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-cyan-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">数据采集流程设计，确保数据完整性</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-cyan-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">GCP合规检查，符合法规要求</p>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <i class="fas fa-check-circle text-cyan-500 mt-1"></i>
-                            <p class="text-slate-600 text-sm">访视流程管理，患者随访协调</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-cyan-50 rounded-xl p-4 mb-4">
-                        <h5 class="font-semibold text-cyan-800 mb-2">专业领域</h5>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full">数据管理</span>
-                            <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full">GCP合规</span>
-                            <span class="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full">访视流程</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('research_nurse')" class="w-full py-3 bg-cyan-600 text-white rounded-xl font-semibold hover:bg-cyan-700 transition">
-                        <i class="fas fa-comments mr-2"></i>咨询此专家
-                    </button>
-                </div>
-
+                </aside>
             </div>
-        </div>
+        </section>
 
-        <!-- ClawBio生物信息学团队 -->
-        <div class="mb-16">
-            <h3 class="text-2xl font-bold text-slate-900 mb-8 flex items-center">
-                <i class="fas fa-dna text-green-600 mr-3"></i>ClawBio 生物信息学套件
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                
-                <!-- 6. 药物基因组学 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-green-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-green-700 flex items-center justify-center text-3xl">💊</div>
-                        <div>
-                            <h4 class="font-bold text-lg text-slate-900">药物基因组学</h4>
-                            <p class="text-green-600 text-sm font-medium">个性化用药专家</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-slate-600 text-sm mb-4">基于药物基因组学分析，为患者提供个性化用药建议，预测药物反应和不良反应风险。</p>
-
-                    <div class="bg-green-50 rounded-xl p-3 mb-4">
-                        <div class="flex flex-wrap gap-1">
-                            <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">PGx分析</span>
-                            <span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">CPIC指南</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('clawbio_pharmgx')" class="w-full py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-sm">
-                        <i class="fas fa-comments mr-1"></i>咨询专家
-                    </button>
-                </div>
-
-                <!-- 7. GWAS专家 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-indigo-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-3xl">🧬</div>
-                        <div>
-                            <h4 class="font-bold text-lg text-slate-900">GWAS专家</h4>
-                            <p class="text-indigo-600 text-sm font-medium">全基因组关联分析</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-slate-600 text-sm mb-4">全基因组关联分析专家，识别疾病相关遗传变异，支持精准医学研究。</p>
-
-                    <div class="bg-indigo-50 rounded-xl p-3 mb-4">
-                        <div class="flex flex-wrap gap-1">
-                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">变异查询</span>
-                            <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full">疾病关联</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('clawbio_gwas')" class="w-full py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition text-sm">
-                        <i class="fas fa-comments mr-1"></i>咨询专家
-                    </button>
-                </div>
-
-                <!-- 8. 单细胞测序 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-pink-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-pink-700 flex items-center justify-center text-3xl">🔬</div>
-                        <div>
-                            <h4 class="font-bold text-lg text-slate-900">单细胞测序</h4>
-                            <p class="text-pink-600 text-sm font-medium">scRNA-seq分析</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-slate-600 text-sm mb-4">单细胞RNA测序自动化分析，细胞聚类、差异表达分析和细胞亚型鉴定。</p>
-
-                    <div class="bg-pink-50 rounded-xl p-3 mb-4">
-                        <div class="flex flex-wrap gap-1">
-                            <span class="px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full">细胞聚类</span>
-                            <span class="px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full">差异表达</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('clawbio_sc_rna')" class="w-full py-2 bg-pink-600 text-white rounded-lg font-semibold hover:bg-pink-700 transition text-sm">
-                        <i class="fas fa-comments mr-1"></i>咨询专家
-                    </button>
-                </div>
-
-                <!-- 9. Galaxy桥接器 -->
-                <div class="expert-card bg-white rounded-2xl p-6 shadow-lg border border-violet-100">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-violet-500 to-violet-700 flex items-center justify-center text-3xl">🌌</div>
-                        <div>
-                            <h4 class="font-bold text-lg text-slate-900">Galaxy桥接器</h4>
-                            <p class="text-violet-600 text-sm font-medium">生信工具编排</p>
-                        </div>
-                    </div>
-                    
-                    <p class="text-slate-600 text-sm mb-4">连接Galaxy平台8000+生物信息学工具，自动化工作流编排和分析流程管理。</p>
-
-                    <div class="bg-violet-50 rounded-xl p-3 mb-4">
-                        <div class="flex flex-wrap gap-1">
-                            <span class="px-2 py-0.5 bg-violet-100 text-violet-700 text-xs rounded-full">工具编排</span>
-                            <span class="px-2 py-0.5 bg-violet-100 text-violet-700 text-xs rounded-full">8000+工具</span>
-                        </div>
-                    </div>
-
-                    <button onclick="selectExpert('clawbio_galaxy')" class="w-full py-2 bg-violet-600 text-white rounded-lg font-semibold hover:bg-violet-700 transition text-sm">
-                        <i class="fas fa-comments mr-1"></i>咨询专家
-                    </button>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- 专业研究支持团队 -->
-        <div class="mb-16">
-            <h3 class="text-2xl font-bold text-slate-900 mb-8 flex items-center">
-                <i class="fas fa-user-graduate text-amber-600 mr-3"></i>专业研究支持团队
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                
-                <!-- 10. UX研究员 -->
-                <div class="expert-card bg-white rounded-2xl p-5 shadow-lg border border-amber-100">
-                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-2xl">🔬</div>
-                    <h4 class="font-bold text-center text-slate-900 mb-1">UX研究员</h4>
-                    <p class="text-amber-600 text-center text-sm font-medium mb-3">用户体验研究</p>
-                    <p class="text-slate-600 text-xs text-center mb-3">用户体验研究、可用性测试、行为分析</p>
-                    <button onclick="selectExpert('ux_researcher')" class="w-full py-2 bg-amber-600 text-white rounded-lg font-semibold hover:bg-amber-700 transition text-sm">
-                        咨询专家
-                    </button>
-                </div>
-
-                <!-- 11. AI数据工程师 -->
-                <div class="expert-card bg-white rounded-2xl p-5 shadow-lg border border-teal-100">
-                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-2xl">🧬</div>
-                    <h4 class="font-bold text-center text-slate-900 mb-1">AI数据工程师</h4>
-                    <p class="text-teal-600 text-center text-sm font-medium mb-3">数据管道修复</p>
-                    <p class="text-slate-600 text-xs text-center mb-3">数据工程、质量修复、语义聚类</p>
-                    <button onclick="selectExpert('ai_data_engineer')" class="w-full py-2 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition text-sm">
-                        咨询专家
-                    </button>
-                </div>
-
-                <!-- 12. 趋势研究员 -->
-                <div class="expert-card bg-white rounded-2xl p-5 shadow-lg border border-rose-100">
-                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 flex items-center justify-center text-2xl">🔭</div>
-                    <h4 class="font-bold text-center text-slate-900 mb-1">趋势研究员</h4>
-                    <p class="text-rose-600 text-center text-sm font-medium mb-3">市场情报分析</p>
-                    <p class="text-slate-600 text-xs text-center mb-3">趋势研究、竞争分析、市场情报</p>
-                    <button onclick="selectExpert('trend_researcher')" class="w-full py-2 bg-rose-600 text-white rounded-lg font-semibold hover:bg-rose-700 transition text-sm">
-                        咨询专家
-                    </button>
-                </div>
-
-                <!-- 13. 实验追踪员 -->
-                <div class="expert-card bg-white rounded-2xl p-5 shadow-lg border border-lime-100">
-                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-lime-500 to-lime-700 flex items-center justify-center text-2xl">🧪</div>
-                    <h4 class="font-bold text-center text-slate-900 mb-1">实验追踪员</h4>
-                    <p class="text-lime-600 text-center text-sm font-medium mb-3">实验设计管理</p>
-                    <p class="text-slate-600 text-xs text-center mb-3">A/B测试、假设验证、实验追踪</p>
-                    <button onclick="selectExpert('experiment_tracker')" class="w-full py-2 bg-lime-600 text-white rounded-lg font-semibold hover:bg-lime-700 transition text-sm">
-                        咨询专家
-                    </button>
-                </div>
-
-                <!-- 14. 模型QA专家 -->
-                <div class="expert-card bg-white rounded-2xl p-5 shadow-lg border border-sky-100">
-                    <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-sky-500 to-sky-700 flex items-center justify-center text-2xl">🔬</div>
-                    <h4 class="font-bold text-center text-slate-900 mb-1">模型QA专家</h4>
-                    <p class="text-sky-600 text-center text-sm font-medium mb-3">AI质量保证</p>
-                    <p class="text-slate-600 text-xs text-center mb-3">模型测试、偏差检测、质量保证</p>
-                    <button onclick="selectExpert('model_qa')" class="w-full py-2 bg-sky-600 text-white rounded-lg font-semibold hover:bg-sky-700 transition text-sm">
-                        咨询专家
-                    </button>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- 底部CTA -->
-        <div class="text-center">
-            <a href="https://medroundtable-v2.vercel.app/" target="_blank" class="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-lg transition">
-                <i class="fas fa-rocket mr-2"></i>选择专家开始圆桌讨论
-            </a>
-        </div>
+        <section id="groupsContainer" class="mt-8 space-y-8"></section>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-6 mt-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>&copy; 2024 MedRoundTable · 全球首个A2A架构医学科研协作平台</p>
-        </div>
-    </footer>
-
+    <script src="./frontend/expert-data.js"></script>
     <script>
-        function selectExpert(expertId) {
-            alert('您选择了: ' + expertId + '\n\n即将跳转到圆桌会页面，您可以在那里与这位专家进行讨论。');
-            window.open('https://medroundtable-v2.vercel.app/', '_blank');
+        const dataApi = window.MedRoundTableExperts;
+        const container = document.getElementById('groupsContainer');
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
+
+        function avatarMarkup(expert) {
+            const avatarUrl = dataApi.resolveAvatar(expert);
+            const image = avatarUrl
+                ? `<img src="${avatarUrl}" alt="${escapeHtml(expert.name)}" loading="lazy"${expert.avatarPosition ? ` style="--avatar-position:${expert.avatarPosition}"` : ''} onerror="this.remove()">`
+                : '';
+            return `
+                <div class="avatar">
+                    <span>${escapeHtml(expert.fallback || expert.name.slice(0, 2))}</span>
+                    ${image}
+                </div>
+            `;
+        }
+
+        function cardMarkup(expert) {
+            return `
+                <article class="expert-card rounded-[1.75rem] p-5 md:p-6" style="--accent:${expert.accent};">
+                    <div class="flex items-start gap-4">
+                        ${avatarMarkup(expert)}
+                        <div class="min-w-0">
+                            <div class="text-2xl font-bold text-slate-900">${escapeHtml(expert.name)}</div>
+                            <div class="mt-1 text-sm font-semibold" style="color:${expert.accent};">${escapeHtml(expert.subtitle)}</div>
+                            <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(expert.summary)}</p>
+                        </div>
+                    </div>
+                    <div class="mt-5 flex flex-wrap gap-2">
+                        ${expert.highlights.map((item) => `<span class="chip rounded-full px-3 py-1 text-sm font-semibold">${escapeHtml(item)}</span>`).join('')}
+                    </div>
+                    <div class="mt-5 rounded-[1.25rem] bg-slate-50 px-4 py-4">
+                        <div class="text-xs uppercase tracking-[0.16em] text-slate-400">推荐开场问题</div>
+                        <p class="mt-2 text-sm leading-7 text-slate-700">${escapeHtml(expert.prompt)}</p>
+                    </div>
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        <a href="${dataApi.expertProfileUrl(expert.role)}" class="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-95" style="background:${expert.accent};">
+                            <i class="fas fa-id-card"></i> 查看详情页
+                        </a>
+                        <a href="${dataApi.sessionLaunchpadUrl(expert.role)}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-slate-300">
+                            <i class="fas fa-arrow-up-right-from-square"></i> 带上 TA 进入圆桌会
+                        </a>
+                    </div>
+                </article>
+            `;
+        }
+
+        function groupMarkup(group) {
+            const experts = dataApi.getExpertsByGroup(group.id);
+            return `
+                <section class="team-ribbon glass rounded-[2rem] p-5 md:p-7 lg:p-8" style="--team-accent:${group.accent};">
+                    <div class="relative z-[1]">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                            <div class="max-w-3xl">
+                                <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold" style="background:${group.surface}; color:${group.accent}; border:1px solid ${group.border};">
+                                    <i class="fas ${group.icon}"></i> ${escapeHtml(group.countLabel)}
+                                </div>
+                                <h2 class="mt-4 text-3xl md:text-4xl font-bold">${escapeHtml(group.name)}</h2>
+                                <p class="mt-3 text-base md:text-lg leading-8 text-slate-600">${escapeHtml(group.summary)}</p>
+                            </div>
+                            <div class="rounded-[1.5rem] border border-white/70 bg-white/70 px-5 py-4 text-sm leading-7 text-slate-600 shadow-sm">
+                                点击任一专家卡片，即可进入真正的专家详情页，而不是停留在模态框。
+                            </div>
+                        </div>
+                        <div class="mt-6 grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                            ${experts.map(cardMarkup).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+
+        container.innerHTML = dataApi.groups.map(groupMarkup).join('');
     </script>
 </body>
 </html>

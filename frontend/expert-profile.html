@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 专家详情 - MedRoundTable</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+        :root {
+            --page-bg: #f8fafc;
+            --text: #0f172a;
+            --muted: #475569;
+            --panel: rgba(255, 255, 255, 0.86);
+            --panel-border: rgba(15, 23, 42, 0.08);
+            --soft-shadow: 0 24px 80px rgba(15, 23, 42, 0.10);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(14, 116, 144, 0.12), transparent 26%),
+                radial-gradient(circle at top right, rgba(190, 24, 93, 0.10), transparent 24%),
+                linear-gradient(180deg, #f8fbff 0%, #f5f7fb 100%);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .glass {
+            background: var(--panel);
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--soft-shadow);
+            backdrop-filter: blur(20px);
+        }
+
+        .expert-shell {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .expert-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 28%),
+                radial-gradient(circle at 88% 8%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 22%);
+            pointer-events: none;
+        }
+
+        .avatar-shell {
+            position: relative;
+            width: 132px;
+            height: 132px;
+            border-radius: 36px;
+            background:
+                linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, white), rgba(255, 255, 255, 0.96));
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            box-shadow: 0 28px 48px rgba(15, 23, 42, 0.14);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .avatar-shell span {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2rem;
+            color: rgba(15, 23, 42, 0.44);
+            letter-spacing: 0.08em;
+        }
+
+        .avatar-shell img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: var(--avatar-position, center);
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-panel {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 22px 60px rgba(15, 23, 42, 0.07);
+        }
+
+        .tag-pill {
+            border: 1px solid color-mix(in srgb, var(--accent) 18%, white);
+            color: color-mix(in srgb, var(--accent) 82%, #111827);
+            background: color-mix(in srgb, var(--accent) 10%, white);
+        }
+
+        .list-bullet {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: color-mix(in srgb, var(--accent) 14%, white);
+            color: var(--accent);
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
+        .mini-card {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            background: rgba(255, 255, 255, 0.88);
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .mini-card:hover {
+            transform: translateY(-2px);
+            border-color: color-mix(in srgb, var(--accent) 18%, rgba(15, 23, 42, 0.08));
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+        }
+
+        .mini-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 20px;
+            background:
+                linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, white), rgba(255, 255, 255, 0.95));
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .mini-avatar span {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            font-size: 0.95rem;
+            color: rgba(15, 23, 42, 0.45);
+            z-index: 0;
+        }
+
+        .mini-avatar img {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: var(--mini-avatar-position, center);
+        }
+    </style>
+</head>
+<body>
+    <main class="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-10">
+        <section id="expertPage" class="expert-shell glass rounded-[2rem] p-5 md:p-8 lg:p-10">
+            <div id="expertContent"></div>
+        </section>
+    </main>
+
+    <script src="./expert-data.js"></script>
+    <script>
+        const dataApi = window.MedRoundTableExperts;
+        const params = new URLSearchParams(window.location.search);
+        const role = params.get('role');
+        const expert = dataApi.getExpert(role);
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function avatarMarkup(person, className, positionVar) {
+            const avatarUrl = dataApi.resolveAvatar(person);
+            const safeFallback = escapeHtml(person.fallback || person.name.slice(0, 2));
+            const safeName = escapeHtml(person.name);
+            const style = person.avatarPosition ? ` style="${positionVar}:${person.avatarPosition}"` : '';
+            const image = avatarUrl
+                ? `<img src="${avatarUrl}" alt="${safeName}" loading="lazy" onerror="this.remove()"${style}>`
+                : '';
+            return `
+                <div class="${className}">
+                    <span>${safeFallback}</span>
+                    ${image}
+                </div>
+            `;
+        }
+
+        function listMarkup(items) {
+            return items.map((item) => `
+                <li class="flex items-start gap-3 text-slate-600 leading-7">
+                    <span class="list-bullet"><i class="fas fa-check text-[0.72rem]"></i></span>
+                    <span>${escapeHtml(item)}</span>
+                </li>
+            `).join('');
+        }
+
+        function stepsMarkup(items) {
+            return items.map((item, index) => `
+                <div class="rounded-3xl border border-slate-200 bg-white/80 p-4">
+                    <div class="text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">Step ${index + 1}</div>
+                    <div class="mt-2 text-base font-semibold text-slate-900">${escapeHtml(item)}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderProfile(targetExpert) {
+            const group = dataApi.getGroup(targetExpert.groupId);
+            const relatedExperts = dataApi.getRelatedExperts(targetExpert.role);
+            const accent = targetExpert.accent || group.accent;
+            const heroImage = dataApi.toRootPath('assets/diagram.png');
+            document.documentElement.style.setProperty('--accent', accent);
+
+            const headerLinks = `
+                <div class="flex flex-wrap items-center gap-3 text-sm">
+                    <a href="${dataApi.toRootPath('index.html')}" class="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-slate-600 hover:text-slate-900 transition">
+                        <i class="fas fa-arrow-left"></i> 返回首页
+                    </a>
+                    <a href="${dataApi.toRootPath('experts.html')}" class="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-slate-600 hover:text-slate-900 transition">
+                        <i class="fas fa-users"></i> 查看 14 位专家总览
+                    </a>
+                </div>
+            `;
+
+            const relatedMarkup = relatedExperts.map((person) => `
+                <a href="${dataApi.expertProfileUrl(person.role)}" class="mini-card rounded-3xl p-4 flex items-center gap-4">
+                    ${avatarMarkup(person, 'mini-avatar', '--mini-avatar-position')}
+                    <div class="min-w-0">
+                        <div class="font-semibold text-slate-900">${escapeHtml(person.name)}</div>
+                        <div class="text-sm text-slate-500">${escapeHtml(person.subtitle)}</div>
+                    </div>
+                </a>
+            `).join('');
+
+            document.getElementById('expertContent').innerHTML = `
+                <div class="relative z-[1]">
+                    ${headerLinks}
+                    <div class="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+                        <div class="section-panel rounded-[2rem] p-6 md:p-8">
+                            <div class="flex flex-col gap-6 md:flex-row md:items-start">
+                                ${avatarMarkup(targetExpert, 'avatar-shell', '--avatar-position')}
+                                <div class="min-w-0">
+                                    <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold" style="background:${group.surface}; color:${group.accent};">
+                                        <i class="fas ${group.icon}"></i> ${escapeHtml(group.name)}
+                                    </div>
+                                    <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">${escapeHtml(targetExpert.name)}</h1>
+                                    <p class="mt-3 text-lg font-semibold" style="color:${accent};">${escapeHtml(targetExpert.subtitle)} · ${escapeHtml(targetExpert.title)}</p>
+                                    <p class="mt-4 max-w-3xl text-lg leading-8 text-slate-600">${escapeHtml(targetExpert.summary)}</p>
+                                    <div class="mt-5 flex flex-wrap gap-3">
+                                        ${targetExpert.tags.map((tag) => `<span class="tag-pill rounded-full px-3 py-1.5 text-sm font-semibold">${escapeHtml(tag)}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 grid gap-4 md:grid-cols-3">
+                                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                    <div class="text-sm uppercase tracking-[0.16em] text-slate-400">介入阶段</div>
+                                    <div class="mt-3 text-2xl font-bold text-slate-900">${escapeHtml(targetExpert.stage)}</div>
+                                </div>
+                                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                    <div class="text-sm uppercase tracking-[0.16em] text-slate-400">核心关注</div>
+                                    <div class="mt-3 flex flex-wrap gap-2">
+                                        ${targetExpert.highlights.map((item) => `<span class="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 shadow-sm">${escapeHtml(item)}</span>`).join('')}
+                                    </div>
+                                </div>
+                                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                                    <div class="text-sm uppercase tracking-[0.16em] text-slate-400">推荐开场</div>
+                                    <div class="mt-3 text-base leading-7 text-slate-700">${escapeHtml(targetExpert.prompt)}</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 flex flex-wrap gap-4">
+                                <a href="${dataApi.sessionLaunchpadUrl(targetExpert.role)}" class="inline-flex items-center gap-2 rounded-full px-6 py-3 text-white font-semibold shadow-lg transition hover:opacity-95" style="background:${accent};">
+                                    <i class="fas fa-rocket"></i> 带上这位专家进入圆桌会
+                                </a>
+                                <a href="${dataApi.toRootPath('index.html')}" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700 hover:border-slate-300 transition">
+                                    <i class="fas fa-house"></i> 回主页继续任务流
+                                </a>
+                            </div>
+                        </div>
+
+                        <aside class="section-panel rounded-[2rem] p-4 md:p-6">
+                            <img src="${heroImage}" alt="MedRoundTable 协作结构图" class="w-full rounded-[1.5rem] border border-slate-200 object-cover">
+                            <div class="mt-5 rounded-[1.5rem] p-5" style="background:${group.surface}; border:1px solid ${group.border};">
+                                <div class="text-sm font-semibold uppercase tracking-[0.16em]" style="color:${group.accent};">Team Context</div>
+                                <div class="mt-3 text-2xl font-bold text-slate-900">${escapeHtml(group.countLabel)}</div>
+                                <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(group.summary)}</p>
+                            </div>
+                        </aside>
+                    </div>
+
+                    <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+                        <section class="section-panel rounded-[2rem] p-6 md:p-8">
+                            <h2 class="text-2xl font-bold">主要职责</h2>
+                            <ul class="mt-5 space-y-3">${listMarkup(targetExpert.responsibilities)}</ul>
+                        </section>
+
+                        <section class="section-panel rounded-[2rem] p-6 md:p-8">
+                            <h2 class="text-2xl font-bold">典型交付</h2>
+                            <ul class="mt-5 space-y-3">${listMarkup(targetExpert.deliverables)}</ul>
+                        </section>
+                    </div>
+
+                    <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+                        <section class="section-panel rounded-[2rem] p-6 md:p-8">
+                            <h2 class="text-2xl font-bold">合作路径</h2>
+                            <div class="mt-5 grid gap-4">${stepsMarkup(targetExpert.path)}</div>
+                        </section>
+
+                        <section class="section-panel rounded-[2rem] p-6 md:p-8">
+                            <h2 class="text-2xl font-bold">你可以直接这样问</h2>
+                            <div class="mt-5 rounded-[1.5rem] bg-slate-950 px-5 py-6 text-slate-100">
+                                <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Prompt Starter</div>
+                                <p class="mt-3 text-lg leading-8">“${escapeHtml(targetExpert.prompt)}”</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    <section class="section-panel mt-6 rounded-[2rem] p-6 md:p-8">
+                        <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Related Experts</div>
+                                <h2 class="mt-2 text-2xl font-bold">同组专家推荐</h2>
+                            </div>
+                            <a href="${dataApi.toRootPath('experts.html')}" class="text-sm font-semibold text-slate-500 hover:text-slate-900 transition">查看完整专家地图</a>
+                        </div>
+                        <div class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                            ${relatedMarkup}
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        if (!expert) {
+            document.getElementById('expertContent').innerHTML = `
+                <div class="max-w-2xl mx-auto py-12 text-center">
+                    <div class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-900 text-white">
+                        <i class="fas fa-user-slash text-2xl"></i>
+                    </div>
+                    <h1 class="mt-6 text-3xl font-bold text-slate-900">未找到这位专家</h1>
+                    <p class="mt-4 text-lg leading-8 text-slate-600">当前链接中的专家标识不存在，建议返回专家总览重新选择。</p>
+                    <div class="mt-8 flex justify-center gap-4">
+                        <a href="${dataApi.toRootPath('experts.html')}" class="rounded-full bg-slate-900 px-6 py-3 font-semibold text-white">返回专家总览</a>
+                        <a href="${dataApi.toRootPath('index.html')}" class="rounded-full border border-slate-200 bg-white px-6 py-3 font-semibold text-slate-700">返回首页</a>
+                    </div>
+                </div>
+            `;
+        } else {
+            renderProfile(expert);
+        }
+    </script>
+</body>
+</html>
