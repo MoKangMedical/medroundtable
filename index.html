@@ -655,7 +655,7 @@
                                     <strong>核心枢纽：</strong>连接所有工具，协调 AI 专家团队，是您医学科研的中心平台
                                 </p>
                             </div>
-                            <button onclick="document.getElementById('newSessionModal').classList.remove('hidden'); document.getElementById('newSessionModal').classList.add('flex');" class="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-center font-semibold hover:bg-indigo-700 transition">
+                            <button onclick="openSessionLaunchpad()" class="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-center font-semibold hover:bg-indigo-700 transition">
                                 开始圆桌会 <i class="fas fa-plus-circle ml-1 text-sm"></i>
                             </button>
                         </div>
@@ -1131,23 +1131,23 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button onclick="generateStudyDesign()" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-700 border border-blue-300 rounded-xl font-medium shadow-sm transition-all flex items-center gap-2">
+                        <button onclick="openDeliverablesCenter('design')" class="px-4 py-2.5 bg-white hover:bg-slate-50 text-blue-700 border border-blue-300 rounded-xl font-medium shadow-sm transition-all flex items-center gap-2">
                             <i class="fas fa-lightbulb"></i>
                             <span>研究设计</span>
                         </button>
-                        <button onclick="exportReport('protocol')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
+                        <button onclick="openDeliverablesCenter('protocol')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
                             <i class="fas fa-file-word"></i>
                             <span>方案</span>
                         </button>
-                        <button onclick="exportReport('crf')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
+                        <button onclick="openDeliverablesCenter('crf')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
                             <i class="fas fa-table"></i>
                             <span>CRF表</span>
                         </button>
-                        <button onclick="exportReport('analysis')" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
+                        <button onclick="openDeliverablesCenter('analysis')" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium shadow-md transition-all flex items-center gap-2">
                             <i class="fas fa-chart-bar"></i>
                             <span>统计</span>
                         </button>
-                        <button onclick="exportReport('all')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-lg transition-all flex items-center gap-2">
+                        <button onclick="openDeliverablesCenter('all')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-bold shadow-lg transition-all flex items-center gap-2">
                             <i class="fas fa-download"></i>
                             <span>全部</span>
                         </button>
@@ -1402,11 +1402,12 @@
         let currentTypingElement = null;  // 当前正在打字的元素
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('✅ DOM 加载完成');
             try {
-                loadSessions();
+                await loadSessions();
                 updateUserUI();
+                await consumePendingHomepageAction();
                 
                 // 绑定开始讨论按钮事件
                 const startBtn = document.getElementById('startDiscussionBtn');
@@ -1518,26 +1519,7 @@
         }
 
         function createNewSession() {
-            console.log('=== createNewSession 开始 ===');
-            try {
-                // 获取模态框元素
-                const modal = document.getElementById('newSessionModal');
-                if (!modal) {
-                    console.error('newSessionModal 元素未找到');
-                    alert('页面错误：找不到模态框元素');
-                    return;
-                }
-                
-                console.log('显示 newSessionModal');
-                // 直接操作DOM显示模态框
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                
-                console.log('=== createNewSession 完成 ===');
-            } catch (err) {
-                console.error('=== createNewSession 错误 ===', err);
-                alert('创建会话出错: ' + err.message);
-            }
+            openSessionLaunchpad();
         }
 
         function showAgentInfo() {
@@ -1546,7 +1528,7 @@
                 window.location.href = './experts.html';
                 return;
             }
-            showModal('agentModal');
+            openWorkflowCenter('agents');
         }
 
         function showLoginModal() {
@@ -1991,19 +1973,7 @@
                 showToast('请先选择一个会话', 'error');
                 return;
             }
-            
-            showToast('正在生成研究设计方案...', 'info');
-            
-            try {
-                const response = await fetch(`${API_BASE}/api/v1/export/study-design/${currentSessionId}`);
-                const data = await response.json();
-                
-                // 显示研究设计
-                showStudyDesignModal(data);
-            } catch (err) {
-                showToast('生成研究设计失败', 'error');
-                console.error(err);
-            }
+            openDeliverablesCenter('design');
         }
         
         function showStudyDesignModal(data) {
@@ -2137,15 +2107,7 @@
                 window.location.href = './journals.html';
                 return;
             }
-            const panel = document.getElementById('citationsPanel');
-            const overlay = document.getElementById('citationsOverlay');
-            panel.classList.remove('translate-x-full');
-            overlay.classList.remove('hidden');
-            
-            // 加载当前会话的引用
-            if (currentSessionId) {
-                loadCitations();
-            }
+            openWorkflowCenter('citations');
         }
         
         function closeCitations() {
@@ -2255,13 +2217,7 @@
                 window.location.href = './docs/workflow.html';
                 return;
             }
-            const panel = document.getElementById('mindmapPanel');
-            panel.classList.remove('translate-y-full');
-
-            // 加载思维导图
-            setTimeout(() => {
-                loadMindMap();
-            }, 300);
+            openWorkflowCenter('mindmap');
         }
 
         function closeMindMap() {
@@ -2534,105 +2490,7 @@
                 window.location.href = './frontend/protocol-upload.html';
                 return;
             }
-            // 关闭移动端侧边栏
-            if (window.innerWidth < 1024) {
-                toggleSidebar();
-            }
-            
-            // 创建上传模态框
-            const modal = document.createElement('div');
-            modal.id = 'uploadModal';
-            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
-            modal.onclick = function(e) {
-                if (e.target === modal) modal.remove();
-            };
-            
-            modal.innerHTML = `
-                <div class="bg-white rounded-2xl w-full max-w-lg modal-enter shadow-2xl">
-                    <div class="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white rounded-t-2xl">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                                    <i class="fas fa-cloud-upload-alt text-white text-xl"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-xl text-slate-900">上传研究方案</h3>
-                                    <p class="text-slate-500 text-sm">导入您的现有研究文档</p>
-                                </div>
-                            </div>
-                            <button onclick="document.getElementById('uploadModal').remove()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
-                                <i class="fas fa-times text-xl"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="p-6 space-y-4">
-                        <!-- 拖拽上传区域 -->
-                        <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-emerald-500 hover:bg-emerald-50 transition-all cursor-pointer">
-                            <input type="file" id="fileInput" class="hidden" accept=".doc,.docx,.pdf,.txt,.md" multiple>
-                            <div class="text-emerald-500 mb-3">
-                                <i class="fas fa-cloud-upload-alt text-4xl"></i>
-                            </div>
-                            <p class="text-slate-700 font-medium mb-2">点击或拖拽文件到这里</p>
-                            <p class="text-slate-500 text-sm">支持 Word、PDF、TXT、Markdown</p>
-                            <p class="text-slate-400 text-xs mt-2">最多5个文件，每个不超过10MB</p>
-                        </div>
-                        
-                        <!-- 文件列表 -->
-                        <div id="uploadFileList" class="space-y-2 hidden">
-                            <p class="text-sm font-medium text-slate-700">已选择文件：</p>
-                            <div id="fileItems" class="space-y-2"></div>
-                        </div>
-                        
-                        <!-- 选项 -->
-                        <div class="bg-slate-50 rounded-xl p-4 space-y-3">
-                            <p class="font-medium text-slate-700">导入选项</p>
-                            <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" id="autoExtract" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500" checked>
-                                <span class="text-slate-700">自动提取关键信息（研究问题、终点指标等）</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" id="createNewSession" class="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500" checked>
-                                <span class="text-slate-700">基于文档创建新圆桌会</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                        <button onclick="document.getElementById('uploadModal').remove()" class="px-6 py-3 text-slate-600 hover:bg-slate-200 rounded-xl font-medium transition">
-                            取消
-                        </button>
-                        <button onclick="processUpload()" id="uploadBtn" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-medium shadow-lg transition flex items-center gap-2" disabled>
-                            <i class="fas fa-upload"></i>
-                            <span>开始导入</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // 绑定文件选择事件
-            const dropZone = document.getElementById('dropZone');
-            const fileInput = document.getElementById('fileInput');
-            
-            dropZone.onclick = () => fileInput.click();
-            
-            fileInput.onchange = (e) => handleFiles(e.target.files);
-            
-            // 拖拽事件
-            dropZone.ondragover = (e) => {
-                e.preventDefault();
-                dropZone.classList.add('border-emerald-500', 'bg-emerald-50');
-            };
-            
-            dropZone.ondragleave = () => {
-                dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
-            };
-            
-            dropZone.ondrop = (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('border-emerald-500', 'bg-emerald-50');
-                handleFiles(e.dataTransfer.files);
-            };
+            openWorkflowCenter('upload');
         }
         
         let selectedFiles = [];
@@ -2720,7 +2578,7 @@
                 return;
             }
             
-            showMindMap();
+            openWorkflowCenter('mindmap');
         }
         
         // 3. 研究方案草稿一键下载
@@ -2765,91 +2623,7 @@
                 window.location.href = './frontend/analysis.html';
                 return;
             }
-            // 关闭移动端侧边栏
-            if (window.innerWidth < 1024) {
-                toggleSidebar();
-            }
-            
-            const modal = document.createElement('div');
-            modal.id = 'dataAnalysisModal';
-            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
-            modal.onclick = function(e) {
-                if (e.target === modal) modal.remove();
-            };
-            
-            modal.innerHTML = `
-                <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden modal-enter shadow-2xl flex flex-col">
-                    <div class="p-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                                <i class="fas fa-chart-line text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-xl text-slate-900">自动化数据分析</h3>
-                                <p class="text-slate-500 text-sm">智能统计分析与可视化建议</p>
-                            </div>
-                        </div>
-                        <button onclick="document.getElementById('dataAnalysisModal').remove()" class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition">
-                            <i class="fas fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="flex-1 overflow-y-auto p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <!-- 功能卡片 -->
-                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border border-blue-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('sample')">
-                                <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-3">
-                                    <i class="fas fa-calculator text-white text-xl"></i>
-                                </div>
-                                <h4 class="font-bold text-slate-900 mb-2">样本量计算器</h4>
-                                <p class="text-slate-600 text-sm">根据研究设计、效应量、检验效能自动计算所需样本量</p>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 border border-purple-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('randomization')">
-                                <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-3">
-                                    <i class="fas fa-random text-white text-xl"></i>
-                                </div>
-                                <h4 class="font-bold text-slate-900 mb-2">随机化方案</h4>
-                                <p class="text-slate-600 text-sm">生成随机分组方案、分配隐藏策略</p>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-5 border border-emerald-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('statplan')">
-                                <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mb-3">
-                                    <i class="fas fa-file-alt text-white text-xl"></i>
-                                </div>
-                                <h4 class="font-bold text-slate-900 mb-2">统计分析计划</h4>
-                                <p class="text-slate-600 text-sm">自动生成SAP文档，包括分析方法、假设检验、缺失值处理</p>
-                            </div>
-                            
-                            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-5 border border-orange-200 cursor-pointer hover:shadow-lg transition-all" onclick="showAnalysisTool('power')">
-                                <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center mb-3">
-                                    <i class="fas fa-chart-bar text-white text-xl"></i>
-                                </div>
-                                <h4 class="font-bold text-slate-900 mb-2">效能分析</h4>
-                                <p class="text-slate-600 text-sm">绘制功效曲线、效应量与样本量关系图</p>
-                            </div>
-                        </div>
-                        
-                        <!-- 快速分析 -->
-                        <div class="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                            <h4 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <i class="fas fa-bolt text-yellow-500"></i>
-                                快速分析建议
-                            </h4>
-                            <div id="quickAnalysisContent" class="space-y-3">
-                                <p class="text-slate-600">请先开始一个圆桌讨论，系统将基于您的研究问题提供个性化的统计分析建议。</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            
-            // 如果当前有会话，加载相关分析建议
-            if (currentSessionId) {
-                loadQuickAnalysis();
-            }
+            openWorkflowCenter('analysis');
         }
         
         function showAnalysisTool(tool) {
@@ -3024,6 +2798,99 @@
 
         function showRegister() {
             window.location.href = './login.html';
+        }
+
+        function openSessionLaunchpad() {
+            window.location.href = './frontend/session-launchpad.html';
+        }
+
+        function openWorkflowCenter(section) {
+            window.location.href = buildHomepageTaskUrl('workflow-center.html', { section });
+        }
+
+        function openDeliverablesCenter(type) {
+            window.location.href = buildHomepageTaskUrl('deliverables-center.html', { type });
+        }
+
+        function buildHomepageTaskUrl(page, params = {}) {
+            const url = new URL(`./frontend/${page}`, window.location.href);
+            if (currentSessionId) {
+                url.searchParams.set('sessionId', currentSessionId);
+            }
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    url.searchParams.set(key, value);
+                }
+            });
+            return url.toString();
+        }
+
+        async function consumePendingHomepageAction() {
+            const raw = localStorage.getItem('mrt_pending_home_action');
+            if (!raw) return;
+
+            localStorage.removeItem('mrt_pending_home_action');
+
+            let action;
+            try {
+                action = JSON.parse(raw);
+            } catch (err) {
+                console.error('Pending action parse failed:', err);
+                return;
+            }
+
+            if (action.sessionId && action.sessionId !== currentSessionId) {
+                await selectSession(action.sessionId);
+            }
+
+            switch (action.type) {
+                case 'start-session':
+                    showModal('newSessionModal');
+                    break;
+                case 'open-agents':
+                    showModal('agentModal');
+                    break;
+                case 'open-citations':
+                    {
+                        const panel = document.getElementById('citationsPanel');
+                        const overlay = document.getElementById('citationsOverlay');
+                        panel.classList.remove('translate-x-full');
+                        overlay.classList.remove('hidden');
+                        if (currentSessionId) loadCitations();
+                    }
+                    break;
+                case 'open-mindmap':
+                    {
+                        const panel = document.getElementById('mindmapPanel');
+                        panel.classList.remove('translate-y-full');
+                        setTimeout(() => loadMindMap(), 300);
+                    }
+                    break;
+                case 'open-upload':
+                    window.location.href = './frontend/protocol-upload.html';
+                    break;
+                case 'open-analysis':
+                    window.location.href = './frontend/analysis-tools.html';
+                    break;
+                case 'open-deliverable-design':
+                    showToast('正在生成研究设计方案...', 'info');
+                    try {
+                        const response = await fetch(`${API_BASE}/api/v1/export/study-design/${currentSessionId}`);
+                        const data = await response.json();
+                        showStudyDesignModal(data);
+                    } catch (err) {
+                        showToast('生成研究设计失败', 'error');
+                        console.error(err);
+                    }
+                    break;
+                case 'open-deliverable':
+                    if (action.reportType) {
+                        exportReport(action.reportType);
+                    }
+                    break;
+                default:
+                    console.log('Unknown pending action:', action);
+            }
         }
 
         function getRoundtableDetailUrl(sessionId) {
