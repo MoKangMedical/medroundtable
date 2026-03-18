@@ -269,7 +269,7 @@ const SkillMarketplace = () => {
           <div className="featured-card">
             <Database size={32} color="#06b6d4" />
             <h4>数据库浏览器</h4>
-            <p>统一访问40+生物医学数据库</p>
+            <p>统一访问46个已编目生物医学数据库</p>
           </div>
           <div className="featured-card">
             <Activity size={32} color="#14b8a6" />

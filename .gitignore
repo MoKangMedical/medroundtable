@@ -26,6 +26,8 @@ frontend-new/.env.production
 uploads/
 temp/
 data/
+!data/
+!data/platform-catalog.json
 *.db
 *.sqlite
 *.sqlite3

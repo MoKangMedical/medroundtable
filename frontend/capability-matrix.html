@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算法能力矩阵 - MedRoundTable</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./platform-catalog.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #10213c;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 22%),
+                radial-gradient(circle at top right, rgba(244, 114, 182, 0.12), transparent 24%),
+                linear-gradient(180deg, #f6faff 0%, #f1f4fb 100%);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .surface {
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="max-w-7xl mx-auto px-4 py-8 md:py-12">
+        <div class="surface overflow-hidden rounded-[2rem] border border-white/70 shadow-[0_30px_80px_rgba(15,35,80,0.12)]">
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10 md:py-10">
+                <div class="max-w-4xl">
+                    <a href="./skills-market.html" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition">
+                        <i class="fas fa-arrow-left"></i> 返回技能市场
+                    </a>
+                    <div class="mt-5 inline-flex items-center gap-2 rounded-full bg-violet-100 px-4 py-2 text-sm font-semibold text-violet-700">
+                        <i class="fas fa-diagram-project"></i> Algorithm Capability Matrix
+                    </div>
+                    <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">算法能力矩阵</h1>
+                    <p class="mt-4 text-lg leading-8 text-slate-600">
+                        这页把平台真正的算法能力拆开给你看：每条能力链路做什么、由谁负责、会产出什么、和哪些数据库联动。它既是用户理解平台的地图，也是后续继续扩展能力的基准页。
+                    </p>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
+                <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">STELLA Control Plane</p>
+                        <h2 class="mt-2 text-3xl font-bold">元编排层</h2>
+                        <div class="mt-5 grid gap-4 md:grid-cols-3">
+                            <div class="rounded-3xl bg-blue-50 p-4">
+                                <p class="text-sm font-semibold text-blue-700">Manager</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">拆目标、挑专家、拉起第一批数据库和技能。</p>
+                            </div>
+                            <div class="rounded-3xl bg-violet-50 p-4">
+                                <p class="text-sm font-semibold text-violet-700">Dev</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">把数据库、算法和输出物拼成可执行工作流。</p>
+                            </div>
+                            <div class="rounded-3xl bg-rose-50 p-4">
+                                <p class="text-sm font-semibold text-rose-700">Critic</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">控制偏差、合规和最终交付质量。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-slate-950 p-6 text-white">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Platform Snapshot</p>
+                        <div class="mt-5 grid grid-cols-2 gap-4">
+                            <div class="rounded-3xl bg-white/5 p-4">
+                                <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Skills</p>
+                                <p id="snapshotSkills" class="mt-2 text-3xl font-bold">997</p>
+                            </div>
+                            <div class="rounded-3xl bg-white/5 p-4">
+                                <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Databases</p>
+                                <p id="snapshotDatabases" class="mt-2 text-3xl font-bold">0</p>
+                            </div>
+                            <div class="rounded-3xl bg-white/5 p-4">
+                                <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Capability Lanes</p>
+                                <p id="snapshotLanes" class="mt-2 text-3xl font-bold">0</p>
+                            </div>
+                            <div class="rounded-3xl bg-white/5 p-4">
+                                <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Experts</p>
+                                <p id="snapshotExperts" class="mt-2 text-3xl font-bold">14</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="px-6 py-8 md:px-10">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Capability Lanes</p>
+                        <h2 class="mt-2 text-3xl font-bold">能力链路明细</h2>
+                    </div>
+                </div>
+                <div id="capabilityMatrix" class="mt-8 space-y-5"></div>
+            </section>
+
+            <section class="border-t border-slate-200/80 bg-slate-50 px-6 py-8 md:px-10">
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Source Packages</p>
+                        <h3 class="mt-2 text-2xl font-bold">来源包贡献</h3>
+                        <div id="packageBreakdown" class="mt-6 space-y-4"></div>
+                    </div>
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Database Reach</p>
+                        <h3 class="mt-2 text-2xl font-bold">数据库覆盖摘要</h3>
+                        <div id="databaseBreakdown" class="mt-6 space-y-4"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderCapabilityMatrix(catalog) {
+            const container = document.getElementById('capabilityMatrix');
+            container.innerHTML = catalog.capability_lanes
+                .map((lane) => {
+                    const tone = MRTPlatformCatalog.getToneStyle(lane.tone);
+                    return `
+                        <article class="rounded-[1.75rem] border ${tone.soft} bg-white p-6 shadow-sm">
+                            <div class="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
+                                <div>
+                                    <div class="inline-flex items-center gap-2 rounded-full ${tone.badge} px-3 py-1 text-xs font-semibold">
+                                        <i class="fas fa-sitemap"></i> ${escapeHtml(lane.name)}
+                                    </div>
+                                    <p class="mt-4 text-4xl font-bold ${tone.accent}">${lane.count}</p>
+                                    <p class="mt-2 text-sm text-slate-500">项能力</p>
+                                    <p class="mt-4 text-sm leading-7 text-slate-600">${escapeHtml(lane.description)}</p>
+                                </div>
+                                <div class="grid gap-4 md:grid-cols-3">
+                                    <div class="rounded-3xl bg-slate-50 p-4">
+                                        <p class="text-xs uppercase tracking-[0.24em] text-slate-400">覆盖动作</p>
+                                        <div class="mt-3 space-y-2 text-sm text-slate-600">
+                                            ${lane.coverage.map((item) => `<div><i class="fas fa-check ${tone.accent} mr-2"></i>${escapeHtml(item)}</div>`).join('')}
+                                        </div>
+                                    </div>
+                                    <div class="rounded-3xl bg-slate-50 p-4">
+                                        <p class="text-xs uppercase tracking-[0.24em] text-slate-400">主责角色</p>
+                                        <div class="mt-3 space-y-2 text-sm text-slate-600">
+                                            ${lane.owner_roles.map((item) => `<div><i class="fas fa-user-doctor ${tone.accent} mr-2"></i>${escapeHtml(item)}</div>`).join('')}
+                                        </div>
+                                    </div>
+                                    <div class="rounded-3xl bg-slate-50 p-4">
+                                        <p class="text-xs uppercase tracking-[0.24em] text-slate-400">交付结果</p>
+                                        <div class="mt-3 space-y-2 text-sm text-slate-600">
+                                            ${lane.deliverables.map((item) => `<div><i class="fas fa-file-lines ${tone.accent} mr-2"></i>${escapeHtml(item)}</div>`).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                })
+                .join('');
+        }
+
+        function renderPackages(catalog) {
+            const container = document.getElementById('packageBreakdown');
+            container.innerHTML = catalog.source_packages
+                .map((pkg) => `
+                    <div id="${escapeHtml(pkg.id)}" class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <div>
+                                <p class="font-semibold text-slate-900">${escapeHtml(pkg.name)}</p>
+                                <p class="mt-1 text-sm text-slate-600">${escapeHtml(pkg.summary)}</p>
+                            </div>
+                            <span class="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 border border-slate-200">${pkg.count}</span>
+                        </div>
+                    </div>
+                `)
+                .join('');
+        }
+
+        function renderDatabaseBreakdown(catalog) {
+            const categories = MRTPlatformCatalog.buildCategorySummary(catalog.databases);
+            const container = document.getElementById('databaseBreakdown');
+            container.innerHTML = categories
+                .map((category) => `
+                    <div class="rounded-3xl border border-slate-200 bg-slate-50 px-5 py-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <p class="font-semibold text-slate-900">${escapeHtml(category.name)}</p>
+                            <span class="rounded-full bg-white px-3 py-1 text-sm font-semibold text-slate-700 border border-slate-200">${category.count}</span>
+                        </div>
+                    </div>
+                `)
+                .join('');
+        }
+
+        MRTPlatformCatalog.loadCatalog('..')
+            .then((catalog) => {
+                document.getElementById('snapshotSkills').textContent = catalog.stats.skills_total;
+                document.getElementById('snapshotDatabases').textContent = catalog.databases.length;
+                document.getElementById('snapshotLanes').textContent = catalog.capability_lanes.length;
+                document.getElementById('snapshotExperts').textContent = catalog.stats.experts_total;
+                renderCapabilityMatrix(catalog);
+                renderPackages(catalog);
+                renderDatabaseBreakdown(catalog);
+            })
+            .catch((error) => {
+                document.getElementById('capabilityMatrix').innerHTML = `
+                    <div class="rounded-[1.75rem] border border-red-200 bg-red-50 p-6 text-red-700">
+                        <p class="font-semibold">能力矩阵加载失败</p>
+                        <p class="mt-2 text-sm">${escapeHtml(error.message)}</p>
+                    </div>
+                `;
+            });
+    </script>
+</body>
+</html>
