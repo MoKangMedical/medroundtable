@@ -318,15 +318,15 @@
         
         <!-- 工具生态入口 -->
         <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-            <a href="./all-tools.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
+            <a href="./frontend/tools.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
                 <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
                     <i class="fas fa-toolbox text-white text-lg"></i>
                 </div>
                 <div class="flex-1">
                     <p class="font-medium text-slate-200 text-sm">扩展工具生态</p>
-                    <p class="text-xs text-slate-500">查看所有5个工具平台</p>
+                    <p class="text-xs text-slate-500">CTR + MediVisual</p>
                 </div>
-                <i class="fas fa-arrow-right text-slate-600 group-hover:text-blue-400"></i>
+                <i class="fas fa-external-link-alt text-slate-600 group-hover:text-blue-400"></i>
             </a>
         </div>
         
@@ -347,17 +347,6 @@
                     <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
                 </div>
                 <i class="fas fa-chevron-right text-slate-600"></i>
-            </a>
-            
-            <a href="./sitemap.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-green-600 mt-2">
-                <div class="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center group-hover:bg-green-600 transition-colors">
-                    <i class="fas fa-sitemap text-green-400 group-hover:text-white text-lg"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="font-medium text-slate-200 text-sm">网站地图</p>
-                    <p class="text-xs text-slate-500">查看所有页面链接</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-600 group-hover:text-green-400"></i>
             </a>
         </div>
     </aside>
@@ -542,7 +531,7 @@
                         </p>
                         <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                             <!-- 临床主任 -->
-                            <a href="./experts.html" class="group cursor-pointer relative z-20 block">
+                            <div class="group cursor-pointer relative z-20" onclick="showAgentDetail('clinical_director')">
                                 <div class="bg-white rounded-2xl p-5 shadow-lg border border-slate-200 hover:shadow-xl hover:border-blue-300 transition-all transform hover:-translate-y-1">
                                     <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-2xl">👨‍⚕️</div>
                                     <h3 class="font-bold text-slate-900 mb-1 text-sm">临床主任</h3>
