@@ -1958,7 +1958,7 @@
 
         // ============ 思维导图功能 ============
 
-        let mindMap = null;
+        let roundtableMindMap = null;
 
         function showMindMap() {
             if (!currentSessionId) {
@@ -1991,23 +1991,23 @@
             const clinicalQuestion = messages.length > 0 ? messages[0].content : '';
 
             // 初始化或更新思维导图
-            if (!mindMap) {
-                mindMap = new DiscussionMindMap('mindmapContainer');
+            if (!roundtableMindMap) {
+                roundtableMindMap = new DiscussionMindMap('mindmapContainer');
             }
 
-            const data = mindMap.parseDiscussion(messages, clinicalQuestion);
-            mindMap.render(data);
+            const data = roundtableMindMap.parseDiscussion(messages, clinicalQuestion);
+            roundtableMindMap.render(data);
         }
 
         function resetMindMapView() {
-            if (mindMap) {
-                mindMap.resetView();
+            if (roundtableMindMap) {
+                roundtableMindMap.resetView();
             }
         }
 
         function exportMindMap() {
-            if (mindMap) {
-                mindMap.exportImage();
+            if (roundtableMindMap) {
+                roundtableMindMap.exportImage();
                 showToast('思维导图已导出', 'success');
             }
         }

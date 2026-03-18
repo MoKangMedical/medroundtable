@@ -161,8 +161,7 @@
             title: 'Pharmacogenomics Specialist / 个体化用药分析专家',
             groupId: 'clawbio_suite',
             accent: '#0f766e',
-            avatarAsset: 'assets/doctor4.png',
-            avatarPosition: '65% center',
+            avatarAsset: 'assets/expert-avatars/clawbio_pharmgx.png',
             fallback: '药',
             stage: '药物反应解释',
             summary: '将基因变异、药物反应和临床结局关联起来，支持个体化用药研究。',
@@ -186,7 +185,7 @@
             title: 'GWAS Specialist / 全基因组关联分析专家',
             groupId: 'clawbio_suite',
             accent: '#2563eb',
-            avatarAsset: 'assets/doctor3.png',
+            avatarAsset: 'assets/expert-avatars/clawbio_gwas.png',
             fallback: 'GW',
             stage: '遗传关联发现',
             summary: '负责遗传变异关联分析、表型选择和 GWAS 结果解读。',
@@ -210,7 +209,7 @@
             title: 'scRNA Specialist / 单细胞分析专家',
             groupId: 'clawbio_suite',
             accent: '#9333ea',
-            avatarAsset: 'assets/doctor2.png',
+            avatarAsset: 'assets/expert-avatars/clawbio_sc_rna.png',
             fallback: '单',
             stage: '多组学深入分析',
             summary: '负责 scRNA-seq 数据的聚类、差异表达和细胞亚群解释。',
@@ -234,8 +233,7 @@
             title: 'Galaxy Bridge / 生信流程编排专家',
             groupId: 'clawbio_suite',
             accent: '#7c3aed',
-            avatarAsset: 'assets/doctor5.png',
-            avatarPosition: '58% center',
+            avatarAsset: 'assets/expert-avatars/clawbio_galaxy.png',
             fallback: '桥',
             stage: '工作流编排',
             summary: '连接 Galaxy 生态与 OpenClaw 医疗技能，把生信任务编排成可复用流程。',
@@ -259,7 +257,7 @@
             title: 'UX Researcher / 研究流程体验专家',
             groupId: 'research_support',
             accent: '#d97706',
-            avatarAsset: 'assets/doctor3.png',
+            avatarAsset: 'assets/expert-avatars/ux_researcher.png',
             fallback: 'UX',
             stage: '流程优化',
             summary: '从研究者体验出发，优化页面路径、任务引导和操作反馈。',
@@ -283,7 +281,7 @@
             title: 'AI Data Engineer / 数据与语义管道专家',
             groupId: 'research_support',
             accent: '#0891b2',
-            avatarAsset: 'assets/doctor2.png',
+            avatarAsset: 'assets/expert-avatars/ai_data_engineer.png',
             fallback: '数',
             stage: '数据工程',
             summary: '负责数据结构整理、字段标准化、语义聚类和下游 AI 分析可用性。',
@@ -307,8 +305,7 @@
             title: 'Trend Researcher / 趋势与竞品情报专家',
             groupId: 'research_support',
             accent: '#e11d48',
-            avatarAsset: 'assets/doctor3.png',
-            avatarPosition: 'center 22%',
+            avatarAsset: 'assets/expert-avatars/trend_researcher.png',
             fallback: '趋',
             stage: '方向校准',
             summary: '追踪研究热点、竞品路线和期刊偏好，帮助题目选择更贴近发表窗口。',
@@ -332,7 +329,7 @@
             title: 'Experiment Tracker / 实验与试验追踪专家',
             groupId: 'research_support',
             accent: '#65a30d',
-            avatarAsset: 'assets/doctor4.png',
+            avatarAsset: 'assets/expert-avatars/experiment_tracker.png',
             fallback: '追',
             stage: '执行跟踪',
             summary: '负责实验或试验过程跟踪、里程碑管理和方案偏差记录。',
@@ -356,7 +353,7 @@
             title: 'Model QA Specialist / 模型质量保障专家',
             groupId: 'research_support',
             accent: '#2563eb',
-            avatarAsset: 'assets/doctor5.png',
+            avatarAsset: 'assets/expert-avatars/model_qa.png',
             fallback: 'QA',
             stage: '质量兜底',
             summary: '对模型输出、研究结论和自动化流程进行偏差、漂移和稳定性检查。',
@@ -378,12 +375,13 @@
     const expertMap = Object.fromEntries(experts.map((expert) => [expert.role, expert]));
     const groupMap = Object.fromEntries(groups.map((group) => [group.id, group]));
 
-    function isFrontendPage() {
-        return window.location.pathname.includes('/frontend/');
+    function needsParentPrefix() {
+        return window.location.pathname.includes('/frontend/')
+            || window.location.pathname.includes('/roundtables/');
     }
 
     function rootPrefix() {
-        return isFrontendPage() ? '../' : './';
+        return needsParentPrefix() ? '../' : './';
     }
 
     function toRootPath(path) {
@@ -402,20 +400,28 @@
 
     function expertProfileUrl(role) {
         const encodedRole = encodeURIComponent(role);
-        return isFrontendPage()
-            ? `./expert-profile.html?role=${encodedRole}`
-            : `./frontend/expert-profile.html?role=${encodedRole}`;
+        if (window.location.pathname.includes('/frontend/')) {
+            return `./expert-profile.html?role=${encodedRole}`;
+        }
+        if (window.location.pathname.includes('/roundtables/')) {
+            return `../frontend/expert-profile.html?role=${encodedRole}`;
+        }
+        return `./frontend/expert-profile.html?role=${encodedRole}`;
     }
 
     function expertsOverviewUrl() {
-        return isFrontendPage() ? '../experts.html' : './experts.html';
+        return needsParentPrefix() ? '../experts.html' : './experts.html';
     }
 
     function sessionLaunchpadUrl(role) {
         const suffix = role ? `?expert=${encodeURIComponent(role)}` : '';
-        return isFrontendPage()
-            ? `./session-launchpad.html${suffix}`
-            : `./frontend/session-launchpad.html${suffix}`;
+        if (window.location.pathname.includes('/frontend/')) {
+            return `./session-launchpad.html${suffix}`;
+        }
+        if (window.location.pathname.includes('/roundtables/')) {
+            return `../frontend/session-launchpad.html${suffix}`;
+        }
+        return `./frontend/session-launchpad.html${suffix}`;
     }
 
     function getExpert(role) {

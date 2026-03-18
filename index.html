@@ -1188,6 +1188,27 @@
                 </button>
             </div>
             <div class="p-6 space-y-5">
+                <div id="preferredExpertPanel" class="hidden rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+                    <div class="flex items-start gap-4">
+                        <img id="preferredExpertAvatar" src="./assets/doctor1.png" alt="所选专家头像" class="w-16 h-16 rounded-2xl object-cover border border-white shadow-md bg-white">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">Selected Expert</p>
+                                    <h4 id="preferredExpertName" class="mt-1 text-lg font-bold text-slate-900">临床主任</h4>
+                                    <p id="preferredExpertSubtitle" class="mt-1 text-sm text-slate-600">将以该专家为首位介入者进入本次圆桌会</p>
+                                </div>
+                                <button type="button" onclick="clearPreferredExpertSelection()" class="rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition">
+                                    清除
+                                </button>
+                            </div>
+                            <div class="mt-3 rounded-xl bg-white/80 px-3 py-3 text-sm leading-6 text-slate-700">
+                                <span class="font-semibold text-slate-900">建议开场：</span>
+                                <span id="preferredExpertPrompt">请从该专家视角先评估这个问题。</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <label class="block text-base font-semibold text-slate-700 mb-2">研究标题</label>
                     <input type="text" id="sessionTitle" placeholder="例如：二甲双胍对2型糖尿病的疗效研究" 
@@ -1366,6 +1387,7 @@
         </div>
     </div>
 
+    <script src="./frontend/expert-data.js"></script>
     <script>
         // 全局错误处理
         window.onerror = function(message, source, lineno, colno, error) {
@@ -1384,6 +1406,9 @@
         const MOCK_MODE = true;
         let mockSessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
         let mockSessionId = parseInt(localStorage.getItem('mockSessionId') || '0');
+        const expertCatalog = window.MedRoundTableExperts || null;
+        const coreClinicalRoles = ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse'];
+        let preferredExpertRole = localStorage.getItem('mrt_preferred_expert') || null;
 
         // 全局状态
         let currentSessionId = null;
@@ -1414,45 +1439,7 @@
                 if (startBtn) {
                     startBtn.addEventListener('click', async function() {
                         console.log('开始讨论按钮被点击');
-                        const title = document.getElementById('sessionTitle').value.trim();
-                        const question = document.getElementById('sessionQuestion').value.trim();
-                        
-                        if (!title || !question) {
-                            alert('请填写完整信息');
-                            return;
-                        }
-                        
-                        try {
-                            console.log('发送创建请求...');
-                            const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ title, clinical_question: question })
-                            });
-                            
-                            if (!response.ok) {
-                                throw new Error('HTTP ' + response.status);
-                            }
-                            
-                            const session = await response.json();
-                            console.log('会话创建成功:', session.id);
-                            
-                            // 关闭模态框
-                            document.getElementById('newSessionModal').classList.add('hidden');
-                            document.getElementById('newSessionModal').classList.remove('flex');
-                            
-                            // 开始讨论
-                            console.log('启动讨论...');
-                            await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
-                            
-                            alert('圆桌会已开始！');
-                            
-                            // 刷新页面显示讨论
-                            window.location.reload();
-                        } catch (e) {
-                            console.error('错误:', e);
-                            alert('出错: ' + e.message);
-                        }
+                        await submitNewSession();
                     });
                     console.log('✅ 开始讨论按钮事件绑定成功');
                 }
@@ -1496,6 +1483,9 @@
                 }
                 el.classList.remove('hidden');
                 el.classList.add('flex');
+                if (id === 'newSessionModal') {
+                    updatePreferredExpertSelection(false);
+                }
                 console.log('showModal 成功:', id);
             } catch (err) {
                 console.error('showModal 错误:', id, err);
@@ -1626,6 +1616,97 @@
             return date.toLocaleDateString('zh-CN');
         }
 
+        function getExpertMeta(role) {
+            if (!expertCatalog || !role) return null;
+            return expertCatalog.getExpert(role);
+        }
+
+        function getSuggestedSessionTitle(expert) {
+            return `${expert.name}先介入：${expert.subtitle}研究讨论`;
+        }
+
+        function getSuggestedSessionQuestion(expert) {
+            return `请以${expert.name}的视角先介入本次圆桌会。${expert.prompt}`;
+        }
+
+        function buildSessionParticipants(role) {
+            if (!role || !expertCatalog) {
+                return [...coreClinicalRoles];
+            }
+
+            const expert = expertCatalog.getExpert(role);
+            if (!expert) {
+                return [...coreClinicalRoles];
+            }
+
+            const relatedRoles = expertCatalog
+                .getExpertsByGroup(expert.groupId)
+                .map((item) => item.role);
+
+            return [...new Set([role, ...relatedRoles, ...coreClinicalRoles])];
+        }
+
+        function loadSessionPreferences() {
+            try {
+                return JSON.parse(localStorage.getItem('mrt_session_preferences') || '{}');
+            } catch (err) {
+                console.error('session preference parse failed:', err);
+                return {};
+            }
+        }
+
+        function persistSessionPreference(sessionId, role) {
+            if (!sessionId) return;
+            const preferences = loadSessionPreferences();
+            if (role) {
+                preferences[String(sessionId)] = role;
+            } else {
+                delete preferences[String(sessionId)];
+            }
+            localStorage.setItem('mrt_session_preferences', JSON.stringify(preferences));
+        }
+
+        function updatePreferredExpertSelection(forceRefill) {
+            const panel = document.getElementById('preferredExpertPanel');
+            const avatar = document.getElementById('preferredExpertAvatar');
+            const nameEl = document.getElementById('preferredExpertName');
+            const subtitleEl = document.getElementById('preferredExpertSubtitle');
+            const promptEl = document.getElementById('preferredExpertPrompt');
+            const titleInput = document.getElementById('sessionTitle');
+            const questionInput = document.getElementById('sessionQuestion');
+            const expert = getExpertMeta(preferredExpertRole);
+
+            if (!panel || !avatar || !nameEl || !subtitleEl || !promptEl || !titleInput || !questionInput) {
+                return;
+            }
+
+            if (!expert) {
+                panel.classList.add('hidden');
+                return;
+            }
+
+            panel.classList.remove('hidden');
+            avatar.src = expertCatalog.resolveAvatar(expert);
+            avatar.alt = `${expert.name}头像`;
+            nameEl.textContent = expert.name;
+            subtitleEl.textContent = `${expert.subtitle} · 将以该专家为首位介入者进入本次圆桌会`;
+            promptEl.textContent = expert.prompt;
+
+            if (forceRefill || !titleInput.value.trim()) {
+                titleInput.value = getSuggestedSessionTitle(expert);
+            }
+
+            if (forceRefill || !questionInput.value.trim()) {
+                questionInput.value = getSuggestedSessionQuestion(expert);
+            }
+        }
+
+        function clearPreferredExpertSelection() {
+            preferredExpertRole = null;
+            localStorage.removeItem('mrt_preferred_expert');
+            updatePreferredExpertSelection(false);
+        }
+
         // ============ 聊天功能 ============
         
         async function submitNewSession() {
@@ -1668,7 +1749,8 @@
                         clinical_question: question,
                         status: 'active',
                         created_at: new Date().toISOString(),
-                        participants: ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse']
+                        preferred_expert: preferredExpertRole,
+                        participants: buildSessionParticipants(preferredExpertRole)
                     };
                     mockSessions.push(session);
                     localStorage.setItem('mockSessions', JSON.stringify(mockSessions));
@@ -1692,6 +1774,8 @@
                     session = await response.json();
                     console.log('步骤6: 解析响应', session);
                 }
+
+                persistSessionPreference(session.id, preferredExpertRole);
                 
                 console.log('步骤7: 关闭模态框');
                 closeModal('newSessionModal');
@@ -1699,6 +1783,9 @@
                 console.log('步骤8: 清空输入');
                 document.getElementById('sessionTitle').value = '';
                 document.getElementById('sessionQuestion').value = '';
+                localStorage.removeItem('mrt_preferred_expert');
+                preferredExpertRole = null;
+                updatePreferredExpertSelection(false);
                 
                 if (!MOCK_MODE) {
                     console.log('步骤9: 开始讨论(API模式)');
@@ -2210,7 +2297,7 @@
 
         // ============ 思维导图功能 ============
 
-        let mindMap = null;
+        let roundtableMindMap = null;
 
         function showMindMap() {
             if (!currentSessionId) {
@@ -2237,23 +2324,23 @@
             const clinicalQuestion = messages.length > 0 ? messages[0].content : '';
 
             // 初始化或更新思维导图
-            if (!mindMap) {
-                mindMap = new DiscussionMindMap('mindmapContainer');
+            if (!roundtableMindMap) {
+                roundtableMindMap = new DiscussionMindMap('mindmapContainer');
             }
 
-            const data = mindMap.parseDiscussion(messages, clinicalQuestion);
-            mindMap.render(data);
+            const data = roundtableMindMap.parseDiscussion(messages, clinicalQuestion);
+            roundtableMindMap.render(data);
         }
 
         function resetMindMapView() {
-            if (mindMap) {
-                mindMap.resetView();
+            if (roundtableMindMap) {
+                roundtableMindMap.resetView();
             }
         }
 
         function exportMindMap() {
-            if (mindMap) {
-                mindMap.exportImage();
+            if (roundtableMindMap) {
+                roundtableMindMap.exportImage();
                 showToast('思维导图已导出', 'success');
             }
         }
@@ -2692,6 +2779,10 @@
 
             switch (action.type) {
                 case 'start-session':
+                    preferredExpertRole = action.preferredExpert || localStorage.getItem('mrt_preferred_expert') || null;
+                    if (preferredExpertRole) {
+                        localStorage.setItem('mrt_preferred_expert', preferredExpertRole);
+                    }
                     showModal('newSessionModal');
                     break;
                 case 'open-agents':
