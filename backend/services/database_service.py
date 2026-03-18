@@ -12,7 +12,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 import io
 
-from backend.models.upload_models import (
+from backend.upload_models import (
     ResearchDatabase, DatabaseCreate, DatabaseUpdate, DatabaseResponse,
     DatabaseSchema, DatabaseColumn, DatabasePreview, SQLQuery, SQLQueryResult
 )

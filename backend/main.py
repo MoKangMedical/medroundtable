@@ -69,8 +69,15 @@ async def root():
     return {
         "name": "MedRoundTable API",
         "version": "2.0.0",
-        "description": "A2A 医学科研协作平台 - 整合997项技能",
-        "features": ["V1.0 圆桌协作", "V2.0 技能市场", "V2.0 数据库浏览器", "V2.0 临床试验设计"],
+        "description": "A2A + STELLA 医学科研协作平台 - 整合 997 项技能，其中 869 项来自 OpenClaw 包装层",
+        "features": [
+            "V1.0 圆桌协作",
+            "V2.0 技能市场",
+            "STELLA Manager-Dev-Critic",
+            "OpenClaw Medical Skills 包装层",
+            "V2.0 数据库浏览器",
+            "V2.0 临床试验设计",
+        ],
         "docs": {
             "v1": "/api/v1/",
             "v2": "/api/v2/",
@@ -354,15 +361,19 @@ async def startup_event():
 
 # 技能市场API
 from backend.routes.skills.marketplace import router as skills_router
-app.include_router(skills_router, prefix="/api/v2")
+app.include_router(skills_router)
 
 # 生物医学数据库API
 from backend.routes.databases.biomedical import router as databases_router
-app.include_router(databases_router, prefix="/api/v2")
+app.include_router(databases_router)
 
 # 临床试验设计API
 from backend.routes.trials.designer import router as trials_router
-app.include_router(trials_router, prefix="/api/v2")
+app.include_router(trials_router)
+
+# STELLA 架构编排 API
+from backend.routes.stella import router as stella_router
+app.include_router(stella_router)
 
 # ============ 自研认证系统 (替代Second Me OAuth) ============
 from backend.routes.auth.custom_auth import router as auth_router
@@ -391,10 +402,12 @@ async def api_v2_root():
     return {
         "version": "2.0.0",
         "name": "MedRoundTable API V2",
-        "description": "整合997项技能的医学科研协作平台",
+        "description": "整合 997 项技能的医学科研协作平台，内含 STELLA Manager-Dev-Critic 编排层",
         "features": [
-            "50+专业Agent协作",
+            "14位专业医学专家协作",
+            "STELLA Manager-Dev-Critic",
             "997项技能市场",
+            "869项 OpenClaw Medical Skills 包装层",
             "40+生物医学数据库",
             "智能临床试验设计",
             "生物信息学分析",
@@ -402,6 +415,7 @@ async def api_v2_root():
         ],
         "endpoints": {
             "skills": "/api/v2/skills/",
+            "stella": "/api/v2/stella/architecture",
             "databases": "/api/v2/databases/",
             "trials": "/api/v2/trials/",
             "agents": "/api/v1/agents",
@@ -421,8 +435,13 @@ async def api_v2_stats():
             "categories": ["文献", "临床试验", "药物", "基因组", "蛋白质", "通路", "疾病", "法规"]
         },
         "agents": {
-            "total": 50,
-            "categories": ["临床", "研究", "生信", "法规"]
+            "total": 14,
+            "categories": ["核心临床团队", "生信套件", "研究支持团队"]
+        },
+        "stella": {
+            "meta_roles": 3,
+            "architecture": "Manager-Dev-Critic",
+            "status": "integrated"
         },
         "version": "2.0.0",
         "status": "operational"

@@ -931,7 +931,7 @@
                 <input type="password" id="loginPassword" placeholder="密码" class="w-full px-4 py-4 border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base transition-all">
                 <button onclick="login()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold btn-press shadow-lg text-lg transition-all">登录</button>
                 <p class="text-center text-base text-slate-500">
-                    还没有账号？<a href="#" onclick="showRegister(); return false;" class="text-blue-600 hover:text-blue-700 font-semibold">立即注册</a>
+                    还没有账号？<a href="./login.html" onclick="showRegister(); return false;" class="text-blue-600 hover:text-blue-700 font-semibold">立即注册</a>
                 </p>
             </div>
         </div>
@@ -1253,19 +1253,22 @@
 
         function showAgentInfo() {
             console.log('showAgentInfo 被调用');
+            if (!currentSessionId) {
+                window.location.href = './experts.html';
+                return;
+            }
             showModal('agentModal');
         }
 
         function showLoginModal() {
             console.log('showLoginModal 被调用');
             toggleSidebar();
-            // 跳转到新的登录页面（支持国内访问）
-            window.location.href = '/login-v2.html';
+            window.location.href = './login.html';
         }
 
         function showFeedback() {
             console.log('showFeedback 被调用');
-            window.open('/feedback-v2.html', '_blank');
+            window.location.href = './feedback-v2.html';
         }
 
         // ============ 会话管理 ============
@@ -1840,6 +1843,10 @@
         // ============ 参考文献功能 ============
         
         function showCitations() {
+            if (!currentSessionId) {
+                window.location.href = './journals.html';
+                return;
+            }
             const panel = document.getElementById('citationsPanel');
             const overlay = document.getElementById('citationsOverlay');
             panel.classList.remove('translate-x-full');
@@ -1951,9 +1958,13 @@
 
         // ============ 思维导图功能 ============
 
-        let mindMap = null;
+        let roundtableMindMap = null;
 
         function showMindMap() {
+            if (!currentSessionId) {
+                window.location.href = '../docs/workflow.html';
+                return;
+            }
             const panel = document.getElementById('mindmapPanel');
             panel.classList.remove('translate-y-full');
 
@@ -1980,23 +1991,23 @@
             const clinicalQuestion = messages.length > 0 ? messages[0].content : '';
 
             // 初始化或更新思维导图
-            if (!mindMap) {
-                mindMap = new DiscussionMindMap('mindmapContainer');
+            if (!roundtableMindMap) {
+                roundtableMindMap = new DiscussionMindMap('mindmapContainer');
             }
 
-            const data = mindMap.parseDiscussion(messages, clinicalQuestion);
-            mindMap.render(data);
+            const data = roundtableMindMap.parseDiscussion(messages, clinicalQuestion);
+            roundtableMindMap.render(data);
         }
 
         function resetMindMapView() {
-            if (mindMap) {
-                mindMap.resetView();
+            if (roundtableMindMap) {
+                roundtableMindMap.resetView();
             }
         }
 
         function exportMindMap() {
-            if (mindMap) {
-                mindMap.exportImage();
+            if (roundtableMindMap) {
+                roundtableMindMap.exportImage();
                 showToast('思维导图已导出', 'success');
             }
         }
@@ -2069,166 +2080,17 @@
         
         function showAgentDetail(role) {
             console.log('showAgentDetail 被调用:', role);
-            try {
-            const agentInfo = {
-                'clinical_director': {
-                    name: '临床主任',
-                    title: '主任医师 / PI',
-                    avatar: './assets/doctor1.png',
-                    color: 'blue',
-                    description: '临床研究领域的资深专家，拥有丰富的临床试验设计和执行经验。',
-                    responsibilities: [
-                        '制定整体研究策略和方向',
-                        '确定研究终点指标和临床意义',
-                        '审核研究方案的科学性和可行性',
-                        '协调各专家之间的意见',
-                        '最终研究决策和质量把控'
-                    ],
-                    expertise: ['临床试验设计', '终点指标选择', '医学写作', '伦理审查']
-                },
-                'phd_student': {
-                    name: '博士生',
-                    title: '在读医学博士 / 文献专家',
-                    avatar: './assets/doctor2.png',
-                    color: 'emerald',
-                    description: '医学博士研究生，专注于医学文献检索、证据整合和最新研究进展分析。',
-                    responsibilities: [
-                        '系统检索相关文献和指南',
-                        '整理最新研究进展和证据',
-                        '分析现有研究的优缺点',
-                        '为研究设计提供文献支持',
-                        '识别研究空白和创新点'
-                    ],
-                    expertise: ['文献检索', 'Meta分析', '证据等级评价', '研究趋势分析']
-                },
-                'epidemiologist': {
-                    name: '流行病学家',
-                    title: '流行病学博士',
-                    avatar: './assets/doctor3.png',
-                    color: 'purple',
-                    description: '精通临床研究方法论，专注于研究设计和偏倚控制。',
-                    responsibilities: [
-                        '设计研究方案和流程',
-                        '制定纳入排除标准',
-                        '控制选择偏倚和信息偏倚',
-                        '评估研究的可行性',
-                        '优化研究质量和效率'
-                    ],
-                    expertise: ['研究设计', '偏倚控制', '质量控制', '方法学咨询']
-                },
-                'statistician': {
-                    name: '统计学家',
-                    title: '生物统计学家',
-                    avatar: './assets/doctor4.png',
-                    avatarPosition: '75% 0%',
-                    color: 'orange',
-                    description: '专业的生物统计专家，擅长临床试验统计分析和样本量计算。',
-                    responsibilities: [
-                        '计算所需样本量',
-                        '制定统计分析计划',
-                        '设计随机化方案',
-                        '确定统计方法和假设',
-                        '处理缺失数据和多重比较'
-                    ],
-                    expertise: ['样本量计算', '统计分析', '随机化', '效能分析']
-                },
-                'research_nurse': {
-                    name: '研究护士',
-                    title: '临床研究协调员',
-                    avatar: './assets/doctor5.png',
-                    color: 'cyan',
-                    description: '临床研究执行专家，熟悉GCP规范和现场操作流程。',
-                    responsibilities: [
-                        '制定访视流程和时间表',
-                        '设计CRF表单',
-                        '规划数据管理流程',
-                        '制定患者招募策略',
-                        '协调多中心研究执行'
-                    ],
-                    expertise: ['GCP规范', '数据管理', '患者招募', '质量控制']
-                }
-            };
-            
-            const agent = agentInfo[role];
-            if (!agent) return;
-            
-            const colorClasses = {
-                blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', badge: 'bg-blue-100' },
-                emerald: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', badge: 'bg-emerald-100' },
-                purple: { bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', badge: 'bg-purple-100' },
-                orange: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', badge: 'bg-orange-100' },
-                cyan: { bg: 'bg-cyan-50', border: 'border-cyan-200', text: 'text-cyan-700', badge: 'bg-cyan-100' }
-            };
-            
-            const c = colorClasses[agent.color];
-            
-            const modal = document.createElement('div');
-            modal.id = 'agentDetailModal';
-            modal.className = 'fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4';
-            modal.onclick = function(e) {
-                if (e.target === modal) modal.remove();
-            };
-            
-            modal.innerHTML = `
-                <div class="bg-white rounded-2xl w-full max-w-lg modal-enter shadow-2xl overflow-hidden">
-                    <div class="h-32 ${c.bg} relative">
-                        <button onclick="document.getElementById('agentDetailModal').remove()" class="absolute top-4 right-4 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg transition">
-                            <i class="fas fa-times text-slate-600"></i>
-                        </button>
-                    </div>
-                    <div class="px-6 pb-6">
-                        <div class="relative -mt-16 mb-4">
-                            <div class="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden mx-auto bg-white">
-                                <img src="${agent.avatar}" alt="${agent.name}" class="w-full h-full object-cover">
-                            </div>
-                        </div>
-                        <div class="text-center mb-6">
-                            <h3 class="text-2xl font-bold text-slate-900 mb-1">${agent.name}</h3>
-                            <p class="${c.text} font-medium">${agent.title}</p>
-                        </div>
-                        <div class="mb-6">
-                            <p class="text-slate-600 leading-relaxed">${agent.description}</p>
-                        </div>
-                        <div class="mb-6">
-                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
-                                <i class="fas fa-tasks ${c.text}"></i>
-                                主要职责
-                            </h4>
-                            <ul class="space-y-2">
-                                ${agent.responsibilities.map(r => `
-                                    <li class="flex items-start gap-3 text-slate-600">
-                                        <i class="fas fa-check-circle ${c.text} mt-0.5"></i>
-                                        <span>${r}</span>
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-slate-900 mb-3 flex items-center gap-2">
-                                <i class="fas fa-star ${c.text}"></i>
-                                专业领域
-                            </h4>
-                            <div class="flex flex-wrap gap-2">
-                                ${agent.expertise.map(e => `
-                                    <span class="px-3 py-1 ${c.badge} ${c.text} text-sm rounded-full font-medium">${e}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-            } catch (err) {
-                console.error('showAgentDetail 错误:', err);
-                alert('显示专家详情时出错，请查看控制台');
-            }
+            window.location.href = `./expert-profile.html?role=${encodeURIComponent(role)}`;
         }
 
         // ============ 侧边栏功能 ============
         
         // 1. 上传研究方案
         function showUploadModal() {
+            if (!currentSessionId) {
+                window.location.href = './protocol-upload.html';
+                return;
+            }
             // 关闭移动端侧边栏
             if (window.innerWidth < 1024) {
                 toggleSidebar();
@@ -2411,7 +2273,7 @@
             }
             
             if (!currentSessionId) {
-                showToast('请先开始一个圆桌讨论', 'error');
+                window.location.href = '../docs/workflow.html';
                 return;
             }
             
@@ -2426,7 +2288,7 @@
             }
             
             if (!currentSessionId) {
-                showToast('请先开始一个圆桌讨论', 'error');
+                window.location.href = './trial-designer.html';
                 return;
             }
             
@@ -2457,6 +2319,10 @@
         
         // 4. 自动化数据分析
         function showDataAnalysis() {
+            if (!currentSessionId) {
+                window.location.href = './analysis.html';
+                return;
+            }
             // 关闭移动端侧边栏
             if (window.innerWidth < 1024) {
                 toggleSidebar();
@@ -2545,14 +2411,7 @@
         }
         
         function showAnalysisTool(tool) {
-            const toolNames = {
-                'sample': '样本量计算器',
-                'randomization': '随机化方案',
-                'statplan': '统计分析计划',
-                'power': '效能分析'
-            };
-            
-            showToast(`${toolNames[tool]}功能开发中，敬请期待！`, 'info');
+            window.location.href = `./analysis-tools.html?tool=${encodeURIComponent(tool)}`;
         }
         
         async function loadQuickAnalysis() {
@@ -2718,12 +2577,11 @@
         }
 
         function showQuickActions() {
-            // 快捷操作菜单
-            showToast('功能开发中', 'info');
+            window.location.href = './action-center.html';
         }
 
         function showRegister() {
-            showToast('注册功能开发中，请稍后重试', 'info');
+            window.location.href = './login.html';
         }
 
         // 防止双击缩放

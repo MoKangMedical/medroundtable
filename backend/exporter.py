@@ -5,13 +5,17 @@ from docx.oxml.ns import qn
 from typing import List, Dict
 from datetime import datetime
 import os
+from pathlib import Path
 
 class DocumentExporter:
     """研究文档导出器"""
     
     def __init__(self):
-        self.template_dir = "/root/.openclaw/workspace/medroundtable/templates"
+        project_root = Path(__file__).resolve().parent.parent
+        self.template_dir = str(project_root / "tmp" / "templates")
+        self.output_dir = str(project_root / "tmp" / "exports")
         os.makedirs(self.template_dir, exist_ok=True)
+        os.makedirs(self.output_dir, exist_ok=True)
     
     def generate_study_protocol(
         self,
@@ -23,13 +27,16 @@ class DocumentExporter:
         """生成研究方案Word文档"""
         
         if output_path is None:
-            output_path = f"/tmp/study_protocol_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            output_path = os.path.join(
+                self.output_dir,
+                f"study_protocol_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            )
         
         doc = Document()
         
         # 设置中文字体
         doc.styles['Normal'].font.name = 'SimSun'
-        doc.styles['Normal']._element.rPr.rFonts.set(docx.oxml.ns.qn('w:eastAsia'), 'SimSun')
+        doc.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), 'SimSun')
         
         # 标题
         title_para = doc.add_heading('临床研究方案', 0)
@@ -92,7 +99,10 @@ class DocumentExporter:
         """生成CRF表格模板"""
         
         if output_path is None:
-            output_path = f"/tmp/crf_template_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            output_path = os.path.join(
+                self.output_dir,
+                f"crf_template_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            )
         
         doc = Document()
         

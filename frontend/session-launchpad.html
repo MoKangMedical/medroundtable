@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圆桌会启动页 - MedRoundTable</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(37, 88, 217, 0.14), transparent 28%),
+                radial-gradient(circle at 80% 20%, rgba(14, 165, 164, 0.12), transparent 20%),
+                linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
+            color: #0f172a;
+        }
+        h1, h2, h3 { font-family: 'Noto Serif SC', serif; }
+        .glass {
+            background: rgba(255, 255, 255, 0.84);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 28px 70px rgba(15, 23, 42, 0.08);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="max-w-6xl mx-auto px-4 py-8 md:py-14">
+        <section class="glass rounded-[2rem] overflow-hidden">
+            <div class="px-6 py-10 md:px-12 md:py-14 border-b border-slate-200/80">
+                <a href="../index.html" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition">
+                    <i class="fas fa-arrow-left"></i> 返回首页
+                </a>
+                <div class="mt-6 max-w-3xl">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+                        <i class="fas fa-rocket"></i> Session Launchpad
+                    </span>
+                    <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">启动新的医学科研圆桌会</h1>
+                    <p class="mt-4 text-lg leading-8 text-slate-600">
+                        先确定入口，再启动流程。你可以直接回主页创建圆桌会，也可以先上传已有方案、查看专家分工或研究工具，再回来正式发起讨论。
+                    </p>
+                    <div id="selectedExpertBanner" class="mt-5 hidden rounded-3xl border border-blue-200 bg-blue-50 px-5 py-4 text-left">
+                        <div class="text-sm font-semibold text-blue-700">已从专家详情页进入</div>
+                        <div id="selectedExpertText" class="mt-2 text-base leading-7 text-slate-700"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-0">
+                <div class="px-6 py-8 md:px-12 md:py-12">
+                    <h2 class="text-2xl font-bold">推荐启动顺序</h2>
+                    <ol class="mt-5 space-y-4 text-slate-600 leading-7">
+                        <li>1. 先确定研究标题和一句话临床问题。</li>
+                        <li>2. 判断自己是从零启动，还是已经有 protocol / 立项书 / 研究草稿。</li>
+                        <li>3. 如果需要更清晰的角色分工，先看专家页和工具生态，再回到首页启动圆桌会。</li>
+                    </ol>
+
+                    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button id="launchSessionBtn" class="rounded-3xl bg-blue-600 px-6 py-5 text-left text-white hover:bg-blue-700 transition">
+                            <div class="text-sm text-blue-100">Primary Action</div>
+                            <div class="mt-2 text-2xl font-bold">回主页创建新圆桌会</div>
+                            <p class="mt-2 text-sm text-blue-100">直接打开首页的创建圆桌会入口。</p>
+                        </button>
+                        <a href="./protocol-upload.html" class="rounded-3xl border border-emerald-200 bg-emerald-50 px-6 py-5 text-left hover:bg-emerald-100 transition">
+                            <div class="text-sm text-emerald-700">Alternative</div>
+                            <div class="mt-2 text-2xl font-bold text-emerald-900">先上传现有方案</div>
+                            <p class="mt-2 text-sm text-emerald-700">适合已有课题书、protocol 或研究摘要的情况。</p>
+                        </a>
+                    </div>
+                </div>
+
+                <aside class="bg-slate-950 text-white px-6 py-8 md:px-10 md:py-12">
+                    <h2 class="text-2xl font-bold">启动前检查</h2>
+                    <ul class="mt-5 space-y-3 text-sm text-slate-300">
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>一句话讲清研究问题</li>
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>知道主要终点或核心变量</li>
+                        <li><i class="fas fa-check-circle text-emerald-400 mr-2"></i>明确是否已有现成文档或数据</li>
+                    </ul>
+
+                    <div class="mt-8 space-y-3">
+                        <a href="./experts.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
+                            <span>先看 AI 专家分工</span><i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="./tools.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
+                            <span>先看工具生态</span><i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <script src="./expert-data.js"></script>
+    <script>
+        const expertApi = window.MedRoundTableExperts;
+        const selectedExpertRole = new URLSearchParams(window.location.search).get('expert');
+        const selectedExpert = selectedExpertRole ? expertApi.getExpert(selectedExpertRole) : null;
+
+        if (selectedExpert) {
+            document.getElementById('selectedExpertBanner').classList.remove('hidden');
+            document.getElementById('selectedExpertText').textContent = `当前推荐由「${selectedExpert.name}」先介入。你回到首页后，可以先发起圆桌会，再按这位专家的视角组织问题。`;
+            document.getElementById('launchSessionBtn').querySelector('.text-2xl').textContent = `回主页创建新圆桌会（${selectedExpert.name}）`;
+        }
+
+        document.getElementById('launchSessionBtn').addEventListener('click', () => {
+            localStorage.setItem('mrt_pending_home_action', JSON.stringify({ type: 'start-session', preferredExpert: selectedExpertRole || null }));
+            if (selectedExpertRole) {
+                localStorage.setItem('mrt_preferred_expert', selectedExpertRole);
+            }
+            window.location.href = '../index.html';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>统计工具导航 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+        :root {
+            --ink: #0f1d38;
+            --muted: #566882;
+            --line: rgba(15, 29, 56, 0.12);
+        }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top, rgba(51, 102, 255, 0.16), transparent 30%),
+                linear-gradient(180deg, #f8fbff 0%, #f3f5f8 100%);
+        }
+        h1, h2, h3 { font-family: 'Noto Serif SC', serif; }
+        .tool-card {
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 48px rgba(40, 75, 162, 0.12);
+        }
+        .tool-card.is-active {
+            border-color: rgba(37, 88, 217, 0.35);
+            box-shadow: 0 18px 36px rgba(37, 88, 217, 0.12);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="max-w-7xl mx-auto px-4 py-8 md:py-14">
+        <div class="rounded-[2rem] border border-[rgba(15,29,56,0.08)] bg-white/80 backdrop-blur-xl shadow-[0_30px_80px_rgba(18,36,76,0.08)] overflow-hidden">
+            <section class="px-6 py-10 md:px-12 md:py-14 border-b border-slate-200/80">
+                <a href="../index.html" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition">
+                    <i class="fas fa-arrow-left"></i> 返回首页
+                </a>
+                <div class="mt-6 max-w-3xl">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700">
+                        <i class="fas fa-chart-pie"></i> Statistical Workbench
+                    </span>
+                    <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">统计工具导航页</h1>
+                    <p class="mt-4 text-lg leading-8 text-slate-600">
+                        首页里的四个统计入口现在都接到这里。你可以先判断自己在方案设计阶段、数据分析阶段，还是正式撰写 SAP 阶段，再进入对应工具。
+                    </p>
+                </div>
+            </section>
+
+            <section class="px-6 py-8 md:px-12 md:py-12">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <article id="sample" data-tool-card class="tool-card rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">样本量计算器</h2>
+                                <p class="mt-2 text-slate-600">用于在立项前评估纳入规模、效应量、α 水平和检验效能。</p>
+                            </div>
+                        </div>
+                        <ul class="mt-5 space-y-2 text-sm text-slate-600">
+                            <li><i class="fas fa-check text-blue-500 mr-2"></i>适用于 RCT、队列研究、非劣效/优效设计</li>
+                            <li><i class="fas fa-check text-blue-500 mr-2"></i>需要准备主要终点、预期差异与方差假设</li>
+                            <li><i class="fas fa-check text-blue-500 mr-2"></i>推荐先进入数据分析中心，再结合试验设计器校正假设</li>
+                        </ul>
+                        <div class="mt-6 flex flex-wrap gap-3">
+                            <a href="./analysis.html" class="px-5 py-3 rounded-2xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">进入数据分析中心</a>
+                            <a href="./trial-designer.html" class="px-5 py-3 rounded-2xl border border-blue-200 text-blue-700 font-semibold hover:bg-blue-50 transition">回到试验设计器</a>
+                        </div>
+                    </article>
+
+                    <article id="randomization" data-tool-card class="tool-card rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl">
+                                <i class="fas fa-random"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">随机化方案</h2>
+                                <p class="mt-2 text-slate-600">明确分组策略、分层变量、区组长度和 allocation concealment。</p>
+                            </div>
+                        </div>
+                        <ul class="mt-5 space-y-2 text-sm text-slate-600">
+                            <li><i class="fas fa-check text-purple-500 mr-2"></i>适用于双臂 RCT、多臂试验和分层随机设计</li>
+                            <li><i class="fas fa-check text-purple-500 mr-2"></i>需要先定义主要分层因素和中心数量</li>
+                            <li><i class="fas fa-check text-purple-500 mr-2"></i>建议从试验设计器进入，再把结果带回圆桌会讨论</li>
+                        </ul>
+                        <div class="mt-6 flex flex-wrap gap-3">
+                            <a href="./trial-designer.html" class="px-5 py-3 rounded-2xl bg-purple-600 text-white font-semibold hover:bg-purple-700 transition">设计随机方案</a>
+                            <a href="./research-paths.html#rct" class="px-5 py-3 rounded-2xl border border-purple-200 text-purple-700 font-semibold hover:bg-purple-50 transition">查看 RCT 模板</a>
+                        </div>
+                    </article>
+
+                    <article id="statplan" data-tool-card class="tool-card rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">
+                                <i class="fas fa-file-lines"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">统计分析计划 SAP</h2>
+                                <p class="mt-2 text-slate-600">围绕分析集、终点、缺失值、多重比较与敏感性分析组织正式文档。</p>
+                            </div>
+                        </div>
+                        <ul class="mt-5 space-y-2 text-sm text-slate-600">
+                            <li><i class="fas fa-check text-emerald-500 mr-2"></i>适合伦理提交、注册申报和团队内部统计对齐</li>
+                            <li><i class="fas fa-check text-emerald-500 mr-2"></i>建议准备终点定义、时间窗和分析集规则</li>
+                            <li><i class="fas fa-check text-emerald-500 mr-2"></i>先走试验设计，再进入数据分析中心生成草案</li>
+                        </ul>
+                        <div class="mt-6 flex flex-wrap gap-3">
+                            <a href="./analysis.html" class="px-5 py-3 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition">开始统计分析</a>
+                            <a href="./protocol-upload.html" class="px-5 py-3 rounded-2xl border border-emerald-200 text-emerald-700 font-semibold hover:bg-emerald-50 transition">上传现有方案</a>
+                        </div>
+                    </article>
+
+                    <article id="power" data-tool-card class="tool-card rounded-3xl border border-slate-200 bg-white p-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center text-2xl">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-2xl font-bold">效能分析</h2>
+                                <p class="mt-2 text-slate-600">查看功效曲线、效应量敏感性，以及不同纳入规模下的检出能力。</p>
+                            </div>
+                        </div>
+                        <ul class="mt-5 space-y-2 text-sm text-slate-600">
+                            <li><i class="fas fa-check text-orange-500 mr-2"></i>适合基金申请、伦理答辩和 protocol 论证</li>
+                            <li><i class="fas fa-check text-orange-500 mr-2"></i>与样本量计算器配套使用更稳妥</li>
+                            <li><i class="fas fa-check text-orange-500 mr-2"></i>建议先明确主要终点与最小临床意义差异</li>
+                        </ul>
+                        <div class="mt-6 flex flex-wrap gap-3">
+                            <a href="./analysis.html" class="px-5 py-3 rounded-2xl bg-orange-600 text-white font-semibold hover:bg-orange-700 transition">打开分析页</a>
+                            <a href="./database-upload.html" class="px-5 py-3 rounded-2xl border border-orange-200 text-orange-700 font-semibold hover:bg-orange-50 transition">上传数据集</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const activeTool = params.get('tool');
+        if (activeTool) {
+            const card = document.getElementById(activeTool);
+            if (card) {
+                card.classList.add('is-active');
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>研究模板路径 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background:
+                linear-gradient(135deg, rgba(35, 79, 191, 0.08), transparent 34%),
+                linear-gradient(225deg, rgba(15, 159, 122, 0.08), transparent 26%),
+                #f8fafc;
+        }
+        h1, h2, h3 { font-family: 'Noto Serif SC', serif; }
+        .path-card {
+            transition: transform 180ms ease, box-shadow 180ms ease;
+        }
+        .path-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 22px 48px rgba(17, 33, 63, 0.12);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-900">
+    <main class="max-w-6xl mx-auto px-4 py-8 md:py-14">
+        <div class="rounded-[2rem] border border-slate-200 bg-white/85 backdrop-blur-xl shadow-[0_30px_80px_rgba(18,36,76,0.08)] overflow-hidden">
+            <section class="px-6 py-10 md:px-12 md:py-14 border-b border-slate-200">
+                <a href="./trial-designer.html" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition">
+                    <i class="fas fa-arrow-left"></i> 返回试验设计器
+                </a>
+                <h1 class="mt-6 text-4xl md:text-5xl font-bold">研究模板路径</h1>
+                <p class="mt-4 text-lg text-slate-600 leading-8 max-w-3xl">
+                    `trial-designer` 首页里的四个“快速开始”模板现在都接到这里。每种研究类型都给出适用场景、关键设计点和建议下一步。
+                </p>
+            </section>
+
+            <section class="px-6 py-8 md:px-12 md:py-12 space-y-6">
+                <article id="rct" class="path-card rounded-3xl border border-slate-200 bg-white p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center text-2xl"><i class="fas fa-random"></i></div>
+                        <div>
+                            <h2 class="text-2xl font-bold">随机对照试验 RCT</h2>
+                            <p class="mt-2 text-slate-600">适用于明确干预措施、主要终点清晰、需要最高等级证据的临床问题。</p>
+                        </div>
+                    </div>
+                    <ul class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-600">
+                        <li class="rounded-2xl bg-slate-50 p-4">关键点：随机化、盲法、主要终点、依从性管理</li>
+                        <li class="rounded-2xl bg-slate-50 p-4">建议动作：先确定入排标准，再做样本量和随机化</li>
+                    </ul>
+                </article>
+
+                <article id="observational" class="path-card rounded-3xl border border-slate-200 bg-white p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl"><i class="fas fa-eye"></i></div>
+                        <div>
+                            <h2 class="text-2xl font-bold">观察性研究</h2>
+                            <p class="mt-2 text-slate-600">适合真实世界数据、病因探索、预后建模和临床路径评估。</p>
+                        </div>
+                    </div>
+                    <ul class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-600">
+                        <li class="rounded-2xl bg-slate-50 p-4">关键点：暴露定义、混杂控制、偏倚来源与缺失值</li>
+                        <li class="rounded-2xl bg-slate-50 p-4">建议动作：先整理变量字典，再确定回归或倾向评分路径</li>
+                    </ul>
+                </article>
+
+                <article id="rws" class="path-card rounded-3xl border border-slate-200 bg-white p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-2xl"><i class="fas fa-pills"></i></div>
+                        <div>
+                            <h2 class="text-2xl font-bold">真实世界研究 RWS</h2>
+                            <p class="mt-2 text-slate-600">适用于上市后疗效、安全性、卫生经济学和真实临床场景验证。</p>
+                        </div>
+                    </div>
+                    <ul class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-600">
+                        <li class="rounded-2xl bg-slate-50 p-4">关键点：数据源质量、时间窗定义、终点可追踪性</li>
+                        <li class="rounded-2xl bg-slate-50 p-4">建议动作：先确认数据平台，再设计敏感性分析与亚组方案</li>
+                    </ul>
+                </article>
+
+                <article id="meta" class="path-card rounded-3xl border border-slate-200 bg-white p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-2xl"><i class="fas fa-search"></i></div>
+                        <div>
+                            <h2 class="text-2xl font-bold">系统综述 / Meta 分析</h2>
+                            <p class="mt-2 text-slate-600">适用于证据整合、指南支持和某一治疗策略的系统性比较。</p>
+                        </div>
+                    </div>
+                    <ul class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-600">
+                        <li class="rounded-2xl bg-slate-50 p-4">关键点：检索策略、纳排标准、偏倚风险评估、异质性分析</li>
+                        <li class="rounded-2xl bg-slate-50 p-4">建议动作：先定义 PICO，再进入文献与引用管理路径</li>
+                    </ul>
+                </article>
+
+                <div class="rounded-3xl bg-slate-900 text-white p-8">
+                    <h2 class="text-2xl font-bold">下一步建议</h2>
+                    <div class="mt-5 flex flex-wrap gap-3">
+                        <a href="./trial-designer.html" class="px-5 py-3 rounded-2xl bg-white text-slate-900 font-semibold hover:bg-slate-100 transition">回到试验设计器</a>
+                        <a href="./analysis-tools.html" class="px-5 py-3 rounded-2xl bg-white/10 border border-white/15 font-semibold hover:bg-white/15 transition">进入统计工具导航</a>
+                        <a href="./protocol-upload.html" class="px-5 py-3 rounded-2xl bg-white/10 border border-white/15 font-semibold hover:bg-white/15 transition">上传现有方案</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

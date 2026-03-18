@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Database, FlaskConical, FileText, Pill, Activity, BookOpen, Zap } from 'lucide-react';
+import {
+  Search,
+  Database,
+  FlaskConical,
+  FileText,
+  Pill,
+  Activity,
+  BookOpen,
+  Zap,
+  Network,
+  ShieldCheck
+} from 'lucide-react';
 import './SkillMarketplace.css';
 
 // 技能分类图标映射
@@ -8,7 +19,7 @@ const categoryIcons = {
   '研究': BookOpen,
   '生物信息学': FlaskConical,
   '法规合规': FileText,
-  'AI_ML': Zap,
+  'AI/ML': Zap,
   '数据库': Database,
   '文献': BookOpen,
   '临床试验': Activity,
@@ -22,7 +33,7 @@ const categoryColors = {
   '研究': '#3b82f6',
   '生物信息学': '#8b5cf6',
   '法规合规': '#f59e0b',
-  'AI_ML': '#ec4899',
+  'AI/ML': '#ec4899',
   '数据库': '#06b6d4',
   '文献': '#6366f1',
   '临床试验': '#14b8a6',
@@ -119,7 +130,7 @@ const SkillMarketplace = () => {
       {/* 头部区域 */}
       <div className="marketplace-header">
         <h1>🎯 技能市场</h1>
-        <p className="subtitle">探索 997 项专业科研技能，赋能您的医学研究</p>
+        <p className="subtitle">探索 997 项专业科研技能，其中 869 项通过 OpenClaw Medical Skills 包装接入</p>
         
         {/* 搜索框 */}
         <div className="search-box">
@@ -132,6 +143,23 @@ const SkillMarketplace = () => {
           />
         </div>
       </div>
+
+      {stats?.skills?.source_packages && (
+        <div className="integration-strip">
+          <div className="integration-pill">
+            <Network size={18} />
+            <span>STELLA Manager-Dev-Critic 已接入</span>
+          </div>
+          <div className="integration-pill">
+            <Zap size={18} />
+            <span>OpenClaw 包装技能 {stats.skills.openclaw_wrapped_skills || 0} 项</span>
+          </div>
+          <div className="integration-pill">
+            <ShieldCheck size={18} />
+            <span>质量门禁由 Critic 层统一审查</span>
+          </div>
+        </div>
+      )}
 
       {/* 统计卡片 */}
       {stats && (
@@ -149,8 +177,8 @@ const SkillMarketplace = () => {
             <div className="stat-label">专业Agent</div>
           </div>
           <div className="stat-card">
-            <div className="stat-number">{categories?.length || 0}</div>
-            <div className="stat-label">技能分类</div>
+            <div className="stat-number">{stats.stella?.meta_roles || 0}</div>
+            <div className="stat-label">STELLA元角色</div>
           </div>
         </div>
       )}
@@ -206,6 +234,11 @@ const SkillMarketplace = () => {
                     <span className="skill-source">{skill.source}</span>
                     <span className="skill-version">v{skill.version}</span>
                   </div>
+                  {skill.wrapper_type && skill.wrapper_type !== 'native' && (
+                    <div className="skill-wrapper-badge">
+                      {skill.wrapper_type} · {skill.package_id}
+                    </div>
+                  )}
                   <button 
                     className="invoke-btn"
                     onClick={() => invokeSkill(skill.id)}

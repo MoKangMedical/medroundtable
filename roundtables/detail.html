@@ -87,7 +87,7 @@
     <!-- 顶部导航 -->
     <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-3">
-            <a href="/" class="text-gray-600 hover:text-gray-800">
+            <a href="../index.html" class="text-gray-600 hover:text-gray-800">
                 <i class="fas fa-arrow-left text-lg"></i>
             </a>
             <div>
@@ -96,11 +96,7 @@
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <div class="flex -space-x-2">
-                <div class="agent-avatar bg-blue-100 text-lg" title="临床主任">👨‍⚕️</div>
-                <div class="agent-avatar bg-green-100 text-lg" title="博士生">📚</div>
-                <div class="agent-avatar bg-yellow-100 text-lg" title="流行病学家">📊</div>
-            </div>
+            <div id="roundtableParticipants" class="flex -space-x-2"></div>
         </div>
     </header>
 
@@ -161,10 +157,13 @@
         </div>
     </div>
 
+    <script src="../frontend/expert-data.js"></script>
     <script>
         // 获取圆桌ID
+        const urlParams = new URLSearchParams(window.location.search);
         const pathParts = window.location.pathname.split('/');
-        const roundtableId = pathParts[pathParts.length - 1];
+        const pathTail = pathParts[pathParts.length - 1];
+        const roundtableId = urlParams.get('sessionId') || (pathTail.endsWith('.html') ? '' : pathTail);
         
         // API 基础地址
         const API_BASE = window.location.origin.includes('localhost') 
@@ -174,6 +173,53 @@
         // 模拟数据模式
         const MOCK_MODE = true;
         let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
+        const expertCatalog = window.MedRoundTableExperts || null;
+        const fallbackParticipants = ['clinical_director', 'phd_student', 'epidemiologist'];
+
+        function loadSessionPreferences() {
+            try {
+                return JSON.parse(localStorage.getItem('mrt_session_preferences') || '{}');
+            } catch (err) {
+                console.error('加载会话偏好失败:', err);
+                return {};
+            }
+        }
+
+        function getPreferredExpertRole(session) {
+            if (session && session.preferred_expert) {
+                return session.preferred_expert;
+            }
+            return loadSessionPreferences()[String(roundtableId)] || null;
+        }
+
+        function getPreferredExpert(session) {
+            const role = getPreferredExpertRole(session);
+            return expertCatalog && role ? expertCatalog.getExpert(role) : null;
+        }
+
+        function getRoundtableParticipants(session) {
+            if (session && Array.isArray(session.participants) && session.participants.length > 0) {
+                return session.participants;
+            }
+            const preferredRole = getPreferredExpertRole(session);
+            return preferredRole ? [preferredRole, ...fallbackParticipants] : [...fallbackParticipants];
+        }
+
+        function renderParticipantAvatars(participants) {
+            const container = document.getElementById('roundtableParticipants');
+            if (!container) return;
+
+            const deduped = [...new Set(participants)].slice(0, 4);
+            container.innerHTML = deduped.map((role) => {
+                const expert = expertCatalog ? expertCatalog.getExpert(role) : null;
+                const name = expert ? expert.name : getAgentName(role);
+                const avatar = expert ? expertCatalog.resolveAvatar(expert) : '';
+                if (avatar) {
+                    return `<img src="${avatar}" alt="${name}" title="${name}" class="agent-avatar bg-white object-cover">`;
+                }
+                return `<div class="agent-avatar bg-blue-100 text-sm font-semibold text-blue-700" title="${name}">${name.slice(0, 2)}</div>`;
+            }).join('');
+        }
         
         // 调试信息
         console.log('=== 圆桌详情页加载 ===');
@@ -211,7 +257,11 @@
                 }
                 
                 document.getElementById('roundtableTitle').textContent = data.title || '未命名圆桌';
-                document.getElementById('roundtableStatus').textContent = data.status === 'active' ? '进行中' : data.status;
+                const preferredExpert = getPreferredExpert(data);
+                document.getElementById('roundtableStatus').textContent = preferredExpert
+                    ? `由 ${preferredExpert.name} 先介入`
+                    : (data.status === 'active' ? '进行中' : data.status);
+                renderParticipantAvatars(getRoundtableParticipants(data));
             } catch (err) {
                 console.error('加载圆桌信息失败:', err);
                 document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
@@ -219,7 +269,7 @@
                 
                 // 显示错误提示
                 alert('圆桌不存在或数据已丢失。将返回首页。\n错误: ' + err.message);
-                window.location.href = '/';
+                window.location.href = '../index.html';
             }
         }
         
@@ -242,9 +292,14 @@
                 
                 // 添加欢迎消息
                 if (messages.length === 0) {
+                    const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                    const currentSession = sessions.find(s => s.id == roundtableId);
+                    const preferredExpert = getPreferredExpert(currentSession);
                     renderMessage({
-                        from_role: 'clinical_director',
-                        content: '欢迎来到 MedRoundTable！我是临床主任，将协调这次科研讨论。请提出您的临床问题，我们的专家团队会一起帮您设计研究方案。',
+                        from_role: preferredExpert ? preferredExpert.role : 'clinical_director',
+                        content: preferredExpert
+                            ? `欢迎来到 MedRoundTable！本次由我作为首位介入专家。${preferredExpert.prompt}`
+                            : '欢迎来到 MedRoundTable！我是临床主任，将协调这次科研讨论。请提出您的临床问题，我们的专家团队会一起帮您设计研究方案。',
                         created_at: new Date().toISOString()
                     });
                 }
@@ -362,6 +417,9 @@
                         selectedAgent = { role: 'model_qa', content: '我对当前AI模型进行了全面测试。发现准确率达到92.3%，但在特定亚组中存在轻微偏差（<5%）。建议增加该亚组的训练数据，并进行公平性评估。' };
                     } else {
                         // 默认选择核心临床团队
+                        const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                        const currentSession = sessions.find(s => s.id == roundtableId);
+                        const preferredExpert = getPreferredExpert(currentSession);
                         const coreResponses = [
                             { role: 'clinical_director', content: '这是一个很有价值的临床问题。从循证医学角度来看，我建议我们先进行系统性文献回顾，了解当前研究的现状和空白。我会评估这个研究的临床意义和创新点。' },
                             { role: 'phd_student', content: '我已经开始检索PubMed和Cochrane数据库。初步发现12篇相关RCT研究，但大多数样本量较小且存在选择偏倚。我建议我们设计一个多中心、大样本的研究来弥补这些不足。' },
@@ -369,7 +427,12 @@
                             { role: 'statistician', content: '关于统计分析计划，我建议采用混合效应模型来处理多中心数据的聚类问题。主要终点使用ITT分析，缺失数据采用多重插补法。我会设计相应的CRF表格确保数据质量。' },
                             { role: 'research_nurse', content: '从执行角度，我们需要考虑患者招募策略和数据质量控制。我建议制定详细的SOP文件，培训所有研究中心的研究人员，并建立实时数据监控系统。' }
                         ];
-                        selectedAgent = coreResponses[Math.floor(Math.random() * coreResponses.length)];
+                        selectedAgent = preferredExpert
+                            ? {
+                                role: preferredExpert.role,
+                                content: `我会先从${preferredExpert.subtitle}视角介入。${preferredExpert.prompt} 随后再把需要协同的部分交给其他专家继续展开。`
+                            }
+                            : coreResponses[Math.floor(Math.random() * coreResponses.length)];
                     }
                     
                     const agentMessage = {

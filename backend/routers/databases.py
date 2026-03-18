@@ -5,7 +5,7 @@ from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import FileResponse
 from typing import Optional, List
 
-from backend.models.upload_models import (
+from backend.upload_models import (
     DatabaseCreate, DatabaseUpdate, DatabaseResponse,
     DatabasePreview, SQLQuery, SQLQueryResult
 )

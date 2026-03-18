@@ -226,7 +226,7 @@
                 <input type="password" id="loginPassword" placeholder="密码" class="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                 <button onclick="login()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium btn-press">登录</button>
                 <p class="text-center text-sm text-gray-500">
-                    还没有账号？<a href="#" onclick="showRegister(); return false;" class="text-blue-600">立即注册</a>
+                    还没有账号？<a href="./login.html" onclick="showRegister(); return false;" class="text-blue-600">立即注册</a>
                 </p>
             </div>
         </div>
@@ -329,7 +329,7 @@
         }
 
         function showAgentInfo() {
-            showModal('agentModal');
+            window.location.href = './experts.html';
         }
 
         function showLoginModal() {
@@ -338,7 +338,7 @@
         }
 
         function showFeedback() {
-            window.open('/feedback-v2.html', '_blank');
+            window.location.href = './feedback-v2.html';
         }
 
         // ============ 会话管理 ============
@@ -661,8 +661,11 @@
         }
 
         function showQuickActions() {
-            // 快捷操作菜单
-            showToast('功能开发中', 'info');
+            window.location.href = './action-center.html';
+        }
+
+        function showRegister() {
+            window.location.href = './login.html';
         }
 
         // 防止双击缩放
