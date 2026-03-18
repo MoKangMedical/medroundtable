@@ -110,13 +110,27 @@ class Agent:
         return prompt
     
     def _fallback_response(self, message, context, stage):
-        """备用响应（当 LLM 失败时使用）"""
+        """备用响应（当 LLM 失败时使用）- 支持全部14个Agent"""
         responses = {
+            # 核心临床团队
             AgentRole.CLINICAL_DIRECTOR: "从临床角度来看，这个研究方向很有价值。我建议我们进一步讨论具体的实施方案。",
             AgentRole.PHD_STUDENT: "我会记录这个要点，并查找相关文献支持。",
             AgentRole.EPIDEMIOLOGIST: "从方法学角度，我建议考虑选择偏倚的控制和样本量计算。",
             AgentRole.STATISTICIAN: "从统计学角度，我们需要明确主要终点和统计方法。",
-            AgentRole.RESEARCH_NURSE: "从执行角度，我们需要考虑实际操作的可行性和质量控制。"
+            AgentRole.RESEARCH_NURSE: "从执行角度，我们需要考虑实际操作的可行性和质量控制。",
+            
+            # 生物信息学套件
+            AgentRole.PHARMACOGENOMICS_EXPERT: "从药物基因组学角度，建议考虑基因检测对药物治疗效果的影响，以及个体化用药的可能性。",
+            AgentRole.GWAS_EXPERT: "从GWAS分析角度，建议收集足够的样本量进行全基因组关联分析，以发现潜在的遗传风险位点。",
+            AgentRole.SINGLE_CELL_ANALYST: "从单细胞分析角度，建议考虑采用单细胞测序技术深入研究细胞异质性和分子机制。",
+            AgentRole.GALAXY_BRIDGE: "从生物信息学工具角度，我可以协调Galaxy平台上的8000+工具进行多组学数据分析。",
+            
+            # 专业研究Agent
+            AgentRole.UX_RESEARCHER: "从用户体验角度，建议优化数据采集流程，确保研究人员能够高效使用平台工具。",
+            AgentRole.DATA_ENGINEER: "从数据工程角度，建议建立标准化的数据管道，确保多源数据的质量和一致性。",
+            AgentRole.TREND_RESEARCHER: "从科研趋势角度，这个研究方向符合当前领域热点，具有较高的创新性和发表潜力。",
+            AgentRole.EXPERIMENT_TRACKER: "从项目管理角度，建议制定详细的里程碑计划，确保各阶段按时交付。",
+            AgentRole.QA_EXPERT: "从质量控制角度，建议建立严格的质量检查点，确保研究结果的可靠性和可重复性。"
         }
         return responses.get(self.role, "我同意上述观点，会从我的专业角度提供支持。")
 
@@ -172,13 +186,17 @@ class A2AOrchestrator:
         """运行讨论流程 - 支持用户随时插话"""
         roundtable = self.sessions[session_id]
 
+        # 完整的9阶段讨论流程，包含全部14个Agent
         stages = [
-            ("problem_presentation", AgentRole.CLINICAL_DIRECTOR),
-            ("literature_review", AgentRole.PHD_STUDENT),
-            ("study_design", AgentRole.EPIDEMIOLOGIST),
-            ("statistical_plan", AgentRole.STATISTICIAN),
-            ("execution_plan", AgentRole.RESEARCH_NURSE),
-            ("consensus", AgentRole.CLINICAL_DIRECTOR),
+            ("problem_presentation", AgentRole.CLINICAL_DIRECTOR),           # 阶段1: 临床问题陈述
+            ("literature_review", AgentRole.PHD_STUDENT),                   # 阶段2: 文献调研
+            ("study_design", AgentRole.EPIDEMIOLOGIST),                     # 阶段3: 研究方案设计
+            ("bioinformatics_plan", AgentRole.GALAXY_BRIDGE),               # 阶段4: 生物信息学分析计划
+            ("statistical_plan", AgentRole.STATISTICIAN),                   # 阶段5: 统计分析计划
+            ("crf_design", AgentRole.STATISTICIAN),                         # 阶段6: 数据采集表设计
+            ("execution_plan", AgentRole.RESEARCH_NURSE),                   # 阶段7: 执行计划制定
+            ("quality_review", AgentRole.QA_EXPERT),                        # 阶段8: 质量审核
+            ("consensus", AgentRole.CLINICAL_DIRECTOR),                     # 阶段9: 共识达成
         ]
 
         for stage_name, leader_role in stages:

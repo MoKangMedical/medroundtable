@@ -4,11 +4,25 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class AgentRole(str, Enum):
+    # 核心临床团队 (5个)
     CLINICAL_DIRECTOR = "clinical_director"
     PHD_STUDENT = "phd_student"
     EPIDEMIOLOGIST = "epidemiologist"
     STATISTICIAN = "statistician"
     RESEARCH_NURSE = "research_nurse"
+    
+    # 生物信息学套件 (4个)
+    PHARMACOGENOMICS_EXPERT = "pharmacogenomics_expert"
+    GWAS_EXPERT = "gwas_expert"
+    SINGLE_CELL_ANALYST = "single_cell_analyst"
+    GALAXY_BRIDGE = "galaxy_bridge"
+    
+    # 专业研究Agent (5个)
+    UX_RESEARCHER = "ux_researcher"
+    DATA_ENGINEER = "data_engineer"
+    TREND_RESEARCHER = "trend_researcher"
+    EXPERIMENT_TRACKER = "experiment_tracker"
+    QA_EXPERT = "qa_expert"
 
 class MessageType(str, Enum):
     PROPOSAL = "proposal"

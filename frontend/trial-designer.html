@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>临床试验设计 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+        .step-card { transition: all 0.3s ease; }
+        .step-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="./index.html" class="flex items-center gap-2">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <span class="font-bold text-xl">MedRoundTable</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="./index.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">首页</a>
+                    <a href="./experts.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">AI专家</a>
+                    <a href="./skills-market.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">技能市场</a>
+                    <a href="./database-browser.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">数据库</a>
+                    <a href="./analysis.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">数据分析</a>
+                    <a href="./trial-designer.html" class="px-3 py-2 text-blue-600 bg-blue-50 rounded-lg">试验设计</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="./login.html" class="px-4 py-2 text-slate-600 hover:text-blue-600">登录</a>
+                    <a href="https://medroundtable-v2.vercel.app/" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-rocket mr-1"></i>开始研究
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Hero -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium mb-4">
+                <i class="fas fa-magic"></i> AI智能设计
+            </div>
+            <h1 class="text-4xl font-bold text-slate-900 mb-4">临床试验设计助手</h1>
+            <p class="text-xl text-slate-600 max-w-3xl mx-auto">
+                从研究假设到方案定稿，AI专家全程协助，确保符合国际标准和法规要求
+            </p>
+        </div>
+
+        <!-- Design Steps -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="step-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span class="text-2xl font-bold text-blue-600">1</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">研究问题</h3>
+                <p class="text-slate-600 text-sm">明确PICOS要素，定义研究假设</p>
+            </div>
+            <div class="step-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <span class="text-2xl font-bold text-green-600">2</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">设计方案</h3>
+                <p class="text-slate-600 text-sm">选择研究类型，设计随机化方案</p>
+            </div>
+            <div class="step-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
+                    <span class="text-2xl font-bold text-purple-600">3</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">统计分析</h3>
+                <p class="text-slate-600 text-sm">计算样本量，确定分析方法</p>
+            </div>
+            <div class="step-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100 text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-orange-100 rounded-full flex items-center justify-center">
+                    <span class="text-2xl font-bold text-orange-600">4</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">方案生成</h3>
+                <p class="text-slate-600 text-sm">生成完整方案，符合法规标准</p>
+            </div>
+        </div>
+
+        <!-- Design Tools -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Quick Start -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6">
+                    <i class="fas fa-rocket text-blue-600 mr-2"></i>快速开始
+                </h2>
+                <div class="space-y-4">
+                    <a href="#" class="block p-4 bg-slate-50 rounded-xl hover:bg-blue-50 transition border border-slate-200 hover:border-blue-300">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-random text-blue-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-900">随机对照试验 (RCT)</h3>
+                                <p class="text-sm text-slate-500">双盲随机化，金标准设计</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="block p-4 bg-slate-50 rounded-xl hover:bg-green-50 transition border border-slate-200 hover:border-green-300">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-eye text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-900">观察性研究</h3>
+                                <p class="text-sm text-slate-500">队列研究、病例对照</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="block p-4 bg-slate-50 rounded-xl hover:bg-purple-50 transition border border-slate-200 hover:border-purple-300">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-pills text-purple-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-900">真实世界研究 (RWS)</h3>
+                                <p class="text-sm text-slate-500">基于真实临床数据的研究</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400"></i>
+                        </div>
+                    </a>
+                    <a href="#" class="block p-4 bg-slate-50 rounded-xl hover:bg-amber-50 transition border border-slate-200 hover:border-amber-300">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-search text-amber-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-slate-900">系统综述 / Meta分析</h3>
+                                <p class="text-sm text-slate-500">文献整合，循证医学证据</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tools -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-slate-900 mb-6">
+                    <i class="fas fa-tools text-green-600 mr-2"></i>设计工具箱
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-slate-50 rounded-xl text-center hover:bg-blue-50 transition cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-3 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-calculator text-blue-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-900 text-sm">样本量计算</h4>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl text-center hover:bg-green-50 transition cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-3 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-random text-green-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-900 text-sm">随机化生成</h4>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl text-center hover:bg-purple-50 transition cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-3 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-table text-purple-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-900 text-sm">CRF设计</h4>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl text-center hover:bg-orange-50 transition cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-3 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-orange-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-900 text-sm">访视计划</h4>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl text-center hover:bg-red-50 transition cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-3 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-900 text-sm">终点指标</h4>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl text-center hover:bg-teal-50 transition cursor-pointer">
+                        <div class="w-12 h-12 mx-auto mb-3 bg-teal-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-teal-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-semibold text-slate-900 text-sm">伦理审查</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Standards -->
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 mb-12 border border-indigo-100">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">
+                <i class="fas fa-certificate text-indigo-600 mr-2"></i>合规标准支持
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl p-5 shadow-sm text-center">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2">SPIRIT</div>
+                    <p class="text-sm text-slate-600">试验方案规范</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm text-center">
+                    <div class="text-3xl font-bold text-green-600 mb-2">CONSORT</div>
+                    <p class="text-sm text-slate-600">试验报告规范</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm text-center">
+                    <div class="text-3xl font-bold text-amber-600 mb-2">ICH-GCP</div>
+                    <p class="text-sm text-slate-600">临床试验质量管理</p>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm text-center">
+                    <div class="text-3xl font-bold text-red-600 mb-2">CDISC</div>
+                    <p class="text-sm text-slate-600">临床数据标准</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">开始设计您的临床试验</h2>
+            <p class="text-slate-600 mb-6">14位AI专家随时待命，协助您完成从设计到发表的全过程</p>
+            <div class="flex justify-center gap-4">
+                <a href="https://medroundtable-v2.vercel.app/" target="_blank" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition">
+                    <i class="fas fa-rocket mr-2"></i>启动AI辅助设计
+                </a>
+                <a href="./protocol-upload.html" class="px-8 py-4 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:border-blue-500 hover:text-blue-600 transition">
+                    <i class="fas fa-upload mr-2"></i>上传现有方案
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2024 MedRoundTable. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

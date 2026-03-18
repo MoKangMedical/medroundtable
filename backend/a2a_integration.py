@@ -93,53 +93,166 @@ async def discovery():
     """
     A2A Agent 发现端点
     Second Me 平台和其他 Agent 可以通过此端点发现 MedRoundTable
+    返回全部14个专业Agent
     """
     return {
         "agent_system": "MedRoundTable",
-        "version": "1.0.0",
-        "agents": [
+        "version": "2.0.0",
+        "description": "全球首个基于A2A架构的医学科研协作平台",
+        "total_agents": 14,
+        "agent_categories": [
             {
-                "id": "clinical_director",
-                "name": "资深临床主任",
-                "role": "临床问题识别与研究价值评估",
-                "capabilities": ["clinical_assessment", "research_design", "feasibility_analysis"]
+                "category": "核心临床团队",
+                "description": "临床研究的核心力量，从方案设计到数据采集全程覆盖",
+                "count": 5,
+                "agents": [
+                    {
+                        "id": "clinical_director",
+                        "name": "资深临床主任",
+                        "avatar": "👨‍⚕️",
+                        "role": "临床问题识别与研究价值评估",
+                        "capabilities": ["clinical_assessment", "research_design", "feasibility_analysis", "strategic_planning"],
+                        "expertise": ["深度理解疾病机制与临床痛点", "识别具有科研价值的临床问题", "提出研究假设与方向建议", "评估研究的临床可行性和意义"]
+                    },
+                    {
+                        "id": "phd_student",
+                        "name": "临床博士生",
+                        "avatar": "📚",
+                        "role": "文献检索与研究协调",
+                        "capabilities": ["literature_review", "coordination", "documentation", "evidence_synthesis"],
+                        "expertise": ["执行临床主任的研究思路", "文献检索与综述撰写", "协调各环节推进", "整理讨论记录和成果"]
+                    },
+                    {
+                        "id": "epidemiologist",
+                        "name": "临床流行病学专家",
+                        "avatar": "📊",
+                        "role": "研究设计与方案制定",
+                        "capabilities": ["study_design", "protocol_development", "quality_control", "bias_assessment"],
+                        "expertise": ["设计科学严谨的研究方案", "确定纳入排除标准", "制定质量控制措施", "评估偏倚和混杂因素"]
+                    },
+                    {
+                        "id": "statistician",
+                        "name": "生物统计专家",
+                        "avatar": "📈",
+                        "role": "统计分析与数据管理",
+                        "capabilities": ["statistical_analysis", "data_management", "visualization", "sample_size_calculation"],
+                        "expertise": ["设计数据采集表格（CRF）", "制定统计分析计划", "样本量计算", "生成可发表级别的图表"]
+                    },
+                    {
+                        "id": "research_nurse",
+                        "name": "临床研究护士",
+                        "avatar": "👩‍⚕️",
+                        "role": "数据采集与质量控制",
+                        "capabilities": ["data_collection", "quality_assurance", "operations", "sop_development"],
+                        "expertise": ["执行数据采集工作", "质量核查与数据清洗", "反馈实施中的问题", "制定操作手册和SOP"]
+                    }
+                ]
             },
             {
-                "id": "phd_student",
-                "name": "临床博士生", 
-                "role": "文献检索与研究协调",
-                "capabilities": ["literature_review", "coordination", "documentation"]
+                "category": "生物信息学套件",
+                "description": "强大的生物信息学分析能力，支持多组学数据处理与解读",
+                "count": 4,
+                "agents": [
+                    {
+                        "id": "pharmacogenomics_expert",
+                        "name": "药物基因组学专家",
+                        "avatar": "🧬",
+                        "role": "个性化用药与基因组学分析",
+                        "capabilities": ["pharmacogenomics_analysis", "personalized_medicine", "adr_prediction", "genotype_phenotype"],
+                        "expertise": ["药物基因组学分析", "个性化用药建议", "基因型-表型关联分析", "药物不良反应预测"]
+                    },
+                    {
+                        "id": "gwas_expert",
+                        "name": "GWAS专家",
+                        "avatar": "🧪",
+                        "role": "全基因组关联分析",
+                        "capabilities": ["gwas_analysis", "snp_annotation", "genetic_risk_scoring", "polygenic_prediction"],
+                        "expertise": ["全基因组关联分析", "SNP筛选与注释", "遗传风险评分", "多基因风险预测"]
+                    },
+                    {
+                        "id": "single_cell_analyst",
+                        "name": "单细胞测序分析师",
+                        "avatar": "🔬",
+                        "role": "单细胞多组学数据分析",
+                        "capabilities": ["scrna_seq_analysis", "cell_clustering", "trajectory_analysis", "cell_communication"],
+                        "expertise": ["scRNA-seq数据分析", "细胞聚类与注释", "细胞发育轨迹分析", "细胞间通讯分析"]
+                    },
+                    {
+                        "id": "galaxy_bridge",
+                        "name": "Galaxy桥接器",
+                        "avatar": "🌌",
+                        "role": "生信工具生态集成",
+                        "capabilities": ["galaxy_integration", "workflow_orchestration", "tool_ecosystem", "cloud_computing"],
+                        "expertise": ["Galaxy平台集成", "生信工作流编排", "8000+工具生态对接", "云端计算资源调度"]
+                    }
+                ]
             },
             {
-                "id": "epidemiologist",
-                "name": "临床流行病学专家",
-                "role": "研究设计与方案制定", 
-                "capabilities": ["study_design", "protocol_development", "quality_control"]
-            },
-            {
-                "id": "statistician",
-                "name": "数据统计专家",
-                "role": "统计分析与数据管理",
-                "capabilities": ["statistical_analysis", "data_management", "visualization"]
-            },
-            {
-                "id": "research_nurse",
-                "name": "研究护士",
-                "role": "数据采集与质量控制", 
-                "capabilities": ["data_collection", "quality_assurance", "operations"]
+                "category": "专业研究Agent",
+                "description": "全流程科研支持，确保研究质量与用户体验",
+                "count": 5,
+                "agents": [
+                    {
+                        "id": "ux_researcher",
+                        "name": "UX研究员",
+                        "avatar": "🎨",
+                        "role": "用户体验研究与优化",
+                        "capabilities": ["ux_research", "interaction_design", "feedback_analysis", "usability_testing"],
+                        "expertise": ["用户体验研究", "交互设计优化", "用户反馈分析", "可用性测试"]
+                    },
+                    {
+                        "id": "data_engineer",
+                        "name": "AI数据工程师",
+                        "avatar": "💻",
+                        "role": "数据架构与工程",
+                        "capabilities": ["data_architecture", "etl_development", "data_quality", "data_integration"],
+                        "expertise": ["数据架构设计", "ETL流程开发", "数据质量管理", "多源数据整合"]
+                    },
+                    {
+                        "id": "trend_researcher",
+                        "name": "趋势研究员",
+                        "avatar": "📈",
+                        "role": "科研趋势与创新方向",
+                        "capabilities": ["trend_tracking", "technology_analysis", "competitive_intelligence", "innovation_recommendation"],
+                        "expertise": ["科研热点追踪", "技术趋势分析", "竞争情报收集", "创新方向建议"]
+                    },
+                    {
+                        "id": "experiment_tracker",
+                        "name": "实验追踪员",
+                        "avatar": "📝",
+                        "role": "项目进度与资源管理",
+                        "capabilities": ["project_management", "milestone_tracking", "risk_management", "resource_coordination"],
+                        "expertise": ["项目进度管理", "里程碑跟踪", "风险预警", "资源协调"]
+                    },
+                    {
+                        "id": "qa_expert",
+                        "name": "模型QA专家",
+                        "avatar": "✅",
+                        "role": "质量控制与结果验证",
+                        "capabilities": ["quality_control", "result_validation", "consistency_check", "reliability_assessment"],
+                        "expertise": ["质量控制体系", "结果验证", "一致性检查", "可靠性评估"]
+                    }
+                ]
             }
         ],
         "endpoints": {
+            "discovery": "/api/a2a/discovery",
             "message": "/api/a2a/message",
             "task": "/api/a2a/task",
-            "status": "/api/a2a/status"
+            "status": "/api/a2a/status",
+            "webhook": "/api/a2a/webhook/secondme"
         },
         "capabilities": [
             "agent_discovery",
             "agent_communication",
             "task_orchestration",
-            "research_collaboration"
+            "research_collaboration",
+            "multi_agent_coordination",
+            "bioinformatics_analysis",
+            "clinical_research_design",
+            "quality_assurance"
         ],
+        "a2a_protocol_version": "1.0",
         "timestamp": datetime.utcnow().isoformat()
     }
 

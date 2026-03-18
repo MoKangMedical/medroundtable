@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据分析 - MedRoundTable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+        .analysis-card { transition: all 0.3s ease; }
+        .analysis-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="./index.html" class="flex items-center gap-2">
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span class="font-bold text-xl">MedRoundTable</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="./index.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">首页</a>
+                    <a href="./experts.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">AI专家</a>
+                    <a href="./skills-market.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">技能市场</a>
+                    <a href="./database-browser.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">数据库</a>
+                    <a href="./analysis.html" class="px-3 py-2 text-blue-600 bg-blue-50 rounded-lg">数据分析</a>
+                    <a href="./trial-designer.html" class="px-3 py-2 text-slate-600 hover:text-blue-600 rounded-lg hover:bg-slate-100">试验设计</a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="./login.html" class="px-4 py-2 text-slate-600 hover:text-blue-600">登录</a>
+                    <a href="https://medroundtable-v2.vercel.app/" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-rocket mr-1"></i>开始研究
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Hero -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-slate-900 mb-4">
+                <i class="fas fa-chart-pie text-purple-600 mr-3"></i>智能数据分析中心
+            </h1>
+            <p class="text-xl text-slate-600 max-w-3xl mx-auto">
+                上传您的研究数据，选择分析方法，AI专家将为您生成专业的统计分析报告
+            </p>
+        </div>
+
+        <!-- Analysis Types Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <!-- Descriptive -->
+            <div class="analysis-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100">
+                <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-calculator text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">描述性统计</h3>
+                <p class="text-slate-600 text-sm mb-4">均值、中位数、标准差、分布分析等基础统计指标</p>
+                <ul class="text-sm text-slate-500 space-y-1 mb-4">
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>集中趋势分析</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>离散程度测量</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>数据分布可视化</li>
+                </ul>
+                <button onclick="startAnalysis('descriptive')" class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    开始分析
+                </button>
+            </div>
+
+            <!-- Comparative -->
+            <div class="analysis-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100">
+                <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-balance-scale text-2xl text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">比较分析</h3>
+                <p class="text-slate-600 text-sm mb-4">组间差异比较、T检验、方差分析、卡方检验</p>
+                <ul class="text-sm text-slate-500 space-y-1 mb-4">
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>T检验 / ANOVA</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>非参数检验</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>多重比较校正</li>
+                </ul>
+                <button onclick="startAnalysis('comparative')" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    开始分析
+                </button>
+            </div>
+
+            <!-- Correlation -->
+            <div class="analysis-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100">
+                <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-project-diagram text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">相关性分析</h3>
+                <p class="text-slate-600 text-sm mb-4">Pearson/Spearman相关、相关矩阵、热力图</p>
+                <ul class="text-sm text-slate-500 space-y-1 mb-4">
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>相关系数计算</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>相关矩阵生成</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>显著性检验</li>
+                </ul>
+                <button onclick="startAnalysis('correlation')" class="w-full py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                    开始分析
+                </button>
+            </div>
+
+            <!-- Regression -->
+            <div class="analysis-card bg-white rounded-2xl p-6 shadow-lg border border-slate-100">
+                <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+                    <i class="fas fa-chart-line text-2xl text-orange-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 mb-2">回归分析</h3>
+                <p class="text-slate-600 text-sm mb-4">线性回归、逻辑回归、生存分析、Cox模型</p>
+                <ul class="text-sm text-slate-500 space-y-1 mb-4">
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>多元线性回归</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>逻辑回归</li>
+                    <li><i class="fas fa-check text-green-500 mr-1"></i>生存分析</li>
+                </ul>
+                <button onclick="startAnalysis('regression')" class="w-full py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition">
+                    开始分析
+                </button>
+            </div>
+        </div>
+
+        <!-- External APIs -->
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 mb-12 border border-indigo-100">
+            <h2 class="text-2xl font-bold text-slate-900 mb-6">
+                <i class="fas fa-plug text-indigo-600 mr-2"></i>外部数据分析平台
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <a href="https://nhanesanalyz-8bn77uby.manus.space/" target="_blank" class="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition border border-slate-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-teal-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-slate-900">NHANES分析</h3>
+                            <p class="text-xs text-slate-500">美国健康营养调查</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600">利用NHANES公开数据库，生成符合Lancet发表标准的研究论文</p>
+                </a>
+
+                <a href="https://seertotoponcology.vip/" target="_blank" class="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition border border-slate-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-ribbon text-rose-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-slate-900">SEER肿瘤研究</h3>
+                            <p class="text-xs text-slate-500">肿瘤流行病学</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600">基于SEER数据库开展肿瘤流行病学研究，生成BMJ标准学术论文</p>
+                </a>
+
+                <a href="https://medivisual.org/" target="_blank" class="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition border border-slate-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-pie text-purple-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-slate-900">MediVisual</h3>
+                            <p class="text-xs text-slate-500">医学数据可视化</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600">专业医学图表生成，期刊发表标准，交互式数据探索</p>
+                </a>
+
+                <a href="https://charlstolancet.club/" target="_blank" class="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition border border-slate-100">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-red-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-slate-900">CHARLS</h3>
+                            <p class="text-xs text-slate-500">中国健康养老追踪</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600">大规模纵向队列数据，老龄化与健康研究支持</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Start -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <h2 class="text-2xl font-bold text-slate-900 mb-4">准备好开始分析了吗？</h2>
+            <p class="text-slate-600 mb-6">上传您的数据，AI专家将协助您完成从数据清洗到报告生成的全流程</p>
+            <div class="flex justify-center gap-4">
+                <a href="./database-upload.html" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition">
+                    <i class="fas fa-upload mr-2"></i>上传数据
+                </a>
+                <a href="./data-dashboard.html" class="px-8 py-4 bg-white border-2 border-slate-300 text-slate-700 rounded-xl font-semibold hover:border-blue-500 hover:text-blue-600 transition">
+                    <i class="fas fa-folder-open mr-2"></i>查看已有数据
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 mt-12">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="text-white font-bold text-lg mb-4">MedRoundTable</h3>
+                    <p class="text-sm">全球首个A2A架构医学科研协作平台，整合997项AI技能，助力医学研究。</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">产品功能</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="./experts.html" class="hover:text-white">AI专家团队</a></li>
+                        <li><a href="./skills-market.html" class="hover:text-white">技能市场</a></li>
+                        <li><a href="./database-browser.html" class="hover:text-white">数据库浏览器</a></li>
+                        <li><a href="./analysis.html" class="hover:text-white">数据分析</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">资源</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="./help.html" class="hover:text-white">帮助中心</a></li>
+                        <li><a href="./journals.html" class="hover:text-white">期刊标准</a></li>
+                        <li><a href="./all-tools.html" class="hover:text-white">工具生态</a></li>
+                        <li><a href="./sitemap.html" class="hover:text-white">网站地图</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">联系我们</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="./about.html" class="hover:text-white">关于我们</a></li>
+                        <li><a href="./contact.html" class="hover:text-white">联系方式</a></li>
+                        <li><a href="https://github.com/MoKangMedical/medroundtable" target="_blank" class="hover:text-white">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 text-center text-sm">
+                <p>&copy; 2024 MedRoundTable. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function startAnalysis(type) {
+            window.location.href = `./data-dashboard.html?analysis=${type}`;
+        }
+    </script>
+</body>
+</html>
