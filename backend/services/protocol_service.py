@@ -4,24 +4,44 @@
 """
 import os
 import uuid
-import shutil
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
+from backend.database import ProtocolRecord, SessionLocal
 from backend.upload_models import (
     ResearchProtocol, ProtocolCreate, ProtocolUpdate, ProtocolResponse
 )
 
-# 上传目录配置
-UPLOAD_DIR = Path("/tmp/medroundtable/uploads")
-PROTOCOLS_DIR = UPLOAD_DIR / "protocols"
+def _resolve_upload_root() -> Path:
+    """解析上传根目录，优先环境变量，其次项目内 data/uploads。"""
+    configured_path = os.getenv("MRT_UPLOAD_DIR") or os.getenv("MEDROUNDTABLE_UPLOAD_DIR")
+    if configured_path:
+        return Path(configured_path).expanduser().resolve()
+    return Path(__file__).resolve().parents[2] / "data" / "uploads"
 
-# 确保目录存在
+
+UPLOAD_DIR = _resolve_upload_root()
+PROTOCOLS_DIR = UPLOAD_DIR / "protocols"
 PROTOCOLS_DIR.mkdir(parents=True, exist_ok=True)
 
-# 内存存储（生产环境应使用数据库）
-protocols_db: Dict[str, ResearchProtocol] = {}
+def _protocol_from_record(record: ProtocolRecord) -> ResearchProtocol:
+    """将 ORM 记录转换为 Pydantic 模型"""
+    return ResearchProtocol(
+        id=record.id,
+        title=record.title,
+        description=record.description,
+        file_path=record.file_path,
+        file_type=record.file_type,
+        file_size=record.file_size,
+        version=record.version,
+        status=record.status,
+        uploaded_by=record.uploaded_by,
+        roundtable_id=record.roundtable_id,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+        metadata=record.extra_metadata or {}
+    )
 
 
 class ProtocolService:
@@ -73,14 +93,13 @@ class ProtocolService:
         with open(file_path, 'wb') as f:
             f.write(file_content)
         
-        # 创建协议记录
         now = datetime.utcnow()
-        protocol = ResearchProtocol(
+        record = ProtocolRecord(
             id=protocol_id,
             title=title,
             description=description,
             file_path=str(file_path),
-            file_type=file_ext[1:],  # 去掉点号
+            file_type=file_ext[1:],
             file_size=len(file_content),
             version=1,
             status="uploaded",
@@ -88,21 +107,25 @@ class ProtocolService:
             roundtable_id=roundtable_id,
             created_at=now,
             updated_at=now,
-            metadata={
+            extra_metadata={
                 "original_filename": filename,
                 "upload_timestamp": now.isoformat()
             }
         )
-        
-        # 存储到数据库
-        protocols_db[protocol_id] = protocol
-        
-        return protocol
+
+        with SessionLocal() as db:
+            db.add(record)
+            db.commit()
+            db.refresh(record)
+
+        return _protocol_from_record(record)
     
     @classmethod
     def get_protocol(cls, protocol_id: str) -> Optional[ResearchProtocol]:
         """获取研究方案"""
-        return protocols_db.get(protocol_id)
+        with SessionLocal() as db:
+            record = db.query(ProtocolRecord).filter(ProtocolRecord.id == protocol_id).first()
+            return _protocol_from_record(record) if record else None
     
     @classmethod
     def get_protocols(
@@ -113,17 +136,20 @@ class ProtocolService:
         limit: int = 100
     ) -> List[ResearchProtocol]:
         """获取研究方案列表"""
-        protocols = list(protocols_db.values())
-        
-        # 过滤
-        if roundtable_id:
-            protocols = [p for p in protocols if p.roundtable_id == roundtable_id]
-        if status:
-            protocols = [p for p in protocols if p.status == status]
-        
-        # 排序和分页
-        protocols.sort(key=lambda x: x.created_at, reverse=True)
-        return protocols[skip:skip + limit]
+        with SessionLocal() as db:
+            query = db.query(ProtocolRecord)
+            if roundtable_id:
+                query = query.filter(ProtocolRecord.roundtable_id == roundtable_id)
+            if status:
+                query = query.filter(ProtocolRecord.status == status)
+
+            records = (
+                query.order_by(ProtocolRecord.created_at.desc())
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
+            return [_protocol_from_record(record) for record in records]
     
     @classmethod
     def update_protocol(
@@ -132,51 +158,52 @@ class ProtocolService:
         update_data: ProtocolUpdate
     ) -> Optional[ResearchProtocol]:
         """更新研究方案"""
-        protocol = protocols_db.get(protocol_id)
-        if not protocol:
-            return None
-        
-        # 更新字段
-        if update_data.title is not None:
-            protocol.title = update_data.title
-        if update_data.description is not None:
-            protocol.description = update_data.description
-        if update_data.status is not None:
-            protocol.status = update_data.status
-        if update_data.metadata is not None:
-            protocol.metadata = {**protocol.metadata, **update_data.metadata}
-        
-        protocol.updated_at = datetime.utcnow()
-        protocols_db[protocol_id] = protocol
-        
-        return protocol
+        with SessionLocal() as db:
+            record = db.query(ProtocolRecord).filter(ProtocolRecord.id == protocol_id).first()
+            if not record:
+                return None
+
+            if update_data.title is not None:
+                record.title = update_data.title
+            if update_data.description is not None:
+                record.description = update_data.description
+            if update_data.status is not None:
+                record.status = update_data.status
+            if update_data.metadata is not None:
+                record.extra_metadata = {**(record.extra_metadata or {}), **update_data.metadata}
+
+            record.updated_at = datetime.utcnow()
+            db.commit()
+            db.refresh(record)
+            return _protocol_from_record(record)
     
     @classmethod
     def delete_protocol(cls, protocol_id: str) -> bool:
         """删除研究方案"""
-        protocol = protocols_db.get(protocol_id)
-        if not protocol:
-            return False
-        
-        # 删除文件
-        try:
-            if os.path.exists(protocol.file_path):
-                os.remove(protocol.file_path)
-        except Exception as e:
-            print(f"删除文件失败: {e}")
-        
-        # 从数据库移除
-        del protocols_db[protocol_id]
-        return True
+        with SessionLocal() as db:
+            record = db.query(ProtocolRecord).filter(ProtocolRecord.id == protocol_id).first()
+            if not record:
+                return False
+
+            try:
+                if os.path.exists(record.file_path):
+                    os.remove(record.file_path)
+            except Exception as e:
+                print(f"删除文件失败: {e}")
+
+            db.delete(record)
+            db.commit()
+            return True
     
     @classmethod
     def get_protocol_file(cls, protocol_id: str) -> Optional[tuple]:
         """获取研究方案文件"""
-        protocol = protocols_db.get(protocol_id)
-        if not protocol or not os.path.exists(protocol.file_path):
-            return None
-        
-        return (protocol.file_path, protocol.file_type)
+        with SessionLocal() as db:
+            record = db.query(ProtocolRecord).filter(ProtocolRecord.id == protocol_id).first()
+            if not record or not os.path.exists(record.file_path):
+                return None
+
+            return (record.file_path, record.file_type)
     
     @classmethod
     async def analyze_protocol(cls, protocol_id: str) -> Dict[str, Any]:
@@ -184,7 +211,7 @@ class ProtocolService:
         
         这里可以集成AI模型或调用外部API进行分析
         """
-        protocol = protocols_db.get(protocol_id)
+        protocol = cls.get_protocol(protocol_id)
         if not protocol:
             raise ValueError("研究方案不存在")
         
@@ -230,11 +257,14 @@ class ProtocolService:
         }
         
         # 更新协议元数据
-        protocol.metadata = {
-            **protocol.metadata,
-            "last_analysis": analysis_result
-        }
-        protocol.updated_at = datetime.utcnow()
-        protocols_db[protocol_id] = protocol
-        
+        metadata = protocol.metadata or {}
+        updated_protocol = cls.update_protocol(protocol_id, ProtocolUpdate(
+            metadata={
+                **metadata,
+                "last_analysis": analysis_result
+            }
+        ))
+        if not updated_protocol:
+            raise ValueError("研究方案更新失败")
+
         return analysis_result

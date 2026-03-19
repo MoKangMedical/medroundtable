@@ -45,6 +45,16 @@
             </p>
         </div>
 
+        <div id="backendStatus" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+            <div class="flex items-start gap-3">
+                <i class="fas fa-server mt-0.5 text-amber-500"></i>
+                <div>
+                    <p class="font-semibold">正在检查数据库上传服务</p>
+                    <p id="backendStatusText" class="mt-1 text-amber-700">只有后端在线时，文件才会真正写入后台数据库并生成 Schema。</p>
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Upload Form -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
@@ -190,6 +200,8 @@
         </div>
     </footer>
 
+    <script src="./api-config.js"></script>
+    <script src="./local-upload-store.js"></script>
     <script>
         // DOM Elements
         const dropZone = document.getElementById('dropZone');
@@ -211,8 +223,14 @@
         const schemaTableBody = document.getElementById('schemaTableBody');
         const previewHead = document.getElementById('previewHead');
         const previewBody = document.getElementById('previewBody');
+        const backendStatus = document.getElementById('backendStatus');
+        const backendStatusText = document.getElementById('backendStatusText');
+        const api = window.MRTApiConfig;
+        const localStore = window.MRTLocalUploadStore;
 
         let selectedFile = null;
+        let backendAvailable = false;
+        let latestSchemaSnapshot = null;
 
         // Drag & Drop Events
         dropZone.addEventListener('click', () => fileInput.click());
@@ -241,7 +259,7 @@
             fileName.textContent = file.name;
             fileSize.textContent = formatFileSize(file.size);
             fileInfo.classList.remove('hidden');
-            submitBtn.disabled = false;
+            updateSubmitState();
 
             // Parse and preview
             parseFile(file);
@@ -253,7 +271,7 @@
             fileInfo.classList.add('hidden');
             schemaPlaceholder.classList.remove('hidden');
             schemaContent.classList.add('hidden');
-            submitBtn.disabled = true;
+            updateSubmitState();
         });
 
         function formatFileSize(bytes) {
@@ -314,6 +332,12 @@
         }
 
         function showSchemaPreview(columns, previewData, colCountVal, rowCountVal) {
+            latestSchemaSnapshot = {
+                columns,
+                previewData,
+                colCountVal,
+                rowCountVal
+            };
             schemaPlaceholder.classList.add('hidden');
             schemaContent.classList.remove('hidden');
             colCount.textContent = colCountVal;
@@ -339,50 +363,84 @@
             e.preventDefault();
             if (!selectedFile) return;
 
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('name', document.getElementById('name').value);
-            formData.append('description', document.getElementById('description').value);
-            formData.append('protocol_id', document.getElementById('protocolId').value);
-            formData.append('roundtable_id', document.getElementById('roundtableId').value);
-
             progressContainer.classList.remove('hidden');
             submitBtn.disabled = true;
 
-            // Simulate upload
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                if (progress <= 90) {
-                    progressBar.style.width = progress + '%';
-                    progressText.textContent = progress + '%';
-                }
-            }, 200);
-
             try {
-                const response = await fetch('/api/databases/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                clearInterval(interval);
-                progressBar.style.width = '100%';
-                progressText.textContent = '100%';
+                progressBar.style.width = '35%';
+                progressText.textContent = backendAvailable ? '连接后端中...' : '暂存到浏览器中...';
 
-                if (response.ok) {
-                    const result = await response.json();
+                if (backendAvailable) {
+                    const formData = new FormData();
+                    formData.append('file', selectedFile);
+                    formData.append('name', document.getElementById('name').value);
+                    formData.append('description', document.getElementById('description').value);
+                    formData.append('protocol_id', document.getElementById('protocolId').value);
+                    formData.append('roundtable_id', document.getElementById('roundtableId').value);
+
+                    const result = await api.fetchJson('/api/databases/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '100%';
                     showResult('success', `上传成功！数据库ID: ${result.id}`);
-                    setTimeout(() => window.location.href = './data-dashboard.html', 2000);
                 } else {
-                    const error = await response.json();
-                    showResult('error', error.detail || '上传失败');
-                    submitBtn.disabled = false;
+                    const record = await localStore.saveRecord({
+                        kind: 'database',
+                        title: document.getElementById('name').value,
+                        description: document.getElementById('description').value,
+                        protocolId: document.getElementById('protocolId').value,
+                        roundtableId: document.getElementById('roundtableId').value,
+                        file: selectedFile,
+                        meta: latestSchemaSnapshot || {},
+                    });
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '100%';
+                    showResult('success', `已暂存到浏览器本地：${record.title}`);
                 }
+
+                setTimeout(() => window.location.href = './data-dashboard.html?tab=databases', 1600);
             } catch (err) {
-                clearInterval(interval);
-                showResult('error', '网络错误: ' + err.message);
+                showResult('error', '上传失败: ' + err.message);
                 submitBtn.disabled = false;
+                syncSubmitButton();
             }
         });
+
+        function setBackendStatus(type, message) {
+            backendStatus.className = 'mb-6 rounded-2xl px-5 py-4 text-sm';
+            if (type === 'success') {
+                backendStatus.classList.add('border', 'border-green-200', 'bg-green-50', 'text-green-800');
+                backendStatus.querySelector('i').className = 'fas fa-server mt-0.5 text-green-500';
+            } else if (type === 'error') {
+                backendStatus.classList.add('border', 'border-red-200', 'bg-red-50', 'text-red-800');
+                backendStatus.querySelector('i').className = 'fas fa-triangle-exclamation mt-0.5 text-red-500';
+            } else {
+                backendStatus.classList.add('border', 'border-amber-200', 'bg-amber-50', 'text-amber-800');
+                backendStatus.querySelector('i').className = 'fas fa-server mt-0.5 text-amber-500';
+            }
+            backendStatusText.textContent = message;
+        }
+
+        function updateSubmitState() {
+            syncSubmitButton();
+        }
+
+        function syncSubmitButton() {
+            if (!selectedFile) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = backendAvailable
+                    ? '<i class="fas fa-upload mr-2"></i>开始上传并解析'
+                    : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器并解析';
+                return;
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = backendAvailable
+                ? '<i class="fas fa-upload mr-2"></i>开始上传并解析'
+                : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器并解析';
+        }
 
         function showResult(type, message) {
             resultMessage.classList.remove('hidden');
@@ -392,24 +450,53 @@
 
         // Load dropdowns
         async function loadDropdowns() {
-            // Load protocols
+            if (!backendAvailable) {
+                return;
+            }
             try {
-                const protocolsRes = await fetch('/api/protocols?limit=100');
-                if (protocolsRes.ok) {
-                    const protocols = await protocolsRes.json();
-                    const select = document.getElementById('protocolId');
-                    protocols.forEach(p => {
-                        const option = document.createElement('option');
-                        option.value = p.id;
-                        option.textContent = p.title;
-                        select.appendChild(option);
-                    });
-                }
+                const [protocols, roundtables] = await Promise.all([
+                    api.fetchJson('/api/protocols?limit=100'),
+                    api.fetchJson('/api/v1/roundtables')
+                ]);
+
+                const protocolSelect = document.getElementById('protocolId');
+                protocolSelect.innerHTML = '<option value="">-- 选择方案 --</option>';
+                protocols.forEach((protocol) => {
+                    const option = document.createElement('option');
+                    option.value = protocol.id;
+                    option.textContent = protocol.title;
+                    protocolSelect.appendChild(option);
+                });
+
+                const roundtableSelect = document.getElementById('roundtableId');
+                roundtableSelect.innerHTML = '<option value="">-- 选择圆桌会 --</option>';
+                roundtables.forEach((roundtable) => {
+                    const option = document.createElement('option');
+                    option.value = roundtable.id;
+                    option.textContent = roundtable.title;
+                    roundtableSelect.appendChild(option);
+                });
             } catch (e) {
-                console.log('Protocols not loaded yet');
+                console.warn('下拉数据加载失败:', e.message);
             }
         }
-        loadDropdowns();
+
+        async function checkBackend() {
+            setBackendStatus('loading', `正在连接数据库服务：${api.API_BASE}`);
+            try {
+                await api.healthcheck();
+                backendAvailable = true;
+                setBackendStatus('success', `数据库上传服务已连接，当前接口地址：${api.API_BASE}`);
+                updateSubmitState();
+                await loadDropdowns();
+            } catch (error) {
+                backendAvailable = false;
+                setBackendStatus('error', `数据库上传服务未连接：${error.message}。当前启用浏览器本地暂存模式，提交后只存在当前设备。`);
+                updateSubmitState();
+            }
+        }
+
+        checkBackend();
     </script>
 </body>
 </html>

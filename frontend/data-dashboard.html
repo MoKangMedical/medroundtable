@@ -39,6 +39,42 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8">
+        <div id="backendStatus" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+            <div class="flex items-start gap-3">
+                <i class="fas fa-server mt-0.5 text-amber-500"></i>
+                <div>
+                    <p class="font-semibold">正在检查数据管理后端</p>
+                    <p id="backendStatusText" class="mt-1 text-amber-700">只有后端在线时，这里的方案、数据库和分析任务才是真实后台数据。</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="localDraftSummary" class="mb-6 hidden rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">浏览器本地暂存</p>
+                    <p id="localDraftSummaryText" class="mt-1 text-sm text-slate-600">当前设备保存的临时方案和数据库，只在本浏览器可见。</p>
+                </div>
+                <button id="clearLocalDraftsBtn" type="button" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+                    <i class="fas fa-trash"></i> 清空本地暂存
+                </button>
+            </div>
+            <div class="mt-4 grid gap-3 md:grid-cols-3">
+                <div class="rounded-2xl bg-slate-50 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本地方案</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-950" id="localProtocolCount">0</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本地数据库</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-950" id="localDatabaseCount">0</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 px-4 py-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本地占用</p>
+                    <p class="mt-2 text-2xl font-bold text-slate-950" id="localStorageUsed">0 B</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white rounded-xl p-6 shadow-md">
@@ -117,6 +153,13 @@
                         <p>加载中...</p>
                     </div>
                 </div>
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <h3 class="text-lg font-bold text-slate-800">浏览器本地暂存</h3>
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">只存在当前浏览器</span>
+                    </div>
+                    <div id="localProtocolsList" class="mt-4 space-y-4"></div>
+                </div>
             </div>
 
             <!-- Databases Tab -->
@@ -132,6 +175,13 @@
                         <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
                         <p>加载中...</p>
                     </div>
+                </div>
+                <div class="mt-8 border-t border-slate-200 pt-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <h3 class="text-lg font-bold text-slate-800">浏览器本地暂存</h3>
+                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">只存在当前浏览器</span>
+                    </div>
+                    <div id="localDatabasesList" class="mt-4 space-y-4"></div>
                 </div>
             </div>
 
@@ -160,8 +210,57 @@
         </div>
     </footer>
 
+    <script src="./api-config.js"></script>
+    <script src="./local-upload-store.js"></script>
     <script>
-        let currentTab = 'protocols';
+        const allowedTabs = new Set(['protocols', 'databases', 'analysis']);
+        const initialTab = new URLSearchParams(window.location.search).get('tab');
+        let currentTab = allowedTabs.has(initialTab) ? initialTab : 'protocols';
+        const api = window.MRTApiConfig;
+        const localStore = window.MRTLocalUploadStore;
+        const backendStatus = document.getElementById('backendStatus');
+        const backendStatusText = document.getElementById('backendStatusText');
+        const localDraftSummary = document.getElementById('localDraftSummary');
+        const localDraftSummaryText = document.getElementById('localDraftSummaryText');
+        const localProtocolCount = document.getElementById('localProtocolCount');
+        const localDatabaseCount = document.getElementById('localDatabaseCount');
+        const localStorageUsed = document.getElementById('localStorageUsed');
+        const clearLocalDraftsBtn = document.getElementById('clearLocalDraftsBtn');
+        let backendAvailable = false;
+        let localDraftStats = {
+            protocols: [],
+            databases: [],
+        };
+
+        function showLoadError(elementId, message) {
+            document.getElementById(elementId).innerHTML = `<p class="py-8 text-center text-red-500">${message}</p>`;
+        }
+
+        function formatSize(bytes) {
+            if (localStore && typeof localStore.formatBytes === 'function') {
+                return localStore.formatBytes(bytes);
+            }
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k)));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+        }
+
+        function setBackendStatus(type, message) {
+            backendStatus.className = 'mb-6 rounded-2xl px-5 py-4 text-sm';
+            if (type === 'success') {
+                backendStatus.classList.add('border', 'border-green-200', 'bg-green-50', 'text-green-800');
+                backendStatus.querySelector('i').className = 'fas fa-server mt-0.5 text-green-500';
+            } else if (type === 'error') {
+                backendStatus.classList.add('border', 'border-red-200', 'bg-red-50', 'text-red-800');
+                backendStatus.querySelector('i').className = 'fas fa-triangle-exclamation mt-0.5 text-red-500';
+            } else {
+                backendStatus.classList.add('border', 'border-amber-200', 'bg-amber-50', 'text-amber-800');
+                backendStatus.querySelector('i').className = 'fas fa-server mt-0.5 text-amber-500';
+            }
+            backendStatusText.textContent = message;
+        }
 
         function switchTab(tab) {
             currentTab = tab;
@@ -180,15 +279,167 @@
             document.getElementById(`content-${tab}`).classList.remove('hidden');
 
             // Load data
+            if (!backendAvailable) return;
             if (tab === 'protocols') loadProtocols();
             if (tab === 'databases') loadDatabases();
             if (tab === 'analysis') loadAnalysis();
         }
 
+        function renderLocalSummary() {
+            const protocolRows = localDraftStats.protocols || [];
+            const databaseRows = localDraftStats.databases || [];
+            const totalSize = [...protocolRows, ...databaseRows].reduce((sum, record) => sum + Number(record.fileSize || 0), 0);
+
+            localProtocolCount.textContent = String(protocolRows.length);
+            localDatabaseCount.textContent = String(databaseRows.length);
+            localStorageUsed.textContent = formatSize(totalSize);
+            localDraftSummaryText.textContent = `当前设备保存了 ${protocolRows.length} 个方案和 ${databaseRows.length} 个数据库，只在本浏览器可见，不会写入后台数据库。`;
+            localDraftSummary.classList.toggle('hidden', protocolRows.length === 0 && databaseRows.length === 0);
+        }
+
+        function renderLocalProtocolRows(rows) {
+            const container = document.getElementById('localProtocolsList');
+            if (!rows.length) {
+                container.innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center text-slate-500">
+                        浏览器里还没有本地暂存的研究方案
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = rows.map((record) => `
+                <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <h4 class="truncate text-base font-semibold text-slate-900">${record.title || record.fileName}</h4>
+                                <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">浏览器本地暂存</span>
+                            </div>
+                            <p class="mt-1 text-sm text-slate-500">${record.fileName} · ${formatSize(record.fileSize)} · ${new Date(record.createdAt).toLocaleString()}</p>
+                            <p class="mt-2 text-sm leading-7 text-slate-600">${record.description || '暂无描述'}</p>
+                        </div>
+                        <div class="flex shrink-0 gap-2">
+                            <button onclick="downloadLocalRecord('${record.id}')" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                <i class="fas fa-download mr-1"></i>下载
+                            </button>
+                            <button onclick="deleteLocalRecord('${record.id}', 'protocol')" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100">
+                                <i class="fas fa-trash mr-1"></i>删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLocalDatabaseRows(rows) {
+            const container = document.getElementById('localDatabasesList');
+            if (!rows.length) {
+                container.innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center text-slate-500">
+                        浏览器里还没有本地暂存的数据库
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = rows.map((record) => {
+                const meta = record.meta || {};
+                const schemaSummary = meta.colCountVal || meta.rowCountVal
+                    ? `约 ${meta.colCountVal || 0} 列 × ${meta.rowCountVal || 0} 行`
+                    : '本地预览数据已保存';
+
+                return `
+                    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <h4 class="truncate text-base font-semibold text-slate-900">${record.title || record.fileName}</h4>
+                                    <span class="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-700">浏览器本地暂存</span>
+                                </div>
+                                <p class="mt-1 text-sm text-slate-500">${record.fileName} · ${formatSize(record.fileSize)} · ${new Date(record.createdAt).toLocaleString()}</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">${record.description || '暂无描述'} · ${schemaSummary}</p>
+                            </div>
+                            <div class="flex shrink-0 gap-2">
+                                <button onclick="downloadLocalRecord('${record.id}')" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    <i class="fas fa-download mr-1"></i>下载
+                                </button>
+                                <button onclick="deleteLocalRecord('${record.id}', 'database')" class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100">
+                                    <i class="fas fa-trash mr-1"></i>删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function refreshLocalDrafts() {
+            if (!localStore) {
+                return;
+            }
+            try {
+                const [protocols, databases] = await Promise.all([
+                    localStore.listRecords('protocol'),
+                    localStore.listRecords('database'),
+                ]);
+                localDraftStats = { protocols, databases };
+                renderLocalSummary();
+                renderLocalProtocolRows(protocols);
+                renderLocalDatabaseRows(databases);
+            } catch (err) {
+                localDraftSummary.classList.remove('hidden');
+                localDraftSummaryText.textContent = `浏览器本地暂存读取失败：${err.message}`;
+                localProtocolCount.textContent = '--';
+                localDatabaseCount.textContent = '--';
+                localStorageUsed.textContent = '--';
+                document.getElementById('localProtocolsList').innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center text-slate-500">
+                        本地暂存读取失败
+                    </div>
+                `;
+                document.getElementById('localDatabasesList').innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center text-slate-500">
+                        本地暂存读取失败
+                    </div>
+                `;
+            }
+        }
+
+        async function deleteLocalRecord(id, kind) {
+            if (!confirm('确定要删除这条浏览器本地暂存记录吗？')) return;
+            try {
+                await localStore.deleteRecord(id);
+                await refreshLocalDrafts();
+            } catch (err) {
+                alert(`删除失败：${err.message}`);
+            }
+        }
+
+        async function downloadLocalRecord(id) {
+            try {
+                await localStore.downloadRecord(id);
+            } catch (err) {
+                alert(`下载失败：${err.message}`);
+            }
+        }
+
+        async function clearLocalDrafts() {
+            if (!confirm('确定要清空当前浏览器中的所有本地暂存记录吗？')) return;
+            try {
+                await Promise.all([
+                    localStore.clearRecords('protocol'),
+                    localStore.clearRecords('database'),
+                ]);
+                await refreshLocalDrafts();
+            } catch (err) {
+                alert(`清空失败：${err.message}`);
+            }
+        }
+
         async function loadProtocols() {
             try {
-                const response = await fetch('/api/protocols');
-                const protocols = await response.json();
+                const protocols = await api.fetchJson('/api/protocols');
                 document.getElementById('protocolCount').textContent = protocols.length;
 
                 const list = document.getElementById('protocolsList');
@@ -215,7 +466,7 @@
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <a href="/api/protocols/${p.id}/download" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
+                            <a href="${api.apiUrl(`/api/protocols/${p.id}/download`)}" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
                                 <i class="fas fa-download text-slate-600"></i>
                             </a>
                             <button onclick="analyzeProtocol('${p.id}')" class="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition" title="AI分析">
@@ -228,14 +479,13 @@
                     </div>
                 `).join('');
             } catch (e) {
-                document.getElementById('protocolsList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+                showLoadError('protocolsList', `加载失败：${e.message}`);
             }
         }
 
         async function loadDatabases() {
             try {
-                const response = await fetch('/api/databases');
-                const databases = await response.json();
+                const databases = await api.fetchJson('/api/databases');
                 document.getElementById('databaseCount').textContent = databases.length;
 
                 let totalSize = databases.reduce((sum, d) => sum + (d.file_size || 0), 0);
@@ -271,7 +521,7 @@
                             <button onclick="previewDatabase('${d.id}')" class="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition" title="预览">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <a href="/api/databases/${d.id}/download" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
+                            <a href="${api.apiUrl(`/api/databases/${d.id}/download`)}" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
                                 <i class="fas fa-download text-slate-600"></i>
                             </a>
                             <button onclick="deleteDatabase('${d.id}')" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" title="删除">
@@ -281,14 +531,13 @@
                     </div>
                 `).join('');
             } catch (e) {
-                document.getElementById('databasesList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+                showLoadError('databasesList', `加载失败：${e.message}`);
             }
         }
 
         async function loadAnalysis() {
             try {
-                const response = await fetch('/api/analysis/tasks');
-                const tasks = await response.json();
+                const tasks = await api.fetchJson('/api/analysis/tasks');
                 document.getElementById('analysisCount').textContent = tasks.length;
 
                 const list = document.getElementById('analysisList');
@@ -332,61 +581,83 @@
                     </div>
                 `).join('');
             } catch (e) {
-                document.getElementById('analysisList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+                showLoadError('analysisList', `加载失败：${e.message}`);
             }
         }
 
         function formatSize(bytes) {
-            if (!bytes || bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            return localStore ? localStore.formatBytes(bytes) : '0 B';
         }
 
         async function deleteProtocol(id) {
             if (!confirm('确定要删除这个研究方案吗？')) return;
             try {
-                await fetch(`/api/protocols/${id}`, { method: 'DELETE' });
+                await api.fetchJson(`/api/protocols/${id}`, { method: 'DELETE' });
                 loadProtocols();
             } catch (e) {
-                alert('删除失败');
+                alert(`删除失败：${e.message}`);
             }
         }
 
         async function deleteDatabase(id) {
             if (!confirm('确定要删除这个数据库吗？')) return;
             try {
-                await fetch(`/api/databases/${id}`, { method: 'DELETE' });
+                await api.fetchJson(`/api/databases/${id}`, { method: 'DELETE' });
                 loadDatabases();
             } catch (e) {
-                alert('删除失败');
+                alert(`删除失败：${e.message}`);
             }
         }
 
         async function analyzeProtocol(id) {
             try {
-                const response = await fetch(`/api/protocols/${id}/analyze`, { method: 'POST' });
-                if (response.ok) {
-                    alert('AI分析已启动，请稍后查看结果');
-                } else {
-                    alert('分析启动失败');
-                }
+                await api.fetchJson(`/api/protocols/${id}/analyze`, { method: 'POST' });
+                alert('AI分析已启动，请稍后查看结果');
             } catch (e) {
-                alert('请求失败');
+                alert(`请求失败：${e.message}`);
             }
         }
 
         function previewDatabase(id) {
-            window.open(`/api/databases/${id}/preview`, '_blank');
+            window.open(api.apiUrl(`/api/databases/${id}/preview`), '_blank');
         }
 
         function viewResult(taskId) {
             window.open(`./analysis.html?task=${taskId}`, '_blank');
         }
 
-        // Initial load
-        loadProtocols();
+        async function initializeDashboard() {
+            setBackendStatus('loading', `正在连接数据管理后端：${api.API_BASE}`);
+            if (clearLocalDraftsBtn) {
+                clearLocalDraftsBtn.addEventListener('click', clearLocalDrafts);
+            }
+            await refreshLocalDrafts();
+            switchTab(currentTab);
+            try {
+                await api.healthcheck();
+                backendAvailable = true;
+                setBackendStatus('success', `数据管理后端已连接，当前接口地址：${api.API_BASE}`);
+                switchTab(currentTab);
+                await Promise.allSettled([loadProtocols(), loadDatabases(), loadAnalysis()]);
+            } catch (error) {
+                backendAvailable = false;
+                setBackendStatus('error', `数据管理后端未连接：${error.message}。页面已切换为只读提示状态。`);
+                document.getElementById('protocolCount').textContent = '--';
+                document.getElementById('databaseCount').textContent = '--';
+                document.getElementById('analysisCount').textContent = '--';
+                document.getElementById('storageUsed').textContent = '--';
+                showLoadError('protocolsList', '后端未连接，当前无法读取研究方案列表。');
+                showLoadError('databasesList', '后端未连接，当前无法读取数据库列表。');
+                showLoadError('analysisList', '后端未连接，当前无法读取分析任务。');
+            }
+            if (!backendAvailable) {
+                renderLocalSummary();
+                renderLocalProtocolRows(localDraftStats.protocols || []);
+                renderLocalDatabaseRows(localDraftStats.databases || []);
+            }
+        }
+
+        initializeDashboard();
     </script>
 </body>
 </html>

@@ -178,6 +178,7 @@
         </div>
     </div>
 
+    <script src="../frontend/api-config.js"></script>
     <script src="../frontend/secondme-identity.js"></script>
     <script src="../frontend/secondme-collaboration.js"></script>
     <script src="../frontend/expert-data.js"></script>
@@ -189,18 +190,33 @@
         const roundtableId = urlParams.get('sessionId') || (pathTail.endsWith('.html') ? '' : pathTail);
         
         // API 基础地址
-        const API_BASE = window.location.origin.includes('localhost') 
-            ? 'http://localhost:8000' 
-            : 'https://medroundtable-api.onrender.com';
+        const API_BASE = window.MRTApiConfig ? window.MRTApiConfig.API_BASE : (window.location.origin.includes('localhost')
+            ? 'http://localhost:8000'
+            : 'https://medroundtable-api.onrender.com');
+        const api = window.MRTApiConfig || null;
         
         // 模拟数据模式
-        const MOCK_MODE = true;
+        let MOCK_MODE = false;
         const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
         const secondMeCollaboration = window.MedRoundTableSecondMe || null;
         let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
         const expertCatalog = window.MedRoundTableExperts || null;
         const fallbackParticipants = ['clinical_director', 'phd_student', 'epidemiologist'];
         let secondMeIdentity = secondMeIdentityStore ? secondMeIdentityStore.loadIdentity() : null;
+        let currentRoundtable = null;
+        let eventSource = null;
+        const renderedMessageKeys = new Set();
+        const pendingOptimisticMessages = new Map();
+        let optimisticCounter = 0;
+        let mockReplyTimers = [];
+        const expertRoleAliases = {
+            pharmacogenomics_expert: 'clawbio_pharmgx',
+            gwas_expert: 'clawbio_gwas',
+            single_cell_analyst: 'clawbio_sc_rna',
+            galaxy_bridge: 'clawbio_galaxy',
+            data_engineer: 'ai_data_engineer',
+            qa_expert: 'model_qa'
+        };
 
         function escapeHtml(value) {
             return String(value)
@@ -209,6 +225,90 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function formatMessageContent(content) {
+            return escapeHtml(content || '').replace(/\n/g, '<br>');
+        }
+
+        function normalizeMessageContent(content) {
+            return String(content || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function getMessageTimestampMs(value) {
+            const timestamp = value ? new Date(value).getTime() : Number.NaN;
+            return Number.isFinite(timestamp) ? timestamp : Number.NaN;
+        }
+
+        function createMessageKey(msg) {
+            if (msg?.id) {
+                return `id:${msg.id}`;
+            }
+
+            const role = normalizeExpertRole(msg?.from_role || 'unknown');
+            const content = normalizeMessageContent(msg?.content || '');
+            const timestamp = getMessageTimestampMs(msg?.created_at);
+            if (Number.isFinite(timestamp)) {
+                return `sig:${role}:${content}:${Math.floor(timestamp / 1000)}`;
+            }
+            return `sig:${role}:${content}`;
+        }
+
+        function resetMessageDedupState() {
+            renderedMessageKeys.clear();
+            pendingOptimisticMessages.clear();
+            optimisticCounter = 0;
+        }
+
+        function rememberOptimisticMessage(msg, element) {
+            optimisticCounter += 1;
+            pendingOptimisticMessages.set(`pending:${optimisticCounter}`, {
+                from_role: normalizeExpertRole(msg.from_role),
+                content: normalizeMessageContent(msg.content),
+                createdAt: getMessageTimestampMs(msg.created_at),
+                element
+            });
+        }
+
+        function resolvePendingOptimisticMessage(msg, dedupeKey) {
+            if (normalizeExpertRole(msg?.from_role) !== 'user') {
+                return false;
+            }
+
+            const incomingContent = normalizeMessageContent(msg.content);
+            const incomingTimestamp = getMessageTimestampMs(msg.created_at);
+
+            for (const [pendingKey, pending] of pendingOptimisticMessages.entries()) {
+                const sameContent = pending.content === incomingContent;
+                const sameRole = pending.from_role === 'user';
+                const timestampClose = !Number.isFinite(incomingTimestamp) || !Number.isFinite(pending.createdAt)
+                    ? true
+                    : Math.abs(incomingTimestamp - pending.createdAt) <= 30000;
+
+                if (sameRole && sameContent && timestampClose) {
+                    if (pending.element) {
+                        pending.element.dataset.messageKey = dedupeKey;
+                        pending.element.dataset.optimistic = 'false';
+                    }
+                    pendingOptimisticMessages.delete(pendingKey);
+                    renderedMessageKeys.add(dedupeKey);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        function clearMockReplyTimers() {
+            mockReplyTimers.forEach((timerId) => clearTimeout(timerId));
+            mockReplyTimers = [];
+        }
+
+        function closeEventSource() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
         }
 
         function loadSessionPreferences() {
@@ -220,21 +320,56 @@
             }
         }
 
+        function normalizeExpertRole(role) {
+            return expertRoleAliases[role] || role;
+        }
+
+        function loadSessionClientContexts() {
+            try {
+                return JSON.parse(localStorage.getItem('mrt_session_client_contexts') || '{}');
+            } catch (err) {
+                console.error('加载会话客户端上下文失败:', err);
+                return {};
+            }
+        }
+
+        function getSessionClientContext(sessionId) {
+            return loadSessionClientContexts()[String(sessionId)] || null;
+        }
+
+        async function initializeBackendMode() {
+            if (!api) {
+                MOCK_MODE = true;
+                return false;
+            }
+
+            try {
+                await api.healthcheck();
+                MOCK_MODE = false;
+                return true;
+            } catch (error) {
+                console.warn('后端不可用，详情页回退到本地模式:', error.message);
+                MOCK_MODE = true;
+                return false;
+            }
+        }
+
         function getPreferredExpertRole(session) {
             if (session && session.preferred_expert) {
-                return session.preferred_expert;
+                return normalizeExpertRole(session.preferred_expert);
             }
-            return loadSessionPreferences()[String(roundtableId)] || null;
+            const clientContext = getSessionClientContext(roundtableId);
+            return normalizeExpertRole(clientContext?.preferred_expert || loadSessionPreferences()[String(roundtableId)] || null);
         }
 
         function getPreferredExpert(session) {
             const role = getPreferredExpertRole(session);
-            return expertCatalog && role ? expertCatalog.getExpert(role) : null;
+            return expertCatalog && role ? expertCatalog.getExpert(normalizeExpertRole(role)) : null;
         }
 
         function getRoundtableParticipants(session) {
             if (session && Array.isArray(session.participants) && session.participants.length > 0) {
-                return session.participants;
+                return session.participants.map((role) => normalizeExpertRole(role));
             }
             const preferredRole = getPreferredExpertRole(session);
             return preferredRole ? [preferredRole, ...fallbackParticipants] : [...fallbackParticipants];
@@ -246,7 +381,7 @@
 
             const deduped = [...new Set(participants)].slice(0, 4);
             container.innerHTML = deduped.map((role) => {
-                const expert = expertCatalog ? expertCatalog.getExpert(role) : null;
+                const expert = expertCatalog ? expertCatalog.getExpert(normalizeExpertRole(role)) : null;
                 const name = expert ? expert.name : getAgentName(role);
                 const avatar = expert ? expertCatalog.resolveAvatar(expert) : '';
                 if (avatar) {
@@ -318,40 +453,46 @@
         // 加载圆桌信息
         async function loadRoundtableInfo() {
             try {
-                let data;
-                
-                if (MOCK_MODE) {
-                    // 从本地存储查找圆桌
-                    const sessionsStr = localStorage.getItem('mockSessions') || '[]';
-                    console.log('读取到的sessions字符串:', sessionsStr);
-                    const sessions = JSON.parse(sessionsStr);
-                    console.log('解析后的sessions:', sessions);
-                    console.log('查找ID:', roundtableId, '类型:', typeof roundtableId);
-                    
-                    data = sessions.find(s => {
-                        console.log('比较:', s.id, '==', roundtableId, '结果:', s.id == roundtableId);
-                        return s.id == roundtableId;
-                    });
-                    
-                    if (!data) {
-                        console.error('未找到圆桌, ID:', roundtableId);
-                        console.error('可用ID列表:', sessions.map(s => s.id));
-                        throw new Error('Roundtable not found in localStorage');
+                let data = null;
+                const localSessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                const localSession = localSessions.find((session) => session.id == roundtableId) || null;
+
+                if (!MOCK_MODE) {
+                    try {
+                        data = await api.fetchJson(`/api/v1/roundtables/${roundtableId}`);
+                    } catch (error) {
+                        if (!localSession) {
+                            throw error;
+                        }
+                        MOCK_MODE = true;
                     }
-                    console.log('找到圆桌数据:', data);
-                } else {
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}`);
-                    if (!response.ok) throw new Error('Failed to load');
-                    data = await response.json();
                 }
+
+                if (MOCK_MODE) {
+                    data = localSession;
+                }
+
+                if (!data) {
+                    throw new Error('Roundtable not found');
+                }
+
+                const clientContext = getSessionClientContext(roundtableId);
+                currentRoundtable = {
+                    ...data,
+                    preferred_expert: data.preferred_expert || clientContext?.preferred_expert || null,
+                    human_participants: data.human_participants || clientContext?.human_participants || [],
+                    secondme_shades: data.secondme_shades || clientContext?.secondme_shades || [],
+                    ai_pack: data.ai_pack || clientContext?.ai_pack || null,
+                    collaboration_label: data.collaboration_label || clientContext?.collaboration_label || null
+                };
                 
-                document.getElementById('roundtableTitle').textContent = data.title || '未命名圆桌';
-                const preferredExpert = getPreferredExpert(data);
+                document.getElementById('roundtableTitle').textContent = currentRoundtable.title || '未命名圆桌';
+                const preferredExpert = getPreferredExpert(currentRoundtable);
                 document.getElementById('roundtableStatus').textContent = preferredExpert
                     ? `由 ${preferredExpert.name} 先介入`
-                    : (data.status === 'active' ? '进行中' : data.status);
-                renderParticipantAvatars(getRoundtableParticipants(data));
-                renderCollaborationContext(data);
+                    : (currentRoundtable.status === 'active' ? '进行中' : currentRoundtable.status);
+                renderParticipantAvatars(getRoundtableParticipants(currentRoundtable));
+                renderCollaborationContext(currentRoundtable);
             } catch (err) {
                 console.error('加载圆桌信息失败:', err);
                 document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
@@ -372,29 +513,20 @@
                     // 从本地存储加载消息
                     messages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
                 } else {
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`);
-                    if (!response.ok) return;
-                    messages = await response.json();
+                    messages = await api.fetchJson(`/api/v1/roundtables/${roundtableId}/messages`);
                 }
                 
                 const container = document.getElementById('chatContainer');
                 container.innerHTML = '';
+                resetMessageDedupState();
                 
                 // 添加欢迎消息
                 if (messages.length === 0) {
-                    const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
-                    const currentSession = sessions.find(s => s.id == roundtableId);
-                    const preferredExpert = getPreferredExpert(currentSession);
-                    const collaborationNote = currentSession && currentSession.collaboration_label
-                        ? `当前已加载 ${currentSession.collaboration_label}。`
-                        : '';
-                    renderMessage({
-                        from_role: preferredExpert ? preferredExpert.role : 'clinical_director',
-                        content: preferredExpert
-                            ? `欢迎来到 MedRoundTable！本次由我作为首位介入专家。${collaborationNote}${preferredExpert.prompt}`
-                            : `欢迎来到 MedRoundTable！我是临床主任，将协调这次科研讨论。${collaborationNote}请提出您的临床问题，我们的专家团队会一起帮您设计研究方案。`,
-                        created_at: new Date().toISOString()
-                    });
+                    const kickoffMessage = buildInitialKickoffMessage();
+                    renderMessage(kickoffMessage);
+                    if (!MOCK_MODE && currentRoundtable && currentRoundtable.status !== 'init') {
+                        showTypingIndicator(getAgentName(kickoffMessage.from_role));
+                    }
                 }
                 
                 messages.forEach(msg => renderMessage(msg));
@@ -404,23 +536,43 @@
         }
         
         // 渲染消息
-        function renderMessage(msg) {
+        function renderMessage(msg, options = {}) {
             const container = document.getElementById('chatContainer');
             const isUser = msg.from_role === 'user';
+            const dedupeKey = createMessageKey(msg);
+
+            if (!options.skipPendingMerge && resolvePendingOptimisticMessage(msg, dedupeKey)) {
+                return false;
+            }
+
+            if (renderedMessageKeys.has(dedupeKey)) {
+                return false;
+            }
+
+            if (!isUser) {
+                hideTypingIndicator();
+            }
             
             const div = document.createElement('div');
             div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+            div.dataset.messageKey = dedupeKey;
+            div.dataset.optimistic = options.optimistic ? 'true' : 'false';
             
             div.innerHTML = `
                 <div class="chat-bubble ${isUser ? 'user' : 'agent'} rounded-2xl px-4 py-3">
                     ${!isUser ? `<div class="text-xs font-semibold mb-1 ${isUser ? 'text-blue-200' : 'text-blue-600'}">${getAgentName(msg.from_role)}</div>` : ''}
-                    <div class="leading-relaxed">${msg.content}</div>
+                    <div class="leading-relaxed">${formatMessageContent(msg.content)}</div>
                     <div class="text-xs mt-1 ${isUser ? 'text-blue-200' : 'text-gray-400'} text-right">${formatTime(msg.created_at)}</div>
                 </div>
             `;
             
             container.appendChild(div);
+            renderedMessageKeys.add(dedupeKey);
+            if (options.optimistic) {
+                rememberOptimisticMessage(msg, div);
+            }
             container.scrollTop = container.scrollHeight;
+            return true;
         }
         
         // 获取专家名称
@@ -431,18 +583,191 @@
                 'epidemiologist': '流行病学家',
                 'statistician': '统计专家',
                 'research_nurse': '研究护士',
+                'pharmacogenomics_expert': '药物基因组学专家',
+                'gwas_expert': 'GWAS专家',
+                'single_cell_analyst': '单细胞测序分析师',
+                'galaxy_bridge': 'Galaxy桥接器',
                 'clawbio_pharmgx': '药物基因组学专家',
                 'clawbio_gwas': 'GWAS专家',
                 'clawbio_sc_rna': '单细胞测序分析师',
                 'clawbio_galaxy': 'Galaxy桥接器',
                 'ux_researcher': 'UX研究员',
+                'data_engineer': 'AI数据工程师',
                 'ai_data_engineer': 'AI数据工程师',
                 'trend_researcher': '趋势研究员',
                 'experiment_tracker': '实验追踪员',
+                'qa_expert': '模型QA专家',
                 'model_qa': '模型QA专家',
                 'user': '我'
             };
-            return names[role] || role;
+            return names[normalizeExpertRole(role)] || role;
+        }
+
+        function inferKickoffOutputs(text) {
+            const lowered = String(text || '').toLowerCase();
+            const outputs = [];
+            if (/(终点|指标|endpoint)/i.test(lowered)) outputs.push('主要终点');
+            if (/(样本量|效能|power|统计)/i.test(lowered)) outputs.push('样本量口径');
+            if (/(crf|字段|表格|变量|访视|随访)/i.test(lowered)) outputs.push('CRF / 访视表');
+            if (/(风险|不良事件|偏倚|混杂|质控)/i.test(lowered)) outputs.push('关键风险点');
+            if (/(交付物|里程碑|输出|下一步)/i.test(lowered)) outputs.push('下一步交付物');
+            return outputs.length > 0 ? outputs : ['主要终点', '样本量口径', 'CRF / 访视表', '关键风险点'];
+        }
+
+        function buildInitialKickoffMessage() {
+            const preferredExpert = getPreferredExpert(currentRoundtable);
+            const role = preferredExpert ? preferredExpert.role : 'clinical_director';
+            const collaborationNote = currentRoundtable && currentRoundtable.collaboration_label
+                ? `当前已加载 ${currentRoundtable.collaboration_label}。`
+                : '';
+            const outputs = inferKickoffOutputs(currentRoundtable?.clinical_question || '');
+            const outputLines = outputs.slice(0, 4).map((item, index) => `${index + 1}. ${item}`).join('\n');
+            const opener = preferredExpert
+                ? `${preferredExpert.name}先介入，我先把本轮要收的结果钉住。`
+                : '临床主任先介入，我先把本轮要收的结果钉住。';
+
+            return {
+                from_role: role,
+                content: `${opener}${collaborationNote ? ` ${collaborationNote}` : ''}\n本轮优先补这几项：\n${outputLines}\n接下来不再空谈背景，而是直接往数字、字段、时间窗和风险点推进。`,
+                created_at: new Date().toISOString()
+            };
+        }
+
+        function guessResponderLabel(content) {
+            const lowered = String(content || '').toLowerCase();
+            if (/(crf|字段|表格|访视|录入)/i.test(lowered)) return '研究护士';
+            if (/(样本量|效能|power|终点|sap|统计)/i.test(lowered)) return '统计专家';
+            if (/(文献|检索|综述|证据|指南)/i.test(lowered)) return '博士生';
+            if (/(设计|偏倚|混杂|纳入|排除)/i.test(lowered)) return '流行病学家';
+            if (/^(继续|开始讨论|开始|继续讨论|ok|好的)$/i.test(String(content || '').trim())) {
+                return '临床主任';
+            }
+            const preferredExpert = getPreferredExpert(currentRoundtable);
+            return preferredExpert ? preferredExpert.name : '临床主任';
+        }
+
+        function buildMockDiscussionTurns(content) {
+            const lowered = content.toLowerCase();
+            const preferredExpert = getPreferredExpert(currentRoundtable);
+            const preferredRole = preferredExpert ? preferredExpert.role : 'clinical_director';
+            const normalizedRole = normalizeExpertRole(preferredRole);
+            const clinicalQuestion = String(currentRoundtable?.clinical_question || '').toLowerCase();
+            const asksConcreteOutput = /(样本量|效能|power|终点|sap|统计|crf|字段|表格|访视|录入)/i.test(content) ||
+                /(样本量|终点|crf|访视|字段)/i.test(clinicalQuestion);
+            const asksLiterature = /(文献|回顾|检索|综述|证据|指南)/i.test(content);
+            const isKickoff = /^(继续|开始讨论|开始|继续讨论|ok|好的)$/i.test(content.trim());
+            const isNeuroSignalTopic = /(神经元|电信号|放电|突触|电生理|神经传导)/i.test(clinicalQuestion);
+
+            const roleMatch = (role, reply) => ({
+                from_role: role,
+                content: reply,
+                created_at: new Date().toISOString()
+            });
+
+            if (/(crf|字段|表格|访视|录入)/i.test(content)) {
+                return [
+                    roleMatch('research_nurse', `我先把 CRF 落成可执行结构，不空谈原则。建议至少拆成 6 页：筛选、基线、干预、访视结果、安全性、方案偏离。先锁定必填字段：受试者编号、访视日期、主要终点原始值、关键合并用药、不良事件分级。`),
+                    roleMatch('statistician', `我接着研究护士这版往下补两点：第一，主要终点字段要有“基线值 + 每次访视值 + 是否进入分析集”；第二，缺失原因必须单列，不然之后 ITT 和敏感性分析做不扎实。下一步就按访视顺序把字段表展开，别再停在原则层。`)
+                ];
+            }
+
+            if (/(样本量|效能|power|终点|sap|统计)/i.test(content)) {
+                return [
+                    roleMatch('statistician', `先把统计骨架钉住：请先确认一个主终点，不要同时拿多个指标当主问题。样本量我建议按“主终点差值 + 15% 脱落”来估，先不要急着定例数，先把最小临床差异和标准差来源补齐。`),
+                    roleMatch('epidemiologist', `我补一句：统计学家这点是关键。如果主终点和时间窗不先锁定，后面的纳排标准、混杂控制和随访频率都会漂。我们最好先把研究对象、暴露定义、结局时间点三件事定死。`)
+                ];
+            }
+
+            if (/(基因|药物|用药|代谢)/i.test(lowered)) {
+                return [
+                    roleMatch('clawbio_pharmgx', `我先不讲泛泛的精准医疗，直接说可执行项：这题如果和药物反应差异有关，建议先查 CYP2D6、CYP2C19、SLCO1B1 这几类位点，先把候选基因 panel 收窄。`),
+                    roleMatch('clinical_director', `我接着药物基因组学专家这点提醒一句：基因检测不能脱离临床结局单独做。我们需要同步定义真实临床终点，比如疗效响应、不良反应或剂量调整需求，不然结果很难解释。`)
+                ];
+            }
+
+            if (/(gwas|变异|snp|位点)/i.test(lowered)) {
+                return [
+                    roleMatch('clawbio_gwas', `这类问题我建议先把表型定义收紧，再谈 GWAS。表型如果太松，后面出来的位点会很散。先决定病例定义、对照定义、校正协变量和人群分层。`),
+                    roleMatch('phd_student', `我补充文献侧证据：这题如果已有公开队列或复现研究，我们最好先查有没有稳定复现的位点，再决定是做 discovery 还是 replication，不然成本会被拉高。`)
+                ];
+            }
+
+            if (/(单细胞|scrna|细胞|转录组)/i.test(lowered)) {
+                return [
+                    roleMatch('clawbio_sc_rna', `如果你问的是单细胞层面的机制，我建议先明确采样时间点和目标细胞群，而不是一上来全量上机。先把“要验证哪类细胞变化”说清楚，实验设计才会稳。`),
+                    roleMatch('ai_data_engineer', `我接着单细胞分析师的点补一句：样本处理链要前置设计，批次效应、细胞活性阈值和元数据命名规范必须先定，不然后面会把一半时间耗在清洗上。`)
+                ];
+            }
+
+            if (asksLiterature) {
+                return [
+                    roleMatch('phd_student', `我先把文献回顾落成检索框架：先查“研究对象/模型、暴露定义、主要终点、样本量、统计方法”五列，不再泛泛报背景。优先确认已有研究里最稳定的终点口径和常见设计缺陷。`),
+                    roleMatch('trend_researcher', `我接着博士生的框架补一句：文献回顾不只看有没有文章，更要看哪些题已经做滥了、哪些题仍有投稿窗口。我们最好把“创新点、可重复性、期刊匹配度”三列一起拉进证据表。`)
+                ];
+            }
+
+            if (isKickoff && asksConcreteOutput) {
+                const endpoint = isNeuroSignalTopic
+                    ? '第 28 天神经元平均放电频率较基线变化值'
+                    : '预先定义的单一主要终点';
+                return [
+                    roleMatch('clinical_director', `我先拍板：这题可以继续，但只按小而准的验证研究推进。现在先锁定一个主终点，我建议用“${endpoint}”，别一开始同时追多个结局。`),
+                    roleMatch('statistician', `我接着把统计骨架补上：样本量先按主终点差值和 15% 脱落估算，同时在 CRF 里固定“基线值、各访视值、是否进入分析集、缺失原因”四类字段。`),
+                    roleMatch('research_nurse', `我把执行位直接接上：访视或采样时间点至少拆成筛选、基线、干预后关键评估、结局确认四段；CRF 页签建议按筛选、基线、干预、疗效、安全、偏离六页建。`)
+                ];
+            }
+
+            const opener = preferredExpert
+                ? `${preferredExpert.name}先接这个问题。我先把问题收窄：${preferredExpert.prompt}`
+                : '临床主任先接这个问题。我先不重复背景，而是先把研究问题拆成“研究对象、干预/暴露、主终点、时间窗”四块。';
+
+            const followUpRole = normalizedRole === 'clinical_director' ? 'phd_student' : 'clinical_director';
+            const followUpText = normalizedRole === 'clinical_director'
+                ? '我接着临床主任的框架往下走。下一步最该做的不是继续泛泛讨论，而是先查现有证据缺口：已有研究做到了哪一步、样本量大概在哪个量级、最大的设计缺陷是什么。'
+                : '我接着前一位专家的判断补一句：如果这个题最后要落成正式研究，临床可执行性必须和文献证据一起看，不能只有机制亮点。';
+
+            return [
+                roleMatch(normalizedRole, opener),
+                roleMatch(followUpRole, followUpText)
+            ];
+        }
+
+        function queueMockDiscussion(turns) {
+            clearMockReplyTimers();
+            if (!Array.isArray(turns) || turns.length === 0) {
+                hideTypingIndicator();
+                return;
+            }
+
+            const persistMockMessage = (message) => {
+                if (renderMessage(message)) {
+                    mockMessages.push(message);
+                    localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
+                }
+            };
+
+            const deliverTurn = (index) => {
+                if (index >= turns.length) {
+                    hideTypingIndicator();
+                    return;
+                }
+
+                const turn = {
+                    ...turns[index],
+                    created_at: new Date().toISOString()
+                };
+                persistMockMessage(turn);
+
+                if (index < turns.length - 1) {
+                    showTypingIndicator(getAgentName(turns[index + 1].from_role));
+                    const timerId = window.setTimeout(() => deliverTurn(index + 1), 1200);
+                    mockReplyTimers.push(timerId);
+                }
+            };
+
+            showTypingIndicator(getAgentName(turns[0].from_role));
+            const firstTimer = window.setTimeout(() => deliverTurn(0), 900);
+            mockReplyTimers.push(firstTimer);
         }
         
         // 格式化时间
@@ -469,7 +794,7 @@
             };
             
             // 显示用户消息
-            renderMessage(userMessage);
+            renderMessage(userMessage, { optimistic: !MOCK_MODE });
             
             // 模拟模式：保存到本地
             if (MOCK_MODE) {
@@ -477,96 +802,49 @@
                 localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
             }
             
-            // 显示输入中提示
-            showTypingIndicator();
-            
             if (MOCK_MODE) {
-                // 模拟模式：2秒后显示专家回复 - 14个Agent轮流回复
-                setTimeout(() => {
-                    hideTypingIndicator();
-                    
-                    // 根据消息内容选择相关度最高的专家回复
-                    const content_lower = content.toLowerCase();
-                    let selectedAgent = null;
-                    
-                    // 关键词匹配选择Agent
-                    if (content_lower.includes('基因') || content_lower.includes('药物') || content_lower.includes('用药')) {
-                        selectedAgent = { role: 'clawbio_pharmgx', content: '基于药物基因组学分析，我建议检测CYP2D6、CYP2C19等核心基因。根据CPIC指南，这可以帮助预测患者对特定药物的代谢能力，实现真正的个性化用药。' };
-                    } else if (content_lower.includes('gwas') || content_lower.includes('变异') || content_lower.includes('snp')) {
-                        selectedAgent = { role: 'clawbio_gwas', content: '我已查询了GWAS Catalog和ClinVar数据库。发现该疾病有47个显著相关的SNP位点，其中rs1801133在多个人群中都显示出强关联性（p < 5e-8）。' };
-                    } else if (content_lower.includes('单细胞') || content_lower.includes('scrna') || content_lower.includes('细胞')) {
-                        selectedAgent = { role: 'clawbio_sc_rna', content: '单细胞测序分析显示，该疾病涉及3种主要细胞类型的异常。UMAP聚类图显示清晰的细胞亚群分离，差异表达分析鉴定出156个关键标记基因。' };
-                    } else if (content_lower.includes('工具') || content_lower.includes('分析') || content_lower.includes('workflow')) {
-                        selectedAgent = { role: 'clawbio_galaxy', content: '根据您的分析需求，我推荐以下Galaxy工具组合：FastQC进行质控 → STAR比对 → featureCounts定量 → DESeq2差异分析。整个工作流已配置好，可以直接运行。' };
-                    } else if (content_lower.includes('用户') || content_lower.includes('体验') || content_lower.includes('界面')) {
-                        selectedAgent = { role: 'ux_researcher', content: '从用户体验研究角度，我建议进行可用性测试。可以设计5-8个典型任务，观察用户完成时间和错误率，收集定性反馈来优化研究工具的设计。' };
-                    } else if (content_lower.includes('数据') || content_lower.includes('质量') || content_lower.includes('清洗')) {
-                        selectedAgent = { role: 'ai_data_engineer', content: '我检测到数据中存在12%的缺失值和3个异常值。建议使用多重插补法处理缺失数据，对异常值进行敏感性分析。我已自动生成数据修复脚本。' };
-                    } else if (content_lower.includes('趋势') || content_lower.includes('市场') || content_lower.includes('竞争')) {
-                        selectedAgent = { role: 'trend_researcher', content: '根据最新市场情报分析，该研究领域在过去3年增长了340%，吸引了大量投资。竞争格局显示前3名机构占据了65%的研究资源，建议寻找差异化定位。' };
-                    } else if (content_lower.includes('实验') || content_lower.includes('ab测试') || content_lower.includes('假设')) {
-                        selectedAgent = { role: 'experiment_tracker', content: '我设计了严格的A/B测试方案：对照组和干预组各需要150例样本，检验效能80%，显著性水平0.05。随机化采用分层区组设计，确保基线均衡。' };
-                    } else if (content_lower.includes('模型') || content_lower.includes('算法') || content_lower.includes('偏差')) {
-                        selectedAgent = { role: 'model_qa', content: '我对当前AI模型进行了全面测试。发现准确率达到92.3%，但在特定亚组中存在轻微偏差（<5%）。建议增加该亚组的训练数据，并进行公平性评估。' };
-                    } else {
-                        // 默认选择核心临床团队
-                        const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
-                        const currentSession = sessions.find(s => s.id == roundtableId);
-                        const preferredExpert = getPreferredExpert(currentSession);
-                        const coreResponses = [
-                            { role: 'clinical_director', content: '这是一个很有价值的临床问题。从循证医学角度来看，我建议我们先进行系统性文献回顾，了解当前研究的现状和空白。我会评估这个研究的临床意义和创新点。' },
-                            { role: 'phd_student', content: '我已经开始检索PubMed和Cochrane数据库。初步发现12篇相关RCT研究，但大多数样本量较小且存在选择偏倚。我建议我们设计一个多中心、大样本的研究来弥补这些不足。' },
-                            { role: 'epidemiologist', content: '从研究设计角度，我建议采用前瞻性队列研究设计。样本量计算显示需要至少300例才能达到80%的检验效能。我会设计严格的纳入排除标准来控制混杂因素。' },
-                            { role: 'statistician', content: '关于统计分析计划，我建议采用混合效应模型来处理多中心数据的聚类问题。主要终点使用ITT分析，缺失数据采用多重插补法。我会设计相应的CRF表格确保数据质量。' },
-                            { role: 'research_nurse', content: '从执行角度，我们需要考虑患者招募策略和数据质量控制。我建议制定详细的SOP文件，培训所有研究中心的研究人员，并建立实时数据监控系统。' }
-                        ];
-                        selectedAgent = preferredExpert
-                            ? {
-                                role: preferredExpert.role,
-                                content: `我会先从${preferredExpert.subtitle}视角介入。${preferredExpert.prompt} 随后再把需要协同的部分交给其他专家继续展开。`
-                            }
-                            : coreResponses[Math.floor(Math.random() * coreResponses.length)];
-                    }
-                    
-                    const agentMessage = {
-                        from_role: selectedAgent.role,
-                        content: selectedAgent.content,
-                        created_at: new Date().toISOString()
-                    };
-                    
-                    renderMessage(agentMessage);
-                    mockMessages.push(agentMessage);
-                    localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
-                }, 2000);
+                queueMockDiscussion(buildMockDiscussionTurns(content));
             } else {
+                showTypingIndicator(guessResponderLabel(content));
                 // 真实 API 模式
                 try {
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`, {
+                    await api.fetchJson(`/api/v1/roundtables/${roundtableId}/messages`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ content, to_role: 'all' })
                     });
-                    
-                    if (!response.ok) throw new Error('发送失败');
-                    
-                    hideTypingIndicator();
-                    setTimeout(loadMessages, 1000);
                 } catch (err) {
                     hideTypingIndicator();
                     alert('发送失败: ' + err.message);
                 }
             }
         }
+
+        function connectEventSource() {
+            if (MOCK_MODE || !roundtableId) return;
+            closeEventSource();
+
+            eventSource = new EventSource(`${API_BASE}/api/v1/roundtables/${roundtableId}/stream`);
+            eventSource.onmessage = (event) => {
+                const payload = JSON.parse(event.data);
+                if (payload.type === 'ping') return;
+                renderMessage(payload);
+            };
+            eventSource.onerror = () => {
+                console.warn('详情页 SSE 连接中断');
+            };
+        }
         
         // 显示输入中
-        function showTypingIndicator() {
+        function showTypingIndicator(label = '专家团') {
+            hideTypingIndicator();
             const container = document.getElementById('chatContainer');
             const div = document.createElement('div');
             div.id = 'typingIndicator';
             div.className = 'flex justify-start';
             div.innerHTML = `
                 <div class="chat-bubble agent rounded-2xl px-4 py-3">
-                    <div class="text-xs font-semibold mb-1 text-blue-600">专家团</div>
+                    <div class="text-xs font-semibold mb-1 text-blue-600">${escapeHtml(label)}</div>
                     <div class="typing-indicator">
                         <span></span><span></span><span></span>
                     </div>
@@ -586,15 +864,27 @@
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
         });
+
+        window.addEventListener('beforeunload', () => {
+            clearMockReplyTimers();
+            closeEventSource();
+        });
+
+        window.addEventListener('pagehide', () => {
+            clearMockReplyTimers();
+            closeEventSource();
+        });
         
         // 页面加载
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeBackendMode();
             if (secondMeIdentityStore) {
                 secondMeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
             }
             renderIdentityContext();
-            loadRoundtableInfo();
-            loadMessages();
+            await loadRoundtableInfo();
+            await loadMessages();
+            connectEventSource();
         });
     </script>
 </body>

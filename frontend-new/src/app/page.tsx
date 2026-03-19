@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { aiPacks, humanRoles, quickScenarios, shadeTemplates } from '../lib/secondme';
 
 function getErrorMessage(error?: string | null, details?: string | null) {
@@ -8,8 +7,31 @@ function getErrorMessage(error?: string | null, details?: string | null) {
     invalid_state: '安全验证失败，请重新发起登录。',
     access_denied: '你取消了授权流程。',
   };
+
   const base = error ? (messages[error] || '登录失败，请重试。') : '';
   return details ? `${base} (${details})` : base;
+}
+
+function SectionLabel({ title, subtitle, tone }: { title: string; subtitle: string; tone: string }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ color: tone, fontSize: 12, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase' }}>{title}</div>
+      <div style={{ color: '#0f172a', fontSize: 24, fontWeight: 800, lineHeight: 1.2 }}>{subtitle}</div>
+    </div>
+  );
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <div style={{ display: 'grid', gap: 10 }}>
+      {items.map((item) => (
+        <div key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, color: '#475569', lineHeight: 1.8, fontSize: 15 }}>
+          <span style={{ color: '#1d4ed8', fontWeight: 800 }}>•</span>
+          <span>{item}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function Home({
@@ -20,162 +42,216 @@ export default function Home({
   const errorMessage = getErrorMessage(searchParams?.error, searchParams?.details);
 
   return (
-    <main style={{ minHeight: '100vh', padding: '40px 16px' }}>
-      <div style={{ margin: '0 auto', maxWidth: 1240, display: 'grid', gap: 24 }}>
+    <main
+      style={{
+        minHeight: '100vh',
+        padding: '32px 16px 48px',
+        background: 'radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 30%), radial-gradient(circle at 85% 12%, rgba(14,165,233,0.12), transparent 24%), linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%)',
+        color: '#0f172a',
+      }}
+    >
+      <div style={{ margin: '0 auto', maxWidth: 1280, display: 'grid', gap: 22 }}>
         <section
           style={{
-            background: 'rgba(255,255,255,0.82)',
-            border: '1px solid rgba(148,163,184,0.22)',
-            borderRadius: 32,
-            boxShadow: '0 24px 48px rgba(15,23,42,0.08)',
+            borderRadius: 36,
             padding: 32,
+            background: 'rgba(255,255,255,0.84)',
+            border: '1px solid rgba(148,163,184,0.22)',
+            boxShadow: '0 28px 60px rgba(15,23,42,0.08)',
           }}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <div style={{ maxWidth: 760 }}>
-              <div style={{ color: '#1d4ed8', fontSize: 12, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-                SecondMe OAuth Gateway
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ maxWidth: 760, display: 'grid', gap: 16 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, width: 'fit-content', padding: '8px 14px', borderRadius: 999, background: 'rgba(219,234,254,0.8)', color: '#1d4ed8', fontSize: 12, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                SecondMe Login Portal
               </div>
-              <h1 style={{ margin: '14px 0 0', fontSize: 48, lineHeight: 1.05, fontWeight: 800 }}>
-                把 SecondMe 登录、角色选择和
-                <span style={{ color: '#1d4ed8' }}> MedRoundTable 圆桌</span>
-                真正接起来
+              <h1 style={{ margin: 0, fontSize: 'clamp(36px, 5vw, 58px)', lineHeight: 1.02, fontWeight: 900, letterSpacing: '-0.04em' }}>
+                先登录真人身份，再让 SecondMe 分身和 AI agent 一起进入圆桌
               </h1>
-              <p style={{ margin: '18px 0 0', color: '#475569', fontSize: 18, lineHeight: 1.8 }}>
-                这里负责承接 OAuth 登录，然后把用户带到可执行的角色选择页，再把选择结果带回正式站
-                `https://mokangmedical.github.io/medroundtable` 的创建流程。
+              <p style={{ margin: 0, color: '#475569', fontSize: 18, lineHeight: 1.9, maxWidth: 720 }}>
+                这里不是普通介绍页，而是 SecondMe 的正式接入入口。先完成真人身份授权，再把分身、协作阵容和圆桌任务一起回填到 MedRoundTable。
               </p>
+              {errorMessage ? (
+                <div style={{ padding: 16, borderRadius: 20, background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontWeight: 700, lineHeight: 1.8 }}>
+                  {errorMessage}
+                </div>
+              ) : null}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                <a
+                  href="/api/auth/login"
+                  style={{
+                    padding: '14px 20px',
+                    borderRadius: 999,
+                    background: 'linear-gradient(135deg, #1d4ed8, #1e3a8a)',
+                    color: '#fff',
+                    fontWeight: 800,
+                    boxShadow: '0 18px 36px rgba(29,78,216,0.22)',
+                  }}
+                >
+                  立即 SecondMe 登录
+                </a>
+                <a
+                  href="https://mokangmedical.github.io/medroundtable/frontend/secondme-hub.html"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    padding: '14px 20px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(148,163,184,0.22)',
+                    background: '#fff',
+                    fontWeight: 800,
+                  }}
+                >
+                  查看协作配置页
+                </a>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <a
-                href="/api/auth/login"
-                style={{
-                  padding: '14px 20px',
-                  borderRadius: 999,
-                  background: 'linear-gradient(135deg, #1d4ed8, #1e3a8a)',
-                  color: '#fff',
-                  fontWeight: 700,
-                }}
-              >
-                使用 SecondMe 登录
-              </a>
-              <Link
-                href="https://mokangmedical.github.io/medroundtable/frontend/secondme-hub.html"
-                style={{
-                  padding: '14px 20px',
-                  borderRadius: 999,
-                  border: '1px solid rgba(148,163,184,0.22)',
-                  background: '#fff',
-                  fontWeight: 700,
-                }}
-              >
-                先用静态协作页体验
-              </Link>
+
+            <div
+              style={{
+                minWidth: 280,
+                flex: '1 1 280px',
+                borderRadius: 28,
+                padding: 20,
+                background: 'linear-gradient(180deg, rgba(15,23,42,0.96), rgba(30,64,175,0.96))',
+                color: '#fff',
+                boxShadow: '0 24px 48px rgba(15,23,42,0.18)',
+              }}
+            >
+              <div style={{ color: '#bae6fd', fontSize: 12, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                What happens next
+              </div>
+              <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
+                <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
+                  <div style={{ fontWeight: 800 }}>1. 真人身份登录</div>
+                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>确认你是谁，后续的头像、姓名和邮箱才能带回首页。</div>
+                </div>
+                <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
+                  <div style={{ fontWeight: 800 }}>2. 装载 SecondMe 分身</div>
+                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>把临床判断、文献记忆或多组学上下文一起带进来。</div>
+                </div>
+                <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
+                  <div style={{ fontWeight: 800 }}>3. 选择 AI agent 阵容</div>
+                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>让 MedRoundTable 的 14 个 Agent 按任务直接开始讨论。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section style={{ display: 'grid', gap: 18, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+          <div
+            style={{
+              borderRadius: 30,
+              padding: 22,
+              background: 'rgba(15,23,42,0.96)',
+              color: '#fff',
+              boxShadow: '0 22px 42px rgba(15,23,42,0.14)',
+            }}
+          >
+            <SectionLabel title="真人入口" subtitle="先选谁来主导圆桌" tone="#bae6fd" />
+            <div style={{ marginTop: 16 }}>
+              <BulletList items={['研究发起人适合带题目进入。', '共同作者适合多人协作推进。', '证据整合员适合文献和纪要管理。']} />
             </div>
           </div>
 
-          {errorMessage ? (
-            <div
-              style={{
-                marginTop: 24,
-                padding: 16,
-                borderRadius: 20,
-                background: '#fef2f2',
-                border: '1px solid #fecaca',
-                color: '#b91c1c',
-                fontWeight: 600,
-              }}
-            >
-              {errorMessage}
+          <div
+            style={{
+              borderRadius: 30,
+              padding: 22,
+              background: 'rgba(255,255,255,0.9)',
+              border: '1px solid rgba(148,163,184,0.22)',
+            }}
+          >
+            <SectionLabel title="SecondMe 分身" subtitle="把你的经验装进去" tone="#0f766e" />
+            <div style={{ marginTop: 16 }}>
+              <BulletList items={['临床判断分身：把真实判断框架带进来。', '文献记忆分身：持续追踪证据空白。', '多组学分身：稳定承接复杂分析上下文。']} />
             </div>
-          ) : null}
+          </div>
 
-          <div style={{ marginTop: 24, display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+          <div
+            style={{
+              borderRadius: 30,
+              padding: 22,
+              background: 'rgba(255,255,255,0.9)',
+              border: '1px solid rgba(148,163,184,0.22)',
+            }}
+          >
+            <SectionLabel title="AI 阵容" subtitle="让 agent 按任务分工" tone="#7c3aed" />
+            <div style={{ marginTop: 16 }}>
+              <BulletList items={['临床五人组：先做立项和 protocol 骨架。', '14 专家阵容：补齐证据和任务分诊。', 'ClawBio 深潜包：处理多组学和代码链路。']} />
+            </div>
+          </div>
+        </section>
+
+        <section
+          style={{
+            borderRadius: 34,
+            padding: 28,
+            background: 'rgba(255,255,255,0.84)',
+            border: '1px solid rgba(148,163,184,0.22)',
+            boxShadow: '0 22px 44px rgba(15,23,42,0.08)',
+          }}
+        >
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <SectionLabel title="Quick Scenario" subtitle="最常见的三种协作起点" tone="#1d4ed8" />
+            <div style={{ color: '#64748b', fontSize: 14 }}>登录后，场景会直接回填到主页创建流程。</div>
+          </div>
+          <div style={{ marginTop: 18, display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
             {quickScenarios.map((scenario) => (
               <article
                 key={scenario.id}
                 style={{
-                  borderRadius: 28,
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.94), rgba(239,246,255,0.96))',
+                  borderRadius: 26,
                   border: '1px solid rgba(148,163,184,0.18)',
-                  padding: 20,
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.96), rgba(239,246,255,0.98))',
+                  padding: 18,
                 }}
               >
                 <div style={{ color: '#1d4ed8', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-                  Quick Scenario
+                  Scenario
                 </div>
-                <h2 style={{ margin: '10px 0 0', fontSize: 24, fontWeight: 800 }}>{scenario.title}</h2>
+                <h2 style={{ margin: '10px 0 0', fontSize: 22, fontWeight: 800 }}>{scenario.title}</h2>
                 <p style={{ margin: '10px 0 0', color: '#475569', lineHeight: 1.8 }}>{scenario.description}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-          <div
-            style={{
-              background: 'rgba(15,23,42,0.94)',
-              color: '#fff',
-              borderRadius: 32,
-              padding: 24,
-              boxShadow: '0 24px 48px rgba(15,23,42,0.18)',
-            }}
-          >
-            <div style={{ color: '#bae6fd', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-              Human Roles
-            </div>
-            <h2 style={{ margin: '12px 0 0', fontSize: 30, fontWeight: 800 }}>真人研究者加入方式</h2>
-            <div style={{ marginTop: 18, display: 'grid', gap: 12 }}>
+        <section style={{ display: 'grid', gap: 18, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+          <div style={{ borderRadius: 30, background: 'rgba(255,255,255,0.88)', border: '1px solid rgba(148,163,184,0.22)', padding: 22 }}>
+            <SectionLabel title="角色列表" subtitle="真人研究者怎么进入" tone="#1d4ed8" />
+            <div style={{ marginTop: 16, display: 'grid', gap: 12 }}>
               {humanRoles.map((role) => (
-                <div key={role.id} style={{ borderRadius: 24, background: 'rgba(255,255,255,0.08)', padding: 16 }}>
+                <div key={role.id} style={{ borderRadius: 22, background: '#fff', border: '1px solid rgba(148,163,184,0.18)', padding: 16 }}>
                   <div style={{ fontWeight: 800 }}>{role.name}</div>
-                  <div style={{ marginTop: 4, fontSize: 13, color: '#cbd5e1', fontWeight: 700 }}>{role.subtitle}</div>
-                  <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.8, color: '#e2e8f0' }}>{role.description}</div>
+                  <div style={{ marginTop: 4, color: '#64748b', fontSize: 13, fontWeight: 700 }}>{role.subtitle}</div>
+                  <div style={{ marginTop: 8, color: '#475569', lineHeight: 1.8, fontSize: 14 }}>{role.description}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.84)',
-              border: '1px solid rgba(148,163,184,0.22)',
-              borderRadius: 32,
-              padding: 24,
-            }}
-          >
-            <div style={{ color: '#0f766e', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-              SecondMe Shades
-            </div>
-            <h2 style={{ margin: '12px 0 0', fontSize: 30, fontWeight: 800 }}>可带入的分身模板</h2>
-            <div style={{ marginTop: 18, display: 'grid', gap: 12 }}>
+          <div style={{ borderRadius: 30, background: 'rgba(255,255,255,0.88)', border: '1px solid rgba(148,163,184,0.22)', padding: 22 }}>
+            <SectionLabel title="分身模板" subtitle="SecondMe 会带来什么" tone="#0f766e" />
+            <div style={{ marginTop: 16, display: 'grid', gap: 12 }}>
               {shadeTemplates.map((shade) => (
-                <div key={shade.id} style={{ borderRadius: 24, background: '#fff', border: '1px solid rgba(148,163,184,0.18)', padding: 16 }}>
+                <div key={shade.id} style={{ borderRadius: 22, background: '#fff', border: '1px solid rgba(148,163,184,0.18)', padding: 16 }}>
                   <div style={{ fontWeight: 800 }}>{shade.name}</div>
-                  <div style={{ marginTop: 4, fontSize: 13, color: '#64748b', fontWeight: 700 }}>{shade.subtitle}</div>
-                  <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.8, color: '#475569' }}>{shade.description}</div>
+                  <div style={{ marginTop: 4, color: '#64748b', fontSize: 13, fontWeight: 700 }}>{shade.subtitle}</div>
+                  <div style={{ marginTop: 8, color: '#475569', lineHeight: 1.8, fontSize: 14 }}>{shade.description}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.84)',
-              border: '1px solid rgba(148,163,184,0.22)',
-              borderRadius: 32,
-              padding: 24,
-            }}
-          >
-            <div style={{ color: '#7c3aed', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-              AI Packs
-            </div>
-            <h2 style={{ margin: '12px 0 0', fontSize: 30, fontWeight: 800 }}>首轮 AI 协作底盘</h2>
-            <div style={{ marginTop: 18, display: 'grid', gap: 12 }}>
+          <div style={{ borderRadius: 30, background: 'rgba(255,255,255,0.88)', border: '1px solid rgba(148,163,184,0.22)', padding: 22 }}>
+            <SectionLabel title="AI Packs" subtitle="首轮协作底盘" tone="#7c3aed" />
+            <div style={{ marginTop: 16, display: 'grid', gap: 12 }}>
               {aiPacks.map((pack) => (
-                <div key={pack.id} style={{ borderRadius: 24, background: '#fff', border: '1px solid rgba(148,163,184,0.18)', padding: 16 }}>
+                <div key={pack.id} style={{ borderRadius: 22, background: '#fff', border: '1px solid rgba(148,163,184,0.18)', padding: 16 }}>
                   <div style={{ fontWeight: 800 }}>{pack.name}</div>
-                  <div style={{ marginTop: 8, fontSize: 14, lineHeight: 1.8, color: '#475569' }}>{pack.subtitle}</div>
+                  <div style={{ marginTop: 6, color: '#475569', lineHeight: 1.8, fontSize: 14 }}>{pack.subtitle}</div>
                 </div>
               ))}
             </div>
