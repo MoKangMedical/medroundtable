@@ -92,29 +92,12 @@
             40% { transform: scale(1); }
         }
         
-        /* 顶部指挥台 */
+        /* 侧边栏动画 */
         .sidebar {
-            position: relative;
-            width: 100%;
-            transform: none;
-            transition: none;
+            transition: transform 0.3s ease;
+            transform: translateX(-100%);
         }
-
-        .top-command-grid {
-            display: grid;
-            gap: 16px;
-        }
-
-        .top-command-panel {
-            border: 1px solid rgba(51, 65, 85, 0.78);
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.94));
-            box-shadow: 0 28px 56px rgba(2, 6, 23, 0.24);
-        }
-
-        .top-command-stack {
-            display: grid;
-            gap: 16px;
-        }
+        .sidebar.open { transform: translateX(0); }
 
         .modal-scrollable {
             scrollbar-width: thin;
@@ -162,19 +145,31 @@
             .mobile-full { width: 100vw; height: 100vh; }
             .chat-bubble { max-width: 92%; font-size: 16px; line-height: 1.7; }
             .agent-avatar { width: 44px; height: 44px; font-size: 20px; }
+            #sidebar { width: 300px; }
             .sidebar-md-show { display: none; }
         }
         
         /* 响应式适配 - 平板 */
         @media (min-width: 769px) and (max-width: 1024px) {
             body { font-size: 17px; }
+            #sidebar { width: 320px; }
+            main { margin-left: 320px; }
             .chat-bubble { max-width: 80%; font-size: 17px; }
         }
         
         /* 响应式适配 - 桌面端 */
         @media (min-width: 1025px) {
             body { font-size: 18px; }
+            #sidebar { 
+                width: 340px; 
+                transform: translateX(0) !important;
+                position: fixed;
+            }
+            main { margin-left: 340px; }
             .chat-bubble { max-width: 75%; font-size: 18px; }
+            #sidebarOverlay { display: none !important; }
+            .mobile-menu-btn { display: none; }
+            .sidebar-close-btn { display: none; }
         }
         
         /* 超小屏幕优化 */
@@ -182,20 +177,16 @@
             body { font-size: 15px; }
             .chat-bubble { max-width: 95%; font-size: 15px; }
             .agent-avatar { width: 40px; height: 40px; font-size: 18px; }
+            #sidebar { width: 280px; }
         }
         
         /* 大屏幕优化 */
         @media (min-width: 1440px) {
             body { font-size: 19px; }
+            #sidebar { width: 360px; }
+            main { margin-left: 360px; }
             .max-w-content { max-width: 1000px; margin: 0 auto; }
             .chat-bubble { max-width: 70%; font-size: 19px; }
-        }
-
-        @media (min-width: 1280px) {
-            .top-command-grid {
-                grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.05fr) minmax(320px, 0.8fr);
-                align-items: start;
-            }
         }
         
         /* Toast 动画 */
@@ -645,121 +636,118 @@
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
-    <aside id="sidebar" class="sidebar border-b border-slate-800 bg-slate-950 text-white">
-        <div class="mx-auto max-w-[1680px] px-4 py-4 md:px-6 md:py-5">
-            <div class="top-command-grid">
-                <section class="top-command-panel rounded-[2rem] p-5 md:p-6">
-                    <div class="flex flex-wrap items-center justify-between gap-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-900/40">
-                                <i class="fas fa-users text-lg"></i>
-                            </div>
-                            <div>
-                                <span class="font-bold text-xl tracking-tight text-white">MedRoundTable</span>
-                                <p class="text-sm text-blue-200">临床科研圆桌会</p>
-                            </div>
-                        </div>
-                        <button onclick="createNewSession()" class="inline-flex items-center justify-center gap-3 rounded-2xl bg-blue-600 px-5 py-3 text-base font-semibold text-white shadow-lg shadow-blue-900/40 transition-all hover:bg-blue-500 btn-press">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>新建圆桌会</span>
-                        </button>
+    <!-- 移动端侧边栏遮罩 -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
+    
+    <!-- 侧边栏 - 会话列表 -->
+    <aside id="sidebar" class="sidebar lg:translate-x-0 fixed left-0 top-0 h-full w-72 bg-slate-900 shadow-2xl z-50 flex flex-col border-r border-slate-800">
+        <!-- 侧边栏头部 - 专业深蓝配色 -->
+        <div class="p-6 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white border-b border-slate-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-users text-lg"></i>
                     </div>
-
-                    <div class="mt-5">
-                        <div class="flex items-center justify-between gap-3 mb-3">
-                            <p class="text-xs uppercase tracking-[0.24em] font-semibold text-slate-400">最近圆桌会</p>
-                            <span class="text-xs text-slate-500">从这里继续上次讨论</span>
-                        </div>
-                        <div id="sessionList" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                            <!-- 动态生成 -->
-                        </div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight">MedRoundTable</span>
+                        <p class="text-xs text-blue-300">临床科研圆桌会</p>
                     </div>
-                </section>
-
-                <section class="top-command-panel rounded-[2rem] p-5 md:p-6">
-                    <div class="flex items-end justify-between gap-3 mb-4">
-                        <div>
-                            <p class="text-xs uppercase tracking-[0.24em] font-semibold text-slate-400">功能工具</p>
-                            <p class="mt-1 text-sm text-slate-500">把常用动作提前到页面顶部</p>
-                        </div>
-                    </div>
-                    <div class="grid gap-3 sm:grid-cols-2">
-                        <button onclick="showUploadModal()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
-                            <div class="w-12 h-12 bg-emerald-600/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
-                                <i class="fas fa-cloud-upload-alt text-emerald-400 group-hover:text-white text-lg"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-slate-100 text-base">上传研究方案</p>
-                                <p class="text-sm text-slate-500">导入现有文档</p>
-                            </div>
-                        </button>
-
-                        <button onclick="showMindMapFromSidebar()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
-                            <div class="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center group-hover:bg-purple-600 transition-colors">
-                                <i class="fas fa-project-diagram text-purple-400 group-hover:text-white text-lg"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-slate-100 text-base">讨论思维导图</p>
-                                <p class="text-sm text-slate-500">可视化讨论脉络</p>
-                            </div>
-                        </button>
-
-                        <button onclick="quickDownloadDraft()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
-                            <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                                <i class="fas fa-file-download text-blue-400 group-hover:text-white text-lg"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-slate-100 text-base">方案草稿下载</p>
-                                <p class="text-sm text-slate-500">一键导出 Word</p>
-                            </div>
-                        </button>
-
-                        <button onclick="showDataAnalysis()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
-                            <div class="w-12 h-12 bg-orange-600/20 rounded-xl flex items-center justify-center group-hover:bg-orange-600 transition-colors">
-                                <i class="fas fa-chart-line text-orange-400 group-hover:text-white text-lg"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-medium text-slate-100 text-base">自动化数据分析</p>
-                                <p class="text-sm text-slate-500">智能统计建议</p>
-                            </div>
-                        </button>
-                    </div>
-                </section>
-
-                <div class="top-command-stack">
-                    <section class="top-command-panel rounded-[2rem] p-5">
-                        <a href="./frontend/tools.html" class="w-full flex items-center gap-3 rounded-2xl border border-slate-700 p-4 text-left transition hover:bg-slate-800 hover:border-blue-600">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                                <i class="fas fa-toolbox text-white text-lg"></i>
-                            </div>
-                            <div class="flex-1">
-                                <p class="font-semibold text-slate-100 text-lg">扩展工具生态</p>
-                                <p class="text-sm text-slate-500">CTR + MediVisual</p>
-                            </div>
-                            <i class="fas fa-external-link-alt text-slate-600"></i>
-                        </a>
-                    </section>
-
-                    <section class="top-command-panel rounded-[2rem] p-5 space-y-3">
-                        <a href="./v2-features.html" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
-                            <i class="fas fa-rocket text-blue-400 group-hover:scale-110 transition"></i>
-                            <span class="flex-1 font-medium text-slate-100">V2.0 新功能</span>
-                            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">997技能</span>
-                        </a>
-
-                        <a href="./login.html" id="userBtn" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition border border-slate-700">
-                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
-                                <i class="fas fa-user text-white text-lg"></i>
-                            </div>
-                            <div class="text-left flex-1">
-                                <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
-                                <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
-                            </div>
-                            <i class="fas fa-chevron-right text-slate-600"></i>
-                        </a>
-                    </section>
                 </div>
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-white transition">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
             </div>
+        </div>
+        
+        <!-- 新建按钮 -->
+        <button onclick="createNewSession()" class="mx-4 mt-4 mb-2 p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center gap-3 btn-press shadow-lg shadow-blue-900/50 transition-all font-medium text-base">
+            <i class="fas fa-plus-circle"></i>
+            <span>新建圆桌会</span>
+        </button>
+        
+        <!-- 会话列表 -->
+        <div id="sessionList" class="flex-1 overflow-y-auto no-scrollbar px-3 py-2 space-y-2">
+            <!-- 动态生成 -->
+        </div>
+        
+        <!-- 功能菜单区 -->
+        <div class="p-4 border-t border-slate-800 bg-slate-800/30">
+            <p class="text-xs text-slate-500 uppercase font-semibold mb-3 px-2">功能工具</p>
+            <div class="space-y-2">
+                <button onclick="showUploadModal()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
+                        <i class="fas fa-cloud-upload-alt text-emerald-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">上传研究方案</p>
+                        <p class="text-xs text-slate-500">导入现有文档</p>
+                    </div>
+                </button>
+                
+                <button onclick="showMindMapFromSidebar()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center group-hover:bg-purple-600 transition-colors">
+                        <i class="fas fa-project-diagram text-purple-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">讨论思维导图</p>
+                        <p class="text-xs text-slate-500">可视化讨论脉络</p>
+                    </div>
+                </button>
+                
+                <button onclick="quickDownloadDraft()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-file-download text-blue-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">方案草稿下载</p>
+                        <p class="text-xs text-slate-500">一键导出Word</p>
+                    </div>
+                </button>
+                
+                <button onclick="showDataAnalysis()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
+                    <div class="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center group-hover:bg-orange-600 transition-colors">
+                        <i class="fas fa-chart-line text-orange-400 group-hover:text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-slate-200 text-sm">自动化数据分析</p>
+                        <p class="text-xs text-slate-500">智能统计建议</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 工具生态入口 -->
+        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+            <a href="./frontend/tools.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                    <i class="fas fa-toolbox text-white text-lg"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="font-medium text-slate-200 text-sm">扩展工具生态</p>
+                    <p class="text-xs text-slate-500">CTR + MediVisual</p>
+                </div>
+                <i class="fas fa-external-link-alt text-slate-600 group-hover:text-blue-400"></i>
+            </a>
+        </div>
+        
+        <!-- 用户信息区 -->
+        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+            <a href="./v2-features.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
+                    <i class="fas fa-rocket text-blue-400 group-hover:scale-110 transition"></i>
+                    <span class="flex-1">V2.0 新功能</span>
+                    <span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-xs rounded-full">997技能</span>
+                </a>
+                
+                <a href="./login.html" id="userBtn" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition border border-slate-700">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-user text-white text-lg"></i>
+                </div>
+                <div class="text-left flex-1">
+                    <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
+                    <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
+                </div>
+                <i class="fas fa-chevron-right text-slate-600"></i>
+            </a>
         </div>
     </aside>
 
@@ -768,6 +756,9 @@
         <!-- 顶部导航 - 专业样式 -->
         <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
             <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition mobile-menu-btn">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
                 <div>
                     <h1 id="pageTitle" class="font-bold text-xl text-slate-900 tracking-tight">临床科研圆桌会</h1>
                     <p class="text-sm text-slate-500 hidden sm:block">AI 医学科研协作平台</p>
