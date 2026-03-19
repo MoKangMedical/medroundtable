@@ -92,12 +92,49 @@
             40% { transform: scale(1); }
         }
         
-        /* 侧边栏动画 */
+        /* 顶部指挥台 */
         .sidebar {
-            transition: transform 0.3s ease;
-            transform: translateX(-100%);
+            position: relative;
+            width: 100%;
+            transform: none;
+            transition: none;
         }
-        .sidebar.open { transform: translateX(0); }
+
+        .top-command-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .top-command-panel {
+            border: 1px solid rgba(51, 65, 85, 0.78);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.94));
+            box-shadow: 0 28px 56px rgba(2, 6, 23, 0.24);
+        }
+
+        .top-command-stack {
+            display: grid;
+            gap: 16px;
+        }
+
+        .modal-scrollable {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(59, 130, 246, 0.55) rgba(226, 232, 240, 0.9);
+        }
+
+        .modal-scrollable::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .modal-scrollable::-webkit-scrollbar-track {
+            background: rgba(226, 232, 240, 0.9);
+            border-radius: 999px;
+        }
+
+        .modal-scrollable::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.9), rgba(79, 70, 229, 0.9));
+            border-radius: 999px;
+            border: 2px solid rgba(226, 232, 240, 0.9);
+        }
         
         /* 模态框动画 */
         .modal-enter { animation: modalIn 0.2s ease-out; }
@@ -125,31 +162,19 @@
             .mobile-full { width: 100vw; height: 100vh; }
             .chat-bubble { max-width: 92%; font-size: 16px; line-height: 1.7; }
             .agent-avatar { width: 44px; height: 44px; font-size: 20px; }
-            #sidebar { width: 300px; }
             .sidebar-md-show { display: none; }
         }
         
         /* 响应式适配 - 平板 */
         @media (min-width: 769px) and (max-width: 1024px) {
             body { font-size: 17px; }
-            #sidebar { width: 320px; }
-            main { margin-left: 320px; }
             .chat-bubble { max-width: 80%; font-size: 17px; }
         }
         
         /* 响应式适配 - 桌面端 */
         @media (min-width: 1025px) {
             body { font-size: 18px; }
-            #sidebar { 
-                width: 340px; 
-                transform: translateX(0) !important;
-                position: fixed;
-            }
-            main { margin-left: 340px; }
             .chat-bubble { max-width: 75%; font-size: 18px; }
-            #sidebarOverlay { display: none !important; }
-            .mobile-menu-btn { display: none; }
-            .sidebar-close-btn { display: none; }
         }
         
         /* 超小屏幕优化 */
@@ -157,16 +182,20 @@
             body { font-size: 15px; }
             .chat-bubble { max-width: 95%; font-size: 15px; }
             .agent-avatar { width: 40px; height: 40px; font-size: 18px; }
-            #sidebar { width: 280px; }
         }
         
         /* 大屏幕优化 */
         @media (min-width: 1440px) {
             body { font-size: 19px; }
-            #sidebar { width: 360px; }
-            main { margin-left: 360px; }
             .max-w-content { max-width: 1000px; margin: 0 auto; }
             .chat-bubble { max-width: 70%; font-size: 19px; }
+        }
+
+        @media (min-width: 1280px) {
+            .top-command-grid {
+                grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.05fr) minmax(320px, 0.8fr);
+                align-items: start;
+            }
         }
         
         /* Toast 动画 */
@@ -616,122 +645,121 @@
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
-    <!-- 移动端侧边栏遮罩 -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
-    
-    <!-- 侧边栏 - 会话列表 -->
-    <aside id="sidebar" class="sidebar lg:translate-x-0 fixed left-0 top-0 h-full w-72 bg-slate-900 shadow-2xl z-50 flex flex-col border-r border-slate-800">
-        <!-- 侧边栏头部 - 专业深蓝配色 -->
-        <div class="p-6 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white border-b border-slate-700">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-users text-lg"></i>
+    <aside id="sidebar" class="sidebar border-b border-slate-800 bg-slate-950 text-white">
+        <div class="mx-auto max-w-[1680px] px-4 py-4 md:px-6 md:py-5">
+            <div class="top-command-grid">
+                <section class="top-command-panel rounded-[2rem] p-5 md:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-900/40">
+                                <i class="fas fa-users text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-xl tracking-tight text-white">MedRoundTable</span>
+                                <p class="text-sm text-blue-200">临床科研圆桌会</p>
+                            </div>
+                        </div>
+                        <button onclick="createNewSession()" class="inline-flex items-center justify-center gap-3 rounded-2xl bg-blue-600 px-5 py-3 text-base font-semibold text-white shadow-lg shadow-blue-900/40 transition-all hover:bg-blue-500 btn-press">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>新建圆桌会</span>
+                        </button>
                     </div>
-                    <div>
-                        <span class="font-bold text-lg tracking-tight">MedRoundTable</span>
-                        <p class="text-xs text-blue-300">临床科研圆桌会</p>
+
+                    <div class="mt-5">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <p class="text-xs uppercase tracking-[0.24em] font-semibold text-slate-400">最近圆桌会</p>
+                            <span class="text-xs text-slate-500">从这里继续上次讨论</span>
+                        </div>
+                        <div id="sessionList" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            <!-- 动态生成 -->
+                        </div>
                     </div>
+                </section>
+
+                <section class="top-command-panel rounded-[2rem] p-5 md:p-6">
+                    <div class="flex items-end justify-between gap-3 mb-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.24em] font-semibold text-slate-400">功能工具</p>
+                            <p class="mt-1 text-sm text-slate-500">把常用动作提前到页面顶部</p>
+                        </div>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <button onclick="showUploadModal()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-emerald-600/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
+                                <i class="fas fa-cloud-upload-alt text-emerald-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">上传研究方案</p>
+                                <p class="text-sm text-slate-500">导入现有文档</p>
+                            </div>
+                        </button>
+
+                        <button onclick="showMindMapFromSidebar()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center group-hover:bg-purple-600 transition-colors">
+                                <i class="fas fa-project-diagram text-purple-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">讨论思维导图</p>
+                                <p class="text-sm text-slate-500">可视化讨论脉络</p>
+                            </div>
+                        </button>
+
+                        <button onclick="quickDownloadDraft()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-file-download text-blue-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">方案草稿下载</p>
+                                <p class="text-sm text-slate-500">一键导出 Word</p>
+                            </div>
+                        </button>
+
+                        <button onclick="showDataAnalysis()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-orange-600/20 rounded-xl flex items-center justify-center group-hover:bg-orange-600 transition-colors">
+                                <i class="fas fa-chart-line text-orange-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">自动化数据分析</p>
+                                <p class="text-sm text-slate-500">智能统计建议</p>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+
+                <div class="top-command-stack">
+                    <section class="top-command-panel rounded-[2rem] p-5">
+                        <a href="./frontend/tools.html" class="w-full flex items-center gap-3 rounded-2xl border border-slate-700 p-4 text-left transition hover:bg-slate-800 hover:border-blue-600">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-toolbox text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-slate-100 text-lg">扩展工具生态</p>
+                                <p class="text-sm text-slate-500">CTR + MediVisual</p>
+                            </div>
+                            <i class="fas fa-external-link-alt text-slate-600"></i>
+                        </a>
+                    </section>
+
+                    <section class="top-command-panel rounded-[2rem] p-5 space-y-3">
+                        <a href="./v2-features.html" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
+                            <i class="fas fa-rocket text-blue-400 group-hover:scale-110 transition"></i>
+                            <span class="flex-1 font-medium text-slate-100">V2.0 新功能</span>
+                            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">997技能</span>
+                        </a>
+
+                        <a href="./login.html" id="userBtn" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition border border-slate-700">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-user text-white text-lg"></i>
+                            </div>
+                            <div class="text-left flex-1">
+                                <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
+                                <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-600"></i>
+                        </a>
+                    </section>
                 </div>
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-white transition">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
             </div>
-        </div>
-        
-        <!-- 新建按钮 -->
-        <button onclick="createNewSession()" class="mx-4 mt-4 mb-2 p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center gap-3 btn-press shadow-lg shadow-blue-900/50 transition-all font-medium text-base">
-            <i class="fas fa-plus-circle"></i>
-            <span>新建圆桌会</span>
-        </button>
-        
-        <!-- 会话列表 -->
-        <div id="sessionList" class="flex-1 overflow-y-auto no-scrollbar px-3 py-2 space-y-2">
-            <!-- 动态生成 -->
-        </div>
-        
-        <!-- 功能菜单区 -->
-        <div class="p-4 border-t border-slate-800 bg-slate-800/30">
-            <p class="text-xs text-slate-500 uppercase font-semibold mb-3 px-2">功能工具</p>
-            <div class="space-y-2">
-                <!-- 1. 上传研究方案 -->
-                <button onclick="showUploadModal()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
-                        <i class="fas fa-cloud-upload-alt text-emerald-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">上传研究方案</p>
-                        <p class="text-xs text-slate-500">导入现有文档</p>
-                    </div>
-                </button>
-                
-                <!-- 2. 思维导图 -->
-                <button onclick="showMindMapFromSidebar()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center group-hover:bg-purple-600 transition-colors">
-                        <i class="fas fa-project-diagram text-purple-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">讨论思维导图</p>
-                        <p class="text-xs text-slate-500">可视化讨论脉络</p>
-                    </div>
-                </button>
-                
-                <!-- 3. 研究方案草稿下载 -->
-                <button onclick="quickDownloadDraft()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                        <i class="fas fa-file-download text-blue-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">方案草稿下载</p>
-                        <p class="text-xs text-slate-500">一键导出Word</p>
-                    </div>
-                </button>
-                
-                <!-- 4. 自动化数据分析 -->
-                <button onclick="showDataAnalysis()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center group-hover:bg-orange-600 transition-colors">
-                        <i class="fas fa-chart-line text-orange-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">自动化数据分析</p>
-                        <p class="text-xs text-slate-500">智能统计建议</p>
-                    </div>
-                </button>
-            </div>
-        </div>
-        
-        <!-- 工具生态入口 -->
-        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-            <a href="./frontend/tools.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <i class="fas fa-toolbox text-white text-lg"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="font-medium text-slate-200 text-sm">扩展工具生态</p>
-                    <p class="text-xs text-slate-500">CTR + MediVisual</p>
-                </div>
-                <i class="fas fa-external-link-alt text-slate-600 group-hover:text-blue-400"></i>
-            </a>
-        </div>
-        
-        <!-- 用户信息区 -->
-        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-            <a href="./v2-features.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
-                    <i class="fas fa-rocket text-blue-400 group-hover:scale-110 transition"></i>
-                    <span class="flex-1">V2.0 新功能</span>
-                    <span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-xs rounded-full">997技能</span>
-                </a>
-                
-                <a href="./login.html" id="userBtn" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition border border-slate-700">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
-                    <i class="fas fa-user text-white text-lg"></i>
-                </div>
-                <div class="text-left flex-1">
-                    <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
-                    <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-600"></i>
-            </a>
         </div>
     </aside>
 
@@ -740,9 +768,6 @@
         <!-- 顶部导航 - 专业样式 -->
         <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
             <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition mobile-menu-btn">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
                 <div>
                     <h1 id="pageTitle" class="font-bold text-xl text-slate-900 tracking-tight">临床科研圆桌会</h1>
                     <p class="text-sm text-slate-500 hidden sm:block">AI 医学科研协作平台</p>
@@ -1382,9 +1407,6 @@
                 </div>
                 <div id="journalCredibilityLegend" class="mt-5 flex flex-wrap gap-2"></div>
                 <div id="journalShowcaseGrid" class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3"></div>
-                <div class="mt-5 rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 text-sm leading-7 text-slate-600 shadow-sm">
-                    <strong class="text-slate-900">口径说明：</strong> 这里的“2025 展示口径”统一按 <span class="font-semibold text-slate-900">2024 Journal Impact Factor / 2025 年公开发布</span> 理解。NEJM 当前公开站点未直接暴露同口径首页数值，因此单独标记为“公开 JCR 引用”，可信度低于官方期刊页。
-                </div>
             </div>
         </div>
 
@@ -1462,9 +1484,9 @@
     </main>
 
     <!-- 新建会话模态框 - 专业样式 -->
-    <div id="newSessionModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg modal-enter shadow-2xl border border-slate-200">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-slate-50 to-white rounded-t-2xl">
+    <div id="newSessionModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-start sm:items-center justify-center overflow-y-auto p-3 sm:p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg modal-enter max-h-[calc(100vh-1.5rem)] sm:max-h-[88vh] overflow-hidden shadow-2xl border border-slate-200 flex flex-col my-auto">
+            <div class="p-5 sm:p-6 border-b border-slate-100 flex justify-between items-center bg-gradient-to-r from-slate-50 to-white rounded-t-2xl sticky top-0 z-10">
                 <div>
                     <h3 class="font-bold text-xl text-slate-900">新建圆桌会</h3>
                     <p class="text-sm text-slate-500 mt-1">创建新的临床研究讨论</p>
@@ -1473,7 +1495,7 @@
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="p-6 space-y-5">
+            <div class="modal-scrollable flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6 space-y-5">
                 <div id="preferredExpertPanel" class="hidden rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
                     <div class="flex items-start gap-4">
                         <img id="preferredExpertAvatar" src="./assets/doctor1.png" alt="所选专家头像" class="w-16 h-16 rounded-2xl object-cover border border-white shadow-md bg-white">
@@ -1543,6 +1565,8 @@
                     <textarea id="sessionQuestion" rows="4" placeholder="请详细描述您的临床问题或研究需求..." 
                         class="w-full px-4 py-3.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-base transition-all"></textarea>
                 </div>
+            </div>
+            <div class="border-t border-slate-100 bg-white/95 backdrop-blur-sm p-5 sm:p-6">
                 <button id="startDiscussionBtn" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold btn-press shadow-lg text-lg transition-all">
                     <i class="fas fa-rocket mr-2"></i>开始讨论
                 </button>
@@ -1712,6 +1736,7 @@
     </div>
 
     <script src="./frontend/platform-catalog.js"></script>
+    <script src="./frontend/api-config.js"></script>
     <script src="./frontend/secondme-identity.js"></script>
     <script src="./frontend/secondme-collaboration.js"></script>
     <script src="./frontend/expert-data.js"></script>
@@ -1728,10 +1753,11 @@
         console.log('✅ JavaScript 加载成功');
         
         // API 配置 - 使用 Render 后端
-        const API_BASE = 'https://medroundtable-api.onrender.com';
+        const API_BASE = window.MRTApiConfig ? window.MRTApiConfig.API_BASE : 'https://medroundtable-api.onrender.com';
+        const api = window.MRTApiConfig || null;
         
         // 模拟数据模式（当后端不可用时使用）
-        const MOCK_MODE = true;
+        let MOCK_MODE = false;
         let mockSessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
         let mockSessionId = parseInt(localStorage.getItem('mockSessionId') || '0');
         const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
@@ -1918,6 +1944,15 @@
                 accent: '#2e5c8a'
             }
         ];
+
+        const expertRoleAliases = {
+            pharmacogenomics_expert: 'clawbio_pharmgx',
+            gwas_expert: 'clawbio_gwas',
+            single_cell_analyst: 'clawbio_sc_rna',
+            galaxy_bridge: 'clawbio_galaxy',
+            data_engineer: 'ai_data_engineer',
+            qa_expert: 'model_qa'
+        };
 
         function getAtlasPalette(tone) {
             return atlasTonePalette[tone] || atlasTonePalette.blue;
@@ -2181,6 +2216,7 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('✅ DOM 加载完成');
             try {
+                await initializeBackendMode();
                 if (secondMeIdentityStore) {
                     secondMeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
                 }
@@ -2210,15 +2246,12 @@
         
         function toggleSidebar() {
             console.log('toggleSidebar 被调用');
-            // 在桌面端（大屏幕）不切换侧边栏，始终显示
-            if (window.innerWidth >= 1025) {
-                return;
-            }
             try {
                 const sidebar = document.getElementById('sidebar');
                 const overlay = document.getElementById('sidebarOverlay');
+
+                // 首页改成顶部指挥台后，保留这个函数作为兼容空操作
                 if (!sidebar || !overlay) {
-                    console.error('sidebar 或 overlay 元素未找到');
                     return;
                 }
                 sidebar.classList.toggle('open');
@@ -2302,8 +2335,7 @@
                     console.log('模拟模式加载会话:', sessions);
                 } else {
                     // 真实 API 模式
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables`);
-                    sessions = await response.json();
+                    sessions = await api.fetchJson('/api/v1/roundtables');
                 }
                 mockSessions = sessions;
                 renderSessionList(sessions);
@@ -2357,8 +2389,12 @@
         function getStatusColor(status) {
             const colors = {
                 'init': 'bg-slate-700 text-slate-300 border border-slate-600',
-                'discussion': 'bg-blue-900/50 text-blue-300 border border-blue-700/50',
-                'design': 'bg-purple-900/50 text-purple-300 border border-purple-700/50',
+                'active': 'bg-blue-900/50 text-blue-300 border border-blue-700/50',
+                'problem_presentation': 'bg-blue-900/50 text-blue-300 border border-blue-700/50',
+                'literature_review': 'bg-violet-900/50 text-violet-300 border border-violet-700/50',
+                'study_design': 'bg-purple-900/50 text-purple-300 border border-purple-700/50',
+                'statistical_plan': 'bg-fuchsia-900/50 text-fuchsia-300 border border-fuchsia-700/50',
+                'execution_plan': 'bg-amber-900/50 text-amber-300 border border-amber-700/50',
                 'completed': 'bg-emerald-900/50 text-emerald-300 border border-emerald-700/50'
             };
             return colors[status] || 'bg-slate-700 text-slate-300 border border-slate-600';
@@ -2367,8 +2403,12 @@
         function getStatusText(status) {
             const texts = {
                 'init': '准备',
-                'discussion': '讨论中',
-                'design': '设计中',
+                'active': '进行中',
+                'problem_presentation': '问题识别',
+                'literature_review': '文献回顾',
+                'study_design': '研究设计',
+                'statistical_plan': '统计规划',
+                'execution_plan': '执行计划',
                 'completed': '已完成'
             };
             return texts[status] || status;
@@ -2394,9 +2434,54 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function normalizeExpertRole(role) {
+            return expertRoleAliases[role] || role;
+        }
+
+        function loadSessionClientContexts() {
+            try {
+                return JSON.parse(localStorage.getItem('mrt_session_client_contexts') || '{}');
+            } catch (err) {
+                console.error('session client context parse failed:', err);
+                return {};
+            }
+        }
+
+        function persistSessionClientContext(sessionId, context) {
+            if (!sessionId || !context) return;
+            const contexts = loadSessionClientContexts();
+            contexts[String(sessionId)] = {
+                ...context,
+                preferred_expert: normalizeExpertRole(context.preferred_expert || preferredExpertRole || '')
+            };
+            localStorage.setItem('mrt_session_client_contexts', JSON.stringify(contexts));
+        }
+
+        function getSessionClientContext(sessionId) {
+            return loadSessionClientContexts()[String(sessionId)] || null;
+        }
+
         function getSessionLeadRole(session) {
             const preferences = loadSessionPreferences();
-            return session.preferred_expert || preferences[String(session.id)] || null;
+            const clientContext = getSessionClientContext(session.id);
+            return normalizeExpertRole(session.preferred_expert || clientContext?.preferred_expert || preferences[String(session.id)] || null);
+        }
+
+        async function initializeBackendMode() {
+            if (!api) {
+                MOCK_MODE = true;
+                return false;
+            }
+
+            try {
+                await api.healthcheck();
+                MOCK_MODE = false;
+                return true;
+            } catch (error) {
+                console.warn('后端不可用，回退到本地演示模式:', error.message);
+                MOCK_MODE = true;
+                return false;
+            }
         }
 
         function calculateEngagementStreak(sessions) {
@@ -2728,7 +2813,7 @@
 
         function getExpertMeta(role) {
             if (!expertCatalog || !role) return null;
-            return expertCatalog.getExpert(role);
+            return expertCatalog.getExpert(normalizeExpertRole(role));
         }
 
         function getSuggestedSessionTitle(expert) {
@@ -3001,7 +3086,7 @@
             if (!sessionId) return;
             const preferences = loadSessionPreferences();
             if (role) {
-                preferences[String(sessionId)] = role;
+                preferences[String(sessionId)] = normalizeExpertRole(role);
             } else {
                 delete preferences[String(sessionId)];
             }
@@ -3083,6 +3168,13 @@
                 const collaborationSetup = pendingCollaborationSetup
                     ? JSON.parse(JSON.stringify(pendingCollaborationSetup))
                     : null;
+                const clientContext = {
+                    preferred_expert: preferredExpertRole,
+                    human_participants: collaborationSetup ? collaborationSetup.humans || [] : [],
+                    secondme_shades: collaborationSetup ? collaborationSetup.shades || [] : [],
+                    ai_pack: collaborationSetup ? collaborationSetup.aiPack || null : null,
+                    collaboration_label: collaborationSetup ? collaborationSetup.label || null : null
+                };
                 
                 if (MOCK_MODE) {
                     // 模拟模式：创建本地会话
@@ -3096,10 +3188,10 @@
                         created_at: new Date().toISOString(),
                         preferred_expert: preferredExpertRole,
                         participants: buildSessionParticipants(preferredExpertRole),
-                        human_participants: collaborationSetup ? collaborationSetup.humans || [] : [],
-                        secondme_shades: collaborationSetup ? collaborationSetup.shades || [] : [],
-                        ai_pack: collaborationSetup ? collaborationSetup.aiPack || null : null,
-                        collaboration_label: collaborationSetup ? collaborationSetup.label || null : null
+                        human_participants: clientContext.human_participants,
+                        secondme_shades: clientContext.secondme_shades,
+                        ai_pack: clientContext.ai_pack,
+                        collaboration_label: clientContext.collaboration_label
                     };
                     mockSessions.push(session);
                     localStorage.setItem('mockSessions', JSON.stringify(mockSessions));
@@ -3108,23 +3200,16 @@
                 } else {
                     // 真实 API 模式
                     console.log('步骤4: 发送创建请求');
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
+                    session = await api.fetchJson('/api/v1/roundtables', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ title, clinical_question: question })
                     });
-                    
-                    console.log('步骤5: 收到响应', response.status);
-                    
-                    if (!response.ok) {
-                        throw new Error('HTTP error! status: ' + response.status);
-                    }
-                    
-                    session = await response.json();
-                    console.log('步骤6: 解析响应', session);
+                    console.log('步骤5: 解析响应', session);
                 }
 
                 persistSessionPreference(session.id, preferredExpertRole);
+                persistSessionClientContext(session.id, clientContext);
                 
                 console.log('步骤7: 关闭模态框');
                 closeModal('newSessionModal');
@@ -3139,15 +3224,12 @@
                 
                 if (!MOCK_MODE) {
                     console.log('步骤9: 开始讨论(API模式)');
-                    await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
+                    await api.fetchJson(`/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
                 } else {
                     console.log('步骤9: 模拟模式，跳过API调用');
                 }
                 
-                console.log('步骤10: 加载会话列表');
-                loadSessions();
-                
-                console.log('步骤11: 跳转到圆桌详情页');
+                console.log('步骤10: 跳转到圆桌详情页');
                 console.log('跳转URL:', getRoundtableDetailUrl(session.id));
                 console.log('当前localStorage:', localStorage.getItem('mockSessions'));
                 window.location.href = getRoundtableDetailUrl(session.id);
@@ -3164,8 +3246,10 @@
             updateMobileQuickStartBar();
             
             // 移动端关闭侧边栏
-            document.getElementById('sidebar').classList.remove('open');
-            document.getElementById('sidebarOverlay').classList.add('hidden');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar?.classList.remove('open');
+            overlay?.classList.add('hidden');
             
             // 显示聊天界面
             document.getElementById('stageBar').classList.remove('hidden');
