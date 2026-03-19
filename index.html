@@ -472,6 +472,144 @@
             }
         }
 
+        .agent-skill-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            padding: 22px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+            box-shadow: 0 20px 42px rgba(15, 23, 42, 0.06);
+        }
+
+        .agent-skill-card::before {
+            content: '';
+            position: absolute;
+            inset: -22% auto auto -14%;
+            width: 150px;
+            height: 150px;
+            border-radius: 999px;
+            background: var(--agent-glow, rgba(59, 130, 246, 0.12));
+            filter: blur(18px);
+            pointer-events: none;
+        }
+
+        .agent-skill-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 22px;
+            object-fit: cover;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .agent-skill-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: rgba(255, 255, 255, 0.88);
+            color: #334155;
+        }
+
+        .journal-proof-card {
+            overflow: hidden;
+            border-radius: 30px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+            box-shadow: 0 24px 48px rgba(15, 23, 42, 0.08);
+        }
+
+        .journal-cover-frame {
+            position: relative;
+            aspect-ratio: 4 / 5;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.10), rgba(30, 64, 175, 0.12));
+        }
+
+        .journal-cover-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            display: block;
+        }
+
+        .journal-cover-badge {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.72);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            backdrop-filter: blur(8px);
+        }
+
+        .credibility-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            border: 1px solid transparent;
+        }
+
+        .credibility-high {
+            background: rgba(16, 185, 129, 0.12);
+            color: #047857;
+            border-color: rgba(16, 185, 129, 0.20);
+        }
+
+        .credibility-medium {
+            background: rgba(245, 158, 11, 0.14);
+            color: #b45309;
+            border-color: rgba(245, 158, 11, 0.22);
+        }
+
+        .journal-stat-pill {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            padding: 12px 14px;
+            border-radius: 18px;
+            background: rgba(248, 250, 252, 0.96);
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .journal-source-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .journal-source-link:hover {
+            transform: translateY(-1px);
+            border-color: rgba(59, 130, 246, 0.28);
+            box-shadow: 0 12px 26px rgba(30, 64, 175, 0.10);
+        }
+
         .mobile-cta-bar {
             box-shadow: 0 18px 44px rgba(15, 23, 42, 0.22);
         }
@@ -1193,6 +1331,27 @@
                         <div id="expertTriageHighlights" class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div>
                         <div id="expertTriageBoard" class="mt-6 space-y-6"></div>
                     </section>
+
+                    <section id="agent-skill-command" class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-5 py-6 text-white shadow-2xl shadow-slate-900/25 md:px-8 md:py-8">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Agent Skill Decks</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">把全部技能放到 14 位 Agent 入口后面，直接按人找能力</h3>
+                                <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
+                                    不再让用户先理解 997 项技能目录，再回头猜该找谁。这里把技能按 Agent 视角重排，看到某位专家时，后面紧跟着就是这位 Agent 的主责技能面、引擎和交付物。
+                                </p>
+                            </div>
+                            <a href="./frontend/skills-market.html" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100">
+                                查看完整技能市场 <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="mt-5 flex flex-wrap gap-2 text-xs text-slate-200">
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">展示口径：按 Agent 主责技能面重排</span>
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">技能数为非去重覆盖口径</span>
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">关联 8 条算法引擎与 4 层来源包</span>
+                        </div>
+                        <div id="agentSkillDeckGrid" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
+                    </section>
                 </div>
             </div>
         </div>
@@ -1200,68 +1359,21 @@
         <!-- 顶级医学期刊展示 -->
         <div class="py-12 px-4 bg-slate-50">
             <div class="max-w-6xl mx-auto">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-                        <i class="fas fa-book-medical text-blue-600 mr-2"></i>顶级医学期刊标准
-                    </h2>
-                    <p class="text-slate-600">符合国际顶级医学期刊的研究标准与发表要求</p>
+                <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
+                            <i class="fas fa-book-medical text-blue-600 mr-2"></i>顶级医学期刊标准
+                        </h2>
+                        <p class="max-w-3xl text-slate-600">用真实期刊封面和公开可核验的 2025 展示口径影响因子来展示，不再放旧数字。以下口径已于 2026 年 3 月 19 日核验，优先采用官方期刊页、出版商资料或官方影响力报告。</p>
+                    </div>
+                    <a href="./docs/index.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        查看平台标准说明 <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <!-- NEJM -->
-                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#003366] hover:shadow-xl transition">
-                        <div class="h-24 bg-gradient-to-br from-[#003366] to-[#004080] rounded-lg mb-3 flex items-center justify-center">
-                            <span class="text-white font-bold text-lg">NEJM</span>
-                        </div>
-                        <h3 class="font-bold text-slate-900">New England</h3>
-                        <p class="text-sm text-slate-600">Journal of Medicine</p>
-                        <div class="mt-2 flex items-center gap-1">
-                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 91.2</span>
-                        </div>
-                    </div>
-                    <!-- The Lancet -->
-                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#bf1e2e] hover:shadow-xl transition">
-                        <div class="h-24 bg-gradient-to-br from-[#bf1e2e] to-[#d13030] rounded-lg mb-3 flex items-center justify-center">
-                            <span class="text-white font-bold text-lg">LANCET</span>
-                        </div>
-                        <h3 class="font-bold text-slate-900">The Lancet</h3>
-                        <p class="text-sm text-slate-600">Weekly General</p>
-                        <div class="mt-2 flex items-center gap-1">
-                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 168.9</span>
-                        </div>
-                    </div>
-                    <!-- JAMA -->
-                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#004793] hover:shadow-xl transition">
-                        <div class="h-24 bg-gradient-to-br from-[#004793] to-[#0059b3] rounded-lg mb-3 flex items-center justify-center">
-                            <span class="text-white font-bold text-lg">JAMA</span>
-                        </div>
-                        <h3 class="font-bold text-slate-900">JAMA</h3>
-                        <p class="text-sm text-slate-600">Medical Association</p>
-                        <div class="mt-2 flex items-center gap-1">
-                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 120.7</span>
-                        </div>
-                    </div>
-                    <!-- Nature Medicine -->
-                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#6b4c9a] hover:shadow-xl transition">
-                        <div class="h-24 bg-gradient-to-br from-[#6b4c9a] to-[#7d5cb0] rounded-lg mb-3 flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">Nature<br>Medicine</span>
-                        </div>
-                        <h3 class="font-bold text-slate-900">Nature</h3>
-                        <p class="text-sm text-slate-600">Medicine</p>
-                        <div class="mt-2 flex items-center gap-1">
-                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 82.9</span>
-                        </div>
-                    </div>
-                    <!-- BMJ -->
-                    <div class="bg-white rounded-xl p-4 shadow-lg border-t-4 border-[#2e5c8a] hover:shadow-xl transition">
-                        <div class="h-24 bg-gradient-to-br from-[#2e5c8a] to-[#3d7ab3] rounded-lg mb-3 flex items-center justify-center">
-                            <span class="text-white font-bold text-lg">BMJ</span>
-                        </div>
-                        <h3 class="font-bold text-slate-900">British Medical</h3>
-                        <p class="text-sm text-slate-600">Journal</p>
-                        <div class="mt-2 flex items-center gap-1">
-                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded font-bold">IF: 105.7</span>
-                        </div>
-                    </div>
+                <div id="journalCredibilityLegend" class="mt-5 flex flex-wrap gap-2"></div>
+                <div id="journalShowcaseGrid" class="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3"></div>
+                <div class="mt-5 rounded-[1.5rem] border border-slate-200 bg-white px-5 py-4 text-sm leading-7 text-slate-600 shadow-sm">
+                    <strong class="text-slate-900">口径说明：</strong> 这里的“2025 展示口径”统一按 <span class="font-semibold text-slate-900">2024 Journal Impact Factor / 2025 年公开发布</span> 理解。NEJM 当前公开站点未直接暴露同口径首页数值，因此单独标记为“公开 JCR 引用”，可信度低于官方期刊页。
                 </div>
             </div>
         </div>
@@ -1717,9 +1829,118 @@
             experiment_tracker: { trigger: '项目执行容易失控', outcome: '先建立里程碑与偏差追踪' },
             model_qa: { trigger: '担心结论不稳', outcome: '先做偏差、稳定性与 QA 复核' }
         };
+        const expertSkillBlueprints = {
+            clinical_director: { laneIds: ['evidence-synthesis', 'trial-design', 'quality-compliance'], sourcePackageIds: ['medrt-local-core', 'ai-research-suite', 'medrt-enhanced-suite'], note: '从题目判断、方案路径到发表门槛，适合作为首位临床总控入口。' },
+            phd_student: { laneIds: ['evidence-synthesis', 'data-fabric'], sourcePackageIds: ['medrt-local-core', 'ai-research-suite'], note: '偏文献、证据和背景搭建，适合先补全研究现状与创新空白。' },
+            epidemiologist: { laneIds: ['trial-design', 'data-fabric', 'quality-compliance'], sourcePackageIds: ['medrt-local-core', 'ai-research-suite', 'medrt-enhanced-suite'], note: '把临床问题转成规范 protocol，并提前控制偏倚和执行风险。' },
+            statistician: { laneIds: ['trial-design', 'ai-modeling', 'workflow-export'], sourcePackageIds: ['medrt-local-core', 'ai-research-suite', 'medrt-enhanced-suite'], note: '适合在终点、样本量和结果表达已经开始成型时接手。' },
+            research_nurse: { laneIds: ['trial-design', 'quality-compliance', 'workflow-export'], sourcePackageIds: ['medrt-local-core', 'medrt-enhanced-suite'], note: '主要盯访视、CRF、现场执行与合规质量，保障研究落地。' },
+            clawbio_pharmgx: { laneIds: ['translational-drug', 'bioinformatics'], sourcePackageIds: ['openclaw-medical-wrapper', 'ai-research-suite'], note: '药物暴露和基因变异同时出现时，优先看这一组技能面。' },
+            clawbio_gwas: { laneIds: ['bioinformatics', 'ai-modeling'], sourcePackageIds: ['openclaw-medical-wrapper', 'ai-research-suite'], note: '适合遗传关联、表型定义和 GWAS 结果解读任务。' },
+            clawbio_sc_rna: { laneIds: ['bioinformatics', 'data-fabric'], sourcePackageIds: ['openclaw-medical-wrapper', 'ai-research-suite'], note: '偏单细胞样本、聚类和亚群注释时，从这里进入最直接。' },
+            clawbio_galaxy: { laneIds: ['bioinformatics', 'workflow-export', 'data-fabric'], sourcePackageIds: ['openclaw-medical-wrapper', 'medrt-enhanced-suite'], note: '负责把多组学与工作流工具真正串起来，降低实验型试错。' },
+            ux_researcher: { laneIds: ['ai-modeling', 'workflow-export'], sourcePackageIds: ['medrt-enhanced-suite', 'ai-research-suite'], note: '当你在研究流程、页面路径或协作体验上卡住时，用这组技能面。' },
+            ai_data_engineer: { laneIds: ['data-fabric', 'ai-modeling', 'workflow-export'], sourcePackageIds: ['openclaw-medical-wrapper', 'ai-research-suite', 'medrt-enhanced-suite'], note: '更偏数据口径、结构整理、联接与下游模型管道。' },
+            trend_researcher: { laneIds: ['evidence-synthesis', 'translational-drug'], sourcePackageIds: ['ai-research-suite', 'medrt-enhanced-suite'], note: '适合快速判断研究热点、竞品方向与投稿窗口。' },
+            experiment_tracker: { laneIds: ['workflow-export', 'data-fabric', 'quality-compliance'], sourcePackageIds: ['medrt-local-core', 'medrt-enhanced-suite'], note: '看里程碑、偏差追踪和任务接力，防止项目执行失控。' },
+            model_qa: { laneIds: ['quality-compliance', 'ai-modeling'], sourcePackageIds: ['medrt-enhanced-suite', 'ai-research-suite'], note: '当你担心模型结论、偏差和鲁棒性时，从 QA 技能面进入。' }
+        };
+        const journalShowcase = [
+            {
+                id: 'nejm',
+                shortName: 'NEJM',
+                name: 'The New England Journal of Medicine',
+                subtitle: '医学综合旗舰期刊',
+                impactFactor: '78.5',
+                impactContext: '2024 JIF / 2025 展示口径',
+                credibility: 'medium',
+                credibilityLabel: '公开 JCR 引用',
+                sourceLabel: 'Wikipedia 公开 JCR 引用页',
+                sourceUrl: 'https://en.wikipedia.org/wiki/The_New_England_Journal_of_Medicine',
+                homepageUrl: 'https://www.nejm.org/',
+                coverAsset: './assets/journals/nejm-cover.jpg',
+                accent: '#003366'
+            },
+            {
+                id: 'lancet',
+                shortName: 'The Lancet',
+                name: 'The Lancet',
+                subtitle: '临床医学综合顶刊',
+                impactFactor: '88.5',
+                impactContext: '2024 JIF / 2025 展示口径',
+                credibility: 'high',
+                credibilityLabel: '官方出版商页',
+                sourceLabel: 'Elsevier / ScienceDirect 期刊页',
+                sourceUrl: 'https://www.sciencedirect.com/journal/the-lancet/vol/406/issue/10513',
+                homepageUrl: 'https://www.thelancet.com/',
+                coverAsset: './assets/journals/lancet-cover.jpg',
+                accent: '#bf1e2e'
+            },
+            {
+                id: 'jama',
+                shortName: 'JAMA',
+                name: 'JAMA',
+                subtitle: '美国医学会旗舰期刊',
+                impactFactor: '63.5',
+                impactContext: '2024 JIF / 2025 展示口径',
+                credibility: 'high',
+                credibilityLabel: '官方 brochure',
+                sourceLabel: 'JAMA Network Spring 2025 brochure',
+                sourceUrl: 'https://jamanetwork.com/DocumentLibrary/for-authors/jama-brochure-spring-2025.pdf',
+                homepageUrl: 'https://jamanetwork.com/journals/jama',
+                coverAsset: './assets/journals/jama-cover.png',
+                accent: '#004793'
+            },
+            {
+                id: 'nature-medicine',
+                shortName: 'Nature Medicine',
+                name: 'Nature Medicine',
+                subtitle: 'Nature 系临床转化顶刊',
+                impactFactor: '50.0',
+                impactContext: '2024 JIF / 2025 展示口径',
+                credibility: 'high',
+                credibilityLabel: '官方期刊页',
+                sourceLabel: 'Nature 官网 journal impact 页',
+                sourceUrl: 'https://www.nature.com/nm/journal-impact',
+                homepageUrl: 'https://www.nature.com/nm/',
+                coverAsset: './assets/journals/nature-medicine-cover.png',
+                accent: '#6b4c9a'
+            },
+            {
+                id: 'bmj',
+                shortName: 'The BMJ',
+                name: 'The BMJ',
+                subtitle: '英国医学综合旗舰期刊',
+                impactFactor: '42.7',
+                impactContext: '2024 JIF / 2025 展示口径',
+                credibility: 'high',
+                credibilityLabel: '官方 impact report',
+                sourceLabel: 'BMJ Impact Report 2025',
+                sourceUrl: 'https://info.bmj.com/impact-report-2025',
+                homepageUrl: 'https://www.bmj.com/',
+                coverAsset: './assets/journals/bmj-cover.jpg',
+                accent: '#2e5c8a'
+            }
+        ];
 
         function getAtlasPalette(tone) {
             return atlasTonePalette[tone] || atlasTonePalette.blue;
+        }
+
+        function getCredibilityMeta(level) {
+            if (level === 'high') {
+                return {
+                    className: 'credibility-pill credibility-high',
+                    icon: 'fa-shield-halved',
+                    label: '高可信'
+                };
+            }
+
+            return {
+                className: 'credibility-pill credibility-medium',
+                icon: 'fa-triangle-exclamation',
+                label: '中可信'
+            };
         }
 
         function formatPackagingLabel(value) {
@@ -2341,6 +2562,169 @@
             }).join('');
         }
 
+        function renderExpertSkillDecks() {
+            const container = document.getElementById('agentSkillDeckGrid');
+            if (!container || !platformCatalog || !expertCatalog) return;
+
+            const capabilityLanes = Array.isArray(platformCatalog.capability_lanes) ? platformCatalog.capability_lanes : [];
+            const sourcePackages = Array.isArray(platformCatalog.source_packages) ? platformCatalog.source_packages : [];
+            const laneMap = new Map(capabilityLanes.map((lane) => [lane.id, lane]));
+            const sourcePackageMap = new Map(sourcePackages.map((item) => [item.id, item]));
+
+            container.innerHTML = expertCatalog.experts.map((expert) => {
+                const blueprint = expertSkillBlueprints[expert.role] || { laneIds: [], sourcePackageIds: [], note: expert.summary };
+                const group = expertCatalog.getGroup(expert.groupId) || {};
+                const directLaneIds = capabilityLanes
+                    .filter((lane) => Array.isArray(lane.owner_roles) && lane.owner_roles.includes(expert.name))
+                    .map((lane) => lane.id);
+                const laneIds = [...new Set([...(blueprint.laneIds || []), ...directLaneIds])]
+                    .filter((laneId) => laneMap.has(laneId));
+                const lanes = laneIds.map((laneId) => laneMap.get(laneId));
+                const packages = [...new Set(blueprint.sourcePackageIds || [])]
+                    .map((packageId) => sourcePackageMap.get(packageId))
+                    .filter(Boolean);
+                const laneCoverageCount = lanes.reduce((sum, lane) => sum + Number(lane.count || 0), 0);
+                const deliverables = [...new Set(lanes.flatMap((lane) => lane.deliverables || []))].slice(0, 4);
+                const avatar = expertCatalog.resolveAvatar(expert);
+
+                return `
+                    <article class="agent-skill-card" style="--agent-glow:${group.border || 'rgba(59, 130, 246, 0.16)'}; border-color:${group.border || 'rgba(148, 163, 184, 0.16)'}; background:linear-gradient(180deg, rgba(255,255,255,0.98), ${group.surface || 'rgba(248,250,252,0.94)'});">
+                        <div class="relative z-10">
+                            <div class="flex items-start gap-4">
+                                <img src="${avatar}" alt="${escapeHtml(expert.name)}" class="agent-skill-avatar" style="${expert.avatarPosition ? `object-position:${expert.avatarPosition};` : ''}">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center justify-between gap-3">
+                                        <div>
+                                            <div class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${expert.accent}">${escapeHtml(group.name || 'Agent Deck')}</div>
+                                            <h4 class="mt-2 text-2xl font-bold text-white sm:text-xl" style="color:#0f172a">${escapeHtml(expert.name)}</h4>
+                                            <p class="mt-1 text-sm font-medium text-slate-500">${escapeHtml(expert.subtitle)} · ${escapeHtml(expert.stage)}</p>
+                                        </div>
+                                        <span class="agent-skill-chip" style="color:${expert.accent}; border-color:${group.border || 'rgba(148,163,184,0.16)'}; background:rgba(255,255,255,0.92)">
+                                            <i class="fas fa-layer-group"></i>${escapeHtml(`${lanes.length} 条引擎`)}
+                                        </span>
+                                    </div>
+                                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(blueprint.note || expert.summary)}</p>
+                                </div>
+                            </div>
+                            <div class="mt-5 grid gap-3 sm:grid-cols-3">
+                                <div class="rounded-[1.2rem] border border-slate-200 bg-white/85 px-4 py-3">
+                                    <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">技能面</div>
+                                    <div class="mt-2 text-2xl font-bold text-slate-950">${escapeHtml(String(laneCoverageCount || 0))}</div>
+                                    <div class="mt-1 text-xs text-slate-500">非去重主责覆盖口径</div>
+                                </div>
+                                <div class="rounded-[1.2rem] border border-slate-200 bg-white/85 px-4 py-3">
+                                    <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">来源包</div>
+                                    <div class="mt-2 text-2xl font-bold text-slate-950">${escapeHtml(String(packages.length || 0))}</div>
+                                    <div class="mt-1 text-xs text-slate-500">Agent 后面的技能入口层</div>
+                                </div>
+                                <div class="rounded-[1.2rem] border border-slate-200 bg-white/85 px-4 py-3">
+                                    <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">交付物</div>
+                                    <div class="mt-2 text-2xl font-bold text-slate-950">${escapeHtml(String(deliverables.length || 0))}</div>
+                                    <div class="mt-1 text-xs text-slate-500">常用输出结果模板</div>
+                                </div>
+                            </div>
+                            <div class="mt-5">
+                                <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">主责技能引擎</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${lanes.map((lane) => {
+                                        const palette = getAtlasPalette(lane.tone);
+                                        return `<span class="agent-skill-chip" style="color:${palette.text}; background:${palette.chip}; border-color:${palette.border};">${escapeHtml(`${lane.name} · ${lane.count}`)}</span>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">技能来源包</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${packages.map((item) => `<span class="agent-skill-chip">${escapeHtml(`${item.name} · ${item.count}`)}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">常见交付</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${deliverables.map((item) => `<span class="agent-skill-chip">${escapeHtml(item)}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="mt-5 flex flex-col gap-2 sm:flex-row">
+                                <button type="button" onclick="startExpertGuidedSession('${expert.role}')" class="flex-1 rounded-2xl px-4 py-3 text-sm font-semibold text-white transition" style="background:${expert.accent}">
+                                    让 TA 带着技能先介入
+                                </button>
+                                <a href="./frontend/skills-market.html" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    打开完整技能市场
+                                </a>
+                                <button type="button" onclick="showAgentDetail('${expert.role}')" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    专家详情
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderJournalShowcase() {
+            const grid = document.getElementById('journalShowcaseGrid');
+            const legend = document.getElementById('journalCredibilityLegend');
+            if (!grid || !legend) return;
+
+            legend.innerHTML = [
+                { level: 'high', text: '高可信：官方期刊页 / 官方 brochure / 官方 impact report' },
+                { level: 'medium', text: '中可信：公开 JCR 引用页，已单独标示来源' },
+                { level: 'high', text: '最后核验日期：2026-03-19' }
+            ].map((item) => {
+                const meta = getCredibilityMeta(item.level);
+                return `<span class="${meta.className}"><i class="fas ${meta.icon}"></i>${escapeHtml(item.text)}</span>`;
+            }).join('');
+
+            grid.innerHTML = journalShowcase.map((journal) => {
+                const meta = getCredibilityMeta(journal.credibility);
+                return `
+                    <article class="journal-proof-card">
+                        <div class="journal-cover-frame" style="border-top:4px solid ${journal.accent}">
+                            <img src="${journal.coverAsset}" alt="${escapeHtml(journal.name)} 真实封面">
+                            <span class="journal-cover-badge">
+                                <i class="fas fa-book-open"></i>真实封面
+                            </span>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <div class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${journal.accent}">${escapeHtml(journal.shortName)}</div>
+                                    <h3 class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(journal.name)}</h3>
+                                    <p class="mt-1 text-sm text-slate-500">${escapeHtml(journal.subtitle)}</p>
+                                </div>
+                                <span class="${meta.className}">
+                                    <i class="fas ${meta.icon}"></i>${escapeHtml(`${meta.label} · ${journal.credibilityLabel}`)}
+                                </span>
+                            </div>
+                            <div class="mt-5 flex flex-wrap gap-3">
+                                <div class="journal-stat-pill">
+                                    <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">2025 展示口径 IF</div>
+                                    <div class="text-3xl font-bold" style="color:${journal.accent}">${escapeHtml(journal.impactFactor)}</div>
+                                    <div class="text-xs text-slate-500">${escapeHtml(journal.impactContext)}</div>
+                                </div>
+                                <div class="journal-stat-pill">
+                                    <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">可信度提示</div>
+                                    <div class="text-lg font-bold text-slate-950">${escapeHtml(journal.credibility === 'high' ? '官方优先' : '公开引用')}</div>
+                                    <div class="text-xs text-slate-500">来源透明展示，便于核对</div>
+                                </div>
+                            </div>
+                            <div class="mt-4 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">
+                                <span class="font-semibold text-slate-900">来源：</span>${escapeHtml(journal.sourceLabel)}
+                            </div>
+                            <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+                                <a href="${journal.sourceUrl}" target="_blank" rel="noopener noreferrer" class="journal-source-link">
+                                    <i class="fas fa-shield-halved text-emerald-600"></i>核验 IF 来源
+                                </a>
+                                <a href="${journal.homepageUrl}" target="_blank" rel="noopener noreferrer" class="journal-source-link">
+                                    <i class="fas fa-arrow-up-right-from-square text-blue-600"></i>打开期刊主页
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
         function updateMobileQuickStartBar() {
             const bar = document.getElementById('mobileQuickStartBar');
             const modal = document.getElementById('newSessionModal');
@@ -2355,6 +2739,8 @@
             renderQuickStartTemplates();
             renderEngagementSnapshot(sessions);
             renderExpertTriage();
+            renderExpertSkillDecks();
+            renderJournalShowcase();
             renderSecondMeIdentityCard();
             renderCollaborationRoster();
             updateMobileQuickStartBar();
