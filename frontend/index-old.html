@@ -340,7 +340,7 @@
         // Load RoundTables
         async function loadRoundTables() {
             try {
-                const response = await fetch(`${API_BASE}/roundtables`);
+                const response = await fetch(`${API_BASE}/api/v1/roundtables`);
                 const roundtables = await response.json();
                 renderRoundTableList(roundtables);
             } catch (error) {
@@ -426,7 +426,7 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE}/roundtables`, {
+                const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title, clinical_question: question })
@@ -436,7 +436,7 @@
                 closeModal();
                 
                 // Start discussion
-                await fetch(`${API_BASE}/roundtables/${rt.id}/start`, { method: 'POST' });
+                await fetch(`${API_BASE}/api/v1/roundtables/${rt.id}/start`, { method: 'POST' });
                 
                 loadRoundTables();
                 selectRoundTable(rt.id);
@@ -472,7 +472,7 @@
         // Load Messages
         async function loadMessages(sessionId) {
             try {
-                const response = await fetch(`${API_BASE}/roundtables/${sessionId}/messages`);
+                const response = await fetch(`${API_BASE}/api/v1/roundtables/${sessionId}/messages`);
                 const messages = await response.json();
                 
                 messages.forEach(msg => renderMessage(msg));
@@ -487,7 +487,7 @@
                 eventSource.close();
             }
             
-            eventSource = new EventSource(`${API_BASE}/roundtables/${sessionId}/stream`);
+            eventSource = new EventSource(`${API_BASE}/api/v1/roundtables/${sessionId}/stream`);
             
             eventSource.onmessage = (event) => {
                 const data = JSON.parse(event.data);
@@ -536,7 +536,7 @@
             if (!content || !currentSessionId) return;
             
             try {
-                await fetch(`${API_BASE}/roundtables/${currentSessionId}/messages`, {
+                await fetch(`${API_BASE}/api/v1/roundtables/${currentSessionId}/messages`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content, to_role: target.value })
@@ -564,7 +564,7 @@
             if (!currentSessionId) return;
             
             try {
-                const response = await fetch(`${API_BASE}/roundtables/${currentSessionId}/output`);
+                const response = await fetch(`${API_BASE}/api/v1/roundtables/${currentSessionId}/output`);
                 const output = await response.json();
                 
                 // Create and download JSON

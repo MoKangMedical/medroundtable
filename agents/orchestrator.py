@@ -1,5 +1,6 @@
 import asyncio
 import uuid
+import traceback
 from typing import List, Dict, Optional, Callable
 from datetime import datetime
 from dataclasses import dataclass, field
@@ -73,6 +74,22 @@ class Agent:
                 clinical_question = roundtable.clinical_question
             if not roundtable_title:
                 roundtable_title = roundtable.title
+
+        requested_outputs = []
+        request_text = f"{clinical_question}\n{message.content}"
+        deliverable_keywords = {
+            "样本量": ["样本量", "效能", "power", "把握度"],
+            "主要终点": ["终点", "primary endpoint", "主要指标"],
+            "CRF字段": ["crf", "字段", "表格", "变量", "采集表"],
+            "访视表": ["访视", "时间窗", "随访"],
+            "SOP": ["sop", "操作手册", "流程"],
+            "风险点": ["风险", "不良事件", "偏倚", "混杂", "脱落"],
+            "交付物": ["交付物", "输出", "里程碑", "下一步"],
+        }
+        lowered_request = request_text.lower()
+        for label, keywords in deliverable_keywords.items():
+            if any(keyword in lowered_request for keyword in keywords):
+                requested_outputs.append(label)
         
         prompt = f"""你正在参加一个医学科研圆桌讨论。当前阶段: {stage}
 
@@ -92,6 +109,14 @@ class Agent:
             role_name = msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role)
             prompt += f"\n{role_name}: {msg.content[:200]}...\n" if len(msg.content) > 200 else f"\n{role_name}: {msg.content}\n"
         
+        recent_peer_views = []
+        for msg in reversed(recent_messages):
+            role_name = msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role)
+            if role_name not in {self.role.value, "user", "system"}:
+                recent_peer_views.append((role_name, msg.content[:180]))
+            if len(recent_peer_views) == 2:
+                break
+
         prompt += f"""
 === 当前消息 ===
 来自: {message.from_role.value if hasattr(message.from_role, 'value') else str(message.from_role)}
@@ -101,9 +126,27 @@ class Agent:
 请根据你的专业角色、研究的基本信息（研究标题和临床问题）以及讨论上下文，给出专业、详细的回应。
 要求:
 1. 使用中文回答，内容必须紧扣上述"临床问题"
-2. 体现你的专业视角，给出具体可行的建议
+2. 体现你的专业视角，给出具体可行的建议，避免空泛定义或重复背景
 3. 如果提到疾病名称、干预措施或终点指标，请使用临床问题中提到的具体内容
 4. 如果有不同意见，请礼貌提出；如果同意，请补充你的专业建议
+5. 如果用户要求“表格/字段/样本量/终点/SOP”，请直接输出结构化清单或数字，不要只说原则
+6. 请至少回应一位前序专家的观点，说明你是补充、修正还是质疑
+7. 优先给出样本量、字段、终点、风险点、交付物，而不是复述概念
+8. 不要复述阶段任务原文，不要把提示词当作回答内容，也不要用“如果你要我可以继续”收尾
+9. 避免写“尊敬的各位专家”“下面我汇报”等空泛开场，直接进入问题本身
+"""
+
+        if recent_peer_views:
+            prompt += "\n=== 你需要回应的前序观点 ===\n"
+            for role_name, content in recent_peer_views:
+                prompt += f"- {role_name}: {content}\n"
+
+        if requested_outputs:
+            prompt += "\n=== 本轮必须覆盖的交付物 ===\n"
+            for output in requested_outputs:
+                prompt += f"- {output}\n"
+
+        prompt += """
 
 请给出你的回应:"""
         
@@ -157,7 +200,209 @@ class A2AOrchestrator:
     
     def register_message_callback(self, callback: Callable):
         """注册消息回调函数"""
-        self.message_callbacks.append(callback)
+        if callback not in self.message_callbacks:
+            self.message_callbacks.append(callback)
+
+    def _get_requested_roles(self, clinical_question: str) -> List[AgentRole]:
+        """根据用户问题补充需要提前介入的专家角色。"""
+        lowered = (clinical_question or "").lower()
+        requested_roles: List[AgentRole] = []
+        keyword_map = [
+            (AgentRole.STATISTICIAN, ["样本量", "效能", "power", "终点", "统计", "sap"]),
+            (AgentRole.RESEARCH_NURSE, ["crf", "字段", "表格", "变量", "访视", "sop", "流程"]),
+            (AgentRole.EPIDEMIOLOGIST, ["偏倚", "混杂", "纳入", "排除", "研究设计"]),
+            (AgentRole.GALAXY_BRIDGE, ["多组学", "workflow", "单细胞", "gwas", "基因"]),
+        ]
+        for role, keywords in keyword_map:
+            if any(keyword in lowered for keyword in keywords):
+                requested_roles.append(role)
+        return requested_roles
+
+    def _build_stage_instruction(self, stage_config: Dict[str, str], stage: str, clinical_question: str) -> str:
+        """把阶段说明压成可执行指令，避免 agent 直接复述题目。"""
+        stage_name = stage_config.get("description", stage)
+        base_prompt = stage_config.get("prompt", "请发表你的观点")
+        requested_roles = self._get_requested_roles(clinical_question)
+        deliverables = []
+        if AgentRole.STATISTICIAN in requested_roles:
+            deliverables.append("具体样本量、主要终点和统计骨架")
+        if AgentRole.RESEARCH_NURSE in requested_roles:
+            deliverables.append("CRF 字段、访视表和执行流程")
+        if AgentRole.EPIDEMIOLOGIST in requested_roles:
+            deliverables.append("纳排标准与偏倚控制")
+        if AgentRole.GALAXY_BRIDGE in requested_roles:
+            deliverables.append("组学分析流程与工具链")
+
+        instruction = f"当前阶段是“{stage_name}”。请直接给本阶段最重要的可执行结论，不要复述任务说明。"
+        if deliverables:
+            instruction += f" 本轮用户已经明确要：{'；'.join(deliverables)}。"
+        instruction += f" 需要推进的核心事项：{base_prompt.replace(chr(10), ' ')}"
+        return instruction
+
+    def unregister_message_callback(self, callback: Callable):
+        """解除注册消息回调函数"""
+        try:
+            self.message_callbacks.remove(callback)
+        except ValueError:
+            pass
+
+    def _infer_requested_outputs(self, text: str) -> List[str]:
+        lowered = (text or "").lower()
+        mapping = [
+            ("主要终点", ["终点", "endpoint", "指标"]),
+            ("样本量", ["样本量", "效能", "power", "把握度"]),
+            ("CRF字段", ["crf", "字段", "变量", "表格", "采集表"]),
+            ("访视表", ["访视", "随访", "时间窗"]),
+            ("风险点", ["风险", "不良事件", "偏倚", "混杂", "脱落"]),
+            ("交付物", ["交付物", "输出", "里程碑", "下一步"]),
+        ]
+        return [label for label, keywords in mapping if any(keyword in lowered for keyword in keywords)]
+
+    def _get_latest_stage(self, roundtable: RoundTable) -> str:
+        for message in reversed(roundtable.messages):
+            stage = (message.metadata or {}).get("stage")
+            if stage:
+                return stage
+        return "problem_presentation"
+
+    def _select_kickoff_roles(self, roundtable: RoundTable) -> List[AgentRole]:
+        ordered_roles = [AgentRole.CLINICAL_DIRECTOR]
+        ordered_roles.extend(self._get_requested_roles(roundtable.clinical_question))
+        ordered_roles.extend([
+            AgentRole.STATISTICIAN,
+            AgentRole.RESEARCH_NURSE,
+            AgentRole.PHD_STUDENT,
+            AgentRole.EPIDEMIOLOGIST,
+        ])
+
+        deduped_roles: List[AgentRole] = []
+        for role in ordered_roles:
+            if role not in deduped_roles:
+                deduped_roles.append(role)
+        return deduped_roles[:4]
+
+    def _build_kickoff_placeholder(self, roundtable: RoundTable) -> str:
+        requested_outputs = self._infer_requested_outputs(roundtable.clinical_question)
+        if not requested_outputs:
+            requested_outputs = ["主要终点", "样本量", "CRF字段", "风险点"]
+
+        kickoff_roles = self._select_kickoff_roles(roundtable)
+        role_labels = " -> ".join(self.agents[role].name for role in kickoff_roles)
+        output_lines = "\n".join(
+            f"{index}. {label}" for index, label in enumerate(requested_outputs[:4], start=1)
+        )
+
+        return f"""我先把首轮会诊的目标钉住，不重复背景。
+
+本轮优先收这几项可交付内容：
+{output_lines}
+
+先由 {role_labels} 依次补齐；每位专家都直接给数字、字段、时间窗、风险点或下一步动作。"""
+
+    def _build_continue_prompt(self, roundtable: RoundTable, user_content: str) -> str:
+        latest_stage = self._get_latest_stage(roundtable)
+        requested_outputs = self._infer_requested_outputs(
+            f"{roundtable.clinical_question}\n{user_content}"
+        )
+        if not requested_outputs:
+            requested_outputs = ["主要终点", "样本量", "CRF字段", "访视表", "风险点", "交付物"]
+
+        output_lines = "\n".join(f"- {item}" for item in requested_outputs[:6])
+        return f"""用户要求继续推进当前讨论。不要重复背景，不要解释讨论流程，直接把内容往下做实。
+
+当前参考阶段：{latest_stage}
+本轮优先补这几项：
+{output_lines}
+
+请直接回应前面专家的判断，并给出你负责的具体数字、字段、时间窗、风险点或下一步交付物。"""
+
+    def _select_continue_roles(self, roundtable: RoundTable, user_content: str) -> List[AgentRole]:
+        latest_stage = self._get_latest_stage(roundtable)
+        stage_defaults = {
+            "problem_presentation": [
+                AgentRole.CLINICAL_DIRECTOR,
+                AgentRole.STATISTICIAN,
+                AgentRole.RESEARCH_NURSE,
+            ],
+            "literature_review": [
+                AgentRole.PHD_STUDENT,
+                AgentRole.EPIDEMIOLOGIST,
+                AgentRole.STATISTICIAN,
+            ],
+            "study_design": [
+                AgentRole.EPIDEMIOLOGIST,
+                AgentRole.STATISTICIAN,
+                AgentRole.RESEARCH_NURSE,
+            ],
+            "bioinformatics_plan": [
+                AgentRole.GALAXY_BRIDGE,
+                AgentRole.DATA_ENGINEER,
+                AgentRole.QA_EXPERT,
+            ],
+            "statistical_plan": [
+                AgentRole.STATISTICIAN,
+                AgentRole.RESEARCH_NURSE,
+                AgentRole.EPIDEMIOLOGIST,
+            ],
+            "crf_design": [
+                AgentRole.RESEARCH_NURSE,
+                AgentRole.STATISTICIAN,
+                AgentRole.QA_EXPERT,
+            ],
+            "execution_plan": [
+                AgentRole.RESEARCH_NURSE,
+                AgentRole.QA_EXPERT,
+                AgentRole.CLINICAL_DIRECTOR,
+            ],
+            "quality_review": [
+                AgentRole.QA_EXPERT,
+                AgentRole.CLINICAL_DIRECTOR,
+                AgentRole.STATISTICIAN,
+            ],
+            "consensus": [
+                AgentRole.CLINICAL_DIRECTOR,
+                AgentRole.STATISTICIAN,
+                AgentRole.RESEARCH_NURSE,
+            ],
+        }
+
+        ordered_roles = self._get_requested_roles(
+            f"{roundtable.clinical_question}\n{user_content}"
+        )
+        ordered_roles.extend(
+            stage_defaults.get(
+                latest_stage,
+                [AgentRole.STATISTICIAN, AgentRole.RESEARCH_NURSE, AgentRole.EPIDEMIOLOGIST],
+            )
+        )
+
+        deduped_roles: List[AgentRole] = []
+        for role in ordered_roles:
+            if role not in deduped_roles:
+                deduped_roles.append(role)
+        return deduped_roles[:3]
+
+    def _requires_bioinformatics_stage(self, clinical_question: str) -> bool:
+        lowered = (clinical_question or "").lower()
+        return any(
+            keyword in lowered
+            for keyword in ["多组学", "gwas", "基因", "单细胞", "rna", "测序", "组学", "omics"]
+        )
+
+    def _is_role_relevant(self, role: AgentRole, clinical_question: str) -> bool:
+        lowered = (clinical_question or "").lower()
+        role_keywords = {
+            AgentRole.PHARMACOGENOMICS_EXPERT: ["药物基因组", "基因", "药物反应", "代谢"],
+            AgentRole.GWAS_EXPERT: ["gwas", "位点", "snp", "遗传", "基因"],
+            AgentRole.SINGLE_CELL_ANALYST: ["单细胞", "scrna", "rna", "细胞", "转录组", "测序"],
+            AgentRole.GALAXY_BRIDGE: ["多组学", "workflow", "gwas", "基因", "单细胞", "rna", "组学"],
+            AgentRole.UX_RESEARCHER: ["用户", "体验", "界面", "平台", "交互"],
+            AgentRole.DATA_ENGINEER: ["数据工程", "数据清洗", "etl", "数据库", "管线", "workflow"],
+            AgentRole.TREND_RESEARCHER: ["趋势", "投稿", "期刊", "发表", "竞争", "转化"],
+        }
+        if role not in role_keywords:
+            return True
+        return any(keyword in lowered for keyword in role_keywords[role])
     
     async def create_roundtable(self, title: str, clinical_question: str) -> RoundTable:
         """创建新的圆桌会"""
@@ -178,9 +423,33 @@ class A2AOrchestrator:
             raise ValueError(f"Session {session_id} not found")
         
         roundtable.status = RoundTableStatus.PROBLEM_PRESENTATION
-        
-        # 自动触发第一轮讨论
-        asyncio.create_task(self._run_discussion_flow(session_id))
+        if not any(msg.from_role != "user" for msg in roundtable.messages):
+            kickoff_message = A2AMessage(
+                id=str(uuid.uuid4()),
+                session_id=session_id,
+                from_role=AgentRole.CLINICAL_DIRECTOR,
+                to_role="all",
+                type=MessageType.INTRODUCTION,
+                content=self._build_kickoff_placeholder(roundtable),
+                metadata={
+                    "stage": "problem_presentation",
+                    "round": 0,
+                    "is_kickoff_placeholder": True,
+                    "clinical_question": roundtable.clinical_question,
+                    "title": roundtable.title,
+                }
+            )
+            await self._broadcast_message(kickoff_message)
+            roundtable.messages.append(kickoff_message)
+        await self._safe_run_discussion_flow(session_id)
+
+    async def _safe_run_discussion_flow(self, session_id: str):
+        """包装首轮自动讨论，避免后台任务异常被悄悄吞掉。"""
+        try:
+            await self._run_discussion_flow(session_id)
+        except Exception as exc:
+            print(f"Discussion flow failed for {session_id}: {exc}")
+            traceback.print_exc()
     
     async def _run_discussion_flow(self, session_id: str):
         """运行讨论流程 - 支持用户随时插话"""
@@ -198,18 +467,20 @@ class A2AOrchestrator:
             ("quality_review", AgentRole.QA_EXPERT),                        # 阶段8: 质量审核
             ("consensus", AgentRole.CLINICAL_DIRECTOR),                     # 阶段9: 共识达成
         ]
+        if not self._requires_bioinformatics_stage(roundtable.clinical_question):
+            stages = [stage for stage in stages if stage[0] != "bioinformatics_plan"]
 
         for stage_name, leader_role in stages:
             # 检查是否有用户最近插话，如果有，先处理用户问题
             if self._has_recent_user_message(session_id, seconds=10):
-                await asyncio.sleep(3)  # 给用户时间阅读回应
+                await asyncio.sleep(1)
                 continue  # 跳过当前阶段，让用户主导
 
             await self._run_stage(session_id, stage_name, leader_role)
 
             # 阶段之间给用户更多阅读时间，并检查用户是否有输入
-            for _ in range(6):  # 6秒等待时间，可被打断
-                await asyncio.sleep(1)
+            for _ in range(3):
+                await asyncio.sleep(0.8)
                 if self._has_recent_user_message(session_id, seconds=2):
                     break  # 用户插话了，提前结束等待
 
@@ -342,6 +613,21 @@ class A2AOrchestrator:
             if msg.from_role == "user" and msg.created_at > recent_threshold:
                 return True
         return False
+
+    def _role_spoke_recently(self, session_id: str, role: AgentRole, seconds: int = 4) -> bool:
+        """避免用户一催促就让同一位专家在几秒内重复发两次相似内容。"""
+        roundtable = self.sessions.get(session_id)
+        if not roundtable or not roundtable.messages:
+            return False
+
+        from datetime import timedelta
+        recent_threshold = datetime.utcnow() - timedelta(seconds=seconds)
+
+        for msg in reversed(roundtable.messages[-8:]):
+            from_role = msg.from_role.value if hasattr(msg.from_role, "value") else str(msg.from_role)
+            if from_role == role.value and msg.created_at > recent_threshold:
+                return True
+        return False
     
     async def _run_stage(self, session_id: str, stage: str, leader: AgentRole):
         """运行单个讨论阶段"""
@@ -350,6 +636,21 @@ class A2AOrchestrator:
         
         stage_config = DISCUSSION_STAGES.get(stage, {})
         prompt = stage_config.get("prompt", "请发表你的观点")
+        participant_roles = [
+            AgentRole(role)
+            for role in stage_config.get("participants", [])
+            if role in [agent_role.value for agent_role in AgentRole]
+        ]
+        for role in self._get_requested_roles(roundtable.clinical_question):
+            if role not in participant_roles and role != leader:
+                participant_roles.append(role)
+        participant_roles = [
+            role
+            for role in participant_roles
+            if self._is_role_relevant(role, roundtable.clinical_question)
+        ]
+
+        stage_instruction = self._build_stage_instruction(stage_config, stage, roundtable.clinical_question)
         
         # 阶段引导者发言
         leader_agent = self.agents[leader]
@@ -361,7 +662,7 @@ class A2AOrchestrator:
             from_role=leader,
             to_role="all",
             type=MessageType.PROPOSAL,
-            content=prompt,
+            content=stage_instruction,
             metadata={
                 "clinical_question": roundtable.clinical_question,
                 "title": roundtable.title,
@@ -392,9 +693,14 @@ class A2AOrchestrator:
         )
         await self._broadcast_message(leader_message)
         roundtable.messages.append(leader_message)
+
+        if self._has_recent_user_message(session_id, seconds=2):
+            return
         
-        # 其他Agent依次响应
-        for role in [r for r in AgentRole if r != leader]:
+        # 只让当前阶段最相关的 Agent 响应，避免 14 位 Agent 轮流说模板话
+        for role in participant_roles:
+            if self._has_recent_user_message(session_id, seconds=2):
+                break
             agent = self.agents[role]
             
             # 创建包含研究信息的上下文消息
@@ -404,7 +710,8 @@ class A2AOrchestrator:
                 from_role=role,
                 to_role="all",
                 type=MessageType.FEEDBACK,
-                content="请发表您的专业意见",
+                content=f"""{stage_instruction}
+请直接回应刚才的讨论，并补充你负责的可执行内容。优先给出数字、字段、流程、风险点或交付物。""",
                 metadata={
                     "clinical_question": roundtable.clinical_question,
                     "title": roundtable.title,
@@ -449,11 +756,11 @@ class A2AOrchestrator:
             )
             await self._broadcast_message(message)
             roundtable.messages.append(message)
-            await asyncio.sleep(1.5)  # 给用户阅读时间
+            await asyncio.sleep(0.8)
     
     async def _broadcast_message(self, message: A2AMessage):
         """广播消息给所有监听器"""
-        for callback in self.message_callbacks:
+        for callback in list(self.message_callbacks):
             try:
                 await callback(message)
             except Exception as e:
@@ -477,12 +784,41 @@ class A2AOrchestrator:
         await self._broadcast_message(message)
         roundtable.messages.append(message)
 
-        # 分析用户问题，决定哪些Agent应该回应
-        await self._handle_user_intervention(session_id, content, to_role)
+        # 先立即返回用户消息，再由后台继续多 Agent 响应，避免前端请求超时
+        asyncio.create_task(self._safe_handle_user_intervention(session_id, content, to_role))
 
-    async def _handle_user_intervention(self, session_id: str, user_content: str, to_role: str):
-        """处理用户插话 - 智能分配回应的Agent"""
+    async def _safe_handle_user_intervention(self, session_id: str, user_content: str, to_role: str):
+        """后台安全处理用户插话，避免异常中断主请求"""
         roundtable = self.sessions.get(session_id)
+        if not roundtable:
+            return
+        try:
+            await self._handle_user_intervention(session_id, user_content, to_role, roundtable)
+        except Exception as exc:
+            print(f"User intervention handling failed for {session_id}: {exc}")
+
+    async def _handle_user_intervention(
+        self,
+        session_id: str,
+        user_content: str,
+        to_role: str,
+        roundtable: RoundTable
+    ):
+        """处理用户插话 - 智能分配回应的Agent"""
+        normalized = user_content.strip().lower()
+        if normalized in {"好的", "继续", "继续讨论", "开始讨论", "开始", "收到", "ok", "okay", "继续吧"}:
+            follow_up_prompt = self._build_continue_prompt(roundtable, user_content)
+            for role in self._select_continue_roles(roundtable, follow_up_prompt):
+                if self._role_spoke_recently(session_id, role):
+                    continue
+                await self._agent_respond_to_user(
+                    session_id,
+                    role,
+                    follow_up_prompt,
+                    original_question=user_content
+                )
+                await asyncio.sleep(0.8)
+            return
 
         # 如果用户指定了特定Agent，直接由该Agent回应
         if to_role != "all" and to_role in [r.value for r in AgentRole]:
@@ -493,9 +829,9 @@ class A2AOrchestrator:
         keywords = {
             AgentRole.CLINICAL_DIRECTOR: ["临床", "患者", "治疗", "诊断", "症状", "疗效", "安全性", "不良事件", "适应", "禁忌"],
             AgentRole.PHD_STUDENT: ["文献", "检索", "综述", "既往", "证据", "指南", "推荐", "文献综述", "研究现状"],
-            AgentRole.EPIDEMIOLOGIST: ["设计", "方法", "偏倚", "样本", "队列", "对照", "随机", "盲法", "质量"],
-            AgentRole.STATISTICIAN: ["统计", "样本量", "效能", "分析", "检验", "P值", "置信区间", "多因素", "回归", "显著性"],
-            AgentRole.RESEARCH_NURSE: ["执行", "操作", "随访", "数据", "CRF", "表格", "流程", "质控", "实施", "可行"]
+            AgentRole.EPIDEMIOLOGIST: ["设计", "方法", "偏倚", "样本", "队列", "对照", "随机", "盲法", "质量", "纳入", "排除"],
+            AgentRole.STATISTICIAN: ["统计", "样本量", "效能", "分析", "检验", "P值", "置信区间", "多因素", "回归", "显著性", "终点", "字段", "变量", "crf", "表格", "sap"],
+            AgentRole.RESEARCH_NURSE: ["执行", "操作", "随访", "数据", "CRF", "表格", "字段", "流程", "质控", "实施", "可行", "访视", "录入"]
         }
 
         # 计算每个Agent的相关性得分
@@ -506,6 +842,15 @@ class A2AOrchestrator:
             if score > 0:
                 scores[role] = score
 
+        # 对用户明确要求的交付物做加权，优先把问题分配给能给出具体产物的专家
+        if any(word in user_content_lower for word in ["crf", "字段", "表格", "访视", "录入"]):
+            scores[AgentRole.RESEARCH_NURSE] = scores.get(AgentRole.RESEARCH_NURSE, 0) + 3
+            scores[AgentRole.STATISTICIAN] = scores.get(AgentRole.STATISTICIAN, 0) + 2
+        if any(word in user_content_lower for word in ["样本量", "终点", "sap", "统计"]):
+            scores[AgentRole.STATISTICIAN] = scores.get(AgentRole.STATISTICIAN, 0) + 3
+        if "偏倚" in user_content_lower:
+            scores[AgentRole.EPIDEMIOLOGIST] = scores.get(AgentRole.EPIDEMIOLOGIST, 0) + 2
+
         # 如果没有匹配到关键词，选择临床主任作为默认回应者
         if not scores:
             scores = {AgentRole.CLINICAL_DIRECTOR: 1}
@@ -514,12 +859,39 @@ class A2AOrchestrator:
         sorted_roles = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         responding_agents = [role for role, _ in sorted_roles[:2]]
 
+        if any(word in user_content_lower for word in ["crf", "字段", "表格", "访视", "录入"]) and AgentRole.RESEARCH_NURSE not in responding_agents:
+            if len(responding_agents) >= 2:
+                responding_agents[-1] = AgentRole.RESEARCH_NURSE
+            else:
+                responding_agents.append(AgentRole.RESEARCH_NURSE)
+
+        if any(word in user_content_lower for word in ["样本量", "终点", "sap", "统计"]) and AgentRole.STATISTICIAN not in responding_agents:
+            if len(responding_agents) >= 2:
+                responding_agents[0] = AgentRole.STATISTICIAN
+            else:
+                responding_agents.append(AgentRole.STATISTICIAN)
+
+        # 去重并保持顺序
+        deduped_agents = []
+        for role in responding_agents:
+            if role not in deduped_agents:
+                deduped_agents.append(role)
+        responding_agents = deduped_agents[:2]
+
         # 让这些Agent依次回应
         for role in responding_agents:
+            if self._role_spoke_recently(session_id, role):
+                continue
             await self._agent_respond_to_user(session_id, role, user_content)
-            await asyncio.sleep(1.5)  # 给用户阅读时间
+            await asyncio.sleep(0.8)
 
-    async def _agent_respond_to_user(self, session_id: str, role: AgentRole, user_content: str):
+    async def _agent_respond_to_user(
+        self,
+        session_id: str,
+        role: AgentRole,
+        user_content: str,
+        original_question: Optional[str] = None
+    ):
         """单个Agent回应用户"""
         roundtable = self.sessions.get(session_id)
         agent = self.agents[role]
@@ -564,19 +936,16 @@ class A2AOrchestrator:
                     unique_citations.append(cite)
             citation_manager.citations = unique_citations
 
-        # 添加前缀，表明这是对用户问题的回应
-        response_with_context = f"针对您的问题，{agent.name}回应道：\n\n{response_with_citations}"
-
         response_msg = A2AMessage(
             id=str(uuid.uuid4()),
             session_id=session_id,
             from_role=role,
             to_role="user",
             type=MessageType.FEEDBACK,
-            content=response_with_context,
+            content=response_with_citations,
             metadata={
                 "responding_to_user": True, 
-                "original_question": user_content,
+                "original_question": original_question or user_content,
                 "clinical_question": roundtable.clinical_question,
                 "title": roundtable.title,
                 "citations": [c['id'] for c in citations]

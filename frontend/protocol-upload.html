@@ -45,6 +45,16 @@
             </p>
         </div>
 
+        <div id="backendStatus" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
+            <div class="flex items-start gap-3">
+                <i class="fas fa-server mt-0.5 text-amber-500"></i>
+                <div>
+                    <p class="font-semibold">正在检查上传服务连接</p>
+                    <p id="backendStatusText" class="mt-1 text-amber-700">页面会在上传前先确认后端是否在线。</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Upload Form -->
         <div class="bg-white rounded-2xl shadow-lg p-8">
             <!-- Drag & Drop Zone -->
@@ -163,6 +173,8 @@
         </div>
     </footer>
 
+    <script src="./api-config.js"></script>
+    <script src="./local-upload-store.js"></script>
     <script>
         // DOM Elements
         const dropZone = document.getElementById('dropZone');
@@ -177,8 +189,13 @@
         const uploadForm = document.getElementById('uploadForm');
         const submitBtn = document.getElementById('submitBtn');
         const resultMessage = document.getElementById('resultMessage');
+        const backendStatus = document.getElementById('backendStatus');
+        const backendStatusText = document.getElementById('backendStatusText');
+        const api = window.MRTApiConfig;
+        const localStore = window.MRTLocalUploadStore;
 
         let selectedFile = null;
+        let backendAvailable = false;
 
         // Drag & Drop Events
         dropZone.addEventListener('click', () => fileInput.click());
@@ -227,7 +244,7 @@
             fileName.textContent = file.name;
             fileSize.textContent = formatFileSize(file.size);
             fileInfo.classList.remove('hidden');
-            submitBtn.disabled = false;
+            updateSubmitState();
         }
 
         // Remove File
@@ -236,7 +253,7 @@
             fileInput.value = '';
             fileInfo.classList.add('hidden');
             progressContainer.classList.add('hidden');
-            submitBtn.disabled = true;
+            updateSubmitState();
         });
 
         // Format File Size
@@ -263,57 +280,118 @@
                 return;
             }
 
-            // Prepare FormData
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-            formData.append('title', title);
-            formData.append('description', document.getElementById('description').value);
-            formData.append('roundtable_id', document.getElementById('roundtableId').value);
-
             // Show Progress
             progressContainer.classList.remove('hidden');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>上传中...';
 
             try {
-                // Simulate Progress
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += 10;
-                    if (progress <= 90) {
-                        progressBar.style.width = progress + '%';
-                        progressText.textContent = progress + '%';
-                    }
-                }, 200);
+                progressBar.style.width = '35%';
+                progressText.textContent = backendAvailable ? '连接后端中...' : '暂存到浏览器中...';
 
-                // API Call
-                const response = await fetch('/api/protocols/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+                if (backendAvailable) {
+                    const formData = new FormData();
+                    formData.append('file', selectedFile);
+                    formData.append('title', title);
+                    formData.append('description', document.getElementById('description').value);
+                    formData.append('roundtable_id', document.getElementById('roundtableId').value);
 
-                clearInterval(progressInterval);
-                progressBar.style.width = '100%';
-                progressText.textContent = '100%';
-
-                if (response.ok) {
-                    const result = await response.json();
+                    const result = await api.fetchJson('/api/protocols/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '100%';
                     showResult('success', `上传成功！方案ID: ${result.id}`);
-                    setTimeout(() => {
-                        window.location.href = './data-dashboard.html';
-                    }, 2000);
                 } else {
-                    const error = await response.json();
-                    showResult('error', '上传失败: ' + (error.detail || '未知错误'));
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>重新上传';
+                    const record = await localStore.saveRecord({
+                        kind: 'protocol',
+                        title,
+                        description: document.getElementById('description').value,
+                        roundtableId: document.getElementById('roundtableId').value,
+                        file: selectedFile,
+                    });
+                    progressBar.style.width = '100%';
+                    progressText.textContent = '100%';
+                    showResult('success', `已暂存到浏览器本地：${record.title}`);
                 }
+
+                setTimeout(() => {
+                    window.location.href = './data-dashboard.html?tab=protocols';
+                }, 1600);
             } catch (error) {
-                showResult('error', '网络错误: ' + error.message);
+                showResult('error', '上传失败: ' + error.message);
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>重新上传';
+                syncSubmitButton();
             }
         });
+
+        async function loadRoundtables() {
+            if (!backendAvailable) {
+                return;
+            }
+            try {
+                const roundtables = await api.fetchJson('/api/v1/roundtables');
+                const select = document.getElementById('roundtableId');
+                select.innerHTML = '<option value="">-- 选择圆桌会（可选）--</option>';
+                roundtables.forEach((roundtable) => {
+                    const option = document.createElement('option');
+                    option.value = roundtable.id;
+                    option.textContent = roundtable.title;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.warn('圆桌会列表加载失败:', error.message);
+            }
+        }
+
+        function setBackendStatus(type, message) {
+            backendStatus.className = 'mb-6 rounded-2xl px-5 py-4 text-sm';
+            if (type === 'success') {
+                backendStatus.classList.add('border', 'border-green-200', 'bg-green-50', 'text-green-800');
+                backendStatus.querySelector('i').className = 'fas fa-server mt-0.5 text-green-500';
+            } else if (type === 'error') {
+                backendStatus.classList.add('border', 'border-red-200', 'bg-red-50', 'text-red-800');
+                backendStatus.querySelector('i').className = 'fas fa-triangle-exclamation mt-0.5 text-red-500';
+            } else {
+                backendStatus.classList.add('border', 'border-amber-200', 'bg-amber-50', 'text-amber-800');
+                backendStatus.querySelector('i').className = 'fas fa-server mt-0.5 text-amber-500';
+            }
+            backendStatusText.textContent = message;
+        }
+
+        function syncSubmitButton() {
+            if (!selectedFile) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = backendAvailable
+                    ? '<i class="fas fa-upload mr-2"></i>开始上传'
+                    : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器';
+                return;
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = backendAvailable
+                ? '<i class="fas fa-upload mr-2"></i>开始上传'
+                : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器';
+        }
+
+        function updateSubmitState() {
+            syncSubmitButton();
+        }
+
+        async function checkBackend() {
+            setBackendStatus('loading', `正在连接上传服务：${api.API_BASE}`);
+            try {
+                await api.healthcheck();
+                backendAvailable = true;
+                setBackendStatus('success', `上传服务已连接，当前接口地址：${api.API_BASE}`);
+                updateSubmitState();
+                await loadRoundtables();
+            } catch (error) {
+                backendAvailable = false;
+                setBackendStatus('error', `上传服务未连接：${error.message}。当前启用浏览器本地暂存模式，提交后只存在当前设备。`);
+                updateSubmitState();
+            }
+        }
 
         // Show Result Message
         function showResult(type, message) {
@@ -326,6 +404,8 @@
                 resultMessage.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>' + message;
             }
         }
+
+        checkBackend();
     </script>
 </body>
 </html>

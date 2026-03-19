@@ -1102,6 +1102,11 @@
         let eventSource = null;
         let token = localStorage.getItem('mrt_token');
         let user = null;
+
+        function getRoundtableDetailUrl(sessionId) {
+            return `../roundtables/detail.html?sessionId=${encodeURIComponent(sessionId)}`;
+        }
+
         try {
             user = JSON.parse(localStorage.getItem('mrt_user') || 'null');
         } catch (e) {
@@ -1440,9 +1445,9 @@
                 loadSessions();
                 
                 console.log('步骤11: 跳转到圆桌详情页');
-                console.log('跳转URL:', `/roundtables/${session.id}`);
+                console.log('跳转URL:', getRoundtableDetailUrl(session.id));
                 console.log('当前localStorage:', localStorage.getItem('mockSessions'));
-                window.location.href = `/roundtables/${session.id}`;
+                window.location.href = getRoundtableDetailUrl(session.id);
                 
                 console.log('=== submitNewSession 完成 ===');
             } catch (err) {
