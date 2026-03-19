@@ -292,6 +292,186 @@
             box-shadow: 0 12px 24px rgba(30, 64, 175, 0.12);
         }
 
+        .capability-atlas {
+            background:
+                radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.16), transparent 26%),
+                radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.14), transparent 24%),
+                linear-gradient(180deg, #f4f8ff 0%, #f8fafc 34%, #eef6ff 100%);
+        }
+
+        .atlas-shell {
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 252, 0.94)),
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 38%);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 0 30px 70px rgba(15, 23, 42, 0.08);
+        }
+
+        .atlas-panel {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            box-shadow: 0 22px 48px rgba(15, 23, 42, 0.06);
+            backdrop-filter: blur(22px);
+        }
+
+        .atlas-mini-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #2563eb;
+        }
+
+        .atlas-metric-card {
+            border: 1px solid rgba(191, 219, 254, 0.9);
+            background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.98));
+            box-shadow: 0 14px 32px rgba(30, 64, 175, 0.08);
+        }
+
+        .atlas-flow-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .atlas-flow-node {
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px;
+            padding: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.92));
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
+        }
+
+        .atlas-flow-node::after {
+            content: '';
+            position: absolute;
+            inset: auto -18px 22px auto;
+            width: 56px;
+            height: 56px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.08);
+            filter: blur(2px);
+        }
+
+        .atlas-source-card {
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.05);
+        }
+
+        .atlas-lane-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 26px;
+            padding: 22px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.95));
+            box-shadow: 0 20px 42px rgba(15, 23, 42, 0.06);
+        }
+
+        .atlas-lane-card::before {
+            content: '';
+            position: absolute;
+            inset: -40% auto auto -10%;
+            width: 160px;
+            height: 160px;
+            border-radius: 999px;
+            background: var(--lane-glow, rgba(59, 130, 246, 0.14));
+            filter: blur(18px);
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .atlas-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: rgba(255, 255, 255, 0.92);
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .atlas-nav-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255, 255, 255, 0.8);
+            color: #334155;
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .atlas-nav-pill:hover {
+            transform: translateY(-1px);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 12px 26px rgba(30, 64, 175, 0.12);
+        }
+
+        .atlas-category-card {
+            border-radius: 26px;
+            padding: 22px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
+        }
+
+        .atlas-database-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: rgba(255, 255, 255, 0.96);
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: 600;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .atlas-database-pill:hover {
+            transform: translateY(-1px);
+            border-color: rgba(59, 130, 246, 0.28);
+            box-shadow: 0 12px 24px rgba(30, 64, 175, 0.10);
+        }
+
+        .atlas-database-pill span:last-child {
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        @media (max-width: 1024px) {
+            .atlas-flow-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .atlas-flow-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .atlas-database-pill {
+                padding: 10px 12px;
+            }
+        }
+
         .mobile-cta-bar {
             box-shadow: 0 18px 44px rgba(15, 23, 42, 0.22);
         }
@@ -472,15 +652,15 @@
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                         <div class="bg-white/10 backdrop-blur rounded-2xl p-4">
-                            <div class="text-4xl font-bold mb-1">997</div>
+                            <div id="heroSkillsTotal" class="text-4xl font-bold mb-1">997</div>
                             <div class="text-sm text-blue-100">AI专业技能</div>
                         </div>
                         <div class="bg-white/10 backdrop-blur rounded-2xl p-4">
-                            <div class="text-4xl font-bold mb-1">46</div>
+                            <div id="heroDatabaseTotal" class="text-4xl font-bold mb-1">46</div>
                             <div class="text-sm text-blue-100">生物医学数据库</div>
                         </div>
                         <div class="bg-white/10 backdrop-blur rounded-2xl p-4">
-                            <div class="text-4xl font-bold mb-1">14</div>
+                            <div id="heroExpertTotal" class="text-4xl font-bold mb-1">14</div>
                             <div class="text-sm text-blue-100">AI专家Agent</div>
                         </div>
                         <div class="bg-white/10 backdrop-blur rounded-2xl p-4">
@@ -506,6 +686,9 @@
                                 </div>
                             </div>
                             <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-blue-100/90">
+                                <a href="#capability-atlas" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
+                                    <i class="fas fa-layer-group"></i>首页查看全部数据与算法
+                                </a>
                                 <a href="./frontend/database-browser.html" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
                                     <i class="fas fa-database"></i>查看 46 个数据库目录
                                 </a>
@@ -517,6 +700,104 @@
                     </div>
                 </div>
             </div>
+
+            <section id="capability-atlas" class="capability-atlas py-14 px-4">
+                <div class="max-w-6xl mx-auto">
+                    <div class="atlas-shell rounded-[2rem] px-5 py-6 md:px-8 md:py-8">
+                        <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                            <div>
+                                <p class="atlas-mini-label">Platform Atlas</p>
+                                <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">把平台能力直接摊开在首页：数据底座、算法引擎、专家编排一次看全</h2>
+                                <p class="mt-4 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
+                                    不再让用户先跳数据库页、再跳算法页、再回首页拼信息。这里直接呈现 46 个数据库、8 条算法链路、4 个技能来源包和 STELLA 编排方式。
+                                </p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <a href="#atlas-algorithm-board" class="atlas-nav-pill">
+                                    <i class="fas fa-wave-square text-blue-600"></i>算法链路
+                                </a>
+                                <a href="#database-atlas" class="atlas-nav-pill">
+                                    <i class="fas fa-database text-emerald-600"></i>数据库编目
+                                </a>
+                                <a href="#expert-command-center" class="atlas-nav-pill">
+                                    <i class="fas fa-user-doctor text-violet-600"></i>专家分诊
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+                            <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="atlas-mini-label">Capability Snapshot</p>
+                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">平台总量不是一句“997 项技能”</h3>
+                                        <p class="mt-2 text-sm leading-7 text-slate-600">首页先把可调用能力拆成使用者真正关心的结构：来源包、数据库类别、算法链路和编排角色。</p>
+                                    </div>
+                                    <a href="./frontend/skills-market.html" class="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 md:inline-flex md:items-center md:gap-2">
+                                        查看技能市场 <i class="fas fa-arrow-right text-xs"></i>
+                                    </a>
+                                </div>
+                                <div id="atlasTopMetrics" class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"></div>
+                                <div class="mt-6">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-900">一条可理解的能力流</p>
+                                            <p class="text-xs text-slate-500">从数据接入到算法执行，再到专家协作和期刊级交付。</p>
+                                        </div>
+                                        <span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">主页直读，不必跳页</span>
+                                    </div>
+                                    <div id="atlasPipelineNodes" class="mt-4 atlas-flow-grid"></div>
+                                </div>
+                            </article>
+
+                            <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="atlas-mini-label">Skill Source Packages</p>
+                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">997 项能力来自 4 层技能包装，而不是一个黑盒</h3>
+                                        <p class="mt-2 text-sm leading-7 text-slate-600">把 OpenClaw 包装层、本地核心、中间研究增强层和平台扩展层公开出来，用户能知道每类能力是从哪一层进入平台的。</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
+                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">STELLA</div>
+                                        <div class="mt-2 text-base font-bold text-slate-950">Manager · Dev · Critic</div>
+                                        <div class="mt-1 text-xs text-slate-500">3 层编排角色负责路由、执行与复核</div>
+                                    </div>
+                                </div>
+                                <div id="atlasSourcePackageList" class="mt-5 grid gap-4 md:grid-cols-2"></div>
+                            </article>
+                        </div>
+
+                        <div id="atlas-algorithm-board" class="mt-6">
+                            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                                <div>
+                                    <p class="atlas-mini-label">Algorithm Lanes</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">8 条算法链路分别解决什么问题、由谁接手、产出什么结果</h3>
+                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">不是只给一个“算法能力矩阵”入口，而是在首页直接说明每条引擎的覆盖场景、主要交付和推荐专家。</p>
+                                </div>
+                                <a href="./frontend/capability-matrix.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    查看完整能力矩阵 <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                            <div id="atlasCapabilityLaneGrid" class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4"></div>
+                        </div>
+
+                        <div id="database-atlas" class="mt-6 atlas-panel rounded-[1.75rem] p-5 md:p-6">
+                            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                                <div>
+                                    <p class="atlas-mini-label">Database Inventory</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">46 个数据库按 10 类研究场景展开，不再只显示一个总数字</h3>
+                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">每个分类直接列出实际数据库名称，并保留外部直达链接。用户在首页就能判断平台到底接入了哪些真实数据源。</p>
+                                </div>
+                                <a href="./frontend/database-browser.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                    查看完整数据库目录 <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                            <div id="atlasDatabaseCategorySummary" class="mt-5 flex flex-wrap gap-2"></div>
+                            <div id="atlasDatabaseCategoryGrid" class="mt-5 grid gap-4 lg:grid-cols-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <!-- 扩展工具能力展示 -->
             <div class="bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4">
@@ -1308,6 +1589,7 @@
         </div>
     </div>
 
+    <script src="./frontend/platform-catalog.js"></script>
     <script src="./frontend/secondme-identity.js"></script>
     <script src="./frontend/secondme-collaboration.js"></script>
     <script src="./frontend/expert-data.js"></script>
@@ -1332,9 +1614,25 @@
         const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
         const secondMeCollaboration = window.MedRoundTableSecondMe || null;
         const expertCatalog = window.MedRoundTableExperts || null;
+        const platformCatalogStore = window.MRTPlatformCatalog || null;
         const coreClinicalRoles = ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse'];
         let preferredExpertRole = localStorage.getItem('mrt_preferred_expert') || null;
         let pendingCollaborationSetup = loadPendingCollaborationSetup();
+        let platformCatalog = null;
+        const atlasTonePalette = {
+            amber: { accent: '#d97706', text: '#92400e', border: 'rgba(245, 158, 11, 0.24)', glow: 'rgba(245, 158, 11, 0.18)', chip: 'rgba(245, 158, 11, 0.12)', surface: 'linear-gradient(180deg, rgba(255, 251, 235, 0.98), rgba(255, 247, 237, 0.92))' },
+            blue: { accent: '#2563eb', text: '#1d4ed8', border: 'rgba(59, 130, 246, 0.24)', glow: 'rgba(59, 130, 246, 0.18)', chip: 'rgba(59, 130, 246, 0.12)', surface: 'linear-gradient(180deg, rgba(239, 246, 255, 0.98), rgba(248, 250, 252, 0.94))' },
+            emerald: { accent: '#059669', text: '#047857', border: 'rgba(16, 185, 129, 0.24)', glow: 'rgba(16, 185, 129, 0.18)', chip: 'rgba(16, 185, 129, 0.12)', surface: 'linear-gradient(180deg, rgba(236, 253, 245, 0.98), rgba(248, 250, 252, 0.94))' },
+            teal: { accent: '#0f766e', text: '#0f766e', border: 'rgba(20, 184, 166, 0.24)', glow: 'rgba(20, 184, 166, 0.18)', chip: 'rgba(20, 184, 166, 0.12)', surface: 'linear-gradient(180deg, rgba(240, 253, 250, 0.98), rgba(248, 250, 252, 0.94))' },
+            rose: { accent: '#e11d48', text: '#be123c', border: 'rgba(244, 63, 94, 0.24)', glow: 'rgba(244, 63, 94, 0.18)', chip: 'rgba(244, 63, 94, 0.12)', surface: 'linear-gradient(180deg, rgba(255, 241, 242, 0.98), rgba(248, 250, 252, 0.94))' },
+            violet: { accent: '#7c3aed', text: '#6d28d9', border: 'rgba(139, 92, 246, 0.24)', glow: 'rgba(139, 92, 246, 0.18)', chip: 'rgba(139, 92, 246, 0.12)', surface: 'linear-gradient(180deg, rgba(245, 243, 255, 0.98), rgba(248, 250, 252, 0.94))' },
+            indigo: { accent: '#4f46e5', text: '#4338ca', border: 'rgba(99, 102, 241, 0.24)', glow: 'rgba(99, 102, 241, 0.18)', chip: 'rgba(99, 102, 241, 0.12)', surface: 'linear-gradient(180deg, rgba(238, 242, 255, 0.98), rgba(248, 250, 252, 0.94))' },
+            cyan: { accent: '#0891b2', text: '#0e7490', border: 'rgba(6, 182, 212, 0.24)', glow: 'rgba(6, 182, 212, 0.18)', chip: 'rgba(6, 182, 212, 0.12)', surface: 'linear-gradient(180deg, rgba(236, 254, 255, 0.98), rgba(248, 250, 252, 0.94))' },
+            lime: { accent: '#65a30d', text: '#4d7c0f', border: 'rgba(132, 204, 22, 0.24)', glow: 'rgba(132, 204, 22, 0.18)', chip: 'rgba(132, 204, 22, 0.12)', surface: 'linear-gradient(180deg, rgba(247, 254, 231, 0.98), rgba(248, 250, 252, 0.94))' },
+            red: { accent: '#dc2626', text: '#b91c1c', border: 'rgba(239, 68, 68, 0.24)', glow: 'rgba(239, 68, 68, 0.18)', chip: 'rgba(239, 68, 68, 0.12)', surface: 'linear-gradient(180deg, rgba(254, 242, 242, 0.98), rgba(248, 250, 252, 0.94))' },
+            orange: { accent: '#ea580c', text: '#c2410c', border: 'rgba(249, 115, 22, 0.24)', glow: 'rgba(249, 115, 22, 0.18)', chip: 'rgba(249, 115, 22, 0.12)', surface: 'linear-gradient(180deg, rgba(255, 247, 237, 0.98), rgba(248, 250, 252, 0.94))' },
+            slate: { accent: '#334155', text: '#334155', border: 'rgba(100, 116, 139, 0.24)', glow: 'rgba(100, 116, 139, 0.18)', chip: 'rgba(100, 116, 139, 0.12)', surface: 'linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(241, 245, 249, 0.94))' }
+        };
 
         // 全局状态
         let currentSessionId = null;
@@ -1420,6 +1718,248 @@
             model_qa: { trigger: '担心结论不稳', outcome: '先做偏差、稳定性与 QA 复核' }
         };
 
+        function getAtlasPalette(tone) {
+            return atlasTonePalette[tone] || atlasTonePalette.blue;
+        }
+
+        function formatPackagingLabel(value) {
+            return String(value || '')
+                .split('-')
+                .map((segment) => segment ? segment.charAt(0).toUpperCase() + segment.slice(1) : '')
+                .join(' · ');
+        }
+
+        function buildDatabaseCategorySummary(databases) {
+            if (platformCatalogStore && typeof platformCatalogStore.buildCategorySummary === 'function') {
+                return platformCatalogStore.buildCategorySummary(databases);
+            }
+
+            const counts = databases.reduce((map, database) => {
+                map[database.category] = (map[database.category] || 0) + 1;
+                return map;
+            }, {});
+
+            return Object.entries(counts)
+                .map(([name, count]) => ({ name, count }))
+                .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-Hans-CN'));
+        }
+
+        function updateHomepageHeroStats() {
+            if (!platformCatalog || !platformCatalog.stats) return;
+
+            const { skills_total, experts_total } = platformCatalog.stats;
+            const databaseTotal = Array.isArray(platformCatalog.databases) ? platformCatalog.databases.length : 0;
+
+            const skillsEl = document.getElementById('heroSkillsTotal');
+            const databaseEl = document.getElementById('heroDatabaseTotal');
+            const expertEl = document.getElementById('heroExpertTotal');
+
+            if (skillsEl && skills_total) {
+                skillsEl.textContent = String(skills_total);
+            }
+            if (databaseEl && databaseTotal) {
+                databaseEl.textContent = String(databaseTotal);
+            }
+            if (expertEl && experts_total) {
+                expertEl.textContent = String(experts_total);
+            }
+        }
+
+        async function loadHomepagePlatformAtlas() {
+            if (!platformCatalogStore || typeof platformCatalogStore.loadCatalog !== 'function') {
+                return;
+            }
+
+            try {
+                platformCatalog = await platformCatalogStore.loadCatalog('.');
+                updateHomepageHeroStats();
+                renderHomepagePlatformAtlas();
+            } catch (err) {
+                console.error('平台目录加载失败:', err);
+            }
+        }
+
+        function renderHomepagePlatformAtlas() {
+            if (!platformCatalog) return;
+
+            const metricsContainer = document.getElementById('atlasTopMetrics');
+            const pipelineContainer = document.getElementById('atlasPipelineNodes');
+            const sourceContainer = document.getElementById('atlasSourcePackageList');
+            const laneContainer = document.getElementById('atlasCapabilityLaneGrid');
+            const categorySummaryContainer = document.getElementById('atlasDatabaseCategorySummary');
+            const categoryGrid = document.getElementById('atlasDatabaseCategoryGrid');
+
+            if (!metricsContainer || !pipelineContainer || !sourceContainer || !laneContainer || !categorySummaryContainer || !categoryGrid) {
+                return;
+            }
+
+            const stats = platformCatalog.stats || {};
+            const databases = Array.isArray(platformCatalog.databases) ? platformCatalog.databases : [];
+            const sourcePackages = Array.isArray(platformCatalog.source_packages) ? platformCatalog.source_packages : [];
+            const capabilityLanes = Array.isArray(platformCatalog.capability_lanes) ? platformCatalog.capability_lanes : [];
+            const categorySummary = buildDatabaseCategorySummary(databases);
+            const groupedDatabases = categorySummary.map((category, index) => ({
+                ...category,
+                index,
+                items: databases.filter((database) => database.category === category.name)
+            }));
+            const totalSkills = Number(stats.skills_total) || sourcePackages.reduce((sum, item) => sum + Number(item.count || 0), 0);
+            const metricItems = [
+                {
+                    label: '技能来源包',
+                    value: sourcePackages.length || 4,
+                    note: `${totalSkills || 997} 项能力拆成可读来源`
+                },
+                {
+                    label: '数据库类别',
+                    value: categorySummary.length || 10,
+                    note: `${databases.length || 46} 个数据库已编目`
+                },
+                {
+                    label: '算法引擎',
+                    value: capabilityLanes.length || 8,
+                    note: '每条都定义覆盖场景与交付'
+                },
+                {
+                    label: '编排角色',
+                    value: `${stats.experts_total || 14}+${stats.stella_meta_roles || 3}`,
+                    note: '14 位专家 + STELLA'
+                }
+            ];
+
+            metricsContainer.innerHTML = metricItems.map((metric) => `
+                <div class="atlas-metric-card rounded-[1.4rem] p-4">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">${escapeHtml(metric.label)}</div>
+                    <div class="mt-3 text-3xl font-bold tracking-tight text-slate-950">${escapeHtml(metric.value)}</div>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(metric.note)}</p>
+                </div>
+            `).join('');
+
+            const pipelineItems = [
+                {
+                    label: '数据底座',
+                    value: `${databases.length || 46}`,
+                    note: `${categorySummary.length || 10} 类数据库`
+                },
+                {
+                    label: '算法执行',
+                    value: `${capabilityLanes.length || 8}`,
+                    note: `${totalSkills || 997} 项技能映射`
+                },
+                {
+                    label: '专家协作',
+                    value: `${stats.experts_total || 14}`,
+                    note: `STELLA ${stats.stella_meta_roles || 3} 角编排`
+                },
+                {
+                    label: '交付出口',
+                    value: '期刊级',
+                    note: '方案、SAP、图表与导出'
+                }
+            ];
+
+            pipelineContainer.innerHTML = pipelineItems.map((item) => `
+                <div class="atlas-flow-node">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">${escapeHtml(item.label)}</div>
+                    <div class="mt-3 text-2xl font-bold tracking-tight text-slate-950">${escapeHtml(item.value)}</div>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(item.note)}</p>
+                </div>
+            `).join('');
+
+            sourceContainer.innerHTML = sourcePackages.map((item) => {
+                const share = totalSkills ? Math.max(6, Math.round((Number(item.count || 0) / totalSkills) * 100)) : 0;
+                return `
+                    <article class="atlas-source-card">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="atlas-mini-label">Source Package</p>
+                                <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
+                            </div>
+                            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-bold text-slate-700">${escapeHtml(item.count)}</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
+                        <div class="mt-4 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                            <span>${escapeHtml(formatPackagingLabel(item.packaging))}</span>
+                            <span>${escapeHtml(`${share}% of total`)}</span>
+                        </div>
+                        <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                            <div class="h-full rounded-full bg-gradient-to-r from-slate-900 via-blue-700 to-cyan-500" style="width:${share}%"></div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            laneContainer.innerHTML = capabilityLanes.map((lane) => {
+                const palette = getAtlasPalette(lane.tone);
+                return `
+                    <article class="atlas-lane-card" style="--lane-glow:${palette.glow}; border-color:${palette.border}; background:${palette.surface};">
+                        <div class="relative z-10">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="atlas-mini-label" style="color:${palette.text}">Algorithm Lane</p>
+                                    <h4 class="mt-2 text-xl font-bold leading-snug text-slate-950">${escapeHtml(lane.name)}</h4>
+                                </div>
+                                <span class="rounded-full px-3 py-1 text-sm font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">${escapeHtml(lane.count)}</span>
+                            </div>
+                            <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(lane.description)}</p>
+                            <div class="mt-4">
+                                <div class="text-xs font-semibold uppercase tracking-[0.16em]" style="color:${palette.text}">覆盖场景</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${(lane.coverage || []).map((item) => `<span class="atlas-tag" style="border-color:${palette.border}; color:${palette.text}; background:${palette.chip};">${escapeHtml(item)}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">推荐专家</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${(lane.owner_roles || []).map((role) => `<span class="atlas-tag">${escapeHtml(role)}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div class="mt-4 rounded-[1.25rem] border border-white/70 bg-white/75 p-3">
+                                <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">主要交付</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${(lane.deliverables || []).map((item) => `<span class="atlas-tag">${escapeHtml(item)}</span>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            categorySummaryContainer.innerHTML = groupedDatabases.map((group) => `
+                <a href="#atlas-database-category-${group.index}" class="atlas-nav-pill">
+                    <i class="fas fa-folder-tree text-blue-600"></i>${escapeHtml(group.name)} · ${escapeHtml(group.count)}
+                </a>
+            `).join('');
+
+            categoryGrid.innerHTML = groupedDatabases.map((group) => {
+                const tone = getAtlasPalette(group.items[0] ? group.items[0].tone : 'blue');
+                const accessModes = [...new Set(group.items.map((item) => item.access_mode).filter(Boolean))];
+                const agents = [...new Set(group.items.map((item) => item.recommended_agent).filter(Boolean))].slice(0, 3);
+
+                return `
+                    <article id="atlas-database-category-${group.index}" class="atlas-category-card" style="border-color:${tone.border}; background:${tone.surface};">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="atlas-mini-label" style="color:${tone.text}">Data Category</p>
+                                <h4 class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(group.name)}</h4>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">${escapeHtml(`${group.count} 个数据库 · ${accessModes.join(' / ')}`)}</p>
+                                ${agents.length ? `<p class="mt-1 text-xs font-semibold" style="color:${tone.text}">常由 ${escapeHtml(agents.join(' / '))} 介入</p>` : ''}
+                            </div>
+                            <span class="rounded-full px-3 py-1 text-sm font-bold" style="background:${tone.chip}; color:${tone.text}; border:1px solid ${tone.border};">${escapeHtml(group.count)}</span>
+                        </div>
+                        <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                            ${group.items.map((item) => `
+                                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="atlas-database-pill" title="${escapeHtml(`${item.description} ${item.integration}`)}">
+                                    <span>${escapeHtml(item.name)}</span>
+                                    <span>${escapeHtml(item.access_mode)}</span>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
         // 初始化
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('✅ DOM 加载完成');
@@ -1427,6 +1967,7 @@
                 if (secondMeIdentityStore) {
                     secondMeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
                 }
+                await loadHomepagePlatformAtlas();
                 await loadSessions();
                 updateUserUI();
                 await consumePendingHomepageAction();
