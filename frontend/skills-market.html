@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="./platform-catalog.js"></script>
+    <script src="./expert-data.js"></script>
+    <script src="./agent-skill-blueprints.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
 
@@ -15,8 +17,8 @@
             font-family: 'Noto Sans SC', sans-serif;
             color: #10213c;
             background:
-                radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 24%),
-                radial-gradient(circle at top right, rgba(139, 92, 246, 0.14), transparent 26%),
+                radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 24%),
+                radial-gradient(circle at 100% 0, rgba(59, 130, 246, 0.12), transparent 28%),
                 linear-gradient(180deg, #f7fbff 0%, #eef3fb 100%);
         }
 
@@ -25,19 +27,72 @@
         }
 
         .soft-panel {
-            background: rgba(255, 255, 255, 0.82);
+            background: rgba(255, 255, 255, 0.84);
             backdrop-filter: blur(18px);
         }
 
-        .lane-card,
-        .package-card {
+        .market-card,
+        .agent-filter-card,
+        .package-card,
+        .lane-card {
             transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
         }
 
-        .lane-card:hover,
-        .package-card:hover {
-            transform: translateY(-5px);
+        .market-card:hover,
+        .agent-filter-card:hover,
+        .package-card:hover,
+        .lane-card:hover {
+            transform: translateY(-4px);
             box-shadow: 0 24px 48px rgba(31, 78, 170, 0.12);
+        }
+
+        .agent-filter-card.active {
+            border-color: rgba(37, 99, 235, 0.35);
+            box-shadow: 0 26px 54px rgba(30, 64, 175, 0.16);
+        }
+
+        .group-filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255, 255, 255, 0.92);
+            color: #334155;
+            font-size: 13px;
+            font-weight: 700;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .group-filter-pill:hover,
+        .group-filter-pill.active {
+            transform: translateY(-1px);
+            border-color: rgba(59, 130, 246, 0.28);
+            box-shadow: 0 12px 26px rgba(30, 64, 175, 0.10);
+        }
+
+        .agent-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.92);
+        }
+
+        .mini-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 11px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            background: rgba(255, 255, 255, 0.94);
+            color: #334155;
+            font-size: 12px;
+            font-weight: 700;
         }
     </style>
 </head>
@@ -47,19 +102,19 @@
             <section class="border-b border-slate-200/80 px-6 py-8 md:px-10 md:py-10">
                 <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
                     <div class="max-w-3xl">
-                        <a href="./index.html" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition">
-                            <i class="fas fa-arrow-left"></i> 返回首页
+                        <a href="../index.html#agent-skill-command" class="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 transition">
+                            <i class="fas fa-arrow-left"></i> 返回首页 Agent 技能入口
                         </a>
-                        <div class="mt-5 inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-700">
-                            <i class="fas fa-brain"></i> Capability Exchange
+                        <div class="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
+                            <i class="fas fa-hexagon-nodes"></i> Agent-Native Skill Market
                         </div>
                         <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">技能市场</h1>
                         <p class="mt-4 text-lg leading-8 text-slate-600">
-                            这里展示的不只是“997 项技能”，而是 8 条可解释的算法能力链路、4 个来源包，以及它们如何被 STELLA Manager-Dev-Critic 组织进真实研究流程。
+                            现在这页不再只是“997 项技能”的统计墙，而是改成按 14 位 Agent 查看技能入口。你可以先选专家，再看到与 TA 相关的能力链路、来源包和交付物。
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-[36rem]">
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-[38rem]">
                         <div class="rounded-3xl bg-slate-950 px-4 py-5 text-white">
                             <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Skills</p>
                             <p id="skillTotal" class="mt-3 text-3xl font-bold">997</p>
@@ -72,31 +127,32 @@
                         </div>
                         <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
                             <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Lanes</p>
-                            <p id="laneTotal" class="mt-3 text-3xl font-bold text-emerald-700">0</p>
+                            <p id="laneTotal" class="mt-3 text-3xl font-bold text-emerald-700">8</p>
                             <p class="mt-1 text-sm text-slate-500">算法能力链路</p>
                         </div>
                         <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
                             <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Databases</p>
-                            <p id="databaseTotal" class="mt-3 text-3xl font-bold text-blue-700">0</p>
+                            <p id="databaseTotal" class="mt-3 text-3xl font-bold text-blue-700">46</p>
                             <p class="mt-1 text-sm text-slate-500">可联动数据库</p>
                         </div>
                     </div>
                 </div>
+                <div id="marketSummaryNote" class="mt-6 flex flex-wrap gap-2"></div>
             </section>
 
             <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
                 <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                     <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">STELLA</p>
-                        <h2 class="mt-2 text-3xl font-bold">Manager-Dev-Critic 不只是口号</h2>
+                        <h2 class="mt-2 text-3xl font-bold">先选 Agent，再让 Manager-Dev-Critic 编排技能</h2>
                         <div class="mt-5 grid gap-4 md:grid-cols-3">
                             <div class="rounded-3xl bg-blue-50 p-4">
                                 <p class="text-sm font-semibold text-blue-700">Manager</p>
-                                <p class="mt-2 text-sm leading-7 text-slate-600">定义研究目标、拆分阶段、挑出首位专家和第一批技能。</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">定义研究目标、挑出首位专家，并把技能入口对齐到当前任务。</p>
                             </div>
                             <div class="rounded-3xl bg-violet-50 p-4">
                                 <p class="text-sm font-semibold text-violet-700">Dev</p>
-                                <p class="mt-2 text-sm leading-7 text-slate-600">组织数据库、分析链和可交付物，让工作流真正跑起来。</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">拉起数据库、能力链路和输出模板，让研究工作流真正跑起来。</p>
                             </div>
                             <div class="rounded-3xl bg-rose-50 p-4">
                                 <p class="text-sm font-semibold text-rose-700">Critic</p>
@@ -105,28 +161,43 @@
                         </div>
                     </div>
 
-                    <div class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-blue-950 to-slate-900 p-6 text-white">
-                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-200/80">Use It Better</p>
-                        <h2 class="mt-2 text-2xl font-bold">让用户更快参与，而不是被参数淹没</h2>
-                        <ul class="mt-4 space-y-3 text-sm leading-7 text-blue-100">
-                            <li><i class="fas fa-check-circle mr-2 text-emerald-300"></i>先看能力链路，再决定入口专家和数据库。</li>
-                            <li><i class="fas fa-check-circle mr-2 text-emerald-300"></i>用同一套目录贯通数据库页、首页和能力页。</li>
-                            <li><i class="fas fa-check-circle mr-2 text-emerald-300"></i>把“技能市场”从罗列名词改成可解释的任务路径。</li>
-                        </ul>
+                    <div id="selectedAgentPanel" class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-slate-950 to-blue-950 p-6 text-white">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-200/80">Selected Agent</p>
+                        <h2 id="selectedAgentTitle" class="mt-2 text-2xl font-bold">先从 14 位 Agent 里选一位</h2>
+                        <p id="selectedAgentDescription" class="mt-4 text-sm leading-7 text-slate-300">
+                            选中某位专家后，这一页会把技能来源包和算法链路切到 TA 的主责视角。
+                        </p>
+                        <div id="selectedAgentMeta" class="mt-5 flex flex-wrap gap-2"></div>
                         <div class="mt-6 flex flex-wrap gap-3">
-                            <a href="./capability-matrix.html" class="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-blue-50 transition">查看详细能力矩阵</a>
-                            <a href="./database-browser.html" class="rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">进入数据库目录</a>
+                            <a id="selectedAgentSessionCta" href="./session-launchpad.html" class="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">
+                                直接创建圆桌会
+                            </a>
+                            <button id="clearExpertFilterBtn" type="button" class="rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">
+                                查看全部 Agent
+                            </button>
                         </div>
                     </div>
                 </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Agent Router</p>
+                        <h2 class="mt-2 text-3xl font-bold">按 14 位 Agent 过滤技能入口</h2>
+                        <p class="mt-3 text-slate-600">先按团队分组，再点具体专家。页面会把来源包、能力链路和 CTA 一起切换到该 Agent 的工作面。</p>
+                    </div>
+                </div>
+                <div id="agentGroupFilters" class="mt-6 flex flex-wrap gap-2"></div>
+                <div id="agentFilterGrid" class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
             </section>
 
             <section class="px-6 py-8 md:px-10">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Source Packages</p>
-                        <h2 class="mt-2 text-3xl font-bold">四层来源包</h2>
-                        <p class="mt-3 text-slate-600">从本地核心到 OpenClaw 包装层，来源越清楚，用户越能理解平台为什么“能做这些事”。</p>
+                        <h2 id="packageSectionTitle" class="mt-2 text-3xl font-bold">四层来源包</h2>
+                        <p id="packageSectionDescription" class="mt-3 text-slate-600">从本地核心到 OpenClaw 包装层，来源越清楚，用户越能理解平台为什么能做这些事。</p>
                     </div>
                 </div>
                 <div id="packageGrid" class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"></div>
@@ -136,8 +207,8 @@
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Capability Lanes</p>
-                        <h2 class="mt-2 text-3xl font-bold">八条算法能力链路</h2>
-                        <p class="mt-3 text-slate-600">每条链路都对应技能数量、主责角色、典型产出和用户应该看到的结果。</p>
+                        <h2 id="laneSectionTitle" class="mt-2 text-3xl font-bold">八条算法能力链路</h2>
+                        <p id="laneSectionDescription" class="mt-3 text-slate-600">每条链路都对应技能数量、主责角色、典型产出和用户应该看到的结果。</p>
                     </div>
                 </div>
                 <div id="laneGrid" class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2"></div>
@@ -148,13 +219,13 @@
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div class="max-w-2xl">
                             <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Next Step</p>
-                            <h2 class="mt-2 text-3xl font-bold">先选能力，再创建圆桌会</h2>
+                            <h2 class="mt-2 text-3xl font-bold">从技能页回到创建流，减少二次判断</h2>
                             <p class="mt-3 text-sm leading-7 text-slate-300">
-                                如果你已经知道自己的问题偏文献、偏试验、偏多组学还是偏药物，再返回首页时会更容易知道应该先让谁开场。
+                                选定 Agent 后，直接把 TA 带回圆桌会。用户不需要再回首页重新猜一次应该谁先介入。
                             </p>
                         </div>
                         <div class="flex flex-wrap gap-3">
-                            <a href="./session-launchpad.html" class="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">直接创建圆桌会</a>
+                            <a id="footerSessionCta" href="./session-launchpad.html" class="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">带上当前 Agent 创建圆桌会</a>
                             <a href="./experts.html" class="rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">先看 14 位专家</a>
                         </div>
                     </div>
@@ -170,6 +241,10 @@
             'native-integration': 'emerald',
             'platform-extension': 'amber',
         };
+        const groupFilterState = { activeGroupId: 'all' };
+        let currentCatalog = null;
+        let currentDecks = [];
+        let selectedExpertRole = null;
 
         function escapeHtml(value) {
             return String(value)
@@ -180,9 +255,141 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function getSelectedDeck() {
+            return currentDecks.find((deck) => deck.expert.role === selectedExpertRole) || null;
+        }
+
+        function updateUrl(role) {
+            const url = new URL(window.location.href);
+            if (role) {
+                url.searchParams.set('expert', role);
+            } else {
+                url.searchParams.delete('expert');
+            }
+            window.history.replaceState({}, '', url.toString());
+        }
+
+        function renderMarketSummary(catalog) {
+            const note = document.getElementById('marketSummaryNote');
+            if (!note) return;
+            note.innerHTML = [
+                `997 项能力来自 ${catalog.source_packages.length} 个来源包`,
+                `${catalog.capability_lanes.length} 条算法链路贯穿平台`,
+                `${catalog.databases.length} 个数据库已和技能市场打通`,
+                '支持通过 URL 直接落到某位 Agent 的技能入口'
+            ].map((item) => `<span class="mini-chip">${escapeHtml(item)}</span>`).join('');
+        }
+
+        function renderStats(catalog) {
+            document.getElementById('skillTotal').textContent = catalog.stats.skills_total;
+            document.getElementById('openclawTotal').textContent = catalog.stats.openclaw_wrapped_skills;
+            document.getElementById('laneTotal').textContent = catalog.capability_lanes.length;
+            document.getElementById('databaseTotal').textContent = catalog.databases.length;
+        }
+
+        function renderGroupFilters() {
+            const container = document.getElementById('agentGroupFilters');
+            const groups = [
+                { id: 'all', name: '全部 Agent', icon: 'fa-table-cells-large' },
+                ...window.MedRoundTableExperts.groups.map((group) => ({
+                    id: group.id,
+                    name: group.name,
+                    icon: group.icon
+                }))
+            ];
+
+            container.innerHTML = groups.map((group) => `
+                <button type="button" onclick="setActiveGroup('${group.id}')" class="group-filter-pill ${groupFilterState.activeGroupId === group.id ? 'active' : ''}">
+                    <i class="fas ${group.icon}"></i>${escapeHtml(group.name)}
+                </button>
+            `).join('');
+        }
+
+        function renderAgentGrid() {
+            const container = document.getElementById('agentFilterGrid');
+            if (!container || !currentDecks.length) return;
+
+            const visibleDecks = currentDecks.filter((deck) => groupFilterState.activeGroupId === 'all' || deck.expert.groupId === groupFilterState.activeGroupId);
+            container.innerHTML = visibleDecks.map((deck) => {
+                const { expert, group, lanes, packages, laneCoverageCount, blueprint } = deck;
+                const avatar = window.MedRoundTableExperts.resolveAvatar(expert);
+                const isActive = selectedExpertRole === expert.role;
+                return `
+                    <button type="button" onclick="selectExpert('${expert.role}')" class="agent-filter-card ${isActive ? 'active' : ''} rounded-[1.75rem] border p-5 text-left" style="border-color:${isActive ? expert.accent : (group.border || 'rgba(148,163,184,0.16)')}; background:linear-gradient(180deg, rgba(255,255,255,0.98), ${group.surface || 'rgba(248,250,252,0.94)'});">
+                        <div class="flex items-start gap-4">
+                            <img src="${avatar}" alt="${escapeHtml(expert.name)}" class="agent-avatar" style="${expert.avatarPosition ? `object-position:${expert.avatarPosition};` : ''}">
+                            <div class="min-w-0 flex-1">
+                                <div class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${expert.accent}">${escapeHtml(group.name)}</div>
+                                <h3 class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(expert.name)}</h3>
+                                <p class="mt-1 text-sm text-slate-500">${escapeHtml(expert.subtitle)}</p>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-sm leading-7 text-slate-600">${escapeHtml(blueprint.note || expert.summary)}</p>
+                        <div class="mt-4 grid grid-cols-3 gap-3">
+                            <div class="rounded-2xl border border-slate-200 bg-white/88 px-3 py-3">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">技能面</div>
+                                <div class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(String(laneCoverageCount))}</div>
+                            </div>
+                            <div class="rounded-2xl border border-slate-200 bg-white/88 px-3 py-3">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">引擎</div>
+                                <div class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(String(lanes.length))}</div>
+                            </div>
+                            <div class="rounded-2xl border border-slate-200 bg-white/88 px-3 py-3">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">来源包</div>
+                                <div class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(String(packages.length))}</div>
+                            </div>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderSelectedAgentPanel() {
+            const title = document.getElementById('selectedAgentTitle');
+            const description = document.getElementById('selectedAgentDescription');
+            const meta = document.getElementById('selectedAgentMeta');
+            const sessionCta = document.getElementById('selectedAgentSessionCta');
+            const footerCta = document.getElementById('footerSessionCta');
+            const deck = getSelectedDeck();
+
+            if (!deck) {
+                title.textContent = '先从 14 位 Agent 里选一位';
+                description.textContent = '选中某位专家后，这一页会把技能来源包和能力链路切到 TA 的主责视角。';
+                meta.innerHTML = [
+                    '点击 Agent 卡后，这里会显示技能覆盖面和交付结果',
+                    '也可以直接访问带 expert 参数的技能页链接'
+                ].map((item) => `<span class="mini-chip bg-white/8 !text-slate-100 !border-white/12">${escapeHtml(item)}</span>`).join('');
+                sessionCta.href = './session-launchpad.html';
+                footerCta.href = './session-launchpad.html';
+                return;
+            }
+
+            const { expert, group, lanes, packages, laneCoverageCount, deliverables } = deck;
+            title.textContent = `${expert.name} 的技能入口`;
+            description.textContent = `${group.name} · ${expert.subtitle}。当前过滤后展示 ${laneCoverageCount} 项非去重主责技能面、${lanes.length} 条能力链路和 ${packages.length} 个来源包。`;
+            meta.innerHTML = [
+                `${expert.stage}`,
+                `${lanes.length} 条主责引擎`,
+                `${deliverables.slice(0, 3).join(' / ') || '等待交付定义'}`
+            ].map((item) => `<span class="mini-chip bg-white/8 !text-slate-100 !border-white/12">${escapeHtml(item)}</span>`).join('');
+            const launchpadUrl = `./session-launchpad.html?expert=${encodeURIComponent(expert.role)}`;
+            sessionCta.href = launchpadUrl;
+            footerCta.href = launchpadUrl;
+        }
+
         function renderPackages(catalog) {
             const grid = document.getElementById('packageGrid');
-            grid.innerHTML = catalog.source_packages
+            const title = document.getElementById('packageSectionTitle');
+            const description = document.getElementById('packageSectionDescription');
+            const deck = getSelectedDeck();
+            const packages = deck ? deck.packages : catalog.source_packages;
+
+            title.textContent = deck ? `${deck.expert.name} 背后的来源包` : '四层来源包';
+            description.textContent = deck
+                ? `当前只展示 ${deck.expert.name} 这位 Agent 主要依赖的来源包。用户从 Agent 进入后，不需要再自己推断这些技能是从哪里来的。`
+                : '从本地核心到 OpenClaw 包装层，来源越清楚，用户越能理解平台为什么能做这些事。';
+
+            grid.innerHTML = packages
                 .map((pkg) => {
                     const tone = MRTPlatformCatalog.getToneStyle(packageTone[pkg.packaging] || 'blue');
                     return `
@@ -207,7 +414,17 @@
 
         function renderLanes(catalog) {
             const grid = document.getElementById('laneGrid');
-            grid.innerHTML = catalog.capability_lanes
+            const title = document.getElementById('laneSectionTitle');
+            const description = document.getElementById('laneSectionDescription');
+            const deck = getSelectedDeck();
+            const lanes = deck ? deck.lanes : catalog.capability_lanes;
+
+            title.textContent = deck ? `${deck.expert.name} 主责的能力链路` : '八条算法能力链路';
+            description.textContent = deck
+                ? `下面只展示 ${deck.expert.name} 当前主责的引擎。每条卡片都说明覆盖动作、主责角色和用户最终能拿到的结果。`
+                : '每条链路都对应技能数量、主责角色、典型产出和用户应该看到的结果。';
+
+            grid.innerHTML = lanes
                 .map((lane) => {
                     const tone = MRTPlatformCatalog.getToneStyle(lane.tone);
                     return `
@@ -248,14 +465,54 @@
                 .join('');
         }
 
+        function applyFilters(updateUrlState = true) {
+            renderGroupFilters();
+            renderAgentGrid();
+            renderSelectedAgentPanel();
+            renderPackages(currentCatalog);
+            renderLanes(currentCatalog);
+            if (updateUrlState) {
+                updateUrl(selectedExpertRole);
+            }
+        }
+
+        function selectExpert(role) {
+            selectedExpertRole = role;
+            const deck = currentDecks.find((item) => item.expert.role === role);
+            groupFilterState.activeGroupId = deck ? deck.expert.groupId : 'all';
+            applyFilters(true);
+        }
+
+        function setActiveGroup(groupId) {
+            groupFilterState.activeGroupId = groupId;
+            if (groupId !== 'all' && selectedExpertRole) {
+                const deck = currentDecks.find((item) => item.expert.role === selectedExpertRole);
+                if (!deck || deck.expert.groupId !== groupId) {
+                    selectedExpertRole = null;
+                }
+            }
+            applyFilters(true);
+        }
+
+        document.getElementById('clearExpertFilterBtn').addEventListener('click', () => {
+            selectedExpertRole = null;
+            groupFilterState.activeGroupId = 'all';
+            applyFilters(true);
+        });
+
         MRTPlatformCatalog.loadCatalog('..')
             .then((catalog) => {
-                document.getElementById('skillTotal').textContent = catalog.stats.skills_total;
-                document.getElementById('openclawTotal').textContent = catalog.stats.openclaw_wrapped_skills;
-                document.getElementById('laneTotal').textContent = catalog.capability_lanes.length;
-                document.getElementById('databaseTotal').textContent = catalog.databases.length;
-                renderPackages(catalog);
-                renderLanes(catalog);
+                currentCatalog = catalog;
+                currentDecks = window.MedRoundTableAgentSkills.resolveAgentSkillDecks(catalog, window.MedRoundTableExperts);
+                const urlRole = new URLSearchParams(window.location.search).get('expert');
+                if (urlRole && currentDecks.some((deck) => deck.expert.role === urlRole)) {
+                    selectedExpertRole = urlRole;
+                    const selectedDeck = currentDecks.find((deck) => deck.expert.role === urlRole);
+                    groupFilterState.activeGroupId = selectedDeck ? selectedDeck.expert.groupId : 'all';
+                }
+                renderStats(catalog);
+                renderMarketSummary(catalog);
+                applyFilters(false);
             })
             .catch((error) => {
                 document.getElementById('packageGrid').innerHTML = `
@@ -265,6 +522,9 @@
                     </div>
                 `;
             });
+
+        window.selectExpert = selectExpert;
+        window.setActiveGroup = setActiveGroup;
     </script>
 </body>
 </html>
