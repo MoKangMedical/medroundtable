@@ -811,21 +811,21 @@
                             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                 <div class="text-left">
                                     <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-100/90">Primary CTA</p>
-                                    <h3 class="mt-2 text-2xl font-bold text-white">不用先看完全部介绍，直接创建圆桌会</h3>
-                                    <p class="mt-2 text-sm leading-7 text-blue-100/90">输入一句临床问题，平台会先安排首位介入专家，再把后续协作链路自动展开。</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-white">一句临床问题即可开始，或者先选 1 位 Agent</h3>
+                                    <p class="mt-2 text-sm leading-7 text-blue-100/90">直接开会可以，先挑首位介入专家也可以。平台会按你的入口继续展开后续协作。</p>
                                 </div>
                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                                     <button onclick="openNewSessionModal({ forceRefill: false })" class="rounded-2xl bg-white px-6 py-4 text-base font-semibold text-blue-900 shadow-lg transition hover:bg-blue-50">
                                         <i class="fas fa-rocket mr-2"></i>立即创建圆桌会
                                     </button>
                                     <a href="#expert-command-center" class="rounded-2xl border border-white/25 px-5 py-4 text-center text-sm font-semibold text-white/90 transition hover:bg-white/10">
-                                        不知道先找谁？看专家分诊
+                                        不确定先找谁？先看 14 位 Agent
                                     </a>
                                 </div>
                             </div>
                             <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-blue-100/90">
                                 <a href="#capability-atlas" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
-                                    <i class="fas fa-layer-group"></i>首页查看全部数据与算法
+                                    <i class="fas fa-layer-group"></i>先看数据库与分析路径
                                 </a>
                                 <a href="./frontend/database-browser.html" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
                                     <i class="fas fa-database"></i>查看 46 个数据库目录
@@ -839,26 +839,73 @@
                 </div>
             </div>
 
+            <div class="px-4 -mt-6 pb-10 relative z-10">
+                <div class="max-w-6xl mx-auto space-y-8">
+                    <section id="expert-command-center" class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-white via-blue-50 to-slate-50 px-5 py-6 shadow-2xl shadow-blue-100/60 md:px-8 md:py-8">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">Lead Agent Entry</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">14 位 Agent 放到首页前排，先帮你判断这一步该找谁</h3>
+                                <p class="mt-3 max-w-3xl text-base leading-8 text-slate-600">
+                                    如果你现在卡在选题、方案、统计、生信或执行落地，先点一位最接近当前问题的 Agent。每张卡都会说明 TA 适合先介入的时机，并允许直接进入圆桌会。
+                                </p>
+                                <div class="mt-5 flex flex-wrap gap-2 text-xs font-semibold">
+                                    <span class="rounded-full border border-blue-200 bg-white px-3 py-1.5 text-blue-700">核心临床团队 · 5 位</span>
+                                    <span class="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700">ClawBio 生物信息学套件 · 4 位</span>
+                                    <span class="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-700">专业研究支持团队 · 5 位</span>
+                                </div>
+                            </div>
+                            <a href="./experts.html" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                                查看专家全图 <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div id="expertTriageHighlights" class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div>
+                        <div id="expertTriageBoard" class="mt-6 space-y-6"></div>
+                    </section>
+
+                    <section id="agent-skill-command" class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-5 py-6 text-white shadow-2xl shadow-slate-900/25 md:px-8 md:py-8">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Agent Skill Decks</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">选中 Agent 后，立刻看到 TA 能帮你完成什么</h3>
+                                <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
+                                    不用先理解整个平台的能力结构。你只需要先选人，后面的技能面、分析路径、来源包和常见交付会自动对齐到这位 Agent。
+                                </p>
+                            </div>
+                            <a href="./frontend/skills-market.html" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100">
+                                查看完整技能市场 <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="mt-5 flex flex-wrap gap-2 text-xs text-slate-200">
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">展示口径：按 Agent 主责技能面重排</span>
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">技能数为非去重覆盖口径</span>
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">对应 8 条分析路径与 4 组能力来源</span>
+                        </div>
+                        <div id="agentSkillDeckGrid" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
+                    </section>
+                </div>
+            </div>
+
             <section id="capability-atlas" class="capability-atlas py-14 px-4">
                 <div class="max-w-6xl mx-auto">
                     <div class="atlas-shell rounded-[2rem] px-5 py-6 md:px-8 md:py-8">
                         <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                             <div>
-                                <p class="atlas-mini-label">Platform Atlas</p>
-                                <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">把平台能力直接摊开在首页：数据底座、算法引擎、专家编排一次看全</h2>
+                                <p class="atlas-mini-label">Research Overview</p>
+                                <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">如果你想先判断平台是否适合当前课题，这里先看真实数据、分析路径和交付方向</h2>
                                 <p class="mt-4 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
-                                    不再让用户先跳数据库页、再跳算法页、再回首页拼信息。这里直接呈现 46 个数据库、8 条算法链路、4 个技能来源包和 STELLA 编排方式。
+                                    这一段不是宣传页，而是给你快速判断用的。首页直接列出数据库清单、常用分析路径、能力来源和推荐入口，方便你确认这套平台能不能接住当前研究任务。
                                 </p>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <a href="#atlas-algorithm-board" class="atlas-nav-pill">
-                                    <i class="fas fa-wave-square text-blue-600"></i>算法链路
+                                    <i class="fas fa-wave-square text-blue-600"></i>分析路径
                                 </a>
                                 <a href="#database-atlas" class="atlas-nav-pill">
-                                    <i class="fas fa-database text-emerald-600"></i>数据库编目
+                                    <i class="fas fa-database text-emerald-600"></i>数据库
                                 </a>
                                 <a href="#expert-command-center" class="atlas-nav-pill">
-                                    <i class="fas fa-user-doctor text-violet-600"></i>专家分诊
+                                    <i class="fas fa-user-doctor text-violet-600"></i>首位 Agent
                                 </a>
                             </div>
                         </div>
@@ -868,8 +915,8 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <p class="atlas-mini-label">Capability Snapshot</p>
-                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">平台总量不是一句“997 项技能”</h3>
-                                        <p class="mt-2 text-sm leading-7 text-slate-600">首页先把可调用能力拆成使用者真正关心的结构：来源包、数据库类别、算法链路和编排角色。</p>
+                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">先看清平台能接什么数据、能做什么分析、最后交付什么</h3>
+                                        <p class="mt-2 text-sm leading-7 text-slate-600">这里把能力拆成使用者更容易判断的 4 个维度：来源、数据库、分析路径，以及谁适合先介入。</p>
                                     </div>
                                     <a href="./frontend/skills-market.html" class="hidden rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 md:inline-flex md:items-center md:gap-2">
                                         查看技能市场 <i class="fas fa-arrow-right text-xs"></i>
@@ -879,10 +926,10 @@
                                 <div class="mt-6">
                                     <div class="flex items-center justify-between gap-3">
                                         <div>
-                                            <p class="text-sm font-semibold text-slate-900">一条可理解的能力流</p>
-                                            <p class="text-xs text-slate-500">从数据接入到算法执行，再到专家协作和期刊级交付。</p>
+                                            <p class="text-sm font-semibold text-slate-900">一条可直接理解的研究路径</p>
+                                            <p class="text-xs text-slate-500">从数据库到分析，再到专家协作与最终交付。</p>
                                         </div>
-                                        <span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">主页直读，不必跳页</span>
+                                        <span class="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">先看关键能力</span>
                                     </div>
                                     <div id="atlasPipelineNodes" class="mt-4 atlas-flow-grid"></div>
                                 </div>
@@ -892,13 +939,13 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <p class="atlas-mini-label">Skill Source Packages</p>
-                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">997 项能力来自 4 层技能包装，而不是一个黑盒</h3>
-                                        <p class="mt-2 text-sm leading-7 text-slate-600">把 OpenClaw 包装层、本地核心、中间研究增强层和平台扩展层公开出来，用户能知道每类能力是从哪一层进入平台的。</p>
+                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">常用能力分成 4 组，方便你判断这套平台是不是你要的那种支持</h3>
+                                        <p class="mt-2 text-sm leading-7 text-slate-600">这里直接交代能力来源，让你知道哪些是平台原生能力、哪些来自 OpenClaw 包装层，以及哪些是研究增强与交付扩展。</p>
                                     </div>
                                     <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
                                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">STELLA</div>
                                         <div class="mt-2 text-base font-bold text-slate-950">Manager · Dev · Critic</div>
-                                        <div class="mt-1 text-xs text-slate-500">3 层编排角色负责路由、执行与复核</div>
+                                        <div class="mt-1 text-xs text-slate-500">负责建议首位入口、执行任务与复核结果</div>
                                     </div>
                                 </div>
                                 <div id="atlasSourcePackageList" class="mt-5 grid gap-4 md:grid-cols-2"></div>
@@ -909,8 +956,8 @@
                             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div>
                                     <p class="atlas-mini-label">Algorithm Lanes</p>
-                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">8 条算法链路分别解决什么问题、由谁接手、产出什么结果</h3>
-                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">不是只给一个“算法能力矩阵”入口，而是在首页直接说明每条引擎的覆盖场景、主要交付和推荐专家。</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">8 条分析路径分别适合什么问题、通常由谁先接手</h3>
+                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">首页先把适用场景、常见交付和推荐 Agent 写清楚，避免你一开始就陷进抽象能力名词。</p>
                                 </div>
                                 <a href="./frontend/capability-matrix.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                                     查看完整能力矩阵 <i class="fas fa-arrow-right"></i>
@@ -923,8 +970,8 @@
                             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div>
                                     <p class="atlas-mini-label">Database Inventory</p>
-                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">46 个数据库按 10 类研究场景展开，不再只显示一个总数字</h3>
-                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">每个分类直接列出实际数据库名称，并保留外部直达链接。用户在首页就能判断平台到底接入了哪些真实数据源。</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">46 个数据库已按研究场景分组，你可以直接判断有没有你要的数据</h3>
+                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">每个分类都列出真实数据库名称，并保留直达链接。你不用猜平台连了什么，首页就能先看清楚。</p>
                                 </div>
                                 <a href="./frontend/database-browser.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                                     查看完整数据库目录 <i class="fas fa-arrow-right"></i>
@@ -1223,11 +1270,11 @@
                         <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                             <div>
                                 <div class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-800">
-                                    <i class="fas fa-command"></i> 快速决策入口
+                                    <i class="fas fa-command"></i> Start Here
                                 </div>
-                                <h2 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">把首页的第一步收紧成一件事：直接创建圆桌会</h2>
+                                <h2 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">先做一个选择，然后开始第一场圆桌会</h2>
                                 <p class="mt-4 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-                                    不用先读完整个平台。你现在只需要决定自己是从零起题、带着已有方案进入，还是先找一位专家首位介入。
+                                    如果你已经看过上面的 Agent 入口，这里就是正式开始的地方。你可以直接新建、导入已有方案，或者回到 Agent 区先定首位介入者。
                                 </p>
                                 <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                                     <button onclick="openNewSessionModal({ forceRefill: false })" class="rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-800">
@@ -1315,43 +1362,6 @@
                         </div>
                     </section>
 
-                    <section id="expert-command-center" class="rounded-[2rem] border border-slate-200 bg-white px-5 py-6 shadow-xl shadow-slate-200/70 md:px-8 md:py-8">
-                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">Expert Triage</p>
-                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">14 位 AI 专家不再只是身份展示，而是你的任务分诊台</h3>
-                                <p class="mt-3 max-w-3xl text-base leading-8 text-slate-600">
-                                    按你当前卡住的位置选首位介入专家。每张卡都会告诉你“什么时候先找 TA”，并允许直接让这位专家带着你进入圆桌会。
-                                </p>
-                            </div>
-                            <a href="./experts.html" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-                                查看专家全图 <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        <div id="expertTriageHighlights" class="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div>
-                        <div id="expertTriageBoard" class="mt-6 space-y-6"></div>
-                    </section>
-
-                    <section id="agent-skill-command" class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-5 py-6 text-white shadow-2xl shadow-slate-900/25 md:px-8 md:py-8">
-                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Agent Skill Decks</p>
-                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">把全部技能放到 14 位 Agent 入口后面，直接按人找能力</h3>
-                                <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
-                                    不再让用户先理解 997 项技能目录，再回头猜该找谁。这里把技能按 Agent 视角重排，看到某位专家时，后面紧跟着就是这位 Agent 的主责技能面、引擎和交付物。
-                                </p>
-                            </div>
-                            <a href="./frontend/skills-market.html" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100">
-                                查看完整技能市场 <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        <div class="mt-5 flex flex-wrap gap-2 text-xs text-slate-200">
-                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">展示口径：按 Agent 主责技能面重排</span>
-                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">技能数为非去重覆盖口径</span>
-                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">关联 8 条算法引擎与 4 层来源包</span>
-                        </div>
-                        <div id="agentSkillDeckGrid" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
-                    </section>
                 </div>
             </div>
         </div>
@@ -2013,24 +2023,24 @@
             const totalSkills = Number(stats.skills_total) || sourcePackages.reduce((sum, item) => sum + Number(item.count || 0), 0);
             const metricItems = [
                 {
-                    label: '技能来源包',
+                    label: '能力来源',
                     value: sourcePackages.length || 4,
-                    note: `${totalSkills || 997} 项能力拆成可读来源`
+                    note: `${totalSkills || 997} 项能力已分组`
                 },
                 {
-                    label: '数据库类别',
+                    label: '数据库分组',
                     value: categorySummary.length || 10,
                     note: `${databases.length || 46} 个数据库已编目`
                 },
                 {
-                    label: '算法引擎',
+                    label: '分析路径',
                     value: capabilityLanes.length || 8,
-                    note: '每条都定义覆盖场景与交付'
+                    note: '每条都写明适用场景与交付'
                 },
                 {
-                    label: '编排角色',
+                    label: '协作角色',
                     value: `${stats.experts_total || 14}+${stats.stella_meta_roles || 3}`,
-                    note: '14 位专家 + STELLA'
+                    note: '14 位 Agent + STELLA'
                 }
             ];
 
@@ -2044,23 +2054,23 @@
 
             const pipelineItems = [
                 {
-                    label: '数据底座',
+                    label: '数据库',
                     value: `${databases.length || 46}`,
                     note: `${categorySummary.length || 10} 类数据库`
                 },
                 {
-                    label: '算法执行',
+                    label: '分析路径',
                     value: `${capabilityLanes.length || 8}`,
-                    note: `${totalSkills || 997} 项技能映射`
+                    note: `${totalSkills || 997} 项能力可调用`
                 },
                 {
                     label: '专家协作',
                     value: `${stats.experts_total || 14}`,
-                    note: `STELLA ${stats.stella_meta_roles || 3} 角编排`
+                    note: `STELLA ${stats.stella_meta_roles || 3} 角协作`
                 },
                 {
-                    label: '交付出口',
-                    value: '期刊级',
+                    label: '交付结果',
+                    value: '可导出',
                     note: '方案、SAP、图表与导出'
                 }
             ];
