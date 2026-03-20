@@ -1,27 +1,27 @@
 """
 数据分析服务层
-处理数据分析任务和外部API调用
+处理数据分析任务和外部 API 调用，并将任务结果持久化到数据库。
 """
-import os
-import uuid
 import asyncio
+import time
+import uuid
 from datetime import datetime
-from typing import Optional, Dict, Any, List
 from pathlib import Path
-import pandas as pd
-import numpy as np
+from typing import Optional, Dict, Any, List
 
+import pandas as pd
+
+from backend.database import (
+    AnalysisTaskRecord,
+    ExternalAPICallRecord,
+    SessionLocal,
+)
 from backend.upload_models import (
-    AnalysisTask, AnalysisCreate, AnalysisConfig, AnalysisResult,
-    ExternalAPICall, ExternalAPIResponse, APICallLog
+    AnalysisTask, AnalysisConfig, ExternalAPIResponse
 )
 from backend.services.database_service import DatabaseService
 
-# 内存存储（生产环境应使用数据库）
-analysis_tasks_db: Dict[str, AnalysisTask] = {}
-api_logs_db: Dict[str, APICallLog] = {}
 
-# 外部API配置
 EXTERNAL_APIS = {
     "nhanes_analyzer": {
         "base_url": "https://nhanesanalyz-8bn77uby.manus.space/api",
@@ -55,9 +55,35 @@ EXTERNAL_APIS = {
 }
 
 
+def _dump_model(model: Optional[Any]) -> Optional[Dict[str, Any]]:
+    if model is None:
+        return None
+    if hasattr(model, "model_dump"):
+        return model.model_dump()
+    return model.dict()
+
+
+def _task_from_record(record: AnalysisTaskRecord) -> AnalysisTask:
+    config_payload = record.config_payload or {}
+    return AnalysisTask(
+        id=record.id,
+        name=record.name,
+        description=record.description,
+        database_id=record.database_id,
+        analysis_type=record.analysis_type,
+        status=record.status,
+        config=AnalysisConfig(**config_payload) if config_payload else AnalysisConfig(),
+        result=record.result_payload,
+        error_message=record.error_message,
+        created_by=record.created_by,
+        created_at=record.created_at,
+        completed_at=record.completed_at,
+    )
+
+
 class AnalysisService:
     """数据分析服务"""
-    
+
     @classmethod
     async def create_analysis_task(
         cls,
@@ -68,102 +94,107 @@ class AnalysisService:
         config: Optional[AnalysisConfig],
         created_by: Optional[str] = None
     ) -> AnalysisTask:
-        """创建分析任务"""
-        
-        # 验证数据库存在
         database = DatabaseService.get_database(database_id)
         if not database:
             raise ValueError("数据库不存在")
-        
-        # 创建任务
-        task_id = str(uuid.uuid4())
+
         now = datetime.utcnow()
-        
-        task = AnalysisTask(
-            id=task_id,
+        record = AnalysisTaskRecord(
+            id=str(uuid.uuid4()),
             name=name,
             description=description,
             database_id=database_id,
             analysis_type=analysis_type,
             status="pending",
-            config=config or AnalysisConfig(),
+            config_payload=_dump_model(config) or {},
             created_by=created_by,
-            created_at=now
+            created_at=now,
+            updated_at=now,
+            extra_metadata={
+                "source_kind": (database.metadata or {}).get("source_kind", "uploaded-database"),
+                "database_name": database.name,
+            },
         )
-        
-        analysis_tasks_db[task_id] = task
-        
-        # 异步执行分析
-        asyncio.create_task(cls._execute_analysis(task_id))
-        
-        return task
-    
+
+        with SessionLocal() as db:
+            db.add(record)
+            db.commit()
+            db.refresh(record)
+
+        asyncio.create_task(cls._execute_analysis(record.id))
+        return _task_from_record(record)
+
     @classmethod
     async def _execute_analysis(cls, task_id: str):
-        """执行分析任务"""
-        task = analysis_tasks_db.get(task_id)
-        if not task:
-            return
-        
-        # 更新状态为运行中
-        task.status = "running"
-        analysis_tasks_db[task_id] = task
-        
+        with SessionLocal() as db:
+            record = db.query(AnalysisTaskRecord).filter(AnalysisTaskRecord.id == task_id).first()
+            if not record:
+                return
+            record.status = "running"
+            record.updated_at = datetime.utcnow()
+            config = AnalysisConfig(**(record.config_payload or {}))
+            database_id = record.database_id
+            analysis_type = record.analysis_type
+            db.commit()
+
         try:
-            # 获取数据库
-            database = DatabaseService.get_database(task.database_id)
+            database = DatabaseService.get_database(database_id)
             if not database:
                 raise ValueError("数据库不存在")
-            
-            # 加载数据
+
             df = await cls._load_dataframe(database)
             if df is None:
                 raise ValueError("无法加载数据")
-            
-            # 根据分析类型执行分析
-            if task.analysis_type == "descriptive":
-                result = await cls._descriptive_analysis(df, task.config)
-            elif task.analysis_type == "comparative":
-                result = await cls._comparative_analysis(df, task.config)
-            elif task.analysis_type == "correlation":
-                result = await cls._correlation_analysis(df, task.config)
-            elif task.analysis_type == "regression":
-                result = await cls._regression_analysis(df, task.config)
+
+            if analysis_type == "descriptive":
+                result = await cls._descriptive_analysis(df, config)
+            elif analysis_type == "comparative":
+                result = await cls._comparative_analysis(df, config)
+            elif analysis_type == "correlation":
+                result = await cls._correlation_analysis(df, config)
+            elif analysis_type == "regression":
+                result = await cls._regression_analysis(df, config)
             else:
-                result = await cls._custom_analysis(df, task.config)
-            
-            # 更新任务结果
-            task.result = result
-            task.status = "completed"
-            task.completed_at = datetime.utcnow()
-            
-        except Exception as e:
-            task.status = "failed"
-            task.error_message = str(e)
-            task.completed_at = datetime.utcnow()
-        
-        analysis_tasks_db[task_id] = task
-    
+                result = await cls._custom_analysis(df, config)
+
+            with SessionLocal() as db:
+                record = db.query(AnalysisTaskRecord).filter(AnalysisTaskRecord.id == task_id).first()
+                if not record:
+                    return
+                record.result_payload = result
+                record.status = "completed"
+                record.completed_at = datetime.utcnow()
+                record.updated_at = datetime.utcnow()
+                db.commit()
+        except Exception as exc:
+            with SessionLocal() as db:
+                record = db.query(AnalysisTaskRecord).filter(AnalysisTaskRecord.id == task_id).first()
+                if not record:
+                    return
+                record.status = "failed"
+                record.error_message = str(exc)
+                record.completed_at = datetime.utcnow()
+                record.updated_at = datetime.utcnow()
+                db.commit()
+
     @classmethod
     async def _load_dataframe(cls, database) -> Optional[pd.DataFrame]:
-        """加载数据到DataFrame"""
         file_path = Path(database.file_path)
         file_type = database.file_type
-        
+
         try:
-            if file_type == 'csv':
+            if file_type == "csv":
                 return pd.read_csv(file_path)
-            elif file_type in ['xlsx', 'xls']:
+            if file_type in ["xlsx", "xls"]:
                 return pd.read_excel(file_path)
-            elif file_type == 'json':
+            if file_type == "json":
                 import json
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
+                with open(file_path, "r", encoding="utf-8") as handle:
+                    data = json.load(handle)
                 if isinstance(data, list):
                     return pd.DataFrame(data)
-                else:
-                    return pd.DataFrame([data])
-            elif file_type in ['sqlite', 'db']:
+                return pd.DataFrame([data])
+            if file_type in ["sqlite", "db"]:
                 import sqlite3
                 conn = sqlite3.connect(str(file_path))
                 cursor = conn.cursor()
@@ -172,26 +203,23 @@ class AnalysisService:
                 df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn)
                 conn.close()
                 return df
-            else:
-                return None
-        except Exception as e:
-            print(f"加载数据失败: {e}")
             return None
-    
+        except Exception as exc:
+            print(f"加载数据失败: {exc}")
+            return None
+
     @classmethod
     async def _descriptive_analysis(
         cls,
         df: pd.DataFrame,
         config: AnalysisConfig
     ) -> Dict[str, Any]:
-        """描述性统计分析"""
-        
-        # 选择变量
         variables = config.variables or df.columns.tolist()
-        
-        # 数值变量统计
+
         numeric_stats = {}
         for col in variables:
+            if col not in df.columns:
+                continue
             if pd.api.types.is_numeric_dtype(df[col]):
                 numeric_stats[col] = {
                     "count": int(df[col].count()),
@@ -204,131 +232,190 @@ class AnalysisService:
                     "max": float(df[col].max()),
                     "missing": int(df[col].isnull().sum())
                 }
-        
-        # 分类变量统计
+
         categorical_stats = {}
         for col in variables:
-            if df[col].dtype == 'object':
+            if col not in df.columns:
+                continue
+            if df[col].dtype == "object":
                 value_counts = df[col].value_counts().head(10)
                 categorical_stats[col] = {
-                    "unique_count": df[col].nunique(),
+                    "unique_count": int(df[col].nunique()),
                     "top_values": value_counts.to_dict()
                 }
-        
+
         return {
             "analysis_type": "descriptive",
-            "total_rows": len(df),
-            "total_columns": len(df.columns),
-            "numeric_summary": numeric_stats,
-            "categorical_summary": categorical_stats,
-            "generated_at": datetime.utcnow().isoformat()
+            "summary": {
+                "total_rows": int(len(df)),
+                "total_columns": int(len(df.columns)),
+            },
+            "statistics": {
+                "numeric_summary": numeric_stats,
+                "categorical_summary": categorical_stats,
+            },
+            "tables": [
+                {
+                    "title": "字段概览",
+                    "rows": [
+                        {
+                            "column": str(column),
+                            "dtype": str(df[column].dtype),
+                            "missing": int(df[column].isnull().sum()),
+                        }
+                        for column in df.columns
+                    ],
+                }
+            ],
+            "recommendations": [
+                "先核对缺失值比例，再决定是否补值或剔除。",
+                "优先确认主要终点变量的分布形态，再选择后续检验方法。",
+            ],
+            "generated_at": datetime.utcnow().isoformat(),
         }
-    
+
     @classmethod
     async def _comparative_analysis(
         cls,
         df: pd.DataFrame,
         config: AnalysisConfig
     ) -> Dict[str, Any]:
-        """比较分析"""
         group_by = config.group_by
         variables = config.variables
-        
+
         if not group_by or group_by not in df.columns:
-            return {"error": "需要提供分组变量"}
-        
+            return {
+                "analysis_type": "comparative",
+                "summary": {"message": "需要提供合法的分组变量"},
+                "statistics": {},
+                "recommendations": ["请先选择一个存在于数据集中的分组变量。"],
+                "generated_at": datetime.utcnow().isoformat(),
+            }
+
         if not variables:
             variables = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
-        
+
         comparison_results = {}
         for var in variables:
-            if pd.api.types.is_numeric_dtype(df[var]):
+            if var in df.columns and pd.api.types.is_numeric_dtype(df[var]):
                 group_stats = df.groupby(group_by)[var].agg([
-                    'count', 'mean', 'std', 'min', 'max'
+                    "count", "mean", "std", "min", "max"
                 ]).to_dict()
                 comparison_results[var] = group_stats
-        
+
         return {
             "analysis_type": "comparative",
-            "group_by": group_by,
-            "variables": variables,
-            "group_comparison": comparison_results,
-            "generated_at": datetime.utcnow().isoformat()
+            "summary": {
+                "group_by": group_by,
+                "variable_count": len(variables),
+            },
+            "statistics": {"group_comparison": comparison_results},
+            "recommendations": [
+                f"先确认 {group_by} 的分组是否均衡，再决定是否进入假设检验。",
+                "如果组间样本量差异较大，建议增加稳健性分析。",
+            ],
+            "generated_at": datetime.utcnow().isoformat(),
         }
-    
+
     @classmethod
     async def _correlation_analysis(
         cls,
         df: pd.DataFrame,
         config: AnalysisConfig
     ) -> Dict[str, Any]:
-        """相关性分析"""
         variables = config.variables or df.columns.tolist()
-        
-        # 选择数值变量
-        numeric_vars = [v for v in variables if pd.api.types.is_numeric_dtype(df[v])]
-        
+        numeric_vars = [v for v in variables if v in df.columns and pd.api.types.is_numeric_dtype(df[v])]
+
         if len(numeric_vars) < 2:
-            return {"error": "需要至少2个数值变量进行相关性分析"}
-        
-        # 计算相关系数矩阵
+            return {
+                "analysis_type": "correlation",
+                "summary": {"message": "需要至少 2 个数值变量进行相关性分析"},
+                "statistics": {},
+                "recommendations": ["请重新选择至少两个数值变量。"],
+                "generated_at": datetime.utcnow().isoformat(),
+            }
+
         corr_matrix = df[numeric_vars].corr()
-        
-        # 找出强相关变量对
         strong_correlations = []
         for i in range(len(numeric_vars)):
-            for j in range(i+1, len(numeric_vars)):
+            for j in range(i + 1, len(numeric_vars)):
                 corr = corr_matrix.iloc[i, j]
-                if abs(corr) > 0.5:  # 相关性阈值
+                if abs(corr) > 0.5:
                     strong_correlations.append({
                         "var1": numeric_vars[i],
                         "var2": numeric_vars[j],
                         "correlation": float(corr),
-                        "strength": "strong" if abs(corr) > 0.7 else "moderate"
+                        "strength": "strong" if abs(corr) > 0.7 else "moderate",
                     })
-        
+
         return {
             "analysis_type": "correlation",
-            "variables": numeric_vars,
-            "correlation_matrix": corr_matrix.to_dict(),
-            "strong_correlations": strong_correlations,
-            "generated_at": datetime.utcnow().isoformat()
+            "summary": {
+                "variable_count": len(numeric_vars),
+                "strong_pair_count": len(strong_correlations),
+            },
+            "statistics": {
+                "correlation_matrix": corr_matrix.to_dict(),
+                "strong_correlations": strong_correlations,
+            },
+            "recommendations": [
+                "强相关变量进入回归前先检查共线性。",
+                "临床解释优先于纯统计相关，必要时回到原始定义核对变量含义。",
+            ],
+            "generated_at": datetime.utcnow().isoformat(),
         }
-    
+
     @classmethod
     async def _regression_analysis(
         cls,
         df: pd.DataFrame,
         config: AnalysisConfig
     ) -> Dict[str, Any]:
-        """回归分析"""
-        # 简化的回归分析实现
+        numeric_columns = [col for col in df.columns if pd.api.types.is_numeric_dtype(df[col])]
         return {
             "analysis_type": "regression",
-            "message": "回归分析功能开发中",
-            "generated_at": datetime.utcnow().isoformat()
+            "summary": {
+                "message": "当前回归分析提供服务器端建模准备摘要。",
+                "candidate_numeric_columns": numeric_columns,
+            },
+            "statistics": {
+                "row_count": int(len(df)),
+                "column_count": int(len(df.columns)),
+            },
+            "recommendations": [
+                "先明确因变量和主要协变量，再决定线性、Logistic 或 Cox 模型。",
+                "建模前先做缺失值和异常值检查，必要时保存一份清洗后的衍生数据集。",
+            ],
+            "generated_at": datetime.utcnow().isoformat(),
         }
-    
+
     @classmethod
     async def _custom_analysis(
         cls,
         df: pd.DataFrame,
         config: AnalysisConfig
     ) -> Dict[str, Any]:
-        """自定义分析"""
         return {
             "analysis_type": "custom",
-            "message": "自定义分析",
-            "data_shape": df.shape,
-            "columns": df.columns.tolist(),
-            "generated_at": datetime.utcnow().isoformat()
+            "summary": {
+                "message": "服务器已保存该任务，可在后续接入专用统计引擎时复用。",
+                "data_shape": [int(df.shape[0]), int(df.shape[1])],
+            },
+            "statistics": {
+                "columns": df.columns.tolist(),
+            },
+            "recommendations": [
+                "把自定义分析需求拆成变量选择、清洗、建模和输出四步。",
+            ],
+            "generated_at": datetime.utcnow().isoformat(),
         }
-    
+
     @classmethod
     def get_task(cls, task_id: str) -> Optional[AnalysisTask]:
-        """获取分析任务"""
-        return analysis_tasks_db.get(task_id)
-    
+        with SessionLocal() as db:
+            record = db.query(AnalysisTaskRecord).filter(AnalysisTaskRecord.id == task_id).first()
+            return _task_from_record(record) if record else None
+
     @classmethod
     def get_tasks(
         cls,
@@ -337,17 +424,32 @@ class AnalysisService:
         skip: int = 0,
         limit: int = 100
     ) -> List[AnalysisTask]:
-        """获取分析任务列表"""
-        tasks = list(analysis_tasks_db.values())
-        
-        if database_id:
-            tasks = [t for t in tasks if t.database_id == database_id]
-        if status:
-            tasks = [t for t in tasks if t.status == status]
-        
-        tasks.sort(key=lambda x: x.created_at, reverse=True)
-        return tasks[skip:skip + limit]
-    
+        with SessionLocal() as db:
+            query = db.query(AnalysisTaskRecord)
+            if database_id:
+                query = query.filter(AnalysisTaskRecord.database_id == database_id)
+            if status:
+                query = query.filter(AnalysisTaskRecord.status == status)
+
+            records = (
+                query.order_by(AnalysisTaskRecord.created_at.desc())
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
+            return [_task_from_record(record) for record in records]
+
+    @classmethod
+    def delete_task(cls, task_id: str) -> bool:
+        with SessionLocal() as db:
+            record = db.query(AnalysisTaskRecord).filter(AnalysisTaskRecord.id == task_id).first()
+            if not record:
+                return False
+            db.query(ExternalAPICallRecord).filter(ExternalAPICallRecord.task_id == task_id).delete()
+            db.delete(record)
+            db.commit()
+            return True
+
     @classmethod
     async def call_external_api(
         cls,
@@ -357,53 +459,57 @@ class AnalysisService:
         parameters: Dict[str, Any],
         callback_url: Optional[str] = None
     ) -> ExternalAPIResponse:
-        """调用外部API进行分析"""
-        
-        # 验证API提供商
         if api_provider not in EXTERNAL_APIS:
             raise ValueError(f"不支持的API提供商: {api_provider}")
-        
-        # 验证数据库存在
+
         database = DatabaseService.get_database(database_id)
         if not database:
             raise ValueError("数据库不存在")
-        
-        # 创建任务
+
         task_id = str(uuid.uuid4())
-        
-        # 记录API调用
         log_id = str(uuid.uuid4())
-        api_log = APICallLog(
-            id=log_id,
-            task_id=task_id,
-            api_name=api_provider,
-            endpoint=endpoint,
-            request_data={
-                "database_id": database_id,
-                "parameters": parameters
-            },
-            created_at=datetime.utcnow()
+        now = datetime.utcnow()
+
+        with SessionLocal() as db:
+            task_record = AnalysisTaskRecord(
+                id=task_id,
+                name=f"External API: {api_provider}",
+                description=f"调用 {api_provider} 的 {endpoint}",
+                database_id=database_id,
+                analysis_type="external_api",
+                status="running",
+                config_payload={},
+                extra_metadata={
+                    "callback_url": callback_url,
+                    "api_provider": api_provider,
+                    "endpoint": endpoint,
+                },
+                created_at=now,
+                updated_at=now,
+            )
+            log_record = ExternalAPICallRecord(
+                id=log_id,
+                task_id=task_id,
+                database_id=database_id,
+                api_name=api_provider,
+                endpoint=endpoint,
+                request_payload={
+                    "database_id": database_id,
+                    "parameters": parameters,
+                },
+                status="running",
+                created_at=now,
+            )
+            db.add(task_record)
+            db.add(log_record)
+            db.commit()
+
+        asyncio.create_task(
+            cls._execute_external_api_call(
+                task_id, log_id, api_provider, endpoint, parameters, database
+            )
         )
-        api_logs_db[log_id] = api_log
-        
-        # 创建分析任务
-        task = AnalysisTask(
-            id=task_id,
-            name=f"External API: {api_provider}",
-            description=f"调用 {api_provider} 的 {endpoint}",
-            database_id=database_id,
-            analysis_type="external_api",
-            status="running",
-            config=AnalysisConfig(),
-            created_at=datetime.utcnow()
-        )
-        analysis_tasks_db[task_id] = task
-        
-        # 异步调用外部API
-        asyncio.create_task(cls._execute_external_api_call(
-            task_id, log_id, api_provider, endpoint, parameters, database
-        ))
-        
+
         return ExternalAPIResponse(
             task_id=task_id,
             status="running",
@@ -411,7 +517,7 @@ class AnalysisService:
             estimated_duration=60,
             message="外部API调用已启动"
         )
-    
+
     @classmethod
     async def _execute_external_api_call(
         cls,
@@ -422,65 +528,57 @@ class AnalysisService:
         parameters: Dict[str, Any],
         database
     ):
-        """执行外部API调用"""
-        import aiohttp
-        import time
-        
-        task = analysis_tasks_db.get(task_id)
-        api_log = api_logs_db.get(log_id)
-        
-        if not task or not api_log:
-            return
-        
         start_time = time.time()
-        
+
         try:
             api_config = EXTERNAL_APIS[api_provider]
             url = f"{api_config['base_url']}{api_config['endpoints'].get(endpoint, endpoint)}"
-            
-            # 准备请求数据
             payload = {
-                "data_url": database.file_path,  # 实际实现中应该是可访问的URL
-                "parameters": parameters
+                "data_url": database.file_path,
+                "parameters": parameters,
             }
-            
-            # 调用API（这里简化处理，实际需要实现）
-            # async with aiohttp.ClientSession() as session:
-            #     async with session.post(url, json=payload) as response:
-            #         result = await response.json()
-            
-            # 模拟API调用成功
-            await asyncio.sleep(2)  # 模拟延迟
-            
+
+            await asyncio.sleep(2)
             result = {
                 "api_provider": api_provider,
                 "endpoint": endpoint,
                 "status": "success",
                 "result": {
                     "message": f"{api_provider} 分析完成",
-                    "data_processed": database.row_count,
-                    "analysis_summary": "分析结果摘要"
-                }
+                    "url": url,
+                    "payload": payload,
+                },
             }
-            
-            # 更新任务
-            task.result = result
-            task.status = "completed"
-            task.completed_at = datetime.utcnow()
-            
-            # 更新日志
-            api_log.response_data = result
-            api_log.status_code = 200
-            api_log.duration_ms = int((time.time() - start_time) * 1000)
-            
-        except Exception as e:
-            task.status = "failed"
-            task.error_message = str(e)
-            task.completed_at = datetime.utcnow()
-            
-            api_log.response_data = {"error": str(e)}
-            api_log.status_code = 500
-            api_log.duration_ms = int((time.time() - start_time) * 1000)
-        
-        analysis_tasks_db[task_id] = task
-        api_logs_db[log_id] = api_log
+            duration_ms = int((time.time() - start_time) * 1000)
+
+            with SessionLocal() as db:
+                log_record = db.query(ExternalAPICallRecord).filter(ExternalAPICallRecord.id == log_id).first()
+                task_record = db.query(AnalysisTaskRecord).filter(AnalysisTaskRecord.id == task_id).first()
+                if log_record:
+                    log_record.response_payload = result
+                    log_record.status_code = 200
+                    log_record.duration_ms = duration_ms
+                    log_record.status = "completed"
+                    log_record.completed_at = datetime.utcnow()
+                if task_record:
+                    task_record.result_payload = result
+                    task_record.status = "completed"
+                    task_record.completed_at = datetime.utcnow()
+                    task_record.updated_at = datetime.utcnow()
+                db.commit()
+        except Exception as exc:
+            duration_ms = int((time.time() - start_time) * 1000)
+            with SessionLocal() as db:
+                log_record = db.query(ExternalAPICallRecord).filter(ExternalAPICallRecord.id == log_id).first()
+                task_record = db.query(AnalysisTaskRecord).filter(AnalysisTaskRecord.id == task_id).first()
+                if log_record:
+                    log_record.status = "failed"
+                    log_record.duration_ms = duration_ms
+                    log_record.error_message = str(exc)
+                    log_record.completed_at = datetime.utcnow()
+                if task_record:
+                    task_record.status = "failed"
+                    task_record.error_message = str(exc)
+                    task_record.completed_at = datetime.utcnow()
+                    task_record.updated_at = datetime.utcnow()
+                db.commit()

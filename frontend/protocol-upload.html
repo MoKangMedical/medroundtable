@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>上传研究方案 - MedRoundTable</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,6 +12,12 @@
         body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
         .drag-active { border-color: #3b82f6; background-color: #eff6ff; }
         .progress-bar { transition: width 0.3s ease; }
+
+        @media (max-width: 768px) {
+            .mobile-submit-shell { display: block; }
+            .upload-panel { padding: 1.25rem; }
+            .drop-panel { padding: 2rem 1rem; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -28,14 +35,14 @@
                     </div>
                 </a>
             </div>
-            <a href="./data-dashboard.html" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
+            <a href="./data-dashboard.html" class="rounded-lg bg-blue-100 px-4 py-2 text-center text-blue-700 hover:bg-blue-200 transition">
                 <i class="fas fa-folder-open mr-1"></i> 数据管理
             </a>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-12">
+    <main class="max-w-4xl mx-auto px-4 py-12 pb-32 md:pb-12">
         <div class="text-center mb-12">
             <h2 class="text-3xl font-bold text-slate-900 mb-4">
                 <i class="fas fa-file-upload text-blue-600 mr-2"></i>上传研究方案
@@ -43,6 +50,10 @@
             <p class="text-slate-600 max-w-2xl mx-auto">
                 上传您的研究方案文档，AI专家将协助分析和完善
             </p>
+            <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
+                <i class="fas fa-circle-info text-blue-500"></i>
+                先选文件，再补标题，最后决定上传到后台还是暂存当前浏览器
+            </div>
         </div>
 
         <div id="backendStatus" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
@@ -56,9 +67,9 @@
         </div>
 
         <!-- Upload Form -->
-        <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div class="upload-panel bg-white rounded-2xl shadow-lg p-8">
             <!-- Drag & Drop Zone -->
-            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center cursor-pointer hover:border-blue-400 transition mb-8">
+            <div id="dropZone" class="drop-panel border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center cursor-pointer hover:border-blue-400 transition mb-8">
                 <input type="file" id="fileInput" class="hidden" accept=".pdf,.doc,.docx,.md,.txt">
                 <div class="w-20 h-20 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
                     <i class="fas fa-cloud-upload-alt text-4xl text-blue-600"></i>
@@ -119,12 +130,11 @@
                         <i class="fas fa-users mr-1 text-blue-500"></i>关联圆桌会
                     </label>
                     <select id="roundtableId"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white">
-                        <option value="">-- 选择圆桌会（可选）--</option>
-                        <option value="rt_001">心血管疾病研究圆桌会</option>
-                        <option value="rt_002">肿瘤免疫治疗圆桌会</option>
-                        <option value="rt_003">糖尿病管理圆桌会</option>
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition bg-white disabled:bg-slate-50 disabled:text-slate-400"
+                        disabled>
+                        <option value="">-- 正在加载圆桌会列表 --</option>
                     </select>
+                    <p id="roundtableHint" class="mt-2 text-xs text-slate-500">只有后端在线且已创建圆桌会时，这里才会显示真实可关联的项目。</p>
                 </div>
 
                 <!-- Submit Button -->
@@ -173,6 +183,18 @@
         </div>
     </footer>
 
+    <div class="mobile-submit-shell fixed inset-x-0 bottom-0 z-40 hidden border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-12px_32px_rgba(15,23,42,0.08)] backdrop-blur md:hidden">
+        <div class="mx-auto flex max-w-4xl items-center gap-3">
+            <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">当前状态</p>
+                <p id="mobileSubmitHint" class="mt-1 truncate text-sm text-slate-700">先选择研究方案文件</p>
+            </div>
+            <button type="button" id="mobileSubmitBtn" disabled class="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-3 text-sm font-semibold text-white transition disabled:opacity-50 disabled:cursor-not-allowed">
+                开始上传
+            </button>
+        </div>
+    </div>
+
     <script src="./api-config.js"></script>
     <script src="./local-upload-store.js"></script>
     <script>
@@ -188,14 +210,23 @@
         const progressText = document.getElementById('progressText');
         const uploadForm = document.getElementById('uploadForm');
         const submitBtn = document.getElementById('submitBtn');
+        const mobileSubmitBtn = document.getElementById('mobileSubmitBtn');
+        const mobileSubmitHint = document.getElementById('mobileSubmitHint');
         const resultMessage = document.getElementById('resultMessage');
         const backendStatus = document.getElementById('backendStatus');
         const backendStatusText = document.getElementById('backendStatusText');
+        const roundtableSelect = document.getElementById('roundtableId');
+        const roundtableHint = document.getElementById('roundtableHint');
         const api = window.MRTApiConfig;
         const localStore = window.MRTLocalUploadStore;
 
         let selectedFile = null;
         let backendAvailable = false;
+
+        if (mobileSubmitBtn) {
+            mobileSubmitBtn.addEventListener('click', () => uploadForm.requestSubmit());
+        }
+        document.getElementById('title').addEventListener('input', updateSubmitState);
 
         // Drag & Drop Events
         dropZone.addEventListener('click', () => fileInput.click());
@@ -283,6 +314,7 @@
             // Show Progress
             progressContainer.classList.remove('hidden');
             submitBtn.disabled = true;
+            if (mobileSubmitBtn) mobileSubmitBtn.disabled = true;
 
             try {
                 progressBar.style.width = '35%';
@@ -327,20 +359,35 @@
 
         async function loadRoundtables() {
             if (!backendAvailable) {
+                roundtableSelect.disabled = true;
+                roundtableSelect.innerHTML = '<option value="">-- 后端未连接，暂时无法关联圆桌会 --</option>';
+                roundtableHint.textContent = '当前是浏览器本地暂存模式，暂时不能绑定后台里的圆桌会。';
                 return;
             }
             try {
                 const roundtables = await api.fetchJson('/api/v1/roundtables');
-                const select = document.getElementById('roundtableId');
-                select.innerHTML = '<option value="">-- 选择圆桌会（可选）--</option>';
+                roundtableSelect.innerHTML = '<option value="">-- 选择圆桌会（可选）--</option>';
                 roundtables.forEach((roundtable) => {
                     const option = document.createElement('option');
                     option.value = roundtable.id;
                     option.textContent = roundtable.title;
-                    select.appendChild(option);
+                    roundtableSelect.appendChild(option);
                 });
+
+                if (roundtables.length === 0) {
+                    roundtableSelect.disabled = true;
+                    roundtableSelect.innerHTML = '<option value="">-- 当前还没有可关联的圆桌会 --</option>';
+                    roundtableHint.textContent = '请先从首页创建圆桌会，再回来把研究方案挂到真实项目下。';
+                    return;
+                }
+
+                roundtableSelect.disabled = false;
+                roundtableHint.textContent = '这里显示的都是后台真实存在的圆桌会，不再使用演示占位 ID。';
             } catch (error) {
                 console.warn('圆桌会列表加载失败:', error.message);
+                roundtableSelect.disabled = true;
+                roundtableSelect.innerHTML = '<option value="">-- 圆桌会列表加载失败，请稍后重试 --</option>';
+                roundtableHint.textContent = '列表拉取失败时不会再保留演示数据，避免误关联到不存在的圆桌。';
             }
         }
 
@@ -360,18 +407,37 @@
         }
 
         function syncSubmitButton() {
+            const titleValue = document.getElementById('title').value.trim();
+            const actionLabel = backendAvailable ? '开始上传' : '暂存到浏览器';
+            const actionHtml = backendAvailable
+                ? '<i class="fas fa-upload mr-2"></i>开始上传'
+                : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器';
+
             if (!selectedFile) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = backendAvailable
-                    ? '<i class="fas fa-upload mr-2"></i>开始上传'
-                    : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器';
+                submitBtn.innerHTML = actionHtml;
+                if (mobileSubmitBtn) {
+                    mobileSubmitBtn.disabled = true;
+                    mobileSubmitBtn.textContent = actionLabel;
+                }
+                if (mobileSubmitHint) {
+                    mobileSubmitHint.textContent = '先选择研究方案文件';
+                }
                 return;
             }
 
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = backendAvailable
-                ? '<i class="fas fa-upload mr-2"></i>开始上传'
-                : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器';
+            const ready = Boolean(titleValue);
+            submitBtn.disabled = !ready;
+            submitBtn.innerHTML = actionHtml;
+            if (mobileSubmitBtn) {
+                mobileSubmitBtn.disabled = !ready;
+                mobileSubmitBtn.textContent = actionLabel;
+            }
+            if (mobileSubmitHint) {
+                mobileSubmitHint.textContent = ready
+                    ? (backendAvailable ? '文件和标题已就绪，可直接上传到后台' : '文件和标题已就绪，将暂存到当前浏览器')
+                    : '文件已选中，还需要补充方案标题';
+            }
         }
 
         function updateSubmitState() {

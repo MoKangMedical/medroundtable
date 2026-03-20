@@ -3,9 +3,11 @@
 
 class MedRoundTableUser {
     constructor() {
-        this.API_BASE = window.location.hostname === 'localhost' 
-            ? 'http://localhost:8000' 
-            : 'https://mia-rating-ownership-downloads.trycloudflare.com';
+        this.API_BASE = window.MRTApiConfig
+            ? window.MRTApiConfig.API_BASE
+            : (window.location.hostname === 'localhost'
+                ? 'http://localhost:8000'
+                : 'https://medroundtable-api.onrender.com');
         this.token = localStorage.getItem('mrt_token');
         this.user = JSON.parse(localStorage.getItem('mrt_user') || 'null');
         this.currentSessionId = null;

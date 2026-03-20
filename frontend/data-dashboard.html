@@ -4,11 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据管理 - MedRoundTable</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+
+        @media (max-width: 768px) {
+            .compact-card { padding: 1rem; }
+            .compact-card p.text-3xl { font-size: 1.75rem; line-height: 2rem; }
+            .mobile-sticky-tabs {
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+            .mobile-sticky-tabs::-webkit-scrollbar { display: none; }
+            .mobile-bottom-actions { display: grid; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -26,11 +38,11 @@
                     </div>
                 </a>
             </div>
-            <div class="flex gap-3">
-                <a href="./protocol-upload.html" class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
+            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                <a href="./protocol-upload.html" class="rounded-lg bg-blue-100 px-4 py-2 text-center text-blue-700 hover:bg-blue-200 transition">
                     <i class="fas fa-file-medical mr-1"></i> 上传方案
                 </a>
-                <a href="./database-upload.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition">
+                <a href="./database-upload.html" class="rounded-lg bg-green-100 px-4 py-2 text-center text-green-700 hover:bg-green-200 transition">
                     <i class="fas fa-database mr-1"></i> 上传数据
                 </a>
             </div>
@@ -55,11 +67,16 @@
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">浏览器本地暂存</p>
                     <p id="localDraftSummaryText" class="mt-1 text-sm text-slate-600">当前设备保存的临时方案和数据库，只在本浏览器可见。</p>
                 </div>
-                <button id="clearLocalDraftsBtn" type="button" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
-                    <i class="fas fa-trash"></i> 清空本地暂存
-                </button>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button id="toggleLocalDraftDetailsBtn" type="button" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 md:hidden">
+                        <i class="fas fa-chevron-down"></i> 展开详情
+                    </button>
+                    <button id="clearLocalDraftsBtn" type="button" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+                        <i class="fas fa-trash"></i> 清空本地暂存
+                    </button>
+                </div>
             </div>
-            <div class="mt-4 grid gap-3 md:grid-cols-3">
+            <div id="localDraftDetails" class="mt-4 grid gap-3 md:grid-cols-3">
                 <div class="rounded-2xl bg-slate-50 px-4 py-3">
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本地方案</p>
                     <p class="mt-2 text-2xl font-bold text-slate-950" id="localProtocolCount">0</p>
@@ -75,9 +92,27 @@
             </div>
         </div>
 
+        <div id="analysisIntentBanner" class="mb-6 hidden rounded-2xl border border-purple-200 bg-gradient-to-r from-purple-50 via-white to-blue-50 px-5 py-4 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-purple-700">Pending analysis</p>
+                    <h2 id="analysisIntentTitle" class="mt-2 text-xl font-bold text-slate-900">已选择一种分析方式</h2>
+                    <p id="analysisIntentText" class="mt-2 text-sm leading-7 text-slate-600"></p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="./database-upload.html" class="rounded-2xl bg-purple-600 px-4 py-3 text-sm font-semibold text-white hover:bg-purple-700 transition">
+                        先上传数据
+                    </a>
+                    <button type="button" onclick="switchTab('databases')" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+                        查看已有数据库
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="compact-card bg-white rounded-xl p-6 shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-slate-500">研究方案</p>
@@ -88,7 +123,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="compact-card bg-white rounded-xl p-6 shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-slate-500">数据库</p>
@@ -99,7 +134,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="compact-card bg-white rounded-xl p-6 shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-slate-500">分析任务</p>
@@ -110,7 +145,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl p-6 shadow-md">
+            <div class="compact-card bg-white rounded-xl p-6 shadow-md">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm text-slate-500">存储使用</p>
@@ -126,7 +161,7 @@
         <!-- Tabs -->
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
             <div class="border-b border-slate-200">
-                <nav class="flex">
+                <nav class="mobile-sticky-tabs flex">
                     <button onclick="switchTab('protocols')" id="tab-protocols" class="px-6 py-4 text-sm font-medium border-b-2 border-blue-500 text-blue-600">
                         <i class="fas fa-file-medical mr-2"></i>研究方案
                     </button>
@@ -193,6 +228,49 @@
                         <i class="fas fa-plus mr-1"></i> 新建分析
                     </a>
                 </div>
+                <div class="mb-6 rounded-2xl border border-purple-200 bg-gradient-to-r from-purple-50 via-white to-blue-50 p-5 shadow-sm">
+                    <div class="flex flex-col gap-5">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-purple-700">Server-side Analysis</p>
+                            <h3 class="mt-2 text-lg font-bold text-slate-900">直接用服务器里的数据集发起分析任务</h3>
+                            <p class="mt-2 text-sm leading-7 text-slate-600">这里会复用你上传的数据库和公开数据快照。任务状态、统计结果和后续复盘都保存在后端，不再只停留在前端页面。</p>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2">
+                            <label class="block">
+                                <span class="text-sm font-semibold text-slate-700">选择数据集</span>
+                                <select id="analysisDatabaseSelect" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100">
+                                    <option value="">先上传或保存一个服务器数据集</option>
+                                </select>
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-semibold text-slate-700">分析类型</span>
+                                <select id="analysisTypeSelect" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100">
+                                    <option value="descriptive">描述性统计</option>
+                                    <option value="comparative">比较分析</option>
+                                    <option value="correlation">相关性分析</option>
+                                    <option value="regression">回归分析</option>
+                                    <option value="custom">自定义分析</option>
+                                </select>
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-semibold text-slate-700">任务名称</span>
+                                <input id="analysisTaskName" type="text" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100" placeholder="例如：主要终点描述性统计">
+                            </label>
+                            <label class="block">
+                                <span class="text-sm font-semibold text-slate-700">说明</span>
+                                <input id="analysisTaskDescription" type="text" class="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-100" placeholder="例如：先核对基线特征和缺失值">
+                            </label>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button id="createAnalysisTaskBtn" type="button" class="rounded-2xl bg-purple-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-purple-700">
+                                <i class="fas fa-play mr-2"></i>发起服务器分析
+                            </button>
+                            <a href="./analysis.html" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                查看公开数据入口
+                            </a>
+                        </div>
+                    </div>
+                </div>
                 <div id="analysisList" class="space-y-4">
                     <div class="text-center py-12 text-slate-400">
                         <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
@@ -210,11 +288,19 @@
         </div>
     </footer>
 
+    <div class="mobile-bottom-actions fixed inset-x-0 bottom-0 z-40 hidden gap-3 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-12px_32px_rgba(15,23,42,0.08)] backdrop-blur md:hidden">
+        <a href="./protocol-upload.html" class="rounded-2xl bg-blue-600 px-4 py-3 text-center text-sm font-semibold text-white">上传方案</a>
+        <a href="./database-upload.html" class="rounded-2xl bg-green-600 px-4 py-3 text-center text-sm font-semibold text-white">上传数据</a>
+        <a href="./analysis.html" class="rounded-2xl bg-purple-600 px-4 py-3 text-center text-sm font-semibold text-white">分析入口</a>
+    </div>
+
     <script src="./api-config.js"></script>
     <script src="./local-upload-store.js"></script>
     <script>
         const allowedTabs = new Set(['protocols', 'databases', 'analysis']);
-        const initialTab = new URLSearchParams(window.location.search).get('tab');
+        const params = new URLSearchParams(window.location.search);
+        const initialTab = params.get('tab');
+        const initialIntent = params.get('intent');
         let currentTab = allowedTabs.has(initialTab) ? initialTab : 'protocols';
         const api = window.MRTApiConfig;
         const localStore = window.MRTLocalUploadStore;
@@ -225,11 +311,25 @@
         const localProtocolCount = document.getElementById('localProtocolCount');
         const localDatabaseCount = document.getElementById('localDatabaseCount');
         const localStorageUsed = document.getElementById('localStorageUsed');
+        const localDraftDetails = document.getElementById('localDraftDetails');
+        const toggleLocalDraftDetailsBtn = document.getElementById('toggleLocalDraftDetailsBtn');
         const clearLocalDraftsBtn = document.getElementById('clearLocalDraftsBtn');
+        const analysisDatabaseSelect = document.getElementById('analysisDatabaseSelect');
+        const analysisTypeSelect = document.getElementById('analysisTypeSelect');
+        const analysisTaskName = document.getElementById('analysisTaskName');
+        const analysisTaskDescription = document.getElementById('analysisTaskDescription');
+        const createAnalysisTaskBtn = document.getElementById('createAnalysisTaskBtn');
         let backendAvailable = false;
+        let serverDatabases = [];
         let localDraftStats = {
             protocols: [],
             databases: [],
+        };
+        const ANALYSIS_INTENT_LABELS = {
+            descriptive: '描述性统计',
+            comparative: '比较分析',
+            correlation: '相关性分析',
+            regression: '回归分析',
         };
 
         function showLoadError(elementId, message) {
@@ -295,6 +395,55 @@
             localStorageUsed.textContent = formatSize(totalSize);
             localDraftSummaryText.textContent = `当前设备保存了 ${protocolRows.length} 个方案和 ${databaseRows.length} 个数据库，只在本浏览器可见，不会写入后台数据库。`;
             localDraftSummary.classList.toggle('hidden', protocolRows.length === 0 && databaseRows.length === 0);
+        }
+
+        function syncLocalDraftDetailsVisibility(forceOpen) {
+            if (!localDraftDetails || !toggleLocalDraftDetailsBtn) return;
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            const shouldOpen = isMobile ? Boolean(forceOpen) : true;
+            localDraftDetails.classList.toggle('hidden', !shouldOpen);
+            toggleLocalDraftDetailsBtn.innerHTML = shouldOpen
+                ? '<i class="fas fa-chevron-up"></i> 收起详情'
+                : '<i class="fas fa-chevron-down"></i> 展开详情';
+        }
+
+        function renderAnalysisIntent() {
+            const banner = document.getElementById('analysisIntentBanner');
+            const title = document.getElementById('analysisIntentTitle');
+            const text = document.getElementById('analysisIntentText');
+            if (!banner || !initialIntent || !ANALYSIS_INTENT_LABELS[initialIntent]) {
+                return;
+            }
+
+            banner.classList.remove('hidden');
+            title.textContent = `你选择了「${ANALYSIS_INTENT_LABELS[initialIntent]}」`;
+            text.textContent = '下一步先确保数据库已在服务器上，再从这里发起分析任务。这样任务结果、统计摘要和后续复用都能留在后台，而不是只停在一个静态介绍页。';
+            if (analysisTypeSelect) {
+                analysisTypeSelect.value = initialIntent;
+            }
+            if (analysisTaskName && !analysisTaskName.value) {
+                analysisTaskName.value = `${ANALYSIS_INTENT_LABELS[initialIntent]} · ${new Date().toLocaleDateString()}`;
+            }
+        }
+
+        function populateAnalysisDatabaseOptions(databases) {
+            serverDatabases = databases || [];
+            if (!analysisDatabaseSelect) return;
+
+            const options = serverDatabases.map((database) => {
+                const metadata = database.metadata || {};
+                const sourceTag = metadata.source_kind === 'public-dataset-snapshot'
+                    ? '公开数据快照'
+                    : '上传数据';
+                const ready = metadata.analysis_ready !== false && metadata.parsed !== false;
+                const suffix = ready ? '' : ' · 待补解析';
+                return `<option value="${database.id}" ${ready ? '' : 'disabled'}>${database.name} · ${sourceTag} · ${database.row_count || 0} 行${suffix}</option>`;
+            });
+
+            analysisDatabaseSelect.innerHTML = `
+                <option value="">先上传或保存一个服务器数据集</option>
+                ${options.join('')}
+            `;
         }
 
         function renderLocalProtocolRows(rows) {
@@ -486,6 +635,8 @@
         async function loadDatabases() {
             try {
                 const databases = await api.fetchJson('/api/databases');
+                serverDatabases = databases;
+                populateAnalysisDatabaseOptions(databases);
                 document.getElementById('databaseCount').textContent = databases.length;
 
                 let totalSize = databases.reduce((sum, d) => sum + (d.file_size || 0), 0);
@@ -515,6 +666,8 @@
                                     ${d.file_type.toUpperCase()} · ${formatSize(d.file_size)} · 
                                     ${d.row_count || 0}行 × ${d.column_count || 0}列
                                 </p>
+                                ${d.metadata?.source_kind === 'public-dataset-snapshot' ? `<p class="mt-1 text-xs font-semibold text-emerald-700">公开数据快照 · ${d.metadata.source_database_name || d.metadata.source_database_id}</p>` : ''}
+                                ${d.metadata?.parsed === false ? `<p class="mt-1 text-xs font-semibold text-amber-700">Schema 待补解析 · 当前不建议直接发起自动分析</p>` : ''}
                             </div>
                         </div>
                         <div class="flex gap-2">
@@ -577,6 +730,9 @@
                             <button onclick="viewResult('${t.id}')" class="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition" title="查看结果">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <button onclick="deleteAnalysisTask('${t.id}')" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" title="删除任务">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </div>
                     </div>
                 `).join('');
@@ -618,6 +774,49 @@
             }
         }
 
+        async function createAnalysisTask() {
+            const databaseId = analysisDatabaseSelect?.value;
+            const analysisType = analysisTypeSelect?.value || 'descriptive';
+            const taskName = analysisTaskName?.value?.trim() || `${ANALYSIS_INTENT_LABELS[analysisType] || analysisType} 任务`;
+            const description = analysisTaskDescription?.value?.trim() || null;
+
+            if (!databaseId) {
+                alert('请先选择一个服务器数据集');
+                return;
+            }
+
+            const button = createAnalysisTaskBtn;
+            const originalText = button ? button.innerHTML : '';
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>任务创建中';
+            }
+
+            try {
+                const task = await api.fetchJson('/api/analysis/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: taskName,
+                        description,
+                        database_id: databaseId,
+                        analysis_type: analysisType,
+                        config: {},
+                    }),
+                });
+                await loadAnalysis();
+                switchTab('analysis');
+                alert(`分析任务已创建：${task.name}`);
+            } catch (error) {
+                alert(`创建失败：${error.message}`);
+            } finally {
+                if (button) {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            }
+        }
+
         function previewDatabase(id) {
             window.open(api.apiUrl(`/api/databases/${id}/preview`), '_blank');
         }
@@ -626,13 +825,34 @@
             window.open(`./analysis.html?task=${taskId}`, '_blank');
         }
 
+        async function deleteAnalysisTask(id) {
+            if (!confirm('确定要删除这个分析任务吗？')) return;
+            try {
+                await api.fetchJson(`/api/analysis/tasks/${id}`, { method: 'DELETE' });
+                await loadAnalysis();
+            } catch (error) {
+                alert(`删除失败：${error.message}`);
+            }
+        }
+
         async function initializeDashboard() {
             setBackendStatus('loading', `正在连接数据管理后端：${api.API_BASE}`);
             if (clearLocalDraftsBtn) {
                 clearLocalDraftsBtn.addEventListener('click', clearLocalDrafts);
             }
+            if (createAnalysisTaskBtn) {
+                createAnalysisTaskBtn.addEventListener('click', createAnalysisTask);
+            }
+            if (toggleLocalDraftDetailsBtn) {
+                toggleLocalDraftDetailsBtn.addEventListener('click', () => {
+                    const hidden = localDraftDetails.classList.contains('hidden');
+                    syncLocalDraftDetailsVisibility(hidden);
+                });
+            }
+            renderAnalysisIntent();
             await refreshLocalDrafts();
             switchTab(currentTab);
+            syncLocalDraftDetailsVisibility(false);
             try {
                 await api.healthcheck();
                 backendAvailable = true;
@@ -658,6 +878,7 @@
         }
 
         initializeDashboard();
+        window.addEventListener('resize', () => syncLocalDraftDetailsVisibility(false));
     </script>
 </body>
 </html>

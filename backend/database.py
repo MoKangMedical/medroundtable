@@ -282,6 +282,45 @@ class DatabaseRecord(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
+class AnalysisTaskRecord(Base):
+    """数据分析任务记录"""
+    __tablename__ = "analysis_tasks"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    database_id = Column(String(36), nullable=False, index=True)
+    analysis_type = Column(String(50), nullable=False)
+    status = Column(String(50), default="pending", index=True)
+    config_payload = Column("config", JSON, default=dict)
+    result_payload = Column("result", JSON, nullable=True)
+    error_message = Column(Text, nullable=True)
+    created_by = Column(String(255), nullable=True)
+    extra_metadata = Column("metadata", JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+
+
+class ExternalAPICallRecord(Base):
+    """外部分析 API 调用日志"""
+    __tablename__ = "analysis_api_logs"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    task_id = Column(String(36), nullable=False, index=True)
+    database_id = Column(String(36), nullable=True, index=True)
+    api_name = Column(String(100), nullable=False)
+    endpoint = Column(String(255), nullable=False)
+    request_payload = Column("request_data", JSON, nullable=True)
+    response_payload = Column("response_data", JSON, nullable=True)
+    status = Column(String(50), default="running", index=True)
+    status_code = Column(Integer, nullable=True)
+    duration_ms = Column(Integer, nullable=True)
+    error_message = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    completed_at = Column(DateTime, nullable=True)
+
 class Feedback(Base):
     """用户反馈表"""
     __tablename__ = "feedbacks"

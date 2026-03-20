@@ -25,7 +25,7 @@ class LLMClient:
         self.mock_until = 0.0
         self.prefer_discussion_mock = os.getenv(
             "MOONSHOT_PREFER_DISCUSSION_MOCK",
-            "true"
+            "false"
         ).strip().lower() not in {"0", "false", "no"}
         
         # 初始化 Moonshot 客户端

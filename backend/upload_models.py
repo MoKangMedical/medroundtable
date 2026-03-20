@@ -51,6 +51,7 @@ class ProtocolResponse(BaseModel):
     roundtable_id: Optional[str]
     created_at: datetime
     updated_at: datetime
+    metadata: Optional[Dict[str, Any]] = None
 
 # ============== 数据库模型 ==============
 
@@ -113,6 +114,7 @@ class DatabaseResponse(BaseModel):
     protocol_id: Optional[str]
     created_at: datetime
     updated_at: datetime
+    metadata: Optional[Dict[str, Any]] = None
 
 class DatabasePreview(BaseModel):
     """数据库预览响应"""
@@ -213,3 +215,16 @@ class ExternalAPIResponse(BaseModel):
     external_job_id: Optional[str] = None
     estimated_duration: Optional[int] = None
     message: str
+
+
+class PublicDatasetSnapshotCreate(BaseModel):
+    """将公开数据库查询结果保存到服务器"""
+    database: str
+    query: str
+    filters: Optional[Dict[str, Any]] = None
+    limit: int = 20
+    name: Optional[str] = None
+    description: Optional[str] = None
+    roundtable_id: Optional[str] = None
+    protocol_id: Optional[str] = None
+    uploaded_by: Optional[str] = None

@@ -2,11 +2,105 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=../experts.html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>跳转中 - AI专家</title>
+    <title>专家页跳转 - MedRoundTable</title>
+    <script>
+        setTimeout(() => {
+            window.location.replace('../experts.html');
+        }, 1200);
+    </script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(244, 114, 182, 0.14), transparent 22%),
+                radial-gradient(circle at 88% 12%, rgba(59, 130, 246, 0.16), transparent 20%),
+                linear-gradient(180deg, #fffafc 0%, #f8fafc 60%, #ffffff 100%);
+            color: #0f172a;
+        }
+        .shell {
+            width: min(100%, 680px);
+            border-radius: 32px;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 28px 80px rgba(15, 23, 42, 0.12);
+            padding: 36px 30px;
+        }
+        .eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #2563eb;
+        }
+        h1 {
+            margin: 14px 0 0;
+            font-size: 34px;
+            line-height: 1.2;
+        }
+        p {
+            margin: 14px 0 0;
+            color: #475569;
+            line-height: 1.8;
+        }
+        .cards {
+            margin-top: 24px;
+            display: grid;
+            gap: 14px;
+        }
+        .card {
+            border-radius: 22px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 16px 18px;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 18px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .btn-primary {
+            background: #0f172a;
+            color: #fff;
+        }
+        .btn-secondary {
+            background: #fff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+        }
+    </style>
 </head>
 <body>
-    <p>正在跳转到 AI 专家页。若未自动跳转，请访问 <a href="../experts.html">../experts.html</a></p>
+    <div class="shell">
+        <div class="eyebrow">专家入口</div>
+        <h1>正在进入 14 位专家总览</h1>
+        <p>这里不再是空白坏链。你会被带到主专家页，继续查看角色分工、头像、擅长环节和进入圆桌的入口。</p>
+        <div class="cards">
+            <div class="card">核心临床团队：临床主任、博士生、流行病学家、统计学家、研究护士</div>
+            <div class="card">ClawBio 生物信息学套件：药物基因组学、GWAS、单细胞测序、Galaxy 桥接器</div>
+            <div class="card">专业研究支持团队：UX 研究员、AI 数据工程师、趋势研究员、实验追踪员、模型 QA 专家</div>
+        </div>
+        <div class="actions">
+            <a class="btn btn-primary" href="../experts.html">立即打开专家页</a>
+            <a class="btn btn-secondary" href="../index.html">返回首页</a>
+        </div>
+    </div>
 </body>
 </html>
