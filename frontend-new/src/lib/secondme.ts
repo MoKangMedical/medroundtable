@@ -127,7 +127,8 @@ export function buildHandoffUrl(baseUrl: string, options: {
   scenario?: string;
   profile?: SecondMeProfile | null;
 }) {
-  const url = new URL('/frontend/secondme-hub.html', baseUrl);
+  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const url = new URL('frontend/secondme-hub.html', normalizedBase);
   if (options.human) url.searchParams.set('human', options.human);
   if (options.shade) url.searchParams.set('shade', options.shade);
   if (options.pack) url.searchParams.set('pack', options.pack);
