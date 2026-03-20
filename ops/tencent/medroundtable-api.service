@@ -1,0 +1,17 @@
+[Unit]
+Description=MedRoundTable FastAPI backend
+After=network.target
+
+[Service]
+Type=simple
+User=medroundtable
+Group=medroundtable
+WorkingDirectory=/opt/medroundtable
+EnvironmentFile=/opt/medroundtable/.env.production
+ExecStart=/opt/medroundtable/.venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
