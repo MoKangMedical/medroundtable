@@ -3,445 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MedRoundTable - 登录</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>跳转到统一登录入口 - MedRoundTable</title>
+    <script>
+        setTimeout(() => {
+            window.location.replace('../login.html');
+        }, 900);
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(14, 165, 233, 0.16), transparent 24%),
+                linear-gradient(180deg, #eff6ff 0%, #f8fafc 55%, #ffffff 100%);
+            color: #0f172a;
         }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 420px;
+        .shell {
+            width: min(100%, 520px);
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.94);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+            padding: 32px 28px;
         }
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .logo-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 2rem;
-            color: white;
-        }
-        .logo h1 {
-            font-size: 1.8rem;
-            color: #1f2937;
-            margin-bottom: 8px;
+        .eyebrow {
+            font-size: 12px;
             font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: #0f766e;
         }
-        .logo p {
-            color: #6b7280;
-            font-size: 0.95rem;
+        h1 {
+            margin: 14px 0 0;
+            font-size: 32px;
+            line-height: 1.2;
         }
-        .tabs {
+        p {
+            margin: 14px 0 0;
+            color: #475569;
+            line-height: 1.8;
+        }
+        .actions {
             display: flex;
-            margin-bottom: 25px;
-            background: #f3f4f6;
-            border-radius: 12px;
-            padding: 4px;
-        }
-        .tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 10px;
-            font-weight: 500;
-            color: #6b7280;
-            transition: all 0.3s;
-        }
-        .tab.active {
-            background: white;
-            color: #4f46e5;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .form-group {
-            margin-bottom: 18px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #374151;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        .input-wrapper {
-            position: relative;
-        }
-        .input-wrapper i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px 14px 12px 42px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.2s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
         }
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
-        }
-        .btn-guest {
-            background: #f3f4f6;
-            color: #4b5563;
-            margin-top: 12px;
-        }
-        .btn-guest:hover {
-            background: #e5e7eb;
-        }
-        .divider {
-            text-align: center;
-            margin: 24px 0;
-            position: relative;
-        }
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e5e7eb;
-        }
-        .divider span {
-            background: white;
-            padding: 0 16px;
-            color: #6b7280;
-            font-size: 0.875rem;
-            position: relative;
-        }
-        .notice {
-            background: #fef3c7;
-            border: 1px solid #fcd34d;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 0.875rem;
-            color: #92400e;
-        }
-        .notice i {
-            margin-right: 6px;
-        }
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 24px;
-            padding-top: 24px;
-            border-top: 1px solid #e5e7eb;
-        }
-        .feature {
-            text-align: center;
-        }
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: #f3f4f6;
-            border-radius: 10px;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 6px;
-            color: #4f46e5;
-        }
-        .feature-text {
-            font-size: 0.75rem;
-            color: #6b7280;
-        }
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .back-link a {
-            color: #4f46e5;
+            min-height: 48px;
+            padding: 0 18px;
+            border-radius: 999px;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 700;
         }
-        .back-link a:hover {
-            text-decoration: underline;
+        .btn-primary {
+            background: #0f766e;
+            color: #fff;
+        }
+        .btn-secondary {
+            background: #fff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- Logo -->
-        <div class="logo">
-            <div class="logo-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <h1>MedRoundTable</h1>
-            <p>AI 医学科研协作平台</p>
-        </div>
-
-        <!-- 通知 -->
-        <div class="notice">
-            <i class="fas fa-info-circle"></i>
-            <strong>国内直连版</strong> - 无需科学上网，游客模式可直接使用全部功能
-        </div>
-
-        <!-- 标签切换 -->
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('guest')">游客模式</div>
-            <div class="tab" onclick="switchTab('login')">账号登录</div>
-            <div class="tab" onclick="switchTab('register')">注册</div>
-        </div>
-
-        <!-- 游客模式 -->
-        <div id="guest-tab" class="tab-content active">
-            <p class="text-gray-600 text-center mb-6">
-                无需注册，立即体验 MedRoundTable 全部功能<br>
-                <span class="text-sm text-gray-400">数据保存在本地浏览器中</span>
-            </p>
-            <button class="btn btn-primary" onclick="guestLogin()">
-                <i class="fas fa-play-circle mr-2"></i>立即体验
-            </button>
-            <div class="mt-4 text-center text-sm text-gray-500">
-                <i class="fas fa-shield-alt mr-1"></i>
-                支持创建圆桌、AI对话、导出报告等全部功能
-            </div>
-        </div>
-
-        <!-- 登录 -->
-        <div id="login-tab" class="tab-content">
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label>邮箱 / 手机号</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="login-account" placeholder="请输入邮箱或手机号" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>密码</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="login-password" placeholder="请输入密码" required>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt mr-2"></i>登录
-                </button>
-            </form>
-            <div class="divider">
-                <span>测试账号</span>
-            </div>
-            <div class="text-center text-sm text-gray-500">
-                <p>管理员: admin@medroundtable.com / admin123</p>
-                <p>研究员: researcher@medroundtable.com / research123</p>
-            </div>
-        </div>
-
-        <!-- 注册 -->
-        <div id="register-tab" class="tab-content">
-            <form onsubmit="handleRegister(event)">
-                <div class="form-group">
-                    <label>用户名</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-user-circle"></i>
-                        <input type="text" id="reg-username" placeholder="设置用户名" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>邮箱</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="reg-email" placeholder="your@email.com" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>密码</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="reg-password" placeholder="至少8位字符" required minlength="8">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>机构/医院</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-hospital"></i>
-                        <input type="text" id="reg-institution" placeholder="例如：北京协和医院">
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-user-plus mr-2"></i>注册
-                </button>
-            </form>
-        </div>
-
-        <!-- 功能展示 -->
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <div class="feature-text">AI专家团</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">
-                    <i class="fas fa-file-medical"></i>
-                </div>
-                <div class="feature-text">研究设计</div>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">
-                    <i class="fas fa-download"></i>
-                </div>
-                <div class="feature-text">报告导出</div>
-            </div>
-        </div>
-
-        <!-- 返回首页 -->
-        <div class="back-link">
-            <a href="/index.html">
-                <i class="fas fa-arrow-left mr-1"></i>返回首页
-            </a>
+    <div class="shell">
+        <div class="eyebrow">统一登录入口</div>
+        <h1>旧版登录壳已收口</h1>
+        <p>这个入口现在只负责把用户送到根登录页，不再维护单独的游客版或第二套登录界面。</p>
+        <div class="actions">
+            <a class="btn btn-primary" href="../login.html">前往统一登录页</a>
+            <a class="btn btn-secondary" href="../index.html">返回首页</a>
         </div>
     </div>
-
-    <script>
-        // 标签切换
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(tab + '-tab').classList.add('active');
-        }
-
-        // 游客登录
-        function guestLogin() {
-            const guestUser = {
-                id: 'guest_' + Date.now(),
-                username: '游客用户',
-                role: 'guest',
-                loginTime: new Date().toISOString()
-            };
-            
-            localStorage.setItem('mrt_token', 'guest_token_' + Date.now());
-            localStorage.setItem('mrt_user', JSON.stringify(guestUser));
-            localStorage.setItem('mrt_is_guest', 'true');
-            
-            // 跳转到首页
-            window.location.href = '/index.html';
-        }
-
-        // 处理登录
-        function handleLogin(e) {
-            e.preventDefault();
-            const account = document.getElementById('login-account').value;
-            const password = document.getElementById('login-password').value;
-            
-            // 模拟登录验证
-            if ((account === 'admin@medroundtable.com' && password === 'admin123') ||
-                (account === 'researcher@medroundtable.com' && password === 'research123')) {
-                
-                const user = {
-                    id: 'user_' + Date.now(),
-                    username: account.split('@')[0],
-                    email: account,
-                    role: account.includes('admin') ? 'admin' : 'researcher'
-                };
-                
-                localStorage.setItem('mrt_token', 'mock_token_' + Date.now());
-                localStorage.setItem('mrt_user', JSON.stringify(user));
-                localStorage.removeItem('mrt_is_guest');
-                
-                alert('登录成功！');
-                window.location.href = '/index.html';
-            } else {
-                alert('账号或密码错误，请使用测试账号或选择游客模式');
-            }
-        }
-
-        // 处理注册
-        function handleRegister(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('reg-username').value;
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-            const institution = document.getElementById('reg-institution').value;
-            
-            // 模拟注册
-            const user = {
-                id: 'user_' + Date.now(),
-                username: username,
-                email: email,
-                institution: institution,
-                role: 'researcher'
-            };
-            
-            // 保存到本地存储（模拟数据库）
-            let users = JSON.parse(localStorage.getItem('mrt_users') || '[]');
-            users.push(user);
-            localStorage.setItem('mrt_users', JSON.stringify(users));
-            
-            // 自动登录
-            localStorage.setItem('mrt_token', 'mock_token_' + Date.now());
-            localStorage.setItem('mrt_user', JSON.stringify(user));
-            localStorage.removeItem('mrt_is_guest');
-            
-            alert('注册成功！');
-            window.location.href = '/index.html';
-        }
-
-        // 检查是否已登录
-        document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('mrt_token');
-            if (token) {
-                // 已登录，可以选择自动跳转或显示已登录状态
-                console.log('用户已登录');
-            }
-        });
-    </script>
 </body>
 </html>

@@ -4,13 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>上传数据库 - MedRoundTable</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
         .drag-active { border-color: #10b981; background-color: #ecfdf5; }
         .progress-bar { transition: width 0.3s ease; }
+
+        @media (max-width: 768px) {
+            .mobile-submit-shell { display: block; }
+            .upload-panel { padding: 1.25rem; }
+            .drop-panel { padding: 2rem 1rem; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -28,14 +36,14 @@
                     </div>
                 </a>
             </div>
-            <a href="./data-dashboard.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition">
+            <a href="./data-dashboard.html" class="rounded-lg bg-green-100 px-4 py-2 text-center text-green-700 hover:bg-green-200 transition">
                 <i class="fas fa-folder-open mr-1"></i> 数据管理
             </a>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-4 py-12">
+    <main class="max-w-6xl mx-auto px-4 py-12 pb-32 md:pb-12">
         <div class="text-center mb-12">
             <h2 class="text-3xl font-bold text-slate-900 mb-4">
                 <i class="fas fa-table text-green-600 mr-2"></i>上传研究数据库
@@ -43,6 +51,10 @@
             <p class="text-slate-600 max-w-2xl mx-auto">
                 上传您的研究数据，支持自动Schema解析和预览
             </p>
+            <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
+                <i class="fas fa-circle-info text-green-500"></i>
+                先选文件，再填写数据库名称，提交后会写入后台并生成可复用的 Schema
+            </div>
         </div>
 
         <div id="backendStatus" class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
@@ -57,9 +69,9 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Upload Form -->
-            <div class="bg-white rounded-2xl shadow-lg p-8">
+            <div class="upload-panel bg-white rounded-2xl shadow-lg p-8">
                 <!-- Drag & Drop Zone -->
-                <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-10 text-center cursor-pointer hover:border-green-400 transition mb-8">
+                <div id="dropZone" class="drop-panel border-2 border-dashed border-slate-300 rounded-2xl p-10 text-center cursor-pointer hover:border-green-400 transition mb-8">
                     <input type="file" id="fileInput" class="hidden" accept=".csv,.xlsx,.xls,.json,.sqlite,.db">
                     <div class="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
                         <i class="fas fa-cloud-upload-alt text-4xl text-green-600"></i>
@@ -145,10 +157,12 @@
             </div>
 
             <!-- Schema Preview -->
-            <div class="bg-white rounded-2xl shadow-lg p-8">
+            <div class="upload-panel bg-white rounded-2xl shadow-lg p-8">
                 <h3 class="text-xl font-bold text-slate-800 mb-6">
                     <i class="fas fa-eye text-blue-500 mr-2"></i>Schema预览
                 </h3>
+
+                <div id="schemaNotice" class="hidden mb-4 rounded-xl border px-4 py-3 text-sm"></div>
                 
                 <div id="schemaPlaceholder" class="text-center py-20 text-slate-400">
                     <i class="fas fa-table text-6xl mb-4"></i>
@@ -200,6 +214,18 @@
         </div>
     </footer>
 
+    <div class="mobile-submit-shell fixed inset-x-0 bottom-0 z-40 hidden border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-12px_32px_rgba(15,23,42,0.08)] backdrop-blur md:hidden">
+        <div class="mx-auto flex max-w-6xl items-center gap-3">
+            <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">当前状态</p>
+                <p id="mobileSubmitHint" class="mt-1 truncate text-sm text-slate-700">先选择数据库文件</p>
+            </div>
+            <button type="button" id="mobileSubmitBtn" disabled class="rounded-2xl bg-gradient-to-r from-green-600 to-teal-600 px-5 py-3 text-sm font-semibold text-white transition disabled:opacity-50 disabled:cursor-not-allowed">
+                上传并解析
+            </button>
+        </div>
+    </div>
+
     <script src="./api-config.js"></script>
     <script src="./local-upload-store.js"></script>
     <script>
@@ -215,6 +241,8 @@
         const progressText = document.getElementById('progressText');
         const uploadForm = document.getElementById('uploadForm');
         const submitBtn = document.getElementById('submitBtn');
+        const mobileSubmitBtn = document.getElementById('mobileSubmitBtn');
+        const mobileSubmitHint = document.getElementById('mobileSubmitHint');
         const resultMessage = document.getElementById('resultMessage');
         const schemaPlaceholder = document.getElementById('schemaPlaceholder');
         const schemaContent = document.getElementById('schemaContent');
@@ -225,12 +253,18 @@
         const previewBody = document.getElementById('previewBody');
         const backendStatus = document.getElementById('backendStatus');
         const backendStatusText = document.getElementById('backendStatusText');
+        const schemaNotice = document.getElementById('schemaNotice');
         const api = window.MRTApiConfig;
         const localStore = window.MRTLocalUploadStore;
 
         let selectedFile = null;
         let backendAvailable = false;
         let latestSchemaSnapshot = null;
+
+        if (mobileSubmitBtn) {
+            mobileSubmitBtn.addEventListener('click', () => uploadForm.requestSubmit());
+        }
+        document.getElementById('name').addEventListener('input', updateSubmitState);
 
         // Drag & Drop Events
         dropZone.addEventListener('click', () => fileInput.click());
@@ -269,8 +303,7 @@
             selectedFile = null;
             fileInput.value = '';
             fileInfo.classList.add('hidden');
-            schemaPlaceholder.classList.remove('hidden');
-            schemaContent.classList.add('hidden');
+            resetSchemaPreview();
             updateSubmitState();
         });
 
@@ -282,22 +315,42 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
+        function showSchemaNotice(type, message) {
+            const palette = {
+                success: ['border-green-200', 'bg-green-50', 'text-green-800'],
+                warning: ['border-amber-200', 'bg-amber-50', 'text-amber-800'],
+                error: ['border-red-200', 'bg-red-50', 'text-red-800'],
+                info: ['border-slate-200', 'bg-slate-50', 'text-slate-700'],
+            };
+            schemaNotice.className = 'mb-4 rounded-xl border px-4 py-3 text-sm';
+            schemaNotice.classList.remove('hidden');
+            (palette[type] || palette.info).forEach((className) => schemaNotice.classList.add(className));
+            schemaNotice.textContent = message;
+        }
+
+        function resetSchemaPreview(message = '上传文件后将自动解析Schema') {
+            latestSchemaSnapshot = null;
+            schemaNotice.classList.add('hidden');
+            schemaPlaceholder.classList.remove('hidden');
+            schemaPlaceholder.querySelector('p').textContent = message;
+            schemaContent.classList.add('hidden');
+            schemaTableBody.innerHTML = '';
+            previewHead.innerHTML = '';
+            previewBody.innerHTML = '';
+        }
+
         function parseFile(file) {
             const ext = file.name.split('.').pop().toLowerCase();
+            resetSchemaPreview();
             
             if (ext === 'csv') {
                 parseCSV(file);
             } else if (['xlsx', 'xls'].includes(ext)) {
-                // Excel parsing would require SheetJS library
-                showSchemaPreview([
-                    {name: 'id', type: 'integer', nullable: false},
-                    {name: 'age', type: 'integer', nullable: true},
-                    {name: 'gender', type: 'string', nullable: true}
-                ], [
-                    [1, 45, 'Male'],
-                    [2, 32, 'Female'],
-                    [3, 28, 'Male']
-                ], 3, 1000);
+                if (window.XLSX) {
+                    parseExcel(file);
+                } else {
+                    showSchemaNotice('warning', '当前浏览器没有加载 Excel 解析器。文件仍可上传到服务器，但本页暂时无法本地预览列结构。');
+                }
             } else if (ext === 'json') {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -306,13 +359,63 @@
                         if (Array.isArray(data) && data.length > 0) {
                             const columns = Object.keys(data[0]).map(k => ({name: k, type: typeof data[0][k], nullable: true}));
                             showSchemaPreview(columns, data.slice(0, 5).map(Object.values), columns.length, data.length);
+                            showSchemaNotice('success', '已在浏览器中预览 JSON 结构，提交后会保存到服务器并生成正式 Schema。');
+                        } else {
+                            showSchemaNotice('warning', 'JSON 文件已读取，但当前内容不是可直接预览的记录数组。上传后仍会由服务器尝试解析。');
                         }
                     } catch (err) {
-                        showResult('error', 'JSON解析失败');
+                        showSchemaNotice('error', 'JSON 解析失败，请检查文件格式。');
                     }
                 };
                 reader.readAsText(file);
+            } else if (['sqlite', 'db'].includes(ext)) {
+                showSchemaNotice('info', 'SQLite/DB 文件将在上传到服务器后解析结构。本页先不做浏览器端预览，避免给出不准确的占位结果。');
             }
+        }
+
+        function inferCellType(values) {
+            const meaningful = values.filter((value) => value !== null && value !== undefined && String(value).trim() !== '');
+            if (meaningful.length === 0) return 'string';
+            if (meaningful.every((value) => typeof value === 'number')) return 'number';
+            if (meaningful.every((value) => typeof value === 'boolean')) return 'boolean';
+            if (meaningful.every((value) => value instanceof Date)) return 'date';
+            return 'string';
+        }
+
+        function parseExcel(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const workbook = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[firstSheetName];
+                    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+                    if (!rows.length) {
+                        showSchemaNotice('warning', 'Excel 文件已读取，但首个工作表为空。上传后仍可由服务器再次尝试解析。');
+                        return;
+                    }
+
+                    const headerRow = rows[0].map((value, index) => {
+                        const label = String(value || '').trim();
+                        return label || `Column_${index + 1}`;
+                    });
+                    const dataRows = rows.slice(1).filter((row) => row.some((cell) => String(cell).trim() !== ''));
+                    const previewRows = dataRows.slice(0, 5).map((row) =>
+                        headerRow.map((_, index) => row[index] ?? '')
+                    );
+                    const columns = headerRow.map((name, index) => ({
+                        name,
+                        type: inferCellType(dataRows.slice(0, 20).map((row) => row[index])),
+                        nullable: dataRows.some((row) => row[index] === '' || row[index] === null || row[index] === undefined),
+                    }));
+
+                    showSchemaPreview(columns, previewRows, headerRow.length, dataRows.length);
+                    showSchemaNotice('success', `已按首个工作表“${firstSheetName}”生成真实预览。提交后服务器会再次解析并保存正式 Schema。`);
+                } catch (error) {
+                    showSchemaNotice('error', `Excel 预览失败：${error.message}`);
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         function parseCSV(file) {
@@ -320,13 +423,17 @@
             reader.onload = (e) => {
                 const text = e.target.result;
                 const lines = text.split('\n').filter(l => l.trim());
-                if (lines.length < 2) return;
+                if (lines.length < 2) {
+                    showSchemaNotice('warning', 'CSV 行数不足，暂时无法预览表结构。');
+                    return;
+                }
 
                 const headers = lines[0].split(',').map(h => h.trim());
                 const data = lines.slice(1, 6).map(line => line.split(',').map(v => v.trim()));
 
                 const columns = headers.map(h => ({name: h, type: 'string', nullable: true}));
                 showSchemaPreview(columns, data, headers.length, lines.length - 1);
+                showSchemaNotice('success', '已在浏览器中读取 CSV 结构，提交后会把文件和正式 Schema 一起保存到服务器。');
             };
             reader.readAsText(file);
         }
@@ -365,6 +472,7 @@
 
             progressContainer.classList.remove('hidden');
             submitBtn.disabled = true;
+            if (mobileSubmitBtn) mobileSubmitBtn.disabled = true;
 
             try {
                 progressBar.style.width = '35%';
@@ -384,7 +492,11 @@
                     });
                     progressBar.style.width = '100%';
                     progressText.textContent = '100%';
-                    showResult('success', `上传成功！数据库ID: ${result.id}`);
+                    if (result.metadata?.parsed === false) {
+                        showResult('warning', `文件已保存到服务器，但 Schema 暂未解析成功：${result.metadata.parse_error || '请在数据管理页查看详情或重新上传更规范的文件。'}`);
+                    } else {
+                        showResult('success', `上传成功，服务器已生成可复用的数据库记录：${result.name}`);
+                    }
                 } else {
                     const record = await localStore.saveRecord({
                         kind: 'database',
@@ -397,7 +509,7 @@
                     });
                     progressBar.style.width = '100%';
                     progressText.textContent = '100%';
-                    showResult('success', `已暂存到浏览器本地：${record.title}`);
+                    showResult('success', `已暂存到当前浏览器：${record.title}。如果需要跨设备复用和自动分析，请在后端恢复后重新上传到服务器。`);
                 }
 
                 setTimeout(() => window.location.href = './data-dashboard.html?tab=databases', 1600);
@@ -428,24 +540,53 @@
         }
 
         function syncSubmitButton() {
+            const nameValue = document.getElementById('name').value.trim();
+            const actionLabel = backendAvailable ? '上传并解析' : '暂存到浏览器';
+            const actionHtml = backendAvailable
+                ? '<i class="fas fa-upload mr-2"></i>开始上传并解析'
+                : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器并解析';
+
             if (!selectedFile) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = backendAvailable
-                    ? '<i class="fas fa-upload mr-2"></i>开始上传并解析'
-                    : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器并解析';
+                submitBtn.innerHTML = actionHtml;
+                if (mobileSubmitBtn) {
+                    mobileSubmitBtn.disabled = true;
+                    mobileSubmitBtn.textContent = actionLabel;
+                }
+                if (mobileSubmitHint) {
+                    mobileSubmitHint.textContent = '先选择数据库文件';
+                }
                 return;
             }
 
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = backendAvailable
-                ? '<i class="fas fa-upload mr-2"></i>开始上传并解析'
-                : '<i class="fas fa-cloud mr-2"></i>暂存到浏览器并解析';
+            const ready = Boolean(nameValue);
+            submitBtn.disabled = !ready;
+            submitBtn.innerHTML = actionHtml;
+            if (mobileSubmitBtn) {
+                mobileSubmitBtn.disabled = !ready;
+                mobileSubmitBtn.textContent = actionLabel;
+            }
+            if (mobileSubmitHint) {
+                mobileSubmitHint.textContent = ready
+                    ? (backendAvailable ? '文件和名称已就绪，可直接上传并生成 Schema' : '文件和名称已就绪，将暂存到当前浏览器')
+                    : '文件已选中，还需要补充数据库名称';
+            }
         }
 
         function showResult(type, message) {
             resultMessage.classList.remove('hidden');
-            resultMessage.className = `mt-6 p-4 rounded-xl ${type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
-            resultMessage.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>${message}`;
+            const styles = {
+                success: 'bg-green-100 text-green-800',
+                warning: 'bg-amber-100 text-amber-800',
+                error: 'bg-red-100 text-red-800',
+            };
+            const icons = {
+                success: 'check-circle',
+                warning: 'triangle-exclamation',
+                error: 'exclamation-circle',
+            };
+            resultMessage.className = `mt-6 p-4 rounded-xl ${styles[type] || styles.error}`;
+            resultMessage.innerHTML = `<i class="fas fa-${icons[type] || icons.error} mr-2"></i>${message}`;
         }
 
         // Load dropdowns

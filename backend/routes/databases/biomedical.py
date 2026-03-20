@@ -10,6 +10,8 @@ from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
 from backend.services.platform_catalog import get_platform_databases
+from backend.services.database_service import DatabaseService
+from backend.upload_models import DatabaseResponse, PublicDatasetSnapshotCreate
 
 router = APIRouter(prefix="/api/v2/databases", tags=["数据库查询"])
 
@@ -126,6 +128,35 @@ async def query_database(request: QueryRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"查询失败: {str(e)}")
+
+
+@router.post("/snapshots", response_model=DatabaseResponse)
+async def save_query_snapshot(request: PublicDatasetSnapshotCreate):
+    """将公开数据库查询结果保存到服务器，作为后续分析可复用数据集。"""
+    if request.database not in DATABASES:
+        raise HTTPException(status_code=404, detail=f"数据库 {request.database} 不存在")
+
+    query_request = QueryRequest(
+        database=request.database,
+        query=request.query,
+        filters=request.filters or {},
+        limit=request.limit,
+    )
+    results = await _execute_query(query_request)
+    saved = await DatabaseService.save_public_dataset_snapshot(
+        source_database_id=request.database,
+        source_database_name=DATABASES[request.database]["name"],
+        source_url=DATABASES[request.database]["url"],
+        query=request.query,
+        results=results,
+        filters=request.filters or {},
+        name=request.name,
+        description=request.description,
+        uploaded_by=request.uploaded_by,
+        roundtable_id=request.roundtable_id,
+        protocol_id=request.protocol_id,
+    )
+    return saved
 
 async def _execute_query(request: QueryRequest) -> List[Dict]:
     """执行数据库查询"""

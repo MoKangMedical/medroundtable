@@ -1,0 +1,91 @@
+{
+  "manifest": {
+    "schemaVersion": "1",
+    "skill": {
+      "key": "medroundtable-research-copilot",
+      "displayName": "MedRoundTable 临床科研圆桌会",
+      "description": "把临床问题分诊到 14 位医学科研 Agent，生成可带回正式站的圆桌启动计划，并给出公开数据库与下一步动作。",
+      "keywords": [
+        "医学科研",
+        "临床研究",
+        "多 Agent",
+        "SecondMe",
+        "OpenClaw",
+        "试验设计",
+        "证据综述"
+      ]
+    },
+    "prompts": {
+      "activationShort": "当用户想判断临床问题应该先找哪位专家、先做什么研究动作时使用。",
+      "activationLong": "当用户想把临床问题带入 MedRoundTable、选择 14 位医学科研 Agent 中最合适的首位专家、生成 SecondMe 协作阵容或查找公开医学数据库入口时使用。",
+      "systemSummary": "MedRoundTable 是面向医学科研的多 Agent 协作平台，可将临床问题分诊到合适的医学专家，生成圆桌计划，并推荐公开数据库与下一步动作。"
+    },
+    "actions": [
+      {
+        "name": "triageResearchQuestion",
+        "description": "根据临床问题推荐首位 Agent、SecondMe 阵容和下一步动作。",
+        "toolName": "triage_research_question",
+        "payloadTemplate": {
+          "clinicalQuestion": "{{input}}"
+        },
+        "displayHint": "先决定找谁和先做什么"
+      },
+      {
+        "name": "buildRoundtablePlan",
+        "description": "生成一个可直接带回 MedRoundTable 的圆桌启动计划与 handoff URL。",
+        "toolName": "build_roundtable_plan",
+        "payloadTemplate": {
+          "clinicalQuestion": "{{input}}"
+        },
+        "displayHint": "直接生成圆桌启动方案"
+      },
+      {
+        "name": "listAgentRoster",
+        "description": "查看 14 位医学科研 Agent 的分组、定位和擅长问题。",
+        "toolName": "list_agent_roster",
+        "payloadTemplate": {},
+        "displayHint": "先看 14 位 Agent 怎么分工"
+      },
+      {
+        "name": "searchPublicDatabases",
+        "description": "按问题方向查找适合接入的公开医学数据库和推荐 Agent。",
+        "toolName": "search_public_databases",
+        "payloadTemplate": {
+          "query": "{{input}}"
+        },
+        "displayHint": "先查该用哪些公开数据库"
+      },
+      {
+        "name": "getPlatformSnapshot",
+        "description": "查看 MedRoundTable 当前平台能力快照。",
+        "toolName": "get_platform_snapshot",
+        "payloadTemplate": {},
+        "displayHint": "快速了解平台能做什么"
+      }
+    ],
+    "mcp": {
+      "endpoint": "https://medroundtable-secondme.vercel.app/api/mcp",
+      "timeoutMs": 12000,
+      "toolAllow": [
+        "triage_research_question",
+        "build_roundtable_plan",
+        "list_agent_roster",
+        "search_public_databases",
+        "get_platform_snapshot"
+      ],
+      "headersTemplate": {},
+      "authMode": "bearer_token"
+    },
+    "envBindings": {
+      "release": {
+        "enabled": true,
+        "endpoint": "https://medroundtable-secondme.vercel.app/api/mcp"
+      }
+    }
+  },
+  "envSecrets": {
+    "release": {
+      "values": {}
+    }
+  }
+}

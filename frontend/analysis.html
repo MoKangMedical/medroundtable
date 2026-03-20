@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据分析 - MedRoundTable</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./api-config.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
@@ -55,6 +57,76 @@
                 上传您的研究数据，选择分析方法，AI专家将为您生成专业的统计分析报告
             </p>
         </div>
+
+        <section id="analysisIntentBanner" class="hidden mb-8 rounded-3xl border border-purple-200 bg-gradient-to-r from-purple-50 via-white to-blue-50 p-6 shadow-sm">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-purple-700">Analysis Intent</p>
+                    <h2 id="analysisIntentTitle" class="mt-2 text-2xl font-bold text-slate-900">已选择一种分析方式</h2>
+                    <p id="analysisIntentText" class="mt-2 max-w-3xl text-sm leading-7 text-slate-600"></p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="./database-upload.html" class="rounded-2xl bg-purple-600 px-5 py-3 text-sm font-semibold text-white hover:bg-purple-700 transition">
+                        <i class="fas fa-upload mr-2"></i>先上传数据
+                    </a>
+                    <a href="./data-dashboard.html?tab=databases" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+                        打开数据库列表
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-10 rounded-3xl border border-emerald-200 bg-white p-7 shadow-lg">
+            <div class="flex flex-col gap-5">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Public Data To Server</p>
+                    <h2 class="mt-2 text-2xl font-bold text-slate-900">把公开数据库结果直接保存到服务器</h2>
+                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">这里不是只看目录。选一个公开数据库、给出关键词，结果会直接保存为服务器数据集，随后可以在数据管理页里继续做统计分析、回归或复盘。</p>
+                </div>
+                <div id="publicDatasetStatus" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                    正在检查后端连接...
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-700">公开数据库</span>
+                        <select id="publicDatasetSource" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100">
+                            <option value="">正在加载可用目录</option>
+                        </select>
+                    </label>
+                    <label class="block">
+                        <span class="text-sm font-semibold text-slate-700">保存名称</span>
+                        <input id="publicDatasetName" type="text" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100" placeholder="例如：PubMed 肺癌免疫治疗证据集">
+                    </label>
+                </div>
+                <label class="block">
+                    <span class="text-sm font-semibold text-slate-700">查询关键词</span>
+                    <textarea id="publicDatasetQuery" rows="4" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-7 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100" placeholder="例如：lung cancer immunotherapy overall survival"></textarea>
+                </label>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button id="savePublicDatasetBtn" type="button" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                        <i class="fas fa-cloud-arrow-down mr-2"></i>保存到服务器
+                    </button>
+                    <a href="./database-browser.html" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        查看公开数据库目录
+                    </a>
+                </div>
+                <div id="publicDatasetResult" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800"></div>
+            </div>
+        </section>
+
+        <section id="taskResultSection" class="hidden mb-10 rounded-3xl border border-slate-200 bg-white p-7 shadow-lg">
+            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Task Result</p>
+                    <h2 id="taskResultTitle" class="mt-2 text-2xl font-bold text-slate-900">分析任务结果</h2>
+                    <p id="taskResultMeta" class="mt-2 text-sm text-slate-500"></p>
+                </div>
+                <a href="./data-dashboard.html?tab=analysis" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+                    返回分析任务列表
+                </a>
+            </div>
+            <div id="taskResultBody" class="mt-6 space-y-6"></div>
+        </section>
 
         <!-- Analysis Types Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -244,9 +316,191 @@
     </footer>
 
     <script>
-        function startAnalysis(type) {
-            window.location.href = `./data-dashboard.html?analysis=${type}`;
+        const api = window.MRTApiConfig;
+        const ANALYSIS_LABELS = {
+            descriptive: '描述性统计',
+            comparative: '比较分析',
+            correlation: '相关性分析',
+            regression: '回归分析',
+        };
+        let publicSources = [];
+
+        function renderTaskResult(task, resultPayload) {
+            const section = document.getElementById('taskResultSection');
+            const title = document.getElementById('taskResultTitle');
+            const meta = document.getElementById('taskResultMeta');
+            const body = document.getElementById('taskResultBody');
+            const safeResult = resultPayload || {};
+            const statistics = safeResult.statistics || safeResult.summary || task.result || {};
+            const recommendations = safeResult.recommendations || task.result?.recommendations || [];
+
+            section.classList.remove('hidden');
+            title.textContent = task.name || '分析任务结果';
+            meta.textContent = `${ANALYSIS_LABELS[task.analysis_type] || task.analysis_type} · 状态 ${task.status}`;
+
+            body.innerHTML = `
+                <div class="grid gap-4 md:grid-cols-3">
+                    <div class="rounded-2xl bg-slate-50 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">任务状态</p>
+                        <p class="mt-3 text-2xl font-bold text-slate-900">${task.status}</p>
+                    </div>
+                    <div class="rounded-2xl bg-slate-50 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">数据集 ID</p>
+                        <p class="mt-3 break-all text-sm font-semibold text-slate-900">${task.database_id}</p>
+                    </div>
+                    <div class="rounded-2xl bg-slate-50 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">完成时间</p>
+                        <p class="mt-3 text-sm font-semibold text-slate-900">${task.completed_at ? new Date(task.completed_at).toLocaleString() : '仍在处理中'}</p>
+                    </div>
+                </div>
+                <div class="rounded-2xl border border-slate-200 p-5">
+                    <h3 class="text-lg font-bold text-slate-900">结果摘要</h3>
+                    <pre class="mt-4 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-sm leading-7 text-slate-100">${escapeHtml(JSON.stringify(statistics, null, 2))}</pre>
+                </div>
+                <div class="rounded-2xl border border-slate-200 p-5">
+                    <h3 class="text-lg font-bold text-slate-900">建议动作</h3>
+                    ${recommendations.length ? `<ul class="mt-4 space-y-3 text-sm leading-7 text-slate-700">${recommendations.map(item => `<li class="flex gap-3"><span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-purple-500"></span><span>${escapeHtml(item)}</span></li>`).join('')}</ul>` : '<p class="mt-4 text-sm text-slate-500">当前任务还没有生成建议动作。</p>'}
+                </div>
+            `;
         }
+
+        function renderIntentBanner(intent) {
+            const banner = document.getElementById('analysisIntentBanner');
+            const title = document.getElementById('analysisIntentTitle');
+            const text = document.getElementById('analysisIntentText');
+            if (!intent || !ANALYSIS_LABELS[intent]) return;
+
+            banner.classList.remove('hidden');
+            title.textContent = `你刚选择了「${ANALYSIS_LABELS[intent]}」`;
+            text.textContent = '下一步不是空跳转，而是先把数据放进服务器，再从数据管理页挑选数据库发起任务。这样分析结果和数据都能真正留在后台。';
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        async function loadTaskResult(taskId) {
+            if (!api) return;
+            const task = await api.fetchJson(`/api/analysis/tasks/${taskId}`);
+            const result = await api.fetchJson(`/api/analysis/tasks/${taskId}/result`);
+            renderTaskResult(task, result);
+        }
+
+        function renderPublicSources(databases) {
+            const select = document.getElementById('publicDatasetSource');
+            publicSources = (databases || []).filter((database) => database.enabled);
+            if (!publicSources.length) {
+                select.innerHTML = '<option value="">当前没有可用公开数据库</option>';
+                return;
+            }
+            select.innerHTML = publicSources
+                .map((database) => `<option value="${database.id}">${escapeHtml(database.name)} · ${escapeHtml(database.category)}</option>`)
+                .join('');
+        }
+
+        function setPublicDatasetStatus(message, tone = 'neutral') {
+            const node = document.getElementById('publicDatasetStatus');
+            node.className = 'rounded-2xl px-4 py-3 text-sm';
+            if (tone === 'success') {
+                node.classList.add('border', 'border-emerald-200', 'bg-emerald-50', 'text-emerald-700');
+            } else if (tone === 'error') {
+                node.classList.add('border', 'border-red-200', 'bg-red-50', 'text-red-700');
+            } else {
+                node.classList.add('border', 'border-slate-200', 'bg-slate-50', 'text-slate-600');
+            }
+            node.textContent = message;
+        }
+
+        async function initializePublicDatasetEntry() {
+            if (!api) return;
+            try {
+                await api.healthcheck();
+                const databases = await api.fetchJson('/api/v2/databases/');
+                renderPublicSources(databases);
+                setPublicDatasetStatus(`后端已连接，公开数据库保存会直接写入服务器：${api.API_BASE}`, 'success');
+            } catch (error) {
+                setPublicDatasetStatus(`后端未连接，当前无法把公开数据保存到服务器：${error.message}`, 'error');
+            }
+        }
+
+        async function savePublicDatasetSnapshot() {
+            const source = document.getElementById('publicDatasetSource').value;
+            const name = document.getElementById('publicDatasetName').value.trim();
+            const query = document.getElementById('publicDatasetQuery').value.trim();
+            const button = document.getElementById('savePublicDatasetBtn');
+            const result = document.getElementById('publicDatasetResult');
+
+            if (!source) {
+                alert('请先选择一个公开数据库');
+                return;
+            }
+            if (!query) {
+                alert('请填写查询关键词');
+                return;
+            }
+
+            const originalHtml = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>保存中';
+
+            try {
+                const saved = await api.fetchJson('/api/v2/databases/snapshots', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        database: source,
+                        query,
+                        name: name || undefined,
+                        limit: 20,
+                    }),
+                });
+                result.classList.remove('hidden');
+                result.className = 'rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800';
+                result.innerHTML = `
+                    <p class="font-semibold">服务器数据集已保存</p>
+                    <p class="mt-2 leading-7">数据集名称：${escapeHtml(saved.name)}<br>记录规模：${saved.row_count || 0} 行 × ${saved.column_count || 0} 列</p>
+                    <div class="mt-4 flex flex-wrap gap-3">
+                        <a href="./data-dashboard.html?tab=databases" class="rounded-2xl bg-white px-4 py-2 font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50">查看服务器数据集</a>
+                        <a href="./data-dashboard.html?tab=analysis" class="rounded-2xl bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700">直接去发起分析</a>
+                    </div>
+                `;
+            } catch (error) {
+                result.classList.remove('hidden');
+                result.className = 'rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700';
+                result.textContent = `保存失败：${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalHtml;
+            }
+        }
+
+        function startAnalysis(type) {
+            window.location.href = `./data-dashboard.html?tab=analysis&intent=${encodeURIComponent(type)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const taskId = params.get('task');
+            const intent = params.get('intent');
+            renderIntentBanner(intent);
+            initializePublicDatasetEntry();
+            document.getElementById('savePublicDatasetBtn').addEventListener('click', savePublicDatasetSnapshot);
+            if (taskId) {
+                try {
+                    await loadTaskResult(taskId);
+                } catch (error) {
+                    const body = document.getElementById('taskResultBody');
+                    const section = document.getElementById('taskResultSection');
+                    section.classList.remove('hidden');
+                    body.innerHTML = `<div class="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700">结果读取失败：${escapeHtml(error.message)}</div>`;
+                }
+            }
+        });
     </script>
 </body>
 </html>

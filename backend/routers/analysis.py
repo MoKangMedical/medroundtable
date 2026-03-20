@@ -83,14 +83,18 @@ async def get_analysis_result(task_id: str):
         }
     
     # completed
+    payload = task.result or {}
     return AnalysisResult(
         task_id=task_id,
         status="completed",
-        summary=task.result.get("summary") if task.result else None,
-        statistics=task.result.get("statistics") if task.result else None,
-        charts=task.result.get("charts") if task.result else None,
-        tables=task.result.get("tables") if task.result else None,
-        recommendations=task.result.get("recommendations") if task.result else None,
+        summary=payload.get("summary") or {
+            "message": "任务已完成，但结果仍采用原始结构返回。",
+            "analysis_type": task.analysis_type,
+        },
+        statistics=payload.get("statistics") or payload,
+        charts=payload.get("charts"),
+        tables=payload.get("tables"),
+        recommendations=payload.get("recommendations") or ["请回到数据管理页继续查看原始任务结果。"],
         completed_at=task.completed_at
     )
 
@@ -164,5 +168,7 @@ async def list_external_api_providers():
 @router.delete("/tasks/{task_id}")
 async def delete_analysis_task(task_id: str):
     """删除分析任务"""
-    # TODO: 实现删除逻辑
-    return {"message": "任务删除功能开发中", "task_id": task_id}
+    success = AnalysisService.delete_task(task_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="分析任务不存在")
+    return {"message": "任务删除成功", "task_id": task_id}

@@ -1,5 +1,8 @@
 # Second Me 平台提交指南
 
+> 当前提审请优先使用 [secondme-integration-manifest.json](/Users/linzhang/Desktop/%20%20%20%20%20%20OPC/medroundtable-fixes/secondme-integration-manifest.json) 和 [SECONDME_STORE_SUBMISSION.md](/Users/linzhang/Desktop/%20%20%20%20%20%20OPC/medroundtable-fixes/SECONDME_STORE_SUBMISSION.md)。
+> 下面的 A2A 叙述保留为历史背景，不再作为新版 Integration 提审口径。
+
 ## 🚀 提交前检查清单
 
 ### ✅ 已完成项目

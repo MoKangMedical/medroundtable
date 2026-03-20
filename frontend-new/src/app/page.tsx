@@ -104,6 +104,48 @@ export default function Home({
                 >
                   查看协作配置页
                 </a>
+                <a
+                  href="/api/mcp"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    padding: '14px 20px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(148,163,184,0.22)',
+                    background: '#fff',
+                    fontWeight: 800,
+                  }}
+                >
+                  查看 MCP Endpoint
+                </a>
+                <a
+                  href="/skill.md"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    padding: '14px 20px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(148,163,184,0.22)',
+                    background: '#fff',
+                    fontWeight: 800,
+                  }}
+                >
+                  查看 Skill.md
+                </a>
+                <a
+                  href="/secondme-integration-manifest.json"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    padding: '14px 20px',
+                    borderRadius: 999,
+                    border: '1px solid rgba(148,163,184,0.22)',
+                    background: '#fff',
+                    fontWeight: 800,
+                  }}
+                >
+                  查看 Integration Manifest
+                </a>
               </div>
             </div>
 
@@ -133,6 +175,10 @@ export default function Home({
                 <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
                   <div style={{ fontWeight: 800 }}>3. 选择 AI agent 阵容</div>
                   <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>让 MedRoundTable 的 14 个 Agent 按任务直接开始讨论。</div>
+                </div>
+                <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
+                  <div style={{ fontWeight: 800 }}>4. 让 OpenClaw 找到这个应用</div>
+                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>Vercel 站点内置了 MCP endpoint，可直接用于 SecondMe Integration 提审。</div>
                 </div>
               </div>
             </div>

@@ -1,5 +1,8 @@
 # MedRoundTable - Second Me 平台发布申请
 
+> 新版提交请优先使用 [secondme-integration-manifest.json](/Users/linzhang/Desktop/%20%20%20%20%20%20OPC/medroundtable-fixes/secondme-integration-manifest.json) 和 [SECONDME_STORE_SUBMISSION.md](/Users/linzhang/Desktop/%20%20%20%20%20%20OPC/medroundtable-fixes/SECONDME_STORE_SUBMISSION.md)。
+> 本文件保留旧版 A2A / 发布口径，便于对照历史材料。
+
 ## 📋 应用基本信息
 
 | 字段 | 内容 |

@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
-from backend.database import ProtocolRecord, SessionLocal
+from backend.database import ProtocolRecord, SessionHistory, SessionLocal
 from backend.upload_models import (
     ResearchProtocol, ProtocolCreate, ProtocolUpdate, ProtocolResponse
 )
@@ -42,6 +42,16 @@ def _protocol_from_record(record: ProtocolRecord) -> ResearchProtocol:
         updated_at=record.updated_at,
         metadata=record.extra_metadata or {}
     )
+
+
+def _validate_roundtable_id(roundtable_id: Optional[str]) -> Optional[str]:
+    if not roundtable_id:
+        return None
+    with SessionLocal() as db:
+        exists = db.query(SessionHistory).filter(SessionHistory.session_id == roundtable_id).first()
+    if not exists:
+        raise ValueError("关联圆桌会不存在，请先从首页创建或刷新圆桌列表后再上传。")
+    return roundtable_id
 
 
 class ProtocolService:
@@ -80,6 +90,8 @@ class ProtocolService:
         # 验证文件大小
         if len(file_content) > cls.MAX_FILE_SIZE:
             raise ValueError(f"文件大小超过限制 ({cls.MAX_FILE_SIZE / 1024 / 1024}MB)")
+
+        roundtable_id = _validate_roundtable_id(roundtable_id)
         
         # 生成唯一ID
         protocol_id = str(uuid.uuid4())

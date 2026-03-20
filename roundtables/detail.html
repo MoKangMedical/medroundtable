@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MedRoundTable - 圆桌详情</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --app-height: 100dvh;
+        }
+
         * { 
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
@@ -17,7 +22,8 @@
             font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
             touch-action: manipulation;
             background: #f8fafc;
-            height: 100vh;
+            height: var(--app-height);
+            min-height: var(--app-height);
             overflow: hidden;
         }
         
@@ -70,8 +76,10 @@
         }
         
         .input-area {
-            background: white;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, #ffffff 24%);
             border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -14px 32px rgba(15, 23, 42, 0.08);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
         }
         
         .btn-primary {
@@ -80,6 +88,246 @@
         
         .btn-primary:active {
             transform: scale(0.95);
+        }
+
+        .stage-steps {
+            gap: 0.75rem;
+        }
+
+        #chatContainer {
+            overscroll-behavior: contain;
+            scroll-behavior: smooth;
+            scroll-padding-bottom: 14rem;
+        }
+
+        .quick-panel {
+            border: 1px solid #dbeafe;
+            background:
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 36%),
+                linear-gradient(135deg, #eff6ff 0%, #f8fafc 46%, #ecfeff 100%);
+            border-radius: 24px;
+            padding: 1rem;
+            margin-bottom: 0.875rem;
+        }
+
+        .chip-section + .chip-section {
+            margin-top: 0.875rem;
+        }
+
+        .chip-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .prompt-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            border: 1px solid #cbd5e1;
+            background: rgba(255, 255, 255, 0.88);
+            color: #0f172a;
+            font-size: 0.83rem;
+            font-weight: 600;
+            line-height: 1.2;
+            padding: 0.72rem 0.95rem;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+            white-space: nowrap;
+        }
+
+        .prompt-chip:hover {
+            border-color: #93c5fd;
+            box-shadow: 0 10px 22px rgba(59, 130, 246, 0.14);
+        }
+
+        .prompt-chip:active {
+            transform: translateY(1px);
+        }
+
+        .prompt-chip.active {
+            border-color: #1d4ed8;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.22);
+            color: white;
+        }
+
+        .prompt-chip.subtle {
+            background: rgba(248, 250, 252, 0.92);
+        }
+
+        .composer-shell {
+            border-radius: 24px;
+            border: 1px solid #dbeafe;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+            padding: 1rem;
+        }
+
+        .composer-textarea {
+            width: 100%;
+            min-height: 64px;
+            max-height: 180px;
+            resize: none;
+            overflow-y: auto;
+            border: 0;
+            outline: none;
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 0.95rem 1rem;
+            font-size: 0.98rem;
+            line-height: 1.65;
+            color: #0f172a;
+        }
+
+        .composer-textarea::placeholder {
+            color: #94a3b8;
+        }
+
+        .composer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .composer-shortcut {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 999px;
+            padding: 0.55rem 0.85rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #334155;
+            background: #fff;
+        }
+
+        .send-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            border-radius: 18px;
+            padding: 0.95rem 1.1rem;
+            min-width: 168px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            box-shadow: 0 16px 30px rgba(30, 64, 175, 0.22);
+        }
+
+        .light-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            border-radius: 14px;
+            padding: 0.82rem 0.95rem;
+            border: 1px solid #cbd5e1;
+            background: white;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .light-action:active {
+            transform: translateY(1px);
+        }
+
+        @media (max-width: 768px) {
+            .chat-bubble {
+                max-width: 92%;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+
+            header {
+                padding: 0.75rem 0.85rem;
+            }
+
+            #roundtableTitle {
+                font-size: 1rem;
+                line-height: 1.25;
+            }
+
+            #roundtableStatus {
+                font-size: 0.72rem;
+            }
+
+            #identityContext,
+            #collaborationContext {
+                padding: 0.75rem 0.85rem;
+            }
+
+            #identityAvatar {
+                height: 2.75rem;
+                width: 2.75rem;
+                border-radius: 1rem;
+            }
+
+            .stage-bar {
+                padding: 0.55rem 0.85rem;
+            }
+
+            .stage-steps {
+                justify-content: flex-start;
+                min-width: max-content;
+                overflow-x: auto;
+                white-space: nowrap;
+                scrollbar-width: none;
+            }
+
+            .stage-steps::-webkit-scrollbar {
+                display: none;
+            }
+
+            #chatContainer {
+                padding: 0.85rem 0.85rem 1.15rem;
+            }
+
+            .input-area {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+                padding-top: 0.75rem;
+            }
+
+            .quick-panel,
+            .composer-shell {
+                border-radius: 20px;
+                padding: 0.85rem;
+            }
+
+            .chip-grid {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 0.1rem;
+                scrollbar-width: none;
+            }
+
+            .chip-grid::-webkit-scrollbar {
+                display: none;
+            }
+
+            .prompt-chip {
+                flex: 0 0 auto;
+                padding: 0.7rem 0.9rem;
+            }
+
+            .composer-textarea {
+                min-height: 56px;
+                font-size: 0.94rem;
+            }
+
+            .composer-meta {
+                align-items: stretch;
+            }
+
+            .send-button,
+            .light-action {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -113,7 +361,7 @@
 
     <!-- 阶段进度条 -->
     <div class="stage-bar text-white px-4 py-2 shrink-0">
-        <div class="flex items-center justify-between text-xs">
+        <div class="stage-steps flex items-center justify-between text-xs">
             <div class="flex items-center gap-1">
                 <i class="fas fa-circle text-xs"></i>
                 <span>问题识别</span>
@@ -155,25 +403,71 @@
 
     <!-- 输入区域 -->
     <div class="input-area px-4 py-3 shrink-0">
-        <div class="flex gap-2">
-            <input 
-                id="messageInput" 
-                type="text" 
-                placeholder="输入您的问题..."
-                class="flex-1 px-4 py-3 bg-gray-100 rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-            >
-            <button 
-                onclick="sendMessage()"
-                class="btn-primary text-white w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
-            >
-                <i class="fas fa-paper-plane"></i>
-            </button>
+        <div class="quick-panel">
+            <div class="flex items-start justify-between gap-3">
+                <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">Conversation Controls</p>
+                    <h3 class="mt-1 text-base font-bold text-slate-900">先选交付方向，再发具体问题</h3>
+                    <p id="composerFocusSummary" class="mt-1 text-sm leading-6 text-slate-600">默认由全体专家接力，建议优先挑一位最相关的专家先回应。</p>
+                </div>
+            </div>
+
+            <div class="chip-section">
+                <div class="mb-2 flex items-center justify-between gap-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">优先追问专家</p>
+                    <span id="selectedFocusBadge" class="text-xs font-semibold text-blue-700">全体专家</span>
+                </div>
+                <div id="focusExpertChips" class="chip-grid"></div>
+            </div>
+
+            <div class="chip-section">
+                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">快捷问题</p>
+                <div id="quickQuestionChips" class="chip-grid"></div>
+            </div>
+
+            <div class="chip-section">
+                <p class="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">交付物直达</p>
+                <div id="deliverableChips" class="chip-grid"></div>
+            </div>
         </div>
-        <div class="flex justify-between items-center mt-2 text-xs text-gray-400">
-            <span>按 Enter 发送</span>
-            <div class="flex gap-3">
-                <button class="hover:text-gray-600"><i class="fas fa-paperclip mr-1"></i>附件</button>
-                <button class="hover:text-gray-600"><i class="fas fa-microphone mr-1"></i>语音</button>
+
+        <div class="composer-shell">
+            <div class="composer-meta mb-3">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Ask Precisely</p>
+                    <p id="composerHint" class="mt-1 text-sm text-slate-600">尽量写清研究对象、终点、时间窗或你现在最想拿到的交付物。</p>
+                </div>
+                <button type="button" onclick="injectPrompt('继续。请直接把主终点、样本量前提和 CRF 关键字段列出来。', { replace: false })" class="composer-shortcut">
+                    <i class="fas fa-bolt text-amber-500"></i>继续推进
+                </button>
+            </div>
+
+            <textarea
+                id="messageInput"
+                rows="1"
+                placeholder="例如：请统计专家先把主终点定义、样本量前提和敏感性分析口径列出来。"
+                class="composer-textarea"
+            ></textarea>
+
+            <div class="composer-meta mt-3">
+                <div class="flex flex-wrap gap-2 text-xs text-slate-400">
+                    <span>Enter 发送</span>
+                    <span>Shift + Enter 换行</span>
+                    <span>点击上方 chips 可自动补全问题</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <button type="button" onclick="clearComposerDraft()" class="light-action">
+                        <i class="fas fa-eraser"></i>清空
+                    </button>
+                    <button 
+                        id="sendButton"
+                        onclick="sendMessage()"
+                        class="btn-primary send-button text-white"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                        <span id="sendButtonLabel">发送给全体专家</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -209,6 +503,7 @@
         const pendingOptimisticMessages = new Map();
         let optimisticCounter = 0;
         let mockReplyTimers = [];
+        let selectedTargetRole = 'all';
         const expertRoleAliases = {
             pharmacogenomics_expert: 'clawbio_pharmgx',
             gwas_expert: 'clawbio_gwas',
@@ -444,6 +739,259 @@
                 ? `${secondMeIdentity.email} · 该身份已回填到当前圆桌详情页。`
                 : '该身份已回填到当前圆桌详情页。';
         }
+
+        function autosizeComposer() {
+            const input = document.getElementById('messageInput');
+            if (!input) return;
+            input.style.height = 'auto';
+            input.style.height = `${Math.min(input.scrollHeight, 180)}px`;
+        }
+
+        function syncViewportHeight() {
+            const viewport = window.visualViewport;
+            const appHeight = viewport ? viewport.height : window.innerHeight;
+            document.documentElement.style.setProperty('--app-height', `${Math.max(appHeight, 420)}px`);
+        }
+
+        function scrollChatToBottom(behavior = 'smooth') {
+            const container = document.getElementById('chatContainer');
+            if (!container) return;
+            try {
+                container.scrollTo({ top: container.scrollHeight, behavior });
+            } catch (err) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function getRoleButtonLabel(role) {
+            return role === 'all' ? '全体专家' : getAgentName(role);
+        }
+
+        function updateComposerAffordance() {
+            const selectedFocusBadge = document.getElementById('selectedFocusBadge');
+            const composerFocusSummary = document.getElementById('composerFocusSummary');
+            const composerHint = document.getElementById('composerHint');
+            const sendButtonLabel = document.getElementById('sendButtonLabel');
+            const input = document.getElementById('messageInput');
+            const label = getRoleButtonLabel(selectedTargetRole);
+
+            if (selectedFocusBadge) {
+                selectedFocusBadge.textContent = label;
+            }
+
+            if (sendButtonLabel) {
+                sendButtonLabel.textContent = `发送给${label}`;
+            }
+
+            if (composerFocusSummary) {
+                composerFocusSummary.textContent = selectedTargetRole === 'all'
+                    ? '默认由全体专家接力，建议优先挑一位最相关的专家先回应。'
+                    : `当前优先由 ${label} 先接球，再由系统拉其他专家补位。`;
+            }
+
+            if (composerHint) {
+                composerHint.textContent = selectedTargetRole === 'all'
+                    ? '尽量写清研究对象、终点、时间窗或你现在最想拿到的交付物。'
+                    : `当前优先追问 ${label}。直接写你要 TA 给出的判断、数字、字段表或执行动作。`;
+            }
+
+            if (input) {
+                input.placeholder = selectedTargetRole === 'all'
+                    ? '例如：请统计专家先把主终点定义、样本量前提和敏感性分析口径列出来。'
+                    : `例如：请${label}先直接给我可执行建议，不要重复背景。`;
+            }
+        }
+
+        function setSelectedTargetRole(role = 'all') {
+            selectedTargetRole = role || 'all';
+            renderConversationControls();
+            updateComposerAffordance();
+        }
+
+        function focusComposer() {
+            const input = document.getElementById('messageInput');
+            if (!input) return;
+            try {
+                input.focus({ preventScroll: true });
+            } catch (err) {
+                input.focus();
+            }
+            autosizeComposer();
+            window.setTimeout(() => scrollChatToBottom('smooth'), 120);
+        }
+
+        function injectPrompt(text, options = {}) {
+            const input = document.getElementById('messageInput');
+            if (!input) return;
+
+            const replace = Boolean(options.replace);
+            const nextText = replace || !input.value.trim()
+                ? text
+                : `${input.value.trimEnd()}\n${text}`;
+
+            input.value = nextText;
+            autosizeComposer();
+            focusComposer();
+            input.selectionStart = input.selectionEnd = input.value.length;
+        }
+
+        function clearComposerDraft() {
+            const input = document.getElementById('messageInput');
+            if (!input) return;
+            input.value = '';
+            autosizeComposer();
+            focusComposer();
+        }
+
+        function getFocusRoleCandidates(session) {
+            const participants = getRoundtableParticipants(session);
+            const preferredRole = getPreferredExpertRole(session);
+            const orderedRoles = [];
+
+            if (preferredRole) {
+                orderedRoles.push(preferredRole);
+            }
+
+            participants.forEach((role) => orderedRoles.push(normalizeExpertRole(role)));
+
+            ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse'].forEach((role) => {
+                orderedRoles.push(role);
+            });
+
+            return ['all', ...new Set(orderedRoles.filter(Boolean))].slice(0, 6);
+        }
+
+        function getQuickQuestionTemplates() {
+            const preferredExpert = getPreferredExpert(currentRoundtable);
+            const preferredRole = preferredExpert ? preferredExpert.role : 'clinical_director';
+            const preferredName = preferredExpert ? preferredExpert.name : '临床主任';
+            const clinicalQuestion = String(currentRoundtable?.clinical_question || '');
+
+            const templates = [
+                {
+                    key: 'go-no-go',
+                    label: '值不值得继续做',
+                    role: preferredRole,
+                    text: `请${preferredName}先判断这个题值不值得继续做，并直接指出研究对象、主终点和时间窗最该怎么收窄。`
+                },
+                {
+                    key: 'risk',
+                    label: '先列 3 个最大风险',
+                    role: 'clinical_director',
+                    text: '请先不要复述背景，直接列出当前方案最大的 3 个设计风险，并给出对应修正动作。'
+                },
+                {
+                    key: 'literature',
+                    label: '先补证据缺口',
+                    role: 'phd_student',
+                    text: '请博士生先给我一个文献回顾框架：检索词、纳入重点、最常见设计缺陷，以及现有研究最大的证据空白。'
+                },
+                {
+                    key: 'continue',
+                    label: '继续往下做',
+                    role: 'all',
+                    text: '继续。请把讨论推进成可执行清单，不要再复述概念。'
+                }
+            ];
+
+            if (/(基因|药物|用药|代谢)/i.test(clinicalQuestion)) {
+                templates.push({
+                    key: 'pharmgx',
+                    label: '先锁候选基因',
+                    role: 'clawbio_pharmgx',
+                    text: '请药物基因组学专家先给我候选基因 panel 和必须同步定义的临床终点，不要泛谈精准医疗。'
+                });
+            }
+
+            if (/(gwas|变异|snp|位点)/i.test(clinicalQuestion)) {
+                templates.push({
+                    key: 'gwas',
+                    label: '先收紧表型',
+                    role: 'clawbio_gwas',
+                    text: '请 GWAS 专家先把病例定义、对照定义、协变量和人群分层要求列出来。'
+                });
+            }
+
+            return templates.slice(0, 5);
+        }
+
+        function getDeliverableTemplates() {
+            return [
+                {
+                    key: 'endpoint',
+                    label: '主终点定义',
+                    role: 'clinical_director',
+                    text: '请直接给我一个单一主要终点定义，并说明为什么它最适合作为这项研究的主问题。'
+                },
+                {
+                    key: 'sample-size',
+                    label: '样本量前提',
+                    role: 'statistician',
+                    text: '请统计专家直接列出样本量估算需要的前提参数、默认脱落率和敏感性分析口径。'
+                },
+                {
+                    key: 'crf',
+                    label: 'CRF 关键字段表',
+                    role: 'research_nurse',
+                    text: '请研究护士直接列出 CRF 必填字段，按筛选、基线、干预、疗效、安全和偏离六页拆开。'
+                },
+                {
+                    key: 'visit-schedule',
+                    label: '访视表草案',
+                    role: 'research_nurse',
+                    text: '请先给我一版访视表草案，至少说明筛选、基线、关键评估和结局确认四个时间点。'
+                },
+                {
+                    key: 'evidence-sheet',
+                    label: '文献证据表',
+                    role: 'phd_student',
+                    text: '请给我一版文献证据表结构，至少包括研究对象、暴露/干预、终点、样本量、统计方法和主要缺陷。'
+                }
+            ];
+        }
+
+        function renderChipButtons(containerId, items, activeKey, onSelect) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.innerHTML = '';
+            items.forEach((item) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `prompt-chip ${item.subtle ? 'subtle ' : ''}${activeKey === item.key ? 'active' : ''}`.trim();
+                button.innerHTML = item.icon ? `<i class="${item.icon}"></i><span>${escapeHtml(item.label)}</span>` : `<span>${escapeHtml(item.label)}</span>`;
+                button.addEventListener('click', () => onSelect(item));
+                container.appendChild(button);
+            });
+        }
+
+        function renderConversationControls() {
+            const focusRoles = getFocusRoleCandidates(currentRoundtable).map((role) => ({
+                key: role,
+                label: getRoleButtonLabel(role),
+                icon: role === 'all' ? 'fas fa-users' : 'fas fa-user-doctor'
+            }));
+            renderChipButtons('focusExpertChips', focusRoles, selectedTargetRole, (item) => setSelectedTargetRole(item.key));
+
+            const questionTemplates = getQuickQuestionTemplates().map((item) => ({
+                ...item,
+                icon: 'fas fa-sparkles',
+                subtle: true
+            }));
+            renderChipButtons('quickQuestionChips', questionTemplates, null, (item) => {
+                setSelectedTargetRole(item.role || 'all');
+                injectPrompt(item.text, { replace: false });
+            });
+
+            const deliverableTemplates = getDeliverableTemplates().map((item) => ({
+                ...item,
+                icon: 'fas fa-list-check'
+            }));
+            renderChipButtons('deliverableChips', deliverableTemplates, null, (item) => {
+                setSelectedTargetRole(item.role || 'all');
+                injectPrompt(item.text, { replace: false });
+            });
+        }
         
         // 调试信息
         console.log('=== 圆桌详情页加载 ===');
@@ -493,6 +1041,8 @@
                     : (currentRoundtable.status === 'active' ? '进行中' : currentRoundtable.status);
                 renderParticipantAvatars(getRoundtableParticipants(currentRoundtable));
                 renderCollaborationContext(currentRoundtable);
+                renderConversationControls();
+                updateComposerAffordance();
             } catch (err) {
                 console.error('加载圆桌信息失败:', err);
                 document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
@@ -633,7 +1183,10 @@
             };
         }
 
-        function guessResponderLabel(content) {
+        function guessResponderLabel(content, targetRole = 'all') {
+            if (targetRole && targetRole !== 'all') {
+                return getAgentName(targetRole);
+            }
             const lowered = String(content || '').toLowerCase();
             if (/(crf|字段|表格|访视|录入)/i.test(lowered)) return '研究护士';
             if (/(样本量|效能|power|终点|sap|统计)/i.test(lowered)) return '统计专家';
@@ -646,10 +1199,11 @@
             return preferredExpert ? preferredExpert.name : '临床主任';
         }
 
-        function buildMockDiscussionTurns(content) {
+        function buildMockDiscussionTurns(content, targetRole = 'all') {
             const lowered = content.toLowerCase();
             const preferredExpert = getPreferredExpert(currentRoundtable);
-            const preferredRole = preferredExpert ? preferredExpert.role : 'clinical_director';
+            const explicitTargetRole = targetRole && targetRole !== 'all' ? normalizeExpertRole(targetRole) : null;
+            const preferredRole = explicitTargetRole || (preferredExpert ? preferredExpert.role : 'clinical_director');
             const normalizedRole = normalizeExpertRole(preferredRole);
             const clinicalQuestion = String(currentRoundtable?.clinical_question || '').toLowerCase();
             const asksConcreteOutput = /(样本量|效能|power|终点|sap|统计|crf|字段|表格|访视|录入)/i.test(content) ||
@@ -717,9 +1271,11 @@
                 ];
             }
 
-            const opener = preferredExpert
-                ? `${preferredExpert.name}先接这个问题。我先把问题收窄：${preferredExpert.prompt}`
-                : '临床主任先接这个问题。我先不重复背景，而是先把研究问题拆成“研究对象、干预/暴露、主终点、时间窗”四块。';
+            const opener = explicitTargetRole
+                ? `${getAgentName(explicitTargetRole)}先接这个问题。我先不复述背景，直接给你这个角色最该先回答的一步。`
+                : (preferredExpert
+                    ? `${preferredExpert.name}先接这个问题。我先把问题收窄：${preferredExpert.prompt}`
+                    : '临床主任先接这个问题。我先不重复背景，而是先把研究问题拆成“研究对象、干预/暴露、主终点、时间窗”四块。');
 
             const followUpRole = normalizedRole === 'clinical_director' ? 'phd_student' : 'clinical_director';
             const followUpText = normalizedRole === 'clinical_director'
@@ -782,9 +1338,11 @@
             const input = document.getElementById('messageInput');
             const content = input.value.trim();
             if (!content) return;
+            const toRole = selectedTargetRole && selectedTargetRole !== 'all' ? selectedTargetRole : 'all';
             
             // 清空输入
             input.value = '';
+            autosizeComposer();
             
             // 保存用户消息
             const userMessage = {
@@ -803,15 +1361,15 @@
             }
             
             if (MOCK_MODE) {
-                queueMockDiscussion(buildMockDiscussionTurns(content));
+                queueMockDiscussion(buildMockDiscussionTurns(content, toRole));
             } else {
-                showTypingIndicator(guessResponderLabel(content));
+                showTypingIndicator(guessResponderLabel(content, toRole));
                 // 真实 API 模式
                 try {
                     await api.fetchJson(`/api/v1/roundtables/${roundtableId}/messages`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ content, to_role: 'all' })
+                        body: JSON.stringify({ content, to_role: toRole })
                     });
                 } catch (err) {
                     hideTypingIndicator();
@@ -860,10 +1418,27 @@
             if (indicator) indicator.remove();
         }
         
-        // 回车发送
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendMessage();
-        });
+        const messageInput = document.getElementById('messageInput');
+
+        if (messageInput) {
+            messageInput.addEventListener('input', autosizeComposer);
+            messageInput.addEventListener('focus', () => {
+                syncViewportHeight();
+                window.setTimeout(() => scrollChatToBottom('smooth'), 150);
+            });
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', syncViewportHeight);
+            window.visualViewport.addEventListener('scroll', syncViewportHeight);
+        }
+        window.addEventListener('resize', syncViewportHeight);
 
         window.addEventListener('beforeunload', () => {
             clearMockReplyTimers();
@@ -877,6 +1452,10 @@
         
         // 页面加载
         document.addEventListener('DOMContentLoaded', async function() {
+            syncViewportHeight();
+            autosizeComposer();
+            renderConversationControls();
+            updateComposerAffordance();
             await initializeBackendMode();
             if (secondMeIdentityStore) {
                 secondMeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
