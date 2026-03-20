@@ -1,60 +1,21 @@
 {
-  "appName": "MedRoundTable",
-  "displayName": "临床科研圆桌会",
+  "slug": "medroundtable",
+  "category": "health",
+  "tags": [
+    "medical-research",
+    "clinical-study",
+    "multi-agent",
+    "secondme",
+    "openclaw"
+  ],
+  "developerName": "MoKangMedical",
+  "appUrl": "https://medroundtable-secondme.vercel.app/",
   "subtitle": "14 位医学科研 Agent 驱动的临床研究协作入口",
-  "category": [
-    "Medical",
-    "Research",
-    "AI Collaboration"
-  ],
-  "description": "MedRoundTable 把真人研究者、SecondMe 登录身份、14 位医学科研 Agent 和公开数据库入口放进同一条协作流。用户可以先完成真人登录，再选择最合适的专家阵容、生成圆桌启动计划，并继续回到正式站完成讨论、分析与导出。",
-  "websiteUrl": "https://mokangmedical.github.io/medroundtable/index.html",
-  "loginUrl": "https://medroundtable-secondme.vercel.app/api/auth/login",
-  "mcpEndpoint": "https://medroundtable-secondme.vercel.app/api/mcp",
+  "iconUrl": "https://mokangmedical.github.io/medroundtable/assets/doctors.jpg",
+  "ogImageUrl": "https://mokangmedical.github.io/medroundtable/assets/doctors.jpg",
+  "screenshots": [],
+  "promoVideoUrl": "",
+  "websiteUrl": "https://mokangmedical.github.io/medroundtable/",
   "supportUrl": "https://medroundtable-secondme.vercel.app/support",
-  "privacyPolicyUrl": "https://medroundtable-secondme.vercel.app/privacy",
-  "assets": {
-    "iconUrl": "https://mokangmedical.github.io/medroundtable/assets/doctors.jpg",
-    "ogImageUrl": "https://mokangmedical.github.io/medroundtable/assets/doctors.jpg",
-    "screenshots": []
-  },
-  "oauth": {
-    "clientId": "19b5f08b-2256-41aa-b196-2f98491099f7",
-    "redirectUris": [
-      "https://medroundtable-secondme.vercel.app/api/auth/callback",
-      "http://localhost:3000/api/auth/callback"
-    ],
-    "scopes": [
-      "profile",
-      "email",
-      "shades:read",
-      "softmemory:read"
-    ]
-  },
-  "highlights": [
-    "把 SecondMe 真人身份、14 位医学科研 Agent 和公开数据库入口整合进一个闭环。",
-    "不是只展示专家，而是能直接分诊问题、给出下一步动作。",
-    "MCP 工具可以直接暴露圆桌分诊、专家名册、公开数据库与平台快照。",
-    "正式站与登录入口已经独立上线，适合在审核页直接演示。"
-  ],
-  "metrics": {
-    "expertsTotal": 14,
-    "skillsTotal": 997,
-    "wrappedSkills": 869,
-    "databasesTotal": 46,
-    "capabilityLanesTotal": 8
-  },
-  "availability": {
-    "website": "live",
-    "login": "live",
-    "mcp": "live",
-    "support": "live",
-    "privacy": "live"
-  },
-  "submissionNotes": {
-    "platformAppId": "pending_platform_binding",
-    "screenshotCdnUrls": "pending_upload",
-    "mcpEndpointReview": "当前 MCP 路由已在 Vercel 正式环境生效，可直接用于提审和联调",
-    "privacyAndSupportReview": "support / privacy 页面已在 Vercel 正式环境生效"
-  }
+  "privacyPolicyUrl": "https://medroundtable-secondme.vercel.app/privacy"
 }

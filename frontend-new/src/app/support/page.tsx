@@ -28,7 +28,7 @@ export default function SupportPage() {
             <a href="https://github.com/MoKangMedical/medroundtable/issues" target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontWeight: 700 }}>
               GitHub Issues
             </a>
-            <a href="https://mokangmedical.github.io/medroundtable/index.html" target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontWeight: 700 }}>
+            <a href="https://mokangmedical.github.io/medroundtable/" target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontWeight: 700 }}>
               正式站入口
             </a>
             <a href="https://medroundtable-secondme.vercel.app/" target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontWeight: 700 }}>

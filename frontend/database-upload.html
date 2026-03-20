@@ -26,7 +26,7 @@
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <a href="./index.html" class="flex items-center gap-3">
+                <a href="../index.html" class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-green-600 to-teal-600 rounded-xl flex items-center justify-center text-white">
                         <i class="fas fa-database"></i>
                     </div>
@@ -49,11 +49,11 @@
                 <i class="fas fa-table text-green-600 mr-2"></i>上传研究数据库
             </h2>
             <p class="text-slate-600 max-w-2xl mx-auto">
-                上传您的研究数据，支持自动Schema解析和预览
+                上传您的研究数据，支持真实结构预览，并在静态站下先进入当前工作台
             </p>
             <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
                 <i class="fas fa-circle-info text-green-500"></i>
-                先选文件，再填写数据库名称，提交后会写入后台并生成可复用的 Schema
+                先选文件，再填写数据库名称。静态工作台模式下会先保存在当前浏览器；后续接入后端后再同步到共享空间
             </div>
         </div>
 
@@ -62,7 +62,7 @@
                 <i class="fas fa-server mt-0.5 text-amber-500"></i>
                 <div>
                     <p class="font-semibold">正在检查数据库上传服务</p>
-                    <p id="backendStatusText" class="mt-1 text-amber-700">只有后端在线时，文件才会真正写入后台数据库并生成 Schema。</p>
+                    <p id="backendStatusText" class="mt-1 text-amber-700">页面会先确认增强模式是否在线；若未在线，文件也能先保存到当前浏览器工作台。</p>
                 </div>
             </div>
         </div>
@@ -146,6 +146,7 @@
                             </select>
                         </div>
                     </div>
+                    <p id="relationshipHint" class="text-xs text-slate-500">增强模式在线时会显示真实的方案与圆桌会；静态模式下会先保留在当前浏览器工作台。</p>
 
                     <button type="submit" id="submitBtn" disabled
                         class="w-full py-4 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-semibold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
@@ -254,6 +255,7 @@
         const backendStatus = document.getElementById('backendStatus');
         const backendStatusText = document.getElementById('backendStatusText');
         const schemaNotice = document.getElementById('schemaNotice');
+        const relationshipHint = document.getElementById('relationshipHint');
         const api = window.MRTApiConfig;
         const localStore = window.MRTLocalUploadStore;
 
@@ -349,7 +351,7 @@
                 if (window.XLSX) {
                     parseExcel(file);
                 } else {
-                    showSchemaNotice('warning', '当前浏览器没有加载 Excel 解析器。文件仍可上传到服务器，但本页暂时无法本地预览列结构。');
+                    showSchemaNotice('warning', '当前浏览器没有加载 Excel 解析器。文件仍可保存到工作台，但本页暂时无法本地预览列结构。');
                 }
             } else if (ext === 'json') {
                 const reader = new FileReader();
@@ -359,9 +361,9 @@
                         if (Array.isArray(data) && data.length > 0) {
                             const columns = Object.keys(data[0]).map(k => ({name: k, type: typeof data[0][k], nullable: true}));
                             showSchemaPreview(columns, data.slice(0, 5).map(Object.values), columns.length, data.length);
-                            showSchemaNotice('success', '已在浏览器中预览 JSON 结构，提交后会保存到服务器并生成正式 Schema。');
+                            showSchemaNotice('success', '已在浏览器中预览 JSON 结构。提交后会先进入当前工作台；增强模式在线时再同步生成正式 Schema。');
                         } else {
-                            showSchemaNotice('warning', 'JSON 文件已读取，但当前内容不是可直接预览的记录数组。上传后仍会由服务器尝试解析。');
+                            showSchemaNotice('warning', 'JSON 文件已读取，但当前内容不是可直接预览的记录数组。提交后会先保存原文件，增强模式在线时再尝试解析。');
                         }
                     } catch (err) {
                         showSchemaNotice('error', 'JSON 解析失败，请检查文件格式。');
@@ -369,7 +371,7 @@
                 };
                 reader.readAsText(file);
             } else if (['sqlite', 'db'].includes(ext)) {
-                showSchemaNotice('info', 'SQLite/DB 文件将在上传到服务器后解析结构。本页先不做浏览器端预览，避免给出不准确的占位结果。');
+                showSchemaNotice('info', 'SQLite/DB 文件会在增强模式在线时解析结构。本页先不做浏览器端预览，避免给出不准确的占位结果。');
             }
         }
 
@@ -391,7 +393,7 @@
                     const sheet = workbook.Sheets[firstSheetName];
                     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
                     if (!rows.length) {
-                        showSchemaNotice('warning', 'Excel 文件已读取，但首个工作表为空。上传后仍可由服务器再次尝试解析。');
+                        showSchemaNotice('warning', 'Excel 文件已读取，但首个工作表为空。提交后仍可在工作台保留原文件，增强模式在线时再次尝试解析。');
                         return;
                     }
 
@@ -410,7 +412,7 @@
                     }));
 
                     showSchemaPreview(columns, previewRows, headerRow.length, dataRows.length);
-                    showSchemaNotice('success', `已按首个工作表“${firstSheetName}”生成真实预览。提交后服务器会再次解析并保存正式 Schema。`);
+                    showSchemaNotice('success', `已按首个工作表“${firstSheetName}”生成真实预览。提交后会先进入工作台，增强模式在线时再生成正式 Schema。`);
                 } catch (error) {
                     showSchemaNotice('error', `Excel 预览失败：${error.message}`);
                 }
@@ -433,7 +435,7 @@
 
                 const columns = headers.map(h => ({name: h, type: 'string', nullable: true}));
                 showSchemaPreview(columns, data, headers.length, lines.length - 1);
-                showSchemaNotice('success', '已在浏览器中读取 CSV 结构，提交后会把文件和正式 Schema 一起保存到服务器。');
+                showSchemaNotice('success', '已在浏览器中读取 CSV 结构。提交后会先进入工作台，增强模式在线时再同步正式 Schema。');
             };
             reader.readAsText(file);
         }
@@ -493,9 +495,9 @@
                     progressBar.style.width = '100%';
                     progressText.textContent = '100%';
                     if (result.metadata?.parsed === false) {
-                        showResult('warning', `文件已保存到服务器，但 Schema 暂未解析成功：${result.metadata.parse_error || '请在数据管理页查看详情或重新上传更规范的文件。'}`);
+                        showResult('warning', `文件已进入共享工作台，但 Schema 暂未解析成功：${result.metadata.parse_error || '请在数据管理页查看详情或重新上传更规范的文件。'}`);
                     } else {
-                        showResult('success', `上传成功，服务器已生成可复用的数据库记录：${result.name}`);
+                        showResult('success', `上传成功，共享工作台已生成可复用的数据库记录：${result.name}`);
                     }
                 } else {
                     const record = await localStore.saveRecord({
@@ -509,7 +511,7 @@
                     });
                     progressBar.style.width = '100%';
                     progressText.textContent = '100%';
-                    showResult('success', `已暂存到当前浏览器：${record.title}。如果需要跨设备复用和自动分析，请在后端恢复后重新上传到服务器。`);
+                    showResult('success', `已保存到当前浏览器工作台：${record.title}。如需跨设备复用或自动分析，等增强模式恢复后再同步即可。`);
                 }
 
                 setTimeout(() => window.location.href = './data-dashboard.html?tab=databases', 1600);
@@ -568,7 +570,7 @@
             }
             if (mobileSubmitHint) {
                 mobileSubmitHint.textContent = ready
-                    ? (backendAvailable ? '文件和名称已就绪，可直接上传并生成 Schema' : '文件和名称已就绪，将暂存到当前浏览器')
+                    ? (backendAvailable ? '文件和名称已就绪，可同步到共享工作台并生成 Schema' : '文件和名称已就绪，将保存到当前浏览器工作台')
                     : '文件已选中，还需要补充数据库名称';
             }
         }
@@ -591,7 +593,16 @@
 
         // Load dropdowns
         async function loadDropdowns() {
+            const protocolSelect = document.getElementById('protocolId');
+            const roundtableSelect = document.getElementById('roundtableId');
             if (!backendAvailable) {
+                protocolSelect.disabled = true;
+                roundtableSelect.disabled = true;
+                protocolSelect.innerHTML = '<option value="">-- 静态模式下暂不关联研究方案 --</option>';
+                roundtableSelect.innerHTML = '<option value="">-- 静态模式下暂不关联圆桌会 --</option>';
+                if (relationshipHint) {
+                    relationshipHint.textContent = '当前是 GitHub Pages 静态工作台模式。数据库会先保存在本浏览器，等共享后端恢复后再关联真实方案或圆桌会。';
+                }
                 return;
             }
             try {
@@ -600,7 +611,6 @@
                     api.fetchJson('/api/v1/roundtables')
                 ]);
 
-                const protocolSelect = document.getElementById('protocolId');
                 protocolSelect.innerHTML = '<option value="">-- 选择方案 --</option>';
                 protocols.forEach((protocol) => {
                     const option = document.createElement('option');
@@ -609,7 +619,6 @@
                     protocolSelect.appendChild(option);
                 });
 
-                const roundtableSelect = document.getElementById('roundtableId');
                 roundtableSelect.innerHTML = '<option value="">-- 选择圆桌会 --</option>';
                 roundtables.forEach((roundtable) => {
                     const option = document.createElement('option');
@@ -617,22 +626,40 @@
                     option.textContent = roundtable.title;
                     roundtableSelect.appendChild(option);
                 });
+                protocolSelect.disabled = false;
+                roundtableSelect.disabled = false;
+                if (relationshipHint) {
+                    relationshipHint.textContent = '这里只显示增强模式里真实存在的方案和圆桌会，不再使用演示占位数据。';
+                }
             } catch (e) {
                 console.warn('下拉数据加载失败:', e.message);
+                protocolSelect.disabled = true;
+                roundtableSelect.disabled = true;
+                if (relationshipHint) {
+                    relationshipHint.textContent = '方案或圆桌会列表拉取失败，页面不会再自动填入演示数据，避免误关联到不存在的项目。';
+                }
             }
         }
 
         async function checkBackend() {
-            setBackendStatus('loading', `正在连接数据库服务：${api.API_BASE}`);
+            if (api && api.isStaticMode) {
+                backendAvailable = false;
+                setBackendStatus('loading', '当前站点已固定为静态工作台模式。数据库会先保存在当前浏览器，并保留本地预览结果。');
+                updateSubmitState();
+                await loadDropdowns();
+                return;
+            }
+
+            setBackendStatus('loading', '正在检查增强模式是否在线...');
             try {
                 await api.healthcheck();
                 backendAvailable = true;
-                setBackendStatus('success', `数据库上传服务已连接，当前接口地址：${api.API_BASE}`);
+                setBackendStatus('success', '增强模式已连接。现在数据库会进入共享工作台，并可继续发起自动分析。');
                 updateSubmitState();
                 await loadDropdowns();
             } catch (error) {
                 backendAvailable = false;
-                setBackendStatus('error', `数据库上传服务未连接：${error.message}。当前启用浏览器本地暂存模式，提交后只存在当前设备。`);
+                setBackendStatus('error', `当前未连接到共享后端：${error.message}。本页已切换到浏览器工作台模式，提交后只保存在当前设备。`);
                 updateSubmitState();
             }
         }

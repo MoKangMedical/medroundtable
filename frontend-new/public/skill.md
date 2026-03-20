@@ -1,5 +1,5 @@
 ---
-name: medroundtable-research-copilot
+name: mokang-medroundtable-research-copilot
 description: Use when the user wants to triage a clinical research question, choose the right MedRoundTable expert, build a roundtable kickoff plan, or find suitable public biomedical databases before entering MedRoundTable.
 ---
 
@@ -53,7 +53,7 @@ This integration exposes the following MCP tools:
 
 ## Live Links
 
-- Website: `https://mokangmedical.github.io/medroundtable/index.html`
+- Website: `https://mokangmedical.github.io/medroundtable/`
 - Login: `https://medroundtable-secondme.vercel.app/api/auth/login`
 - MCP: `https://medroundtable-secondme.vercel.app/api/mcp`
 - Support: `https://medroundtable-secondme.vercel.app/support`

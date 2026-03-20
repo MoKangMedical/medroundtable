@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>用户反馈 - MedRoundTable</title>
+    <script src="./api-config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -70,6 +71,9 @@
             <p class="text-gray-600 max-w-2xl mx-auto">
                 您的建议是我们改进的动力。无论是功能建议、问题报告还是使用体验，都请告诉我们。
             </p>
+            <div id="feedbackModeBanner" class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-left text-sm text-amber-800">
+                正在检查当前页面是共享后端模式还是浏览器本地草稿模式...
+            </div>
         </div>
 
         <!-- 反馈类型选择 -->
@@ -285,20 +289,63 @@
 
     <script>
         // API 配置
-        const API_BASE = 'https://mia-rating-ownership-downloads.trycloudflare.com';
+        const API_BASE = window.MRTApiConfig
+            ? window.MRTApiConfig.API_BASE
+            : 'https://medroundtable-api.onrender.com';
+        const FEEDBACK_DRAFTS_KEY = 'mrt_feedback_drafts';
         
         // 状态管理
         let currentRating = 0;
         let selectedType = '';
         let token = localStorage.getItem('token');
         let user = JSON.parse(localStorage.getItem('user') || 'null');
+        let backendAvailable = false;
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             updateUserUI();
             setupStarRating();
             setupForms();
+            await checkBackendStatus();
         });
+
+        function setFeedbackModeBanner(message, tone = 'warning') {
+            const banner = document.getElementById('feedbackModeBanner');
+            banner.className = 'mt-5 rounded-2xl border px-5 py-4 text-left text-sm';
+            if (tone === 'success') {
+                banner.classList.add('border-green-200', 'bg-green-50', 'text-green-800');
+            } else if (tone === 'error') {
+                banner.classList.add('border-red-200', 'bg-red-50', 'text-red-800');
+            } else {
+                banner.classList.add('border-amber-200', 'bg-amber-50', 'text-amber-800');
+            }
+            banner.textContent = message;
+        }
+
+        async function checkBackendStatus() {
+            if (!window.MRTApiConfig) {
+                setFeedbackModeBanner('当前没有加载统一 API 配置，本页会优先把反馈保存到浏览器本地草稿。');
+                return;
+            }
+            try {
+                await window.MRTApiConfig.healthcheck();
+                backendAvailable = true;
+                setFeedbackModeBanner('增强模式已连接。提交的反馈会直接进入共享反馈队列，可用于后续跟进。', 'success');
+            } catch (error) {
+                backendAvailable = false;
+                setFeedbackModeBanner('当前是 GitHub Pages 静态模式。提交按钮仍可使用，但反馈会先保存在当前浏览器，登录/注册功能暂不启用。');
+            }
+        }
+
+        function saveFeedbackDraft(data) {
+            const drafts = JSON.parse(localStorage.getItem(FEEDBACK_DRAFTS_KEY) || '[]');
+            drafts.unshift({
+                id: `feedback_${Date.now()}`,
+                saved_at: new Date().toISOString(),
+                ...data
+            });
+            localStorage.setItem(FEEDBACK_DRAFTS_KEY, JSON.stringify(drafts.slice(0, 20)));
+        }
 
         // 更新用户界面
         function updateUserUI() {
@@ -415,18 +462,27 @@
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
-                const response = await fetch(`${API_BASE}/api/v1/user/feedback`, {
-                    method: 'POST',
-                    headers,
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    showToast('感谢您的反馈！我们会尽快处理', 'success');
+                if (!backendAvailable) {
+                    saveFeedbackDraft({
+                        ...data,
+                        mode: 'browser-local'
+                    });
+                    showToast('当前是静态站模式，反馈已保存在本浏览器草稿箱', 'success');
                     resetForm();
                 } else {
-                    const error = await response.json();
-                    showToast(error.detail || '提交失败', 'error');
+                    const response = await fetch(`${API_BASE}/api/v1/user/feedback`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        showToast('感谢您的反馈！我们会尽快处理', 'success');
+                        resetForm();
+                    } else {
+                        const error = await response.json();
+                        showToast(error.detail || '提交失败', 'error');
+                    }
                 }
             } catch (err) {
                 showToast('网络错误，请稍后重试', 'error');
@@ -438,6 +494,10 @@
 
         // 登录
         async function login() {
+            if (!backendAvailable) {
+                showToast('当前静态站未启用账号接口，请先在首页使用 SecondMe 入口，或等待增强模式恢复。', 'info');
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE}/api/v1/user/login`, {
                     method: 'POST',
@@ -468,6 +528,10 @@
 
         // 注册
         async function register() {
+            if (!backendAvailable) {
+                showToast('当前静态站未启用注册接口，请先提交本地反馈，或等待增强模式恢复。', 'info');
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE}/api/v1/user/register`, {
                     method: 'POST',

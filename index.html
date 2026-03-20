@@ -868,7 +868,7 @@
                                 </div>
                                 <h3 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">先登录真人身份，再决定让哪个分身和 AI 一起接管这场圆桌</h3>
                                 <p id="secondMeLiveEntrySummary" class="mt-4 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-                                    登录成功后，主页会直接识别你本人是谁、你的 SecondMe 分身是否已带入，以及哪组 AI 会先接管首轮讨论。
+                                    登录成功后，主页会识别你本人是谁、你的 SecondMe 分身是否已带入，以及哪组 AI 会先接管首轮讨论。授权本身经由独立的 SecondMe 安全入口完成。
                                 </p>
                                 <div id="secondMeLiveEntryActions" class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap"></div>
                             </div>
@@ -3019,7 +3019,7 @@
                 return;
             }
 
-            summary.textContent = '如果不先登录 SecondMe，首页只能模拟“有真人加入”。登录后，平台才知道你是谁、你的分身是什么、哪些 AI 阵容要跟着你一起进入。';
+            summary.textContent = '如果不先登录 SecondMe，首页只能模拟“有真人加入”。登录会先跳去独立安全入口，回来后平台才知道你是谁、你的分身是什么、哪些 AI 阵容要跟着你一起进入。';
             actions.innerHTML = `
                 <a href="${SECONDME_LOGIN_URL}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:bg-blue-800">
                     <i class="fas fa-right-to-bracket"></i>先登录 SecondMe 真人身份
@@ -3032,7 +3032,7 @@
                         <h4 class="mt-2 text-2xl font-bold text-white">先把真人研究者接进来，再谈分身和 AI 协作</h4>
                     </div>
                     <div class="grid gap-3">
-                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">登录后会把你的姓名、头像和邮箱带回首页，用作真人成员卡片，不再只是“游客”或“占位身份”。</div>
+                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">登录后会把你的姓名、头像和邮箱带回首页，用作真人成员卡片。授权本身走独立 SecondMe 入口，主页只负责接住返回结果。</div>
                         <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">角色选择页会继续问你：这轮你是研究发起人、共同作者，还是负责证据整合的真实研究者。</div>
                         <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">回到主页后，你的 SecondMe 分身和 AI pack 会一起写进创建流程和圆桌详情页。</div>
                     </div>
