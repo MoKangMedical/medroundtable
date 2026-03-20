@@ -9,36 +9,48 @@
 
 ## 2. 上架口径
 
-- App Name: `MedRoundTable`
-- Display Name: `临床科研圆桌会`
+- App Name: `MedRoundTable-临床科研圆桌会`
+- Listing Slug: `medroundtable`
 - Subtitle: `14 位医学科研 Agent 驱动的临床研究协作入口`
-- Category: `Medical / Research / AI Collaboration`
+- Category: `health`
+- Tags:
+  - `medical-research`
+  - `clinical-study`
+  - `multi-agent`
+  - `secondme`
+  - `openclaw`
+- Developer Name: `MoKangMedical`
 - 一句话说明: `把真人研究者、SecondMe 登录身份、14 位医学科研 Agent 和公开数据库入口放进同一条协作流。`
 
 ## 3. 公开链接
 
-- Website: `https://mokangmedical.github.io/medroundtable/index.html`
+- App URL: `https://medroundtable-secondme.vercel.app/`
+- Website: `https://mokangmedical.github.io/medroundtable/`
 - Login: `https://medroundtable-secondme.vercel.app/api/auth/login`
 - MCP Endpoint: `https://medroundtable-secondme.vercel.app/api/mcp`
 - Support: `https://medroundtable-secondme.vercel.app/support`
 - Privacy Policy: `https://medroundtable-secondme.vercel.app/privacy`
 
-## 4. OAuth 信息
+## 4. OAuth / App 信息
 
 - Client ID: `19b5f08b-2256-41aa-b196-2f98491099f7`
+- App ID: `19b5f08b-2256-41aa-b196-2f98491099f7`
 - Redirect URIs:
   - `https://medroundtable-secondme.vercel.app/api/auth/callback`
   - `http://localhost:3000/api/auth/callback`
-- Scopes:
-  - `profile`
-  - `email`
-  - `shades:read`
-  - `softmemory:read`
+- Allowed Scopes:
+  - `user.info`
+  - `user.info.shades`
+  - `user.info.softmemory`
+  - `chat`
+  - `note.add`
+  - `voice`
 
 ## 5. Integration 口径
 
-- skill.key: `medroundtable-research-copilot`
+- skill.key: `mokang-medroundtable-research-copilot`
 - MCP auth mode: `bearer_token`
+- oauth.appId: `19b5f08b-2256-41aa-b196-2f98491099f7`
 - 可调用工具:
   - `triage_research_question`
   - `build_roundtable_plan`

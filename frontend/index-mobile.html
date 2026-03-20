@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MedRoundTable - 临床科研圆桌会</title>
+    <script src="./api-config.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -287,18 +288,24 @@
 
     <script>
         // API 配置
-        const API_BASE = window.location.hostname === 'localhost' 
-            ? 'http://localhost:8000' 
-            : 'https://mia-rating-ownership-downloads.trycloudflare.com';
+        const api = window.MRTApiConfig || null;
+        const API_BASE = api
+            ? api.API_BASE
+            : (window.location.hostname === 'localhost'
+                ? 'http://localhost:8000'
+                : 'https://medroundtable-api.onrender.com');
 
         // 全局状态
         let currentSessionId = null;
         let eventSource = null;
         let token = localStorage.getItem('mrt_token');
         let user = JSON.parse(localStorage.getItem('mrt_user') || 'null');
+        let backendAvailable = false;
+        let mockSessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
 
         // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkBackendStatus();
             loadSessions();
             updateUserUI();
         });
@@ -344,12 +351,17 @@
         // ============ 会话管理 ============
         
         async function loadSessions() {
+            if (!backendAvailable) {
+                renderSessionList(mockSessions);
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE}/api/v1/roundtables`);
                 const sessions = await response.json();
                 renderSessionList(sessions);
             } catch (err) {
                 console.error('Failed to load sessions:', err);
+                renderSessionList(mockSessions);
             }
         }
 
@@ -359,7 +371,8 @@
                 container.innerHTML = `
                     <div class="text-center py-8 text-gray-400">
                         <i class="fas fa-inbox text-3xl mb-2"></i>
-                        <p class="text-sm">暂无会话</p>
+                        <p class="text-sm">${backendAvailable ? '暂无会话' : '当前设备暂无本地会话'}</p>
+                        <p class="mt-2 text-xs text-gray-400">${backendAvailable ? '点击上方按钮创建' : '静态模式下创建的圆桌会会保存在当前浏览器'}</p>
                     </div>
                 `;
                 return;
@@ -421,23 +434,25 @@
             }
 
             try {
-                const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, clinical_question: question })
-                });
-                
-                const session = await response.json();
+                let session;
+                if (backendAvailable) {
+                    const response = await fetch(`${API_BASE}/api/v1/roundtables`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, clinical_question: question })
+                    });
+                    session = await response.json();
+                    await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
+                } else {
+                    session = createLocalSession(title, question);
+                }
                 closeModal('newSessionModal');
                 document.getElementById('sessionTitle').value = '';
                 document.getElementById('sessionQuestion').value = '';
-                
-                // 开始讨论
-                await fetch(`${API_BASE}/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
-                
+
                 loadSessions();
                 selectSession(session.id);
-                showToast('圆桌会已开始', 'success');
+                showToast(backendAvailable ? '圆桌会已开始' : '已创建浏览器本地圆桌会', 'success');
             } catch (err) {
                 showToast('创建失败', 'error');
             }
@@ -459,13 +474,20 @@
             await loadMessages(sessionId);
             
             // 连接 SSE
-            connectEventSource(sessionId);
+            if (backendAvailable) {
+                connectEventSource(sessionId);
+            }
             
             // 刷新列表高亮
             loadSessions();
         }
 
         async function loadMessages(sessionId) {
+            if (!backendAvailable) {
+                const messages = JSON.parse(localStorage.getItem(`mockMessages_${sessionId}`) || '[]');
+                messages.forEach(msg => renderMessage(msg));
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE}/api/v1/roundtables/${sessionId}/messages`);
                 const messages = await response.json();
@@ -562,11 +584,22 @@
             });
             
             try {
-                await fetch(`${API_BASE}/api/v1/roundtables/${currentSessionId}/messages`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content })
-                });
+                if (backendAvailable) {
+                    await fetch(`${API_BASE}/api/v1/roundtables/${currentSessionId}/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ content })
+                    });
+                } else {
+                    appendLocalMessages(currentSessionId, [{
+                        from_role: 'user',
+                        content,
+                        created_at: new Date().toISOString()
+                    }]);
+                    const reply = buildLocalAgentReply(content);
+                    appendLocalMessages(currentSessionId, [reply]);
+                    setTimeout(() => renderMessage(reply), 180);
+                }
             } catch (err) {
                 showToast('发送失败', 'error');
             }
@@ -605,6 +638,10 @@
         }
 
         async function login() {
+            if (!backendAvailable) {
+                showToast('当前静态模式未启用移动端账号接口，请先回首页使用主入口。', 'info');
+                return;
+            }
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -683,6 +720,79 @@
             }
             lastTouchEnd = now;
         }, false);
+
+        async function checkBackendStatus() {
+            if (!api) return;
+            try {
+                await api.healthcheck();
+                backendAvailable = true;
+            } catch (error) {
+                backendAvailable = false;
+                showToast('当前是浏览器本地模式，移动端圆桌会将保存在本设备。', 'info');
+            }
+        }
+
+        function persistMockSessions() {
+            localStorage.setItem('mockSessions', JSON.stringify(mockSessions));
+        }
+
+        function createLocalSession(title, question) {
+            const session = {
+                id: `local_${Date.now()}`,
+                title,
+                clinical_question: question,
+                status: 'discussion',
+                created_at: new Date().toISOString()
+            };
+            mockSessions.unshift(session);
+            persistMockSessions();
+            const welcomeMessages = [
+                {
+                    from_role: 'clinical_director',
+                    content: `我先来帮你把这轮问题收紧。当前核心问题是：${question}。建议先明确研究对象、主要终点和是否需要文献补证。`,
+                    created_at: new Date().toISOString()
+                }
+            ];
+            localStorage.setItem(`mockMessages_${session.id}`, JSON.stringify(welcomeMessages));
+            return session;
+        }
+
+        function appendLocalMessages(sessionId, messages) {
+            const key = `mockMessages_${sessionId}`;
+            const existing = JSON.parse(localStorage.getItem(key) || '[]');
+            localStorage.setItem(key, JSON.stringify(existing.concat(messages)));
+        }
+
+        function buildLocalAgentReply(content) {
+            const normalized = content.trim();
+            const lower = normalized.toLowerCase();
+            if (lower.includes('继续')) {
+                return {
+                    from_role: 'statistician',
+                    content: '继续往下推时，建议先补三件事：样本量假设、主要终点统计方法、缺失值处理。只要这三项明确，后续 SAP 才能真正落地。',
+                    created_at: new Date().toISOString()
+                };
+            }
+            if (lower.includes('文献') || lower.includes('检索')) {
+                return {
+                    from_role: 'phd_student',
+                    content: '我建议你先把检索式拆成疾病、干预、结局三组关键词，再决定是否限定 RCT 或近五年证据。这样后续文献回顾不会太散。',
+                    created_at: new Date().toISOString()
+                };
+            }
+            if (lower.includes('统计') || lower.includes('样本')) {
+                return {
+                    from_role: 'statistician',
+                    content: '如果这一轮要往统计推进，请先给出主要终点类型、组数和预期效应量。我就能把样本量和模型选择收得更具体。',
+                    created_at: new Date().toISOString()
+                };
+            }
+            return {
+                from_role: 'epidemiologist',
+                content: '这条信息我已经接住了。下一步建议先把研究对象、暴露/干预、结局指标和时间窗口写成四行，再继续往方案设计推进。',
+                created_at: new Date().toISOString()
+            };
+        }
     </script>
 </body>
 </html>

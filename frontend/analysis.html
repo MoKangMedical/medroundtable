@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="./api-config.js"></script>
+    <script src="./platform-catalog.js"></script>
+    <script src="./local-upload-store.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
@@ -79,9 +81,9 @@
         <section class="mb-10 rounded-3xl border border-emerald-200 bg-white p-7 shadow-lg">
             <div class="flex flex-col gap-5">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Public Data To Server</p>
-                    <h2 class="mt-2 text-2xl font-bold text-slate-900">把公开数据库结果直接保存到服务器</h2>
-                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">这里不是只看目录。选一个公开数据库、给出关键词，结果会直接保存为服务器数据集，随后可以在数据管理页里继续做统计分析、回归或复盘。</p>
+                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Public Data Workspace</p>
+                    <h2 class="mt-2 text-2xl font-bold text-slate-900">把公开数据库结果带回当前工作台</h2>
+                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">选一个公开数据库、给出关键词，结果会优先进入你当前的分析工作台。增强模式在线时会同步到共享后端；如果正式站当前只有静态模式，就先保存在本浏览器，方便你继续整理和回看。</p>
                 </div>
                 <div id="publicDatasetStatus" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
                     正在检查后端连接...
@@ -104,7 +106,7 @@
                 </label>
                 <div class="flex flex-wrap items-center gap-3">
                     <button id="savePublicDatasetBtn" type="button" class="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
-                        <i class="fas fa-cloud-arrow-down mr-2"></i>保存到服务器
+                        <i class="fas fa-cloud-arrow-down mr-2"></i>保存到当前工作台
                     </button>
                     <a href="./database-browser.html" class="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                         查看公开数据库目录
@@ -317,6 +319,8 @@
 
     <script>
         const api = window.MRTApiConfig;
+        const catalogStore = window.MRTPlatformCatalog;
+        const localStore = window.MRTLocalUploadStore;
         const ANALYSIS_LABELS = {
             descriptive: '描述性统计',
             comparative: '比较分析',
@@ -324,6 +328,7 @@
             regression: '回归分析',
         };
         let publicSources = [];
+        let publicDatasetMode = 'browser-local';
 
         function renderTaskResult(task, resultPayload) {
             const section = document.getElementById('taskResultSection');
@@ -372,7 +377,7 @@
 
             banner.classList.remove('hidden');
             title.textContent = `你刚选择了「${ANALYSIS_LABELS[intent]}」`;
-            text.textContent = '下一步不是空跳转，而是先把数据放进服务器，再从数据管理页挑选数据库发起任务。这样分析结果和数据都能真正留在后台。';
+            text.textContent = '下一步不是空跳转，而是先把数据带进你的工作台，再从数据管理页挑选数据库发起任务。增强模式在线时会同步到共享后端；静态模式下也会先保存在当前浏览器。';
         }
 
         function escapeHtml(value) {
@@ -408,6 +413,8 @@
             node.className = 'rounded-2xl px-4 py-3 text-sm';
             if (tone === 'success') {
                 node.classList.add('border', 'border-emerald-200', 'bg-emerald-50', 'text-emerald-700');
+            } else if (tone === 'warning') {
+                node.classList.add('border', 'border-amber-200', 'bg-amber-50', 'text-amber-700');
             } else if (tone === 'error') {
                 node.classList.add('border', 'border-red-200', 'bg-red-50', 'text-red-700');
             } else {
@@ -421,10 +428,18 @@
             try {
                 await api.healthcheck();
                 const databases = await api.fetchJson('/api/v2/databases/');
+                publicDatasetMode = 'server';
                 renderPublicSources(databases);
-                setPublicDatasetStatus(`后端已连接，公开数据库保存会直接写入服务器：${api.API_BASE}`, 'success');
+                setPublicDatasetStatus(`增强模式已连接。公开数据库结果会同步到共享工作台：${api.API_BASE}`, 'success');
             } catch (error) {
-                setPublicDatasetStatus(`后端未连接，当前无法把公开数据保存到服务器：${error.message}`, 'error');
+                publicDatasetMode = 'browser-local';
+                try {
+                    const catalog = await catalogStore.loadCatalog('..');
+                    renderPublicSources(catalog.databases || []);
+                    setPublicDatasetStatus('当前是 GitHub Pages 静态模式。公开数据库查询会先保存到当前浏览器工作台，仅在本设备可见。', 'warning');
+                } catch (catalogError) {
+                    setPublicDatasetStatus(`目录加载失败：${catalogError.message}`, 'error');
+                }
             }
         }
 
@@ -446,29 +461,71 @@
 
             const originalHtml = button.innerHTML;
             button.disabled = true;
-            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>保存中';
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>处理中';
 
             try {
-                const saved = await api.fetchJson('/api/v2/databases/snapshots', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        database: source,
-                        query,
-                        name: name || undefined,
-                        limit: 20,
-                    }),
-                });
                 result.classList.remove('hidden');
-                result.className = 'rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800';
-                result.innerHTML = `
-                    <p class="font-semibold">服务器数据集已保存</p>
-                    <p class="mt-2 leading-7">数据集名称：${escapeHtml(saved.name)}<br>记录规模：${saved.row_count || 0} 行 × ${saved.column_count || 0} 列</p>
-                    <div class="mt-4 flex flex-wrap gap-3">
-                        <a href="./data-dashboard.html?tab=databases" class="rounded-2xl bg-white px-4 py-2 font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50">查看服务器数据集</a>
-                        <a href="./data-dashboard.html?tab=analysis" class="rounded-2xl bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700">直接去发起分析</a>
-                    </div>
-                `;
+
+                if (publicDatasetMode === 'server') {
+                    const saved = await api.fetchJson('/api/v2/databases/snapshots', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            database: source,
+                            query,
+                            name: name || undefined,
+                            limit: 20,
+                        }),
+                    });
+                    result.className = 'rounded-2xl border border-emerald-200 bg-emerald-50 p-5 text-sm text-emerald-800';
+                    result.innerHTML = `
+                        <p class="font-semibold">共享工作台数据集已保存</p>
+                        <p class="mt-2 leading-7">数据集名称：${escapeHtml(saved.name)}<br>记录规模：${saved.row_count || 0} 行 × ${saved.column_count || 0} 列</p>
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <a href="./data-dashboard.html?tab=databases" class="rounded-2xl bg-white px-4 py-2 font-semibold text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50">查看共享数据集</a>
+                            <a href="./data-dashboard.html?tab=analysis" class="rounded-2xl bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700">直接去发起分析</a>
+                        </div>
+                    `;
+                } else {
+                    const selectedSource = publicSources.find((item) => item.id === source);
+                    const snapshotPayload = {
+                        source,
+                        sourceName: selectedSource?.name || source,
+                        category: selectedSource?.category || '公开数据库',
+                        query,
+                        savedAt: new Date().toISOString(),
+                        mode: 'browser-local',
+                    };
+                    const fileName = `${(name || `${source}-snapshot`).replace(/[^\w\u4e00-\u9fa5-]+/g, '_')}.json`;
+                    const snapshotFile = new File(
+                        [JSON.stringify(snapshotPayload, null, 2)],
+                        fileName,
+                        { type: 'application/json' }
+                    );
+                    const saved = await localStore.saveRecord({
+                        kind: 'database',
+                        title: name || `${selectedSource?.name || source} 查询快照`,
+                        description: `公开数据库快照 · ${selectedSource?.name || source} · 查询词：${query}`,
+                        file: snapshotFile,
+                        meta: {
+                            source: 'public-dataset-browser-local',
+                            query,
+                            sourceId: source,
+                            sourceName: selectedSource?.name || source,
+                            rowCountPreview: 0,
+                            parse_status: 'browser_snapshot',
+                        },
+                    });
+                    result.className = 'rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800';
+                    result.innerHTML = `
+                        <p class="font-semibold">已保存到当前浏览器工作台</p>
+                        <p class="mt-2 leading-7">快照名称：${escapeHtml(saved.title)}<br>当前模式：仅保存在本设备，适合先整理查询策略与分析意图。</p>
+                        <div class="mt-4 flex flex-wrap gap-3">
+                            <a href="./data-dashboard.html?tab=databases" class="rounded-2xl bg-white px-4 py-2 font-semibold text-amber-700 ring-1 ring-amber-200 hover:bg-amber-50">查看当前设备工作台</a>
+                            <a href="./database-browser.html" class="rounded-2xl bg-amber-600 px-4 py-2 font-semibold text-white hover:bg-amber-700">继续挑选公开数据库</a>
+                        </div>
+                    `;
+                }
             } catch (error) {
                 result.classList.remove('hidden');
                 result.className = 'rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700';

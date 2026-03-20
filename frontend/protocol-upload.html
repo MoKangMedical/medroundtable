@@ -25,7 +25,7 @@
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <a href="./index.html" class="flex items-center gap-3">
+                <a href="../index.html" class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center text-white">
                         <i class="fas fa-file-medical"></i>
                     </div>
@@ -52,7 +52,7 @@
             </p>
             <div class="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-slate-200">
                 <i class="fas fa-circle-info text-blue-500"></i>
-                先选文件，再补标题，最后决定上传到后台还是暂存当前浏览器
+                GitHub Pages 正式站下，方案会先保存到当前浏览器工作台；后续接入后端后再同步到共享空间
             </div>
         </div>
 
@@ -61,7 +61,7 @@
                 <i class="fas fa-server mt-0.5 text-amber-500"></i>
                 <div>
                     <p class="font-semibold">正在检查上传服务连接</p>
-                    <p id="backendStatusText" class="mt-1 text-amber-700">页面会在上传前先确认后端是否在线。</p>
+                    <p id="backendStatusText" class="mt-1 text-amber-700">页面会先检查增强模式是否在线；若未在线，本页仍可继续保存到当前浏览器。</p>
                 </div>
             </div>
         </div>
@@ -156,22 +156,22 @@
                 <div class="w-14 h-14 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
                     <i class="fas fa-robot text-2xl text-green-600"></i>
                 </div>
-                <h3 class="font-semibold text-slate-800 mb-2">AI智能分析</h3>
-                <p class="text-sm text-slate-600">自动分析研究设计、终点指标、统计方法</p>
+                <h3 class="font-semibold text-slate-800 mb-2">先收材料，再进讨论</h3>
+                <p class="text-sm text-slate-600">研究方案先放进工作台，后续再回到圆桌会逐段讨论设计、终点和统计路径。</p>
             </div>
             <div class="bg-white rounded-xl p-6 shadow-md text-center">
                 <div class="w-14 h-14 mx-auto mb-4 bg-purple-100 rounded-full flex items-center justify-center">
                     <i class="fas fa-shield-alt text-2xl text-purple-600"></i>
                 </div>
-                <h3 class="font-semibold text-slate-800 mb-2">安全存储</h3>
-                <p class="text-sm text-slate-600">加密存储，访问控制，审计日志</p>
+                <h3 class="font-semibold text-slate-800 mb-2">双模式保存</h3>
+                <p class="text-sm text-slate-600">增强模式在线时进入共享后端；若当前是静态站，就暂存到本浏览器，不中断操作。</p>
             </div>
             <div class="bg-white rounded-xl p-6 shadow-md text-center">
                 <div class="w-14 h-14 mx-auto mb-4 bg-amber-100 rounded-full flex items-center justify-center">
                     <i class="fas fa-history text-2xl text-amber-600"></i>
                 </div>
-                <h3 class="font-semibold text-slate-800 mb-2">版本管理</h3>
-                <p class="text-sm text-slate-600">支持多版本管理，历史记录追溯</p>
+                <h3 class="font-semibold text-slate-800 mb-2">继续回到数据管理页</h3>
+                <p class="text-sm text-slate-600">上传后会自动带你回工作台，方便继续整理方案、下载原稿或等后端恢复后再同步。</p>
             </div>
         </div>
     </main>
@@ -361,7 +361,7 @@
             if (!backendAvailable) {
                 roundtableSelect.disabled = true;
                 roundtableSelect.innerHTML = '<option value="">-- 后端未连接，暂时无法关联圆桌会 --</option>';
-                roundtableHint.textContent = '当前是浏览器本地暂存模式，暂时不能绑定后台里的圆桌会。';
+                roundtableHint.textContent = '当前是 GitHub Pages 静态模式，方案会先留在本浏览器，暂时不能挂到共享圆桌会。';
                 return;
             }
             try {
@@ -382,7 +382,7 @@
                 }
 
                 roundtableSelect.disabled = false;
-                roundtableHint.textContent = '这里显示的都是后台真实存在的圆桌会，不再使用演示占位 ID。';
+                roundtableHint.textContent = '这里只有增强模式里真实存在的圆桌会，不再使用演示占位 ID。';
             } catch (error) {
                 console.warn('圆桌会列表加载失败:', error.message);
                 roundtableSelect.disabled = true;
@@ -435,7 +435,7 @@
             }
             if (mobileSubmitHint) {
                 mobileSubmitHint.textContent = ready
-                    ? (backendAvailable ? '文件和标题已就绪，可直接上传到后台' : '文件和标题已就绪，将暂存到当前浏览器')
+                    ? (backendAvailable ? '文件和标题已就绪，可同步到共享工作台' : '文件和标题已就绪，将保存到当前浏览器工作台')
                     : '文件已选中，还需要补充方案标题';
             }
         }
@@ -445,16 +445,24 @@
         }
 
         async function checkBackend() {
-            setBackendStatus('loading', `正在连接上传服务：${api.API_BASE}`);
+            if (api && api.isStaticMode) {
+                backendAvailable = false;
+                setBackendStatus('loading', '当前站点已固定为静态工作台模式，研究方案会直接保存到当前浏览器。');
+                updateSubmitState();
+                await loadRoundtables();
+                return;
+            }
+
+            setBackendStatus('loading', '正在检查增强模式是否在线...');
             try {
                 await api.healthcheck();
                 backendAvailable = true;
-                setBackendStatus('success', `上传服务已连接，当前接口地址：${api.API_BASE}`);
+                setBackendStatus('success', '增强模式已连接。现在上传的研究方案会进入共享工作台，也可以关联真实圆桌会。');
                 updateSubmitState();
                 await loadRoundtables();
             } catch (error) {
                 backendAvailable = false;
-                setBackendStatus('error', `上传服务未连接：${error.message}。当前启用浏览器本地暂存模式，提交后只存在当前设备。`);
+                setBackendStatus('error', `当前未连接到共享后端：${error.message}。本页已切换到浏览器工作台模式，提交后只保存在当前设备。`);
                 updateSubmitState();
             }
         }

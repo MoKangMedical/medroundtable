@@ -20,7 +20,7 @@ export async function GET() {
   authUrl.searchParams.set('redirect_uri', redirectUri);
   authUrl.searchParams.set('response_type', 'code');
   authUrl.searchParams.set('state', state);
-  authUrl.searchParams.set('scope', 'profile email shades:read softmemory:read');
+  authUrl.searchParams.set('scope', 'user.info user.info.shades user.info.softmemory');
   authUrl.searchParams.set('prompt', 'consent');
 
   const response = NextResponse.redirect(authUrl.toString());

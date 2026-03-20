@@ -2,7 +2,7 @@
   "manifest": {
     "schemaVersion": "1",
     "skill": {
-      "key": "medroundtable-research-copilot",
+      "key": "mokang-medroundtable-research-copilot",
       "displayName": "MedRoundTable 临床科研圆桌会",
       "description": "把临床问题分诊到 14 位医学科研 Agent，生成可带回正式站的圆桌启动计划，并给出公开数据库与下一步动作。",
       "keywords": [
@@ -75,6 +75,14 @@
       ],
       "headersTemplate": {},
       "authMode": "bearer_token"
+    },
+    "oauth": {
+      "appId": "19b5f08b-2256-41aa-b196-2f98491099f7",
+      "requiredScopes": [
+        "user.info",
+        "user.info.shades",
+        "user.info.softmemory"
+      ]
     },
     "envBindings": {
       "release": {
