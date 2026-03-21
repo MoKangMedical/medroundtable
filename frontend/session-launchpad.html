@@ -7,6 +7,7 @@
     <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./platform-catalog.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
         body {
@@ -69,6 +70,13 @@
                             <p class="mt-2 text-sm text-emerald-700">适合已有课题书、protocol 或研究摘要的情况。</p>
                         </a>
                     </div>
+
+                    <div class="mt-8 rounded-[1.75rem] border border-slate-200 bg-white p-5">
+                        <div class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Capability Boosters</div>
+                        <h2 id="launchpadCapabilityTitle" class="mt-3 text-2xl font-bold">这次启动会带上哪些能力</h2>
+                        <p id="launchpadCapabilityDescription" class="mt-3 text-sm leading-7 text-slate-600">如果你是从专家详情页进入，这里会直接提示当前最相关的整合能力和前沿模型。</p>
+                        <div id="launchpadCapabilityGrid" class="mt-5 grid gap-4 md:grid-cols-2"></div>
+                    </div>
                 </div>
 
                 <aside class="bg-slate-950 text-white px-6 py-8 md:px-10 md:py-12">
@@ -80,11 +88,11 @@
                     </ul>
 
                     <div class="mt-8 space-y-3">
-                        <a href="./experts.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
+                        <a href="../experts.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
                             <span>先看 AI 专家分工</span><i class="fas fa-arrow-right"></i>
                         </a>
-                        <a href="./tools.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
-                            <span>先看工具生态</span><i class="fas fa-arrow-right"></i>
+                        <a href="./skills-market.html" class="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3 hover:bg-white/15 transition">
+                            <span>先看技能市场</span><i class="fas fa-arrow-right"></i>
                         </a>
                     </div>
                 </aside>
@@ -97,6 +105,58 @@
         const expertApi = window.MedRoundTableExperts;
         const selectedExpertRole = new URLSearchParams(window.location.search).get('expert');
         const selectedExpert = selectedExpertRole ? expertApi.getExpert(selectedExpertRole) : null;
+        const capabilityGrid = document.getElementById('launchpadCapabilityGrid');
+        const capabilityTitle = document.getElementById('launchpadCapabilityTitle');
+        const capabilityDescription = document.getElementById('launchpadCapabilityDescription');
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderCapabilityBoosters(catalog) {
+            const integrations = selectedExpert ? (catalog.featured_integrations || []).filter((item) => (item.owner_roles || []).includes(selectedExpert.name)) : (catalog.featured_integrations || []);
+            const models = selectedExpert ? (catalog.frontier_models || []).filter((item) => (item.owner_roles || []).includes(selectedExpert.name)) : (catalog.frontier_models || []);
+            const cards = [
+                ...integrations.map((item) => ({
+                    label: 'Integration',
+                    tone: 'text-orange-700',
+                    badge: 'bg-orange-50 text-orange-700',
+                    name: item.name,
+                    summary: item.headline || item.summary
+                })),
+                ...models.map((item) => ({
+                    label: 'Frontier Model',
+                    tone: 'text-indigo-700',
+                    badge: 'bg-indigo-50 text-indigo-700',
+                    name: item.name,
+                    summary: item.summary
+                }))
+            ];
+
+            capabilityTitle.textContent = selectedExpert ? `${selectedExpert.name} 会带上的能力加持` : '这次启动会带上哪些能力';
+            capabilityDescription.textContent = selectedExpert
+                ? `你现在是从 ${selectedExpert.name} 的入口启动，这些能力会更适合放进本次圆桌会的第一轮任务。`
+                : '如果你是从专家详情页进入，这里会直接提示当前最相关的整合能力和前沿模型。';
+
+            capabilityGrid.innerHTML = cards.map((card) => `
+                <article class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${card.badge}">
+                        <i class="fas fa-sparkles"></i> ${escapeHtml(card.label)}
+                    </div>
+                    <h3 class="mt-3 text-lg font-bold text-slate-900">${escapeHtml(card.name)}</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(card.summary)}</p>
+                </article>
+            `).join('') || `
+                <div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-500">
+                    当前入口暂时没有直接挂载能力加持，仍可以先发起圆桌会，再从技能市场补充能力链路。
+                </div>
+            `;
+        }
 
         if (selectedExpert) {
             document.getElementById('selectedExpertBanner').classList.remove('hidden');
@@ -111,6 +171,12 @@
             }
             window.location.href = '../index.html';
         });
+
+        MRTPlatformCatalog.loadCatalog('..')
+            .then(renderCapabilityBoosters)
+            .catch(() => {
+                capabilityGrid.innerHTML = '';
+            });
     </script>
 </body>
 </html>

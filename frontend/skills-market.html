@@ -180,6 +180,23 @@
                 </div>
             </section>
 
+            <section class="border-b border-slate-200/80 bg-slate-50 px-6 py-8 md:px-10">
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">External Integrations</p>
+                        <h2 id="integrationSectionTitle" class="mt-2 text-3xl font-bold">当前 Agent 会调用哪些外部整合能力</h2>
+                        <p id="integrationSectionDescription" class="mt-3 text-slate-600">先看中文文献自动化和多组学系统层，这能帮助你判断当前任务会不会真正落到外部能力上。</p>
+                        <div id="integrationGrid" class="mt-6 grid gap-4"></div>
+                    </div>
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Frontier Models</p>
+                        <h2 id="modelSectionTitle" class="mt-2 text-3xl font-bold">当前 Agent 适合接哪类前沿模型</h2>
+                        <p id="modelSectionDescription" class="mt-3 text-slate-600">这里不展示抽象模型名词，而是直接告诉你这些模型适合解决什么问题、应该由谁先碰。</p>
+                        <div id="frontierModelGrid" class="mt-6 grid gap-4"></div>
+                    </div>
+                </div>
+            </section>
+
             <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
@@ -207,7 +224,7 @@
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Capability Lanes</p>
-                        <h2 id="laneSectionTitle" class="mt-2 text-3xl font-bold">八条算法能力链路</h2>
+                        <h2 id="laneSectionTitle" class="mt-2 text-3xl font-bold">11 条算法能力链路</h2>
                         <p id="laneSectionDescription" class="mt-3 text-slate-600">每条链路都对应技能数量、主责角色、典型产出和用户应该看到的结果。</p>
                     </div>
                 </div>
@@ -226,7 +243,7 @@
                         </div>
                         <div class="flex flex-wrap gap-3">
                             <a id="footerSessionCta" href="./session-launchpad.html" class="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">带上当前 Agent 创建圆桌会</a>
-                            <a href="./experts.html" class="rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">先看 14 位专家</a>
+                            <a href="../experts.html" class="rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">先看 14 位专家</a>
                         </div>
                     </div>
                 </div>
@@ -276,6 +293,7 @@
                 `997 项能力来自 ${catalog.source_packages.length} 个来源包`,
                 `${catalog.capability_lanes.length} 条算法链路贯穿平台`,
                 `${catalog.databases.length} 个数据库已和技能市场打通`,
+                `${(catalog.featured_integrations || []).length || 0} 组外部整合 + ${(catalog.frontier_models || []).length || 0} 个前沿模型`,
                 '支持通过 URL 直接落到某位 Agent 的技能入口'
             ].map((item) => `<span class="mini-chip">${escapeHtml(item)}</span>`).join('');
         }
@@ -377,6 +395,86 @@
             footerCta.href = launchpadUrl;
         }
 
+        function getRelevantIntegrations(catalog, deck) {
+            const items = Array.isArray(catalog.featured_integrations) ? catalog.featured_integrations : [];
+            if (!deck) return items;
+            return items.filter((item) => (item.owner_roles || []).includes(deck.expert.name));
+        }
+
+        function getRelevantFrontierModels(catalog, deck) {
+            const items = Array.isArray(catalog.frontier_models) ? catalog.frontier_models : [];
+            if (!deck) return items;
+            return items.filter((item) => (item.owner_roles || []).includes(deck.expert.name));
+        }
+
+        function renderIntegrationAndModelPanels(catalog) {
+            const deck = getSelectedDeck();
+            const integrationTitle = document.getElementById('integrationSectionTitle');
+            const integrationDescription = document.getElementById('integrationSectionDescription');
+            const integrationGrid = document.getElementById('integrationGrid');
+            const modelTitle = document.getElementById('modelSectionTitle');
+            const modelDescription = document.getElementById('modelSectionDescription');
+            const modelGrid = document.getElementById('frontierModelGrid');
+            if (!integrationTitle || !integrationDescription || !integrationGrid || !modelTitle || !modelDescription || !modelGrid) return;
+
+            const integrations = getRelevantIntegrations(catalog, deck);
+            const models = getRelevantFrontierModels(catalog, deck);
+
+            integrationTitle.textContent = deck ? `${deck.expert.name} 会带入哪些整合能力` : '当前平台已接入哪些外部整合能力';
+            integrationDescription.textContent = deck
+                ? `优先列出 ${deck.expert.name} 主责视角下最相关的整合层，让用户知道这位专家不只是说概念，还能把哪些外部能力接进来。`
+                : '先看中文文献自动化和多组学系统层，这能帮助你判断当前任务会不会真正落到外部能力上。';
+
+            integrationGrid.innerHTML = integrations.map((item) => `
+                <article class="package-card rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <div class="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+                                <i class="fas fa-plug-circle-bolt"></i> Integration
+                            </div>
+                            <h3 class="mt-4 text-2xl font-bold">${escapeHtml(item.name)}</h3>
+                        </div>
+                        <a href="./capability-matrix.html#${escapeHtml(item.id)}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition">查看详情</a>
+                    </div>
+                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.headline || item.summary)}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        ${(item.highlights || []).map((value) => `<span class="mini-chip">${escapeHtml(value)}</span>`).join('')}
+                    </div>
+                </article>
+            `).join('') || `
+                <div class="rounded-[1.75rem] border border-dashed border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-500">
+                    当前这位 Agent 暂时没有单独挂载外部整合能力，仍可通过通用能力链路进入平台分析。
+                </div>
+            `;
+
+            modelTitle.textContent = deck ? `${deck.expert.name} 关联的前沿模型` : '当前平台展示的前沿模型层';
+            modelDescription.textContent = deck
+                ? `这些前沿模型更适合由 ${deck.expert.name} 或其协作角色在特定任务里调用。`
+                : '这里不展示抽象模型名词，而是直接告诉你这些模型适合解决什么问题、应该由谁先碰。';
+
+            modelGrid.innerHTML = models.map((item) => `
+                <article class="lane-card rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <div class="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+                                <i class="fas fa-microchip"></i> ${escapeHtml(item.family || 'Model')}
+                            </div>
+                            <h3 class="mt-4 text-2xl font-bold">${escapeHtml(item.name)}</h3>
+                        </div>
+                        <a href="./capability-matrix.html#${escapeHtml(item.id)}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition">${escapeHtml(item.parameter_scale || '模型')}</a>
+                    </div>
+                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        ${(item.use_cases || []).slice(0, 4).map((value) => `<span class="mini-chip">${escapeHtml(value)}</span>`).join('')}
+                    </div>
+                </article>
+            `).join('') || `
+                <div class="rounded-[1.75rem] border border-dashed border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-500">
+                    当前这位 Agent 没有被直接标注到前沿模型层，但仍可以通过多专家协作间接调用这些能力。
+                </div>
+            `;
+        }
+
         function renderPackages(catalog) {
             const grid = document.getElementById('packageGrid');
             const title = document.getElementById('packageSectionTitle');
@@ -419,7 +517,7 @@
             const deck = getSelectedDeck();
             const lanes = deck ? deck.lanes : catalog.capability_lanes;
 
-            title.textContent = deck ? `${deck.expert.name} 主责的能力链路` : '八条算法能力链路';
+            title.textContent = deck ? `${deck.expert.name} 主责的能力链路` : '11 条算法能力链路';
             description.textContent = deck
                 ? `下面只展示 ${deck.expert.name} 当前主责的引擎。每条卡片都说明覆盖动作、主责角色和用户最终能拿到的结果。`
                 : '每条链路都对应技能数量、主责角色、典型产出和用户应该看到的结果。';
@@ -469,6 +567,7 @@
             renderGroupFilters();
             renderAgentGrid();
             renderSelectedAgentPanel();
+            renderIntegrationAndModelPanels(currentCatalog);
             renderPackages(currentCatalog);
             renderLanes(currentCatalog);
             if (updateUrlState) {
