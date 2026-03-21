@@ -3,7 +3,9 @@
     "skills_total": 997,
     "openclaw_wrapped_skills": 869,
     "experts_total": 14,
-    "stella_meta_roles": 3
+    "stella_meta_roles": 3,
+    "featured_integrations_total": 2,
+    "frontier_models_total": 2
   },
   "source_packages": [
     {
@@ -33,6 +35,54 @@
       "count": 50,
       "packaging": "platform-extension",
       "summary": "把专家工作流、质量门禁、导出物和细分研究模板串成平台级扩展能力。"
+    }
+  ],
+  "featured_integrations": [
+    {
+      "id": "quantclaw-cnki",
+      "name": "QuantClaw × CNKI Skills",
+      "tone": "orange",
+      "headline": "把中文文献检索、下载、导出与周期追踪并进 MedRoundTable。",
+      "summary": "通过 QuantClaw 的 CNKI Skills，把知网检索、期刊级别判断、批量下载、Zotero/GB/T 导出和 IM 远程触发能力纳入平台演示链路。",
+      "highlights": ["10 个 CNKI 核心技能", "支持飞书/钉钉/Telegram 远程触发", "适合 CSSCI、北大核心与中文综述任务"],
+      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师"],
+      "scenarios": ["中文证据补检", "导师临时要文献", "定时文献监控", "期刊级别核查"],
+      "deliverables": ["中文检索式", "文献证据表", "Zotero 导出包", "下载任务清单"]
+    },
+    {
+      "id": "omicclaw-omicverse",
+      "name": "OmicClaw × OmicVerse 2.0",
+      "tone": "emerald",
+      "headline": "把多组学分析、共享 Kernel 和 J.A.R.V.I.S. 大脑接进圆桌会。",
+      "summary": "围绕 OmicVerse-web、Notebook、Skills、Core 和 OmicClaw 的 J.A.R.V.I.S. 控制层，把单细胞、GWAS、多组学与本地生信工作台能力融入 MedRoundTable 的研究协作流。",
+      "highlights": ["150+ 组学算法生态", "32 个 OmicVerse skills", "网页 / 终端 / MCP / openclaw 多入口"],
+      "owner_roles": ["单细胞测序", "GWAS 专家", "Galaxy 桥接器"],
+      "scenarios": ["单细胞分析接力", "GWAS 结果解读", "多组学工作流编排", "本地共享 Kernel 分析"],
+      "deliverables": ["QC 与聚类脚本", "注释报告", "多组学分析会话", "可复现实验记录"]
+    }
+  ],
+  "frontier_models": [
+    {
+      "id": "qwq-med-3",
+      "name": "QwQ-Med-3",
+      "tone": "violet",
+      "family": "KG-Driven Medical LLM",
+      "parameter_scale": "32B",
+      "summary": "基于 UMLS 医学知识图谱构建的 32B 模型，强调从原子知识到组合推理的可验证 thinking traces，适合把医学推理过程做得更清楚。",
+      "strengths": ["知识图谱课程学习", "显式推理链", "ICD-Bench 等任务表现强", "跨任务医学泛化"],
+      "owner_roles": ["临床主任", "博士生", "药物基因组学"],
+      "use_cases": ["疾病编码与诊疗推理辅助", "可解释医学问答", "复杂知识链核对", "临床证据链梳理"]
+    },
+    {
+      "id": "evo-2",
+      "name": "Evo 2",
+      "tone": "indigo",
+      "family": "Genome Foundation Model",
+      "parameter_scale": "OpenGenome2 / 9T bp pretraining",
+      "summary": "Arc Institute 推出的跨生命域基因组基础模型，支持超长上下文、零样本突变效应预测和大片段序列生成，适合作为基因组级前沿能力展示。",
+      "strengths": ["跨原核与真核建模", "零样本变异效应预测", "百万 token 上下文", "大规模序列生成与设计"],
+      "owner_roles": ["药物基因组学", "GWAS 专家", "AI 数据工程师"],
+      "use_cases": ["致病变异优先级线索", "基因组功能区段分析", "序列设计前瞻评估", "跨物种基因组建模"]
     }
   ],
   "capability_lanes": [
@@ -115,6 +165,36 @@
       "owner_roles": ["Manager", "实验追踪员", "UX 研究员"],
       "coverage": ["会话编排", "导出模板", "任务接力", "页面回填"],
       "deliverables": ["任务蓝图", "导出稿", "协作状态"]
+    },
+    {
+      "id": "cnki-automation",
+      "name": "中文文献自动化引擎",
+      "count": 10,
+      "tone": "orange",
+      "description": "引入 QuantClaw 的 CNKI Skills，把中文文献检索、期刊级别判断、批量下载和导出任务接进平台。",
+      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师"],
+      "coverage": ["CNKI 检索", "CSSCI / 北大核心筛选", "PDF / CAJ 下载", "Zotero / GB/T 导出"],
+      "deliverables": ["中文证据表", "下载任务包", "引用导出结果"]
+    },
+    {
+      "id": "omics-orchestration",
+      "name": "多组学分析系统引擎",
+      "count": 32,
+      "tone": "lime",
+      "description": "通过 OmicClaw 与 OmicVerse 2.0，把多组学分析、共享 Kernel、MCP 调用和本地生信工作台纳入平台。",
+      "owner_roles": ["单细胞测序", "GWAS 专家", "Galaxy 桥接器"],
+      "coverage": ["J.A.R.V.I.S 调度", "OmicVerse skills", "共享 Kernel", "网页 / 终端 / openclaw 接力"],
+      "deliverables": ["组学分析脚本", "共享变量上下文", "多组学结果摘要"]
+    },
+    {
+      "id": "frontier-biomedical-models",
+      "name": "前沿医学与基因组模型引擎",
+      "count": 2,
+      "tone": "indigo",
+      "description": "将 QwQ-Med-3 的知识图谱医学推理与 Evo 2 的基因组基础模型能力纳入平台的前沿模型层，用于高阶医学推理与组学前瞻分析展示。",
+      "owner_roles": ["临床主任", "药物基因组学", "AI 数据工程师"],
+      "coverage": ["UMLS 组合推理", "ICD / 临床问题推理", "变异效应线索", "序列设计前瞻评估"],
+      "deliverables": ["可解释推理链", "前沿模型摘要", "变异优先级线索"]
     }
   ],
   "databases": [
