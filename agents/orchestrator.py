@@ -1,7 +1,7 @@
 import asyncio
 import uuid
 import traceback
-from typing import List, Dict, Optional, Callable
+from typing import List, Dict, Optional, Callable, Set
 from datetime import datetime
 from dataclasses import dataclass, field
 import json
@@ -92,6 +92,7 @@ class Agent:
             if any(keyword in lowered_request for keyword in keywords):
                 requested_outputs.append(label)
         
+        stage_contract = DISCUSSION_STAGES.get(stage, {}).get("prompt", "")
         prompt = f"""你正在参加一个医学科研圆桌讨论。当前阶段: {stage}
 
 你的角色: {self.name}
@@ -104,8 +105,12 @@ class Agent:
 === 之前的讨论记录 ===
 """
         
-        # 添加最近5条消息作为上下文
-        recent_messages = context[-5:] if len(context) > 5 else context
+        # 优先保留当前阶段和最近不同专家的消息，避免多专家协作退化成各说各话
+        stage_messages = [
+            msg for msg in context
+            if (msg.metadata or {}).get("stage") == stage
+        ]
+        recent_messages = (stage_messages[-8:] if len(stage_messages) >= 4 else context[-10:]) if context else []
         for msg in recent_messages:
             role_name = msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role)
             prompt += f"\n{role_name}: {msg.content[:200]}...\n" if len(msg.content) > 200 else f"\n{role_name}: {msg.content}\n"
@@ -115,7 +120,7 @@ class Agent:
             role_name = msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role)
             if role_name not in {self.role.value, "user", "system"}:
                 recent_peer_views.append((role_name, msg.content[:180]))
-            if len(recent_peer_views) == 2:
+            if len(recent_peer_views) == 4:
                 break
 
         prompt += f"""
@@ -136,6 +141,9 @@ class Agent:
 8. 不要复述阶段任务原文，不要把提示词当作回答内容，也不要用“如果你要我可以继续”收尾
 9. 避免写“尊敬的各位专家”“下面我汇报”等空泛开场，直接进入问题本身
 """
+
+        if stage_contract:
+            prompt += f"\n=== 当前阶段必须补齐的内容 ===\n{stage_contract}\n"
 
         if recent_peer_views:
             prompt += "\n=== 你需要回应的前序观点 ===\n"
@@ -266,6 +274,92 @@ class A2AOrchestrator:
                 return stage
         return "problem_presentation"
 
+    def _get_session_spoken_roles(self, roundtable: RoundTable) -> Set[AgentRole]:
+        spoken_roles: Set[AgentRole] = set()
+        for message in roundtable.messages:
+            from_role = message.from_role
+            if hasattr(from_role, "value") and from_role in AgentRole:
+                spoken_roles.add(from_role)
+            elif isinstance(from_role, str) and from_role in AgentRole._value2member_map_:
+                spoken_roles.add(AgentRole(from_role))
+        return spoken_roles
+
+    def _get_support_roles_for_target(
+        self,
+        target_role: AgentRole,
+        roundtable: RoundTable,
+        stage: str,
+        extra_text: str = ""
+    ) -> List[AgentRole]:
+        ordered = [target_role]
+        ordered.extend([
+            role for role in self._get_stage_roles(stage, roundtable, extra_text)
+            if role != target_role
+        ])
+        if AgentRole.CLINICAL_DIRECTOR not in ordered:
+            ordered.append(AgentRole.CLINICAL_DIRECTOR)
+        if AgentRole.PHD_STUDENT not in ordered:
+            ordered.append(AgentRole.PHD_STUDENT)
+        if AgentRole.QA_EXPERT not in ordered:
+            ordered.append(AgentRole.QA_EXPERT)
+
+        deduped: List[AgentRole] = []
+        for role in ordered:
+            if role not in deduped:
+                deduped.append(role)
+        return deduped[:5]
+
+    def _needs_more_concrete_detail(self, response: str) -> bool:
+        text = (response or "").strip()
+        lowered = text.lower()
+        if not text:
+            return True
+
+        has_number = bool(re.search(r"\d", text))
+        has_list = bool(re.search(r"(^|\n)\s*(?:[-*]|\d+\.)\s+", text))
+        has_deliverable_marker = any(
+            marker in lowered
+            for marker in [
+                "终点", "样本量", "字段", "表", "访视", "时间窗", "风险", "交付物",
+                "里程碑", "负责人", "模型", "分析集", "阈值", "步骤", "workflow"
+            ]
+        )
+        generic_markers = [
+            "建议进一步讨论", "建议考虑", "很有价值", "从临床角度", "从统计学角度",
+            "从方法学角度", "建议采用", "可以考虑", "进一步研究"
+        ]
+        looks_generic = any(marker in text for marker in generic_markers)
+        return (not has_number and not has_list) or (looks_generic and not has_deliverable_marker)
+
+    async def _generate_grounded_response(
+        self,
+        agent: Agent,
+        message: A2AMessage,
+        context: List[A2AMessage],
+        stage: str,
+        roundtable: RoundTable
+    ) -> str:
+        response = await agent.generate_response(message, context, stage, roundtable)
+        if not self._needs_more_concrete_detail(response):
+            return response
+
+        retry_message = A2AMessage(
+            id=str(uuid.uuid4()),
+            session_id=message.session_id,
+            from_role=message.from_role,
+            to_role=message.to_role,
+            type=message.type,
+            content=f"""{message.content}
+
+补充要求：
+1. 不要复述背景或阶段说明
+2. 必须至少给出两类具体信息：数字/阈值/时间窗；字段/表头/流程步骤；风险点和下一步负责人
+3. 用 3-6 条 bullet 输出，像工作清单，不要写成散文
+4. 至少点名一位其他专家，说明下一步由谁补位""",
+            metadata=message.metadata or {},
+        )
+        return await agent.generate_response(retry_message, context, stage, roundtable)
+
     def _select_kickoff_roles(self, roundtable: RoundTable) -> List[AgentRole]:
         ordered_roles = [AgentRole.CLINICAL_DIRECTOR]
         ordered_roles.extend(self._get_requested_roles(roundtable.clinical_question))
@@ -291,7 +385,7 @@ class A2AOrchestrator:
         for role in ordered_roles:
             if role not in deduped_roles:
                 deduped_roles.append(role)
-        return deduped_roles[:5]
+        return deduped_roles[:7]
 
     def _get_stage_roles(
         self,
@@ -330,6 +424,8 @@ class A2AOrchestrator:
                 AgentRole.RESEARCH_NURSE,
                 AgentRole.TREND_RESEARCHER,
                 AgentRole.UX_RESEARCHER,
+                AgentRole.EXPERIMENT_TRACKER,
+                AgentRole.QA_EXPERT,
             ],
             "bioinformatics_plan": [
                 AgentRole.PHARMACOGENOMICS_EXPERT,
@@ -467,8 +563,17 @@ class A2AOrchestrator:
     ) -> List[AgentRole]:
         latest_stage = target_stage or self._get_latest_stage(roundtable)
         stage_roles = self._get_stage_roles(latest_stage, roundtable, user_content)
+        spoken_roles = self._get_session_spoken_roles(roundtable)
+        unseen_stage_roles = [role for role in stage_roles if role not in spoken_roles]
+        seen_stage_roles = [role for role in stage_roles if role in spoken_roles]
+        unseen_global_roles = [
+            role for role in AgentRole
+            if role not in spoken_roles and role not in unseen_stage_roles and role not in seen_stage_roles
+        ]
         if stage_roles:
-            return stage_roles[:5]
+            ordered = unseen_stage_roles + seen_stage_roles + unseen_global_roles
+            limit = 8 if latest_stage in {"study_design", "bioinformatics_plan", "statistical_plan"} else 6
+            return ordered[:limit]
         return [AgentRole.CLINICAL_DIRECTOR, AgentRole.STATISTICIAN, AgentRole.RESEARCH_NURSE]
 
     def _requires_bioinformatics_stage(self, clinical_question: str) -> bool:
@@ -557,7 +662,8 @@ class A2AOrchestrator:
             }
         )
 
-        leader_response = await leader_agent.generate_response(
+        leader_response = await self._generate_grounded_response(
+            leader_agent,
             init_message,
             roundtable.messages,
             stage,
@@ -598,7 +704,13 @@ class A2AOrchestrator:
                 }
             )
 
-            response = await agent.generate_response(context_message, roundtable.messages, stage, roundtable)
+            response = await self._generate_grounded_response(
+                agent,
+                context_message,
+                roundtable.messages,
+                stage,
+                roundtable
+            )
             response_with_citations, citations = citation_manager.add_citations_to_content(
                 response,
                 role.value
@@ -854,7 +966,8 @@ class A2AOrchestrator:
             }
         )
         
-        leader_response = await leader_agent.generate_response(
+        leader_response = await self._generate_grounded_response(
+            leader_agent,
             init_message,
             roundtable.messages,
             stage,
@@ -903,7 +1016,13 @@ class A2AOrchestrator:
                 }
             )
             
-            response = await agent.generate_response(context_message, roundtable.messages, stage, roundtable)
+            response = await self._generate_grounded_response(
+                agent,
+                context_message,
+                roundtable.messages,
+                stage,
+                roundtable
+            )
             
             # 添加引用文献
             response_with_citations, citations = citation_manager.add_citations_to_content(
@@ -1034,12 +1153,17 @@ class A2AOrchestrator:
 
         # 如果用户指定了特定Agent，直接由该Agent回应
         if to_role != "all" and to_role in [r.value for r in AgentRole]:
-            await self._agent_respond_to_user(
-                session_id,
-                AgentRole(to_role),
-                user_content,
-                stage=self._get_latest_stage(roundtable)
-            )
+            stage = explicit_stage or self._get_latest_stage(roundtable)
+            for role in self._get_support_roles_for_target(AgentRole(to_role), roundtable, stage, user_content):
+                if self._role_spoke_recently(session_id, role):
+                    continue
+                await self._agent_respond_to_user(
+                    session_id,
+                    role,
+                    user_content,
+                    stage=stage
+                )
+                await asyncio.sleep(0.7)
             return
 
         # 根据用户问题的关键词，选择最相关的 Agent 回应
@@ -1105,7 +1229,18 @@ class A2AOrchestrator:
         for role in responding_agents:
             if role not in deduped_agents:
                 deduped_agents.append(role)
-        responding_agents = deduped_agents[:4]
+        stage_roles = self._get_stage_roles(explicit_stage or self._get_latest_stage(roundtable), roundtable, user_content)
+        for role in stage_roles:
+            if role not in deduped_agents:
+                deduped_agents.append(role)
+
+        spoken_roles = self._get_session_spoken_roles(roundtable)
+        for role in AgentRole:
+            if role not in spoken_roles and role not in deduped_agents:
+                deduped_agents.append(role)
+
+        max_responders = 6 if any(word in user_content_lower for word in concrete_markers) or explicit_stage else 4
+        responding_agents = deduped_agents[:max_responders]
 
         # 让这些Agent依次回应
         for role in responding_agents:
@@ -1146,7 +1281,8 @@ class A2AOrchestrator:
         )
 
         # 生成回应
-        response = await agent.generate_response(
+        response = await self._generate_grounded_response(
+            agent,
             user_message,
             roundtable.messages,
             stage or "user_intervention",

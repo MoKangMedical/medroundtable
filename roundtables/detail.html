@@ -625,13 +625,21 @@
                         <div id="stageDetailedChips" class="chip-grid"></div>
                     </div>
 
-                    <div class="mt-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本阶段交付清单</p>
-                        <div id="stageChecklist" class="checklist"></div>
-                    </div>
+                <div class="mt-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本阶段交付清单</p>
+                    <div id="stageChecklist" class="checklist"></div>
                 </div>
 
-                <div class="workbench-panel">
+                <div class="mt-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本阶段主讲阵容</p>
+                        <span class="text-xs text-slate-500">点角色即可切到定向追问</span>
+                    </div>
+                    <div id="stageRoleChips" class="chip-grid mt-2"></div>
+                </div>
+            </div>
+
+            <div class="workbench-panel">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">当前阶段目标</p>
                         <textarea id="stageGoalInput" class="workbench-textarea mt-2" placeholder="例如：先把研究对象、单一主终点和时间窗写死，再决定是否继续立项。"></textarea>
@@ -645,6 +653,12 @@
                     <div class="mt-4 flex flex-wrap gap-2">
                         <button type="button" id="applyStagePromptButton" class="light-action">
                             <i class="fas fa-wand-magic-sparkles"></i>带入输入框
+                        </button>
+                        <button type="button" id="sendStageNowButton" class="light-action">
+                            <i class="fas fa-paper-plane"></i>发送本阶段任务
+                        </button>
+                        <button type="button" id="advanceStageButton" class="light-action">
+                            <i class="fas fa-forward-step"></i>完成并切到下一阶段
                         </button>
                         <button type="button" id="saveStagePlanButton" class="light-action">
                             <i class="fas fa-floppy-disk"></i>保存阶段配置
@@ -1125,6 +1139,7 @@
             const detailedCopy = document.getElementById('stageDetailedCopy');
             const detailedChips = document.getElementById('stageDetailedChips');
             const checklist = document.getElementById('stageChecklist');
+            const stageRoleChips = document.getElementById('stageRoleChips');
             const goalInput = document.getElementById('stageGoalInput');
             const notesInput = document.getElementById('stageNotesInput');
 
@@ -1161,6 +1176,22 @@
                     `;
                     button.addEventListener('click', () => toggleStageDeliverable(stageKey, item));
                     checklist.appendChild(button);
+                });
+            }
+
+            if (stageRoleChips) {
+                const stageRoles = getStageRoleCandidates(stageKey);
+                stageRoleChips.innerHTML = '';
+                stageRoles.forEach((role) => {
+                    const chip = document.createElement('button');
+                    chip.type = 'button';
+                    chip.className = `prompt-chip ${selectedTargetRole === role ? 'active' : 'subtle'}`.trim();
+                    chip.innerHTML = `<i class="fas fa-user-doctor"></i><span>${escapeHtml(getAgentName(role))}</span>`;
+                    chip.addEventListener('click', () => {
+                        setSelectedTargetRole(role);
+                        injectPrompt(buildTargetedStagePrompt(stageKey, role), { replace: false });
+                    });
+                    stageRoleChips.appendChild(chip);
                 });
             }
 
@@ -1221,6 +1252,37 @@
                 .join('\n');
             const notesBlock = plan.notes ? `\n补充笔记：${plan.notes}` : '';
             return `请直接进入“${meta.label}”阶段，不要重复背景。当前阶段目标：${plan.goal || meta.defaultGoal}\n本轮请优先完成：\n${itemLines}${notesBlock}\n请直接给出可执行结论、字段、时间窗、里程碑或分析口径。`;
+        }
+
+        function buildTargetedStagePrompt(stageKey = getActiveStageKey(), role = selectedTargetRole) {
+            const basePrompt = buildStagePrompt(stageKey);
+            const targetLabel = getRoleButtonLabel(role || 'all');
+            if (!role || role === 'all') {
+                return basePrompt;
+            }
+            return `${basePrompt}\n请先由${targetLabel}开球，直接给出你负责的关键判断，并点名下一位需要补位的专家。`;
+        }
+
+        function getStageRoleCandidates(stageKey = getActiveStageKey()) {
+            const meta = getStageMeta(stageKey);
+            const orderedRoles = [];
+            (meta.detailed || [stageKey]).forEach((detailedStage) => {
+                (mockStageBlueprints[detailedStage] || []).forEach((role) => orderedRoles.push(normalizeExpertRole(role)));
+            });
+            getRoundtableParticipants(currentRoundtable).forEach((role) => {
+                if (!orderedRoles.includes(role)) {
+                    orderedRoles.push(role);
+                }
+            });
+            return [...new Set(orderedRoles)].slice(0, 8);
+        }
+
+        function getNextTopLevelStageKey(stageKey = getActiveStageKey()) {
+            const currentIndex = topLevelStages.findIndex((stage) => stage.key === stageKey);
+            if (currentIndex === -1 || currentIndex >= topLevelStages.length - 1) {
+                return topLevelStages[topLevelStages.length - 1].key;
+            }
+            return topLevelStages[currentIndex + 1].key;
         }
 
         function normalizeExpertRole(role) {
@@ -1782,6 +1844,32 @@
                 setSelectedTargetRole(item.role || 'all');
                 injectPrompt(item.text, { replace: false });
             });
+        }
+
+        async function sendPreparedPrompt(promptText, targetRole = 'all') {
+            const input = document.getElementById('messageInput');
+            if (!input) return;
+            setSelectedTargetRole(targetRole || 'all');
+            input.value = promptText;
+            autosizeComposer();
+            await sendMessage();
+        }
+
+        async function triggerCurrentStageRun() {
+            await sendPreparedPrompt(buildStagePrompt(getActiveStageKey()), 'all');
+        }
+
+        async function advanceStageRun() {
+            persistCurrentStagePlan();
+            const currentStage = getActiveStageKey();
+            const currentPlan = getStagePlan(currentStage);
+            const currentMeta = getStageMeta(currentStage);
+            currentPlan.completed = [...currentMeta.deliverables];
+            saveStageWorkbenchState();
+            const nextStage = getNextTopLevelStageKey(currentStage);
+            selectStage(nextStage);
+            showToast(`已切到「${getStageMeta(nextStage).label}」`);
+            await sendPreparedPrompt(buildStagePrompt(nextStage), 'all');
         }
         
         // 调试信息
@@ -2442,6 +2530,8 @@
         const stageGoalInput = document.getElementById('stageGoalInput');
         const stageNotesInput = document.getElementById('stageNotesInput');
         const applyStagePromptButton = document.getElementById('applyStagePromptButton');
+        const sendStageNowButton = document.getElementById('sendStageNowButton');
+        const advanceStageButton = document.getElementById('advanceStageButton');
         const saveStagePlanButton = document.getElementById('saveStagePlanButton');
 
         if (messageInput) {
@@ -2471,6 +2561,18 @@
         if (applyStagePromptButton) {
             applyStagePromptButton.addEventListener('click', () => {
                 injectPrompt(buildStagePrompt(), { replace: false });
+            });
+        }
+
+        if (sendStageNowButton) {
+            sendStageNowButton.addEventListener('click', async () => {
+                await triggerCurrentStageRun();
+            });
+        }
+
+        if (advanceStageButton) {
+            advanceStageButton.addEventListener('click', async () => {
+                await advanceStageRun();
             });
         }
 

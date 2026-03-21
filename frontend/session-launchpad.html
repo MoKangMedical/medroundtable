@@ -7,6 +7,7 @@
     <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./api-config.js"></script>
     <script src="./platform-catalog.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
@@ -71,6 +72,35 @@
                         </a>
                     </div>
 
+                    <div class="mt-8 rounded-[1.75rem] border border-blue-200 bg-blue-50/70 p-5">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <div class="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">Direct Launch</div>
+                                <h2 class="mt-2 text-2xl font-bold text-slate-900">在这里直接创建并进入圆桌会</h2>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">不回首页也可以。把标题和一句话问题写清楚，系统会带上当前专家入口直接进入讨论。</p>
+                            </div>
+                            <span id="launchpadModeBadge" class="rounded-full bg-white px-4 py-2 text-xs font-semibold text-slate-600 shadow-sm">检测中...</span>
+                        </div>
+                        <div class="mt-5 grid gap-4">
+                            <div>
+                                <label class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">研究标题</label>
+                                <input id="launchpadTitle" type="text" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" placeholder="例如：抑郁症药物对神经元电信号的影响研究">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">一句话临床问题</label>
+                                <textarea id="launchpadQuestion" rows="4" class="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base leading-7 text-slate-900 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" placeholder="例如：请临床主任先判断这个题值不值得立项，再结合统计、研究护士和组学专家把主终点、样本量前提和 CRF 骨架做实。"></textarea>
+                            </div>
+                            <div class="flex flex-wrap gap-3">
+                                <button id="directCreateBtn" class="rounded-2xl bg-slate-950 px-6 py-4 text-sm font-semibold text-white hover:bg-slate-800 transition">
+                                    <i class="fas fa-bolt mr-2"></i>直接创建并进入圆桌会
+                                </button>
+                                <button id="prefillStageBtn" class="rounded-2xl border border-slate-200 bg-white px-6 py-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition">
+                                    <i class="fas fa-wand-magic-sparkles mr-2"></i>按当前专家自动预填
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-8 rounded-[1.75rem] border border-slate-200 bg-white p-5">
                         <div class="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Capability Boosters</div>
                         <h2 id="launchpadCapabilityTitle" class="mt-3 text-2xl font-bold">这次启动会带上哪些能力</h2>
@@ -103,11 +133,28 @@
     <script src="./expert-data.js"></script>
     <script>
         const expertApi = window.MedRoundTableExperts;
+        const api = window.MRTApiConfig || null;
         const selectedExpertRole = new URLSearchParams(window.location.search).get('expert');
         const selectedExpert = selectedExpertRole ? expertApi.getExpert(selectedExpertRole) : null;
         const capabilityGrid = document.getElementById('launchpadCapabilityGrid');
         const capabilityTitle = document.getElementById('launchpadCapabilityTitle');
         const capabilityDescription = document.getElementById('launchpadCapabilityDescription');
+        const titleInput = document.getElementById('launchpadTitle');
+        const questionInput = document.getElementById('launchpadQuestion');
+        const modeBadge = document.getElementById('launchpadModeBadge');
+        let canUseSharedBackend = false;
+
+        function normalizeExpertRole(role) {
+            const aliases = {
+                clawbio_pharmgx: 'pharmacogenomics_expert',
+                clawbio_gwas: 'gwas_expert',
+                clawbio_sc_rna: 'single_cell_analyst',
+                clawbio_galaxy: 'galaxy_bridge',
+                ai_data_engineer: 'data_engineer',
+                model_qa: 'qa_expert'
+            };
+            return aliases[role] || role;
+        }
 
         function escapeHtml(value) {
             return String(value)
@@ -158,11 +205,145 @@
             `;
         }
 
+        function getSuggestedTitle() {
+            if (selectedExpert) {
+                return `${selectedExpert.name}先介入：${selectedExpert.subtitle}研究讨论`;
+            }
+            return 'MedRoundTable 协作圆桌会';
+        }
+
+        function getSuggestedQuestion() {
+            if (selectedExpert && selectedExpert.prompt) {
+                return `${selectedExpert.prompt} 请真人研究者来主导讨论，带着全部相关专家把研究问题、文献、方案和分析一步一步做实。`;
+            }
+            return '请临床主任先判断这个题值不值得继续做，再由文献、研究设计、统计和执行相关专家逐步把方案做实，最终形成可导出的报告。';
+        }
+
+        function buildSessionParticipants(role) {
+            const allRoles = expertApi && Array.isArray(expertApi.experts)
+                ? expertApi.experts.map((item) => normalizeExpertRole(item.role))
+                : [
+                    'clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse',
+                    'pharmacogenomics_expert', 'gwas_expert', 'single_cell_analyst', 'galaxy_bridge',
+                    'ux_researcher', 'data_engineer', 'trend_researcher', 'experiment_tracker', 'qa_expert'
+                ];
+
+            if (!role || !expertApi) {
+                return [...new Set(allRoles)];
+            }
+
+            const expert = expertApi.getExpert(role);
+            const normalizedRole = normalizeExpertRole(role);
+            if (!expert) {
+                return [...new Set([normalizedRole, ...allRoles])];
+            }
+
+            const groupRoles = expertApi
+                .getExpertsByGroup(expert.groupId)
+                .map((item) => normalizeExpertRole(item.role));
+
+            return [...new Set([normalizedRole, ...groupRoles, ...allRoles])];
+        }
+
+        function persistSessionPreference(sessionId, role) {
+            const raw = localStorage.getItem('mrt_session_preferences');
+            const preferences = raw ? JSON.parse(raw) : {};
+            preferences[String(sessionId)] = normalizeExpertRole(role);
+            localStorage.setItem('mrt_session_preferences', JSON.stringify(preferences));
+        }
+
+        function persistSessionClientContext(sessionId, role) {
+            const raw = localStorage.getItem('mrt_session_client_contexts');
+            const contexts = raw ? JSON.parse(raw) : {};
+            contexts[String(sessionId)] = {
+                preferred_expert: normalizeExpertRole(role),
+                human_participants: [],
+                secondme_shades: [],
+                ai_pack: null,
+                collaboration_label: null
+            };
+            localStorage.setItem('mrt_session_client_contexts', JSON.stringify(contexts));
+        }
+
+        async function createSessionAndEnter() {
+            const title = titleInput.value.trim();
+            const question = questionInput.value.trim();
+            if (!title || !question) {
+                window.alert('请先填写研究标题和一句话临床问题。');
+                return;
+            }
+
+            const preferredRole = selectedExpertRole ? normalizeExpertRole(selectedExpertRole) : null;
+            let session;
+
+            try {
+                if (canUseSharedBackend) {
+                    session = await api.fetchJson('/api/v1/roundtables', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title, clinical_question: question })
+                    });
+                    await api.fetchJson(`/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
+                } else {
+                    const nextId = Number(localStorage.getItem('mockSessionId') || '3') + 1;
+                    localStorage.setItem('mockSessionId', String(nextId));
+                    session = {
+                        id: nextId,
+                        title,
+                        clinical_question: question,
+                        status: 'active',
+                        created_at: new Date().toISOString(),
+                        preferred_expert: preferredRole,
+                        participants: buildSessionParticipants(preferredRole)
+                    };
+                    const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                    sessions.push(session);
+                    localStorage.setItem('mockSessions', JSON.stringify(sessions));
+                }
+
+                if (preferredRole) {
+                    localStorage.setItem('mrt_preferred_expert', preferredRole);
+                    persistSessionPreference(session.id, preferredRole);
+                    persistSessionClientContext(session.id, preferredRole);
+                }
+
+                window.location.href = `../roundtables/detail.html?sessionId=${encodeURIComponent(session.id)}`;
+            } catch (error) {
+                console.error('Launchpad create failed:', error);
+                window.alert(`创建圆桌会失败：${error.message}`);
+            }
+        }
+
+        async function detectLaunchpadMode() {
+            if (!api || api.isStaticMode) {
+                canUseSharedBackend = false;
+                if (modeBadge) modeBadge.textContent = '静态工作台模式';
+                return;
+            }
+
+            try {
+                await api.healthcheck();
+                canUseSharedBackend = true;
+                if (modeBadge) modeBadge.textContent = '共享后端模式';
+            } catch (error) {
+                console.warn('Launchpad healthcheck failed, fallback to static mode:', error);
+                canUseSharedBackend = false;
+                if (modeBadge) modeBadge.textContent = '静态工作台模式';
+            }
+        }
+
+        function prefillFromExpert() {
+            titleInput.value = getSuggestedTitle();
+            questionInput.value = getSuggestedQuestion();
+        }
+
         if (selectedExpert) {
             document.getElementById('selectedExpertBanner').classList.remove('hidden');
             document.getElementById('selectedExpertText').textContent = `当前推荐由「${selectedExpert.name}」先介入。你回到首页后，可以先发起圆桌会，再按这位专家的视角组织问题。`;
             document.getElementById('launchSessionBtn').querySelector('.text-2xl').textContent = `回主页创建新圆桌会（${selectedExpert.name}）`;
         }
+
+        prefillFromExpert();
 
         document.getElementById('launchSessionBtn').addEventListener('click', () => {
             localStorage.setItem('mrt_pending_home_action', JSON.stringify({ type: 'start-session', preferredExpert: selectedExpertRole || null }));
@@ -172,11 +353,15 @@
             window.location.href = '../index.html';
         });
 
-        MRTPlatformCatalog.loadCatalog('..')
-            .then(renderCapabilityBoosters)
-            .catch(() => {
-                capabilityGrid.innerHTML = '';
-            });
+        document.getElementById('directCreateBtn').addEventListener('click', createSessionAndEnter);
+        document.getElementById('prefillStageBtn').addEventListener('click', prefillFromExpert);
+
+        Promise.allSettled([
+            detectLaunchpadMode(),
+            MRTPlatformCatalog.loadCatalog('..').then(renderCapabilityBoosters)
+        ]).catch(() => {
+            capabilityGrid.innerHTML = '';
+        });
     </script>
 </body>
 </html>
