@@ -7,6 +7,7 @@
     <link rel="icon" href="../assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./platform-catalog.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
 
@@ -212,11 +213,39 @@
             `).join('');
         }
 
-        function renderProfile(targetExpert) {
+        function buildCapabilityCards(catalog, targetExpert) {
+            const integrations = (catalog?.featured_integrations || []).filter((item) => (item.owner_roles || []).includes(targetExpert.name));
+            const models = (catalog?.frontier_models || []).filter((item) => (item.owner_roles || []).includes(targetExpert.name));
+
+            const integrationMarkup = integrations.length
+                ? integrations.map((item) => `
+                    <article class="mini-card rounded-3xl p-5">
+                        <div class="text-xs font-semibold uppercase tracking-[0.16em]" style="color:#ea580c;">Integration</div>
+                        <h3 class="mt-3 text-xl font-bold text-slate-900">${escapeHtml(item.name)}</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.headline || item.summary)}</p>
+                    </article>
+                `).join('')
+                : `<div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-500">当前这位专家暂未直接挂载外部整合能力，但可通过多专家协作间接调起这些系统。</div>`;
+
+            const modelMarkup = models.length
+                ? models.map((item) => `
+                    <article class="mini-card rounded-3xl p-5">
+                        <div class="text-xs font-semibold uppercase tracking-[0.16em]" style="color:#4f46e5;">Frontier Model</div>
+                        <h3 class="mt-3 text-xl font-bold text-slate-900">${escapeHtml(item.name)}</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
+                    </article>
+                `).join('')
+                : `<div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-500">当前这位专家没有直接标注到前沿模型层，但仍可通过平台协作调用相关分析能力。</div>`;
+
+            return { integrationMarkup, modelMarkup };
+        }
+
+        function renderProfile(targetExpert, catalog = null) {
             const group = dataApi.getGroup(targetExpert.groupId);
             const relatedExperts = dataApi.getRelatedExperts(targetExpert.role);
             const accent = targetExpert.accent || group.accent;
             const heroImage = dataApi.toRootPath('assets/diagram.png');
+            const { integrationMarkup, modelMarkup } = buildCapabilityCards(catalog, targetExpert);
             document.documentElement.style.setProperty('--accent', accent);
 
             const headerLinks = `
@@ -324,6 +353,18 @@
                         </section>
                     </div>
 
+                    <div class="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
+                        <section class="section-panel rounded-[2rem] p-6 md:p-8">
+                            <h2 class="text-2xl font-bold">这位专家会带上的整合能力</h2>
+                            <div class="mt-5 grid gap-4">${integrationMarkup}</div>
+                        </section>
+
+                        <section class="section-panel rounded-[2rem] p-6 md:p-8">
+                            <h2 class="text-2xl font-bold">这位专家关联的前沿模型</h2>
+                            <div class="mt-5 grid gap-4">${modelMarkup}</div>
+                        </section>
+                    </div>
+
                     <section class="section-panel mt-6 rounded-[2rem] p-6 md:p-8">
                         <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                             <div>
@@ -355,7 +396,9 @@
                 </div>
             `;
         } else {
-            renderProfile(expert);
+            MRTPlatformCatalog.loadCatalog('..')
+                .then((catalog) => renderProfile(expert, catalog))
+                .catch(() => renderProfile(expert, null));
         }
     </script>
 </body>
