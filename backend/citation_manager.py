@@ -1,5 +1,6 @@
 from typing import List, Dict
 import re
+from urllib.parse import quote_plus
 
 class CitationManager:
     """文献引用管理器"""
@@ -109,8 +110,114 @@ class CitationManager:
                     "pages": "611",
                     "doi": ""
                 }
+            ],
+            "神经元": [
+                {
+                    "id": "ref10",
+                    "authors": "Bean BP",
+                    "title": "The action potential in mammalian central neurons",
+                    "journal": "Nat Rev Neurosci",
+                    "year": 2007,
+                    "volume": "8",
+                    "pages": "451-465",
+                    "doi": "10.1038/nrn2148"
+                },
+                {
+                    "id": "ref11",
+                    "authors": "Debanne D, Campanac E, Bialowas A, et al.",
+                    "title": "Axon physiology",
+                    "journal": "Physiol Rev",
+                    "year": 2011,
+                    "volume": "91",
+                    "pages": "555-602",
+                    "doi": "10.1152/physrev.00048.2009"
+                }
+            ],
+            "单细胞": [
+                {
+                    "id": "ref12",
+                    "authors": "Stuart T, Satija R",
+                    "title": "Integrative single-cell analysis",
+                    "journal": "Nat Rev Genet",
+                    "year": 2019,
+                    "volume": "20",
+                    "pages": "257-272",
+                    "doi": "10.1038/s41576-019-0093-7"
+                },
+                {
+                    "id": "ref13",
+                    "authors": "Luecken MD, Theis FJ",
+                    "title": "Current best practices in single-cell RNA-seq analysis",
+                    "journal": "Mol Syst Biol",
+                    "year": 2019,
+                    "volume": "15",
+                    "pages": "e8746",
+                    "doi": "10.15252/msb.20188746"
+                }
+            ],
+            "GWAS": [
+                {
+                    "id": "ref14",
+                    "authors": "Visscher PM, Wray NR, Zhang Q, et al.",
+                    "title": "10 Years of GWAS Discovery: Biology, Function, and Translation",
+                    "journal": "Am J Hum Genet",
+                    "year": 2017,
+                    "volume": "101",
+                    "pages": "5-22",
+                    "doi": "10.1016/j.ajhg.2017.06.005"
+                },
+                {
+                    "id": "ref15",
+                    "authors": "Tam V, Patel N, Turcotte M, et al.",
+                    "title": "Benefits and limitations of genome-wide association studies",
+                    "journal": "Nat Rev Genet",
+                    "year": 2019,
+                    "volume": "20",
+                    "pages": "467-484",
+                    "doi": "10.1038/s41576-019-0127-1"
+                }
+            ],
+            "药物基因组": [
+                {
+                    "id": "ref16",
+                    "authors": "Relling MV, Evans WE",
+                    "title": "Pharmacogenomics in the clinic",
+                    "journal": "Nature",
+                    "year": 2015,
+                    "volume": "526",
+                    "pages": "343-350",
+                    "doi": "10.1038/nature15817"
+                },
+                {
+                    "id": "ref17",
+                    "authors": "Caudle KE, Klein TE, Hoffman JM, et al.",
+                    "title": "Incorporation of pharmacogenomics into routine clinical practice",
+                    "journal": "Clin Pharmacol Ther",
+                    "year": 2014,
+                    "volume": "96",
+                    "pages": "121-123",
+                    "doi": "10.1038/clpt.2014.87"
+                }
             ]
         }
+
+    def _pubmed_url(self, ref: Dict) -> str:
+        query = ref.get("title") or ref.get("authors") or ref.get("journal") or ""
+        return f"https://pubmed.ncbi.nlm.nih.gov/?term={quote_plus(query)}"
+
+    def _default_pubmed_refs(self, content: str) -> List[Dict]:
+        lowered = (content or "").lower()
+        if any(keyword in lowered for keyword in ["神经元", "电信号", "放电", "突触"]):
+            return self.reference_database.get("神经元", [])
+        if any(keyword in lowered for keyword in ["单细胞", "scrna", "rna", "细胞群"]):
+            return self.reference_database.get("单细胞", [])
+        if any(keyword in lowered for keyword in ["gwas", "snp", "位点", "遗传"]):
+            return self.reference_database.get("GWAS", [])
+        if any(keyword in lowered for keyword in ["药物基因", "基因组", "代谢", "药敏"]):
+            return self.reference_database.get("药物基因组", [])
+        if any(keyword in lowered for keyword in ["样本量", "终点", "统计", "分析"]):
+            return self.reference_database.get("样本量", []) + self.reference_database.get("统计分析", [])
+        return self.reference_database.get("随机对照试验", [])
     
     def find_relevant_references(self, content: str) -> List[Dict]:
         """根据内容查找相关文献"""
@@ -123,7 +230,12 @@ class CitationManager:
                     # 避免重复
                     if ref not in relevant_refs:
                         relevant_refs.append(ref)
-        
+
+        if not relevant_refs:
+            for ref in self._default_pubmed_refs(content):
+                if ref not in relevant_refs:
+                    relevant_refs.append(ref)
+
         return relevant_refs
     
     def add_citations_to_content(self, content: str, role: str) -> tuple:
@@ -158,7 +270,16 @@ class CitationManager:
                 content = '。'.join(sentences)
             else:
                 content = content + ' ' + citation_marks[0]
-        
+
+            ref_lines = []
+            for ref in selected_refs:
+                pubmed_url = self._pubmed_url(ref)
+                ref_lines.append(
+                    f"[{ref.get('number', '')}] {ref.get('authors', '')}. {ref.get('title', '')}. "
+                    f"{ref.get('journal', '')} {ref.get('year', '')}; PubMed: {pubmed_url}"
+                )
+            content = f"{content}\n\nPubMed 参考文献：\n" + "\n".join(ref_lines)
+
         return content, selected_refs
     
     def get_all_citations(self) -> List[Dict]:
@@ -185,7 +306,9 @@ class CitationManager:
             citation_text += f":{pages}"
         if doi:
             citation_text += f". doi:{doi}"
-        
+
+        citation_text += f". PubMed:{self._pubmed_url(ref)}"
+
         return citation_text
     
     def generate_reference_list(self) -> str:
