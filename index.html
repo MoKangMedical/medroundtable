@@ -1013,6 +1013,34 @@
                             </article>
                         </div>
 
+                        <div class="mt-6 grid gap-4 xl:grid-cols-2">
+                            <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="atlas-mini-label">External Integrations</p>
+                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">外部整合能力层</h3>
+                                        <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">把中文文献自动化与多组学生态直接接进平台，让首页就能看出哪些能力来自外部系统整合，而不是空泛口号。</p>
+                                    </div>
+                                    <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700">新接入</span>
+                                </div>
+                                <div id="atlasIntegrationSpotlights" class="mt-5 grid gap-4"></div>
+                            </article>
+
+                            <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div>
+                                        <p class="atlas-mini-label">Frontier Models</p>
+                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">前沿医学与基因组模型层</h3>
+                                        <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">把医学知识图谱推理和跨生命域基因组基础模型放到平台能力图里，明确它们适合解决什么问题、应该由谁调用。</p>
+                                    </div>
+                                    <a href="./frontend/capability-matrix.html#frontier-model-layer" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                        模型层详情 <i class="fas fa-arrow-right text-xs"></i>
+                                    </a>
+                                </div>
+                                <div id="atlasFrontierModelGrid" class="mt-5 grid gap-4"></div>
+                            </article>
+                        </div>
+
                         <div id="atlas-algorithm-board" class="mt-6">
                             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div>
@@ -1241,6 +1269,78 @@
                             </a>
                         </div>
 
+                        <!-- QuantClaw × CNKI Skills -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-orange-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-book-open-reader text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">QuantClaw × CNKI</h3>
+                                    <p class="text-sm text-slate-500">中文文献自动化助手</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>知网检索与高级筛选</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>PDF / CAJ 下载与引用导出</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>飞书/钉钉远程触发文献任务</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-orange-50 rounded-xl mb-4">
+                                <p class="text-sm text-orange-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>把中文文献检索、批量下载、Zotero 导出和期刊级别核查接入 MedRoundTable 的证据链路。
+                                </p>
+                            </div>
+                            <a href="./frontend/capability-matrix.html#cnki-automation" class="block w-full py-2.5 bg-orange-600 text-white rounded-xl text-center font-semibold hover:bg-orange-700 transition">
+                                查看能力 <i class="fas fa-arrow-right ml-1 text-sm"></i>
+                            </a>
+                        </div>
+
+                        <!-- OmicClaw × OmicVerse -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-lime-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-lime-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-dna text-lime-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">OmicClaw × OmicVerse</h3>
+                                    <p class="text-sm text-slate-500">多组学分析系统</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>单细胞、GWAS 与多组学接力</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>共享 Kernel 与可复现实验上下文</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>网页 / MCP / openclaw 多入口分析</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-lime-50 rounded-xl mb-4">
+                                <p class="text-sm text-lime-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>把 OmicVerse 2.0 与 OmicClaw 的多组学能力接进平台，让生信分析可以和圆桌会协同推进。
+                                </p>
+                            </div>
+                            <a href="./frontend/capability-matrix.html#omics-orchestration" class="block w-full py-2.5 bg-lime-600 text-white rounded-xl text-center font-semibold hover:bg-lime-700 transition">
+                                查看能力 <i class="fas fa-arrow-right ml-1 text-sm"></i>
+                            </a>
+                        </div>
+
                         <!-- MedRoundTable AI -->
                         <div class="bg-white rounded-2xl p-6 shadow-lg border border-indigo-100 hover:shadow-xl transition-all hover:-translate-y-1 ring-2 ring-indigo-500 ring-offset-2">
                             <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
@@ -1291,7 +1391,7 @@
                             <div class="text-center p-4 bg-blue-50 rounded-xl">
                                 <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">1</div>
                                 <h4 class="font-semibold text-slate-900 mb-2">文献回顾</h4>
-                                <p class="text-sm text-slate-600">在 CTR 查找相关试验，了解研究现状</p>
+                                <p class="text-sm text-slate-600">用 QuantClaw × CNKI 和 CTR 同步补中文与国际证据线索</p>
                                 <div class="mt-3 text-xs text-blue-600 font-medium">
                                     <i class="fas fa-arrow-down"></i> 导入 MedRoundTable
                                 </div>
@@ -1307,7 +1407,7 @@
                             <div class="text-center p-4 bg-purple-50 rounded-xl">
                                 <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">3</div>
                                 <h4 class="font-semibold text-slate-900 mb-2">数据可视化</h4>
-                                <p class="text-sm text-slate-600">使用 MediVisual 生成专业图表</p>
+                                <p class="text-sm text-slate-600">用 OmicClaw × OmicVerse 和 MediVisual 继续推进组学分析与结果展示</p>
                                 <div class="mt-3 text-xs text-purple-600 font-medium">
                                     <i class="fas fa-arrow-down"></i> 专家审核优化
                                 </div>
@@ -2080,17 +2180,21 @@
             const metricsContainer = document.getElementById('atlasTopMetrics');
             const pipelineContainer = document.getElementById('atlasPipelineNodes');
             const sourceContainer = document.getElementById('atlasSourcePackageList');
+            const integrationContainer = document.getElementById('atlasIntegrationSpotlights');
+            const frontierContainer = document.getElementById('atlasFrontierModelGrid');
             const laneContainer = document.getElementById('atlasCapabilityLaneGrid');
             const categorySummaryContainer = document.getElementById('atlasDatabaseCategorySummary');
             const categoryGrid = document.getElementById('atlasDatabaseCategoryGrid');
 
-            if (!metricsContainer || !pipelineContainer || !sourceContainer || !laneContainer || !categorySummaryContainer || !categoryGrid) {
+            if (!metricsContainer || !pipelineContainer || !sourceContainer || !integrationContainer || !frontierContainer || !laneContainer || !categorySummaryContainer || !categoryGrid) {
                 return;
             }
 
             const stats = platformCatalog.stats || {};
             const databases = Array.isArray(platformCatalog.databases) ? platformCatalog.databases : [];
             const sourcePackages = Array.isArray(platformCatalog.source_packages) ? platformCatalog.source_packages : [];
+            const featuredIntegrations = Array.isArray(platformCatalog.featured_integrations) ? platformCatalog.featured_integrations : [];
+            const frontierModels = Array.isArray(platformCatalog.frontier_models) ? platformCatalog.frontier_models : [];
             const capabilityLanes = Array.isArray(platformCatalog.capability_lanes) ? platformCatalog.capability_lanes : [];
             const categorySummary = buildDatabaseCategorySummary(databases);
             const groupedDatabases = categorySummary.map((category, index) => ({
@@ -2103,7 +2207,7 @@
                 {
                     label: '能力来源',
                     value: sourcePackages.length || 4,
-                    note: `${totalSkills || 997} 项能力已分组`
+                    note: `${totalSkills || 997} 项内建能力 + ${featuredIntegrations.length || 0} 组外部整合`
                 },
                 {
                     label: '数据库分组',
@@ -2118,7 +2222,7 @@
                 {
                     label: '协作角色',
                     value: `${stats.experts_total || 14}+${stats.stella_meta_roles || 3}`,
-                    note: '14 位 Agent + STELLA'
+                    note: `${frontierModels.length || 0} 个前沿模型已接入展示层`
                 }
             ];
 
@@ -2179,6 +2283,59 @@
                         </div>
                         <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
                             <div class="h-full rounded-full bg-gradient-to-r from-slate-900 via-blue-700 to-cyan-500" style="width:${share}%"></div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            integrationContainer.innerHTML = featuredIntegrations.map((item) => {
+                const palette = getAtlasPalette(item.tone);
+                return `
+                    <article class="atlas-source-card" style="border-color:${palette.border}; background:${palette.surface};">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="atlas-mini-label" style="color:${palette.text}">Integration Spotlight</p>
+                                <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
+                            </div>
+                            <span class="rounded-full px-3 py-1 text-xs font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">已整合</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.headline)}</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${(item.highlights || []).map((value) => `<span class="atlas-tag" style="border-color:${palette.border}; color:${palette.text}; background:${palette.chip};">${escapeHtml(value)}</span>`).join('')}
+                        </div>
+                        <div class="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">典型交付</div>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            ${(item.deliverables || []).map((value) => `<span class="atlas-tag">${escapeHtml(value)}</span>`).join('')}
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            frontierContainer.innerHTML = frontierModels.map((item) => {
+                const palette = getAtlasPalette(item.tone);
+                return `
+                    <article class="atlas-source-card" style="border-color:${palette.border}; background:${palette.surface};">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="atlas-mini-label" style="color:${palette.text}">${escapeHtml(item.family || 'Frontier Model')}</p>
+                                <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
+                            </div>
+                            <span class="rounded-full px-3 py-1 text-xs font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">${escapeHtml(item.parameter_scale || 'Model')}</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
+                        <div class="mt-4 grid gap-4 md:grid-cols-2">
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">适合解决</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${(item.use_cases || []).map((value) => `<span class="atlas-tag">${escapeHtml(value)}</span>`).join('')}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">建议由谁调用</div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    ${(item.owner_roles || []).map((value) => `<span class="atlas-tag">${escapeHtml(value)}</span>`).join('')}
+                                </div>
+                            </div>
                         </div>
                     </article>
                 `;
@@ -3161,24 +3318,42 @@
         }
 
         function buildSessionParticipants(role) {
+            const allExpertRoles = expertCatalog && Array.isArray(expertCatalog.experts)
+                ? expertCatalog.experts.map((item) => item.role)
+                : [
+                    'clinical_director',
+                    'phd_student',
+                    'epidemiologist',
+                    'statistician',
+                    'research_nurse',
+                    'clawbio_pharmgx',
+                    'clawbio_gwas',
+                    'clawbio_sc_rna',
+                    'clawbio_galaxy',
+                    'ux_researcher',
+                    'ai_data_engineer',
+                    'trend_researcher',
+                    'experiment_tracker',
+                    'model_qa'
+                ];
             const aiPackRoles = pendingCollaborationSetup && pendingCollaborationSetup.aiPack && Array.isArray(pendingCollaborationSetup.aiPack.expertRoles)
                 ? pendingCollaborationSetup.aiPack.expertRoles
                 : [];
 
             if (!role || !expertCatalog) {
-                return [...new Set([...aiPackRoles, ...coreClinicalRoles])];
+                return [...new Set([...aiPackRoles, ...allExpertRoles])];
             }
 
             const expert = expertCatalog.getExpert(role);
             if (!expert) {
-                return [...new Set([role, ...aiPackRoles, ...coreClinicalRoles])];
+                return [...new Set([role, ...aiPackRoles, ...allExpertRoles])];
             }
 
             const relatedRoles = expertCatalog
                 .getExpertsByGroup(expert.groupId)
                 .map((item) => item.role);
 
-            return [...new Set([role, ...aiPackRoles, ...relatedRoles, ...coreClinicalRoles])];
+            return [...new Set([role, ...aiPackRoles, ...relatedRoles, ...allExpertRoles])];
         }
 
         function loadSessionPreferences() {

@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from typing import List, Dict
 import os
+from datetime import datetime
 
 from backend.exporter import exporter
 from backend.study_design_generator import study_design_generator
@@ -23,7 +24,8 @@ async def export_protocol(session_id: str):
         messages = [
             {
                 "from_role": msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role),
-                "content": msg.content
+                "content": msg.content,
+                "metadata": msg.metadata or {},
             }
             for msg in rt.messages
         ]
@@ -80,7 +82,8 @@ async def export_analysis_plan(session_id: str):
         messages = [
             {
                 "from_role": msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role),
-                "content": msg.content
+                "content": msg.content,
+                "metadata": msg.metadata or {},
             }
             for msg in rt.messages
         ]
@@ -115,7 +118,8 @@ async def export_all(session_id: str):
         messages = [
             {
                 "from_role": msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role),
-                "content": msg.content
+                "content": msg.content,
+                "metadata": msg.metadata or {},
             }
             for msg in rt.messages
         ]
@@ -162,7 +166,8 @@ async def get_study_design(session_id: str):
         messages = [
             {
                 "from_role": msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role),
-                "content": msg.content
+                "content": msg.content,
+                "metadata": msg.metadata or {},
             }
             for msg in rt.messages
         ]
@@ -229,7 +234,8 @@ async def generate_complete_report(session_id: str):
         messages = [
             {
                 "from_role": msg.from_role.value if hasattr(msg.from_role, 'value') else str(msg.from_role),
-                "content": msg.content
+                "content": msg.content,
+                "metadata": msg.metadata or {},
             }
             for msg in rt.messages
         ]
@@ -267,30 +273,60 @@ async def generate_complete_report(session_id: str):
         
         doc.add_page_break()
         
-        # 第一部分：专家讨论纪要
-        doc.add_heading('第一部分：专家讨论纪要', level=1)
-        
-        role_names = {
-            'clinical_director': '临床主任',
-            'phd_student': '文献调研',
-            'epidemiologist': '研究设计',
-            'statistician': '统计分析',
-            'research_nurse': '执行方案'
-        }
-        
-        for role, section_name in role_names.items():
-            role_messages = [m for m in messages if m.get('from_role') == role]
+        # 第一部分：执行摘要
+        doc.add_heading('第一部分：执行摘要', level=1)
+        final_summary = next(
+            (
+                msg.get('content', '')
+                for msg in reversed(messages)
+                if msg.get('metadata', {}).get('is_final_summary')
+            ),
+            ''
+        )
+        if final_summary:
+            for paragraph in final_summary.split('\n'):
+                if paragraph.strip():
+                    doc.add_paragraph(paragraph.strip())
+        else:
+            doc.add_paragraph('本次圆桌讨论已覆盖研究问题界定、研究设计、数据与执行规划，但尚未生成单独的最终总结消息。以下章节按专家角色整理关键内容。')
+
+        # 第二部分：专家讨论纪要
+        doc.add_page_break()
+        doc.add_heading('第二部分：专家讨论纪要', level=1)
+
+        role_names = [
+            ('clinical_director', '临床主任'),
+            ('phd_student', '博士生 / 文献负责人'),
+            ('epidemiologist', '流行病学家'),
+            ('statistician', '统计专家'),
+            ('research_nurse', '研究护士'),
+            ('pharmacogenomics_expert', '药物基因组学专家'),
+            ('gwas_expert', 'GWAS 专家'),
+            ('single_cell_analyst', '单细胞测序分析师'),
+            ('galaxy_bridge', 'Galaxy 桥接器'),
+            ('ux_researcher', 'UX 研究员'),
+            ('data_engineer', 'AI 数据工程师'),
+            ('trend_researcher', '趋势研究员'),
+            ('experiment_tracker', '实验追踪员'),
+            ('qa_expert', '模型 QA 专家'),
+        ]
+
+        for role, section_name in role_names:
+            role_messages = [
+                m for m in messages
+                if m.get('from_role') == role and not m.get('metadata', {}).get('is_final_summary')
+            ]
             if role_messages:
                 doc.add_heading(section_name, level=2)
-                for msg in role_messages:
+                for idx, msg in enumerate(role_messages, 1):
                     p = doc.add_paragraph()
-                    p.add_run(f"【{section_name}意见】").bold = True
+                    p.add_run(f"【第 {idx} 轮意见】").bold = True
                     doc.add_paragraph(msg.get('content', ''))
-        
+
         doc.add_page_break()
         
-        # 第二部分：研究设计方案
-        doc.add_heading('第二部分：研究设计方案', level=1)
+        # 第三部分：研究设计方案
+        doc.add_heading('第三部分：研究设计方案', level=1)
         
         # 使用生成的研究设计
         protocol_sections = study_design_generator.generate_complete_protocol(design).split('\n## ')
@@ -304,17 +340,17 @@ async def generate_complete_report(session_id: str):
                     if line.strip():
                         doc.add_paragraph(line.strip())
         
-        # 第三部分：附件
+        # 第四部分：附件
         doc.add_page_break()
-        doc.add_heading('第三部分：附件清单', level=1)
+        doc.add_heading('第四部分：附件清单', level=1)
         doc.add_paragraph('附件1：病例报告表(CRF)')
         doc.add_paragraph('附件2：统计分析计划')
         doc.add_paragraph('附件3：伦理审查申请表')
         doc.add_paragraph('附件4：研究者简历')
         
-        # 第四部分：参考文献
+        # 第五部分：参考文献
         doc.add_page_break()
-        doc.add_heading('第四部分：参考文献', level=1)
+        doc.add_heading('第五部分：参考文献', level=1)
         
         # 获取所有引用文献
         citations = citation_manager.get_all_citations()

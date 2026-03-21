@@ -94,6 +94,236 @@
             gap: 0.75rem;
         }
 
+        .stage-step {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.78);
+            padding: 0.4rem 0.78rem;
+            font-weight: 600;
+            transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+            white-space: nowrap;
+        }
+
+        .stage-step.active {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.38);
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+        }
+
+        .stage-step.done {
+            color: rgba(255, 255, 255, 0.92);
+            border-color: rgba(255, 255, 255, 0.28);
+        }
+
+        .stage-step:active {
+            transform: translateY(1px);
+        }
+
+        .stage-arrow {
+            opacity: 0.55;
+        }
+
+        .stage-workbench {
+            border-bottom: 1px solid #dbeafe;
+            background:
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 36%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.96), #f8fbff 58%, #eef7ff 100%);
+            padding: 1rem;
+        }
+
+        .workbench-shell {
+            border: 1px solid #dbeafe;
+            background: rgba(255, 255, 255, 0.94);
+            border-radius: 24px;
+            padding: 1rem;
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+        }
+
+        .stage-card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .stage-card {
+            border-radius: 20px;
+            border: 1px solid #dbeafe;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.92));
+            padding: 0.95rem;
+            text-align: left;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+        }
+
+        .stage-card.active {
+            border-color: #2563eb;
+            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.14);
+            transform: translateY(-1px);
+        }
+
+        .stage-card.done {
+            border-color: #93c5fd;
+        }
+
+        .stage-card-label {
+            font-size: 0.76rem;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        .stage-card-title {
+            margin-top: 0.45rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .stage-card-copy {
+            margin-top: 0.45rem;
+            font-size: 0.84rem;
+            line-height: 1.55;
+            color: #475569;
+        }
+
+        .workbench-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .workbench-panel {
+            border-radius: 22px;
+            border: 1px solid #dbeafe;
+            background: rgba(248, 250, 252, 0.96);
+            padding: 1rem;
+        }
+
+        .stage-kpi {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.08);
+            color: #1d4ed8;
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 0.45rem 0.72rem;
+        }
+
+        .checklist {
+            display: grid;
+            gap: 0.65rem;
+            margin-top: 0.85rem;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            width: 100%;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            padding: 0.85rem 0.95rem;
+            text-align: left;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+        }
+
+        .check-item.done {
+            border-color: #86efac;
+            background: linear-gradient(180deg, #f0fdf4, #ffffff);
+        }
+
+        .check-item:active {
+            transform: translateY(1px);
+        }
+
+        .check-badge {
+            margin-top: 0.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.3rem;
+            height: 1.3rem;
+            border-radius: 999px;
+            border: 1px solid #bfdbfe;
+            color: #2563eb;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+        }
+
+        .check-item.done .check-badge {
+            background: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+        .workbench-textarea {
+            width: 100%;
+            min-height: 92px;
+            border-radius: 18px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #0f172a;
+            padding: 0.9rem 1rem;
+            font-size: 0.92rem;
+            line-height: 1.65;
+            resize: vertical;
+        }
+
+        .density-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid #dbeafe;
+            padding: 0.28rem;
+        }
+
+        .density-chip {
+            border-radius: 999px;
+            padding: 0.38rem 0.72rem;
+            font-size: 0.76rem;
+            font-weight: 700;
+            color: #475569;
+        }
+
+        .density-chip.active {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #fff;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.22);
+        }
+
+        body[data-density="compact"] .stage-workbench {
+            padding-top: 0.7rem;
+            padding-bottom: 0.7rem;
+        }
+
+        body[data-density="compact"] .quick-panel {
+            padding: 0.85rem;
+        }
+
+        body[data-density="compact"] .composer-shell {
+            padding: 0.85rem;
+        }
+
+        body[data-density="expanded"] .stage-workbench {
+            padding-top: 1.25rem;
+            padding-bottom: 1.25rem;
+        }
+
+        body[data-density="expanded"] #chatContainer {
+            scroll-padding-bottom: 18rem;
+        }
+
         #chatContainer {
             overscroll-behavior: contain;
             scroll-behavior: smooth;
@@ -279,6 +509,11 @@
                 scrollbar-width: none;
             }
 
+            .stage-card-grid,
+            .workbench-grid {
+                grid-template-columns: 1fr;
+            }
+
             .stage-steps::-webkit-scrollbar {
                 display: none;
             }
@@ -361,22 +596,61 @@
 
     <!-- 阶段进度条 -->
     <div class="stage-bar text-white px-4 py-2 shrink-0">
-        <div class="stage-steps flex items-center justify-between text-xs">
-            <div class="flex items-center gap-1">
-                <i class="fas fa-circle text-xs"></i>
-                <span>问题识别</span>
+        <div id="stageStepper" class="stage-steps flex items-center justify-between text-xs"></div>
+    </section>
+
+    <section class="stage-workbench shrink-0">
+        <div class="workbench-shell">
+            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">Stage Workbench</p>
+                    <h3 id="stageWorkbenchTitle" class="mt-1 text-lg font-bold text-slate-950">把当前阶段做实，而不是只往下点</h3>
+                    <p id="stageWorkbenchSummary" class="mt-1 text-sm leading-6 text-slate-600">你可以手动切换到文献回顾、研究设计或数据分析，并直接修改本阶段目标、交付物和工作笔记。</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <span id="stageWorkbenchKpi" class="stage-kpi"><i class="fas fa-route"></i>当前阶段：问题识别</span>
+                    <div id="layoutDensityControl" class="density-control"></div>
+                </div>
             </div>
-            <i class="fas fa-chevron-right text-xs opacity-60"></i>
-            <div class="flex items-center gap-1 opacity-60">
-                <span>文献回顾</span>
-            </div>
-            <i class="fas fa-chevron-right text-xs opacity-60"></i>
-            <div class="flex items-center gap-1 opacity-60">
-                <span>研究设计</span>
-            </div>
-            <i class="fas fa-chevron-right text-xs opacity-60"></i>
-            <div class="flex items-center gap-1 opacity-60">
-                <span>数据分析</span>
+
+            <div id="topStageCards" class="stage-card-grid mt-4"></div>
+
+            <div class="workbench-grid">
+                <div class="workbench-panel">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">阶段子任务</p>
+                            <p id="stageDetailedCopy" class="mt-1 text-sm text-slate-600">点击不同阶段后，这里会切换为当前阶段应做的具体事项。</p>
+                        </div>
+                        <div id="stageDetailedChips" class="chip-grid"></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">本阶段交付清单</p>
+                        <div id="stageChecklist" class="checklist"></div>
+                    </div>
+                </div>
+
+                <div class="workbench-panel">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">当前阶段目标</p>
+                        <textarea id="stageGoalInput" class="workbench-textarea mt-2" placeholder="例如：先把研究对象、单一主终点和时间窗写死，再决定是否继续立项。"></textarea>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">工作笔记 / 自由调整</p>
+                        <textarea id="stageNotesInput" class="workbench-textarea mt-2" placeholder="你可以自由写下这一步最想推进的内容，例如候选数据库、关键文献、访视表草稿或风险备注。"></textarea>
+                    </div>
+
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button type="button" id="applyStagePromptButton" class="light-action">
+                            <i class="fas fa-wand-magic-sparkles"></i>带入输入框
+                        </button>
+                        <button type="button" id="saveStagePlanButton" class="light-action">
+                            <i class="fas fa-floppy-disk"></i>保存阶段配置
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -397,7 +671,7 @@
         <div class="text-center text-gray-400 text-sm py-8">
             <i class="fas fa-users text-4xl mb-3 opacity-30"></i>
             <p>圆桌会已开始</p>
-            <p class="text-xs mt-1">五位专家正在等待您的提问</p>
+            <p class="text-xs mt-1">14位专家正在等待您的提问</p>
         </div>
     </div>
 
@@ -418,6 +692,14 @@
                     <span id="selectedFocusBadge" class="text-xs font-semibold text-blue-700">全体专家</span>
                 </div>
                 <div id="focusExpertChips" class="chip-grid"></div>
+            </div>
+
+            <div class="chip-section">
+                <div class="mb-2 flex items-center justify-between gap-3">
+                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">当前圆桌阵容</p>
+                    <span id="participantCountBadge" class="text-xs font-semibold text-slate-500">14 位专家</span>
+                </div>
+                <div id="participantRosterChips" class="chip-grid"></div>
             </div>
 
             <div class="chip-section">
@@ -456,6 +738,9 @@
                     <span>点击上方 chips 可自动补全问题</span>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <button type="button" onclick="generateFinalReport()" class="light-action">
+                        <i class="fas fa-file-arrow-down"></i>最终报告
+                    </button>
                     <button type="button" onclick="clearComposerDraft()" class="light-action">
                         <i class="fas fa-eraser"></i>清空
                     </button>
@@ -484,10 +769,13 @@
         const roundtableId = urlParams.get('sessionId') || (pathTail.endsWith('.html') ? '' : pathTail);
         
         // API 基础地址
-        const API_BASE = window.MRTApiConfig ? window.MRTApiConfig.API_BASE : (window.location.origin.includes('localhost')
-            ? 'http://localhost:8000'
-            : 'https://medroundtable-api.onrender.com');
         const api = window.MRTApiConfig || null;
+        const siteBasePath = window.location.pathname.split('/').filter(Boolean)[0] === 'medroundtable' ? '/medroundtable' : '';
+        const API_BASE = api
+            ? api.API_BASE
+            : (window.location.origin.includes('localhost')
+                ? 'http://localhost:8000'
+                : `${window.location.origin}${siteBasePath}`);
         
         // 模拟数据模式
         let MOCK_MODE = false;
@@ -495,7 +783,22 @@
         const secondMeCollaboration = window.MedRoundTableSecondMe || null;
         let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
         const expertCatalog = window.MedRoundTableExperts || null;
-        const fallbackParticipants = ['clinical_director', 'phd_student', 'epidemiologist'];
+        const fallbackParticipants = [
+            'clinical_director',
+            'phd_student',
+            'epidemiologist',
+            'statistician',
+            'research_nurse',
+            'clawbio_pharmgx',
+            'clawbio_gwas',
+            'clawbio_sc_rna',
+            'clawbio_galaxy',
+            'ux_researcher',
+            'ai_data_engineer',
+            'trend_researcher',
+            'experiment_tracker',
+            'model_qa'
+        ];
         let secondMeIdentity = secondMeIdentityStore ? secondMeIdentityStore.loadIdentity() : null;
         let currentRoundtable = null;
         let eventSource = null;
@@ -512,6 +815,77 @@
             data_engineer: 'ai_data_engineer',
             qa_expert: 'model_qa'
         };
+        const mockStageBlueprints = {
+            problem_presentation: ['clinical_director', 'phd_student', 'epidemiologist', 'statistician'],
+            literature_review: ['phd_student', 'trend_researcher', 'clinical_director'],
+            study_design: ['epidemiologist', 'statistician', 'research_nurse', 'clinical_director'],
+            bioinformatics_plan: ['clawbio_galaxy', 'clawbio_gwas', 'clawbio_pharmgx', 'clawbio_sc_rna', 'ai_data_engineer'],
+            statistical_plan: ['statistician', 'epidemiologist', 'ai_data_engineer', 'model_qa'],
+            crf_design: ['research_nurse', 'statistician', 'model_qa'],
+            execution_plan: ['research_nurse', 'experiment_tracker', 'ux_researcher'],
+            quality_review: ['model_qa', 'clinical_director', 'epidemiologist', 'statistician'],
+            consensus: ['clinical_director', 'phd_student', 'experiment_tracker']
+        };
+        const stageSequence = [
+            'problem_presentation',
+            'literature_review',
+            'study_design',
+            'bioinformatics_plan',
+            'statistical_plan',
+            'crf_design',
+            'execution_plan',
+            'quality_review',
+            'consensus'
+        ];
+        const topLevelStages = [
+            {
+                key: 'problem_presentation',
+                label: '问题识别',
+                icon: 'fas fa-compass-drafting',
+                summary: '先把研究对象、主终点、时间窗和 go / no-go 判断钉住，不再泛谈背景。',
+                detailed: ['problem_presentation'],
+                goalPlaceholder: '例如：先判断值不值得立项，并把研究对象、主终点和时间窗写死。',
+                defaultGoal: '先判断题目值不值得继续做，再把研究对象、单一主终点和时间窗收窄。',
+                deliverables: ['立项判断', '研究对象定义', '单一主终点', '时间窗', '关键风险点'],
+            },
+            {
+                key: 'literature_review',
+                label: '文献回顾',
+                icon: 'fas fa-books',
+                summary: '把文献检索、证据缺口、设计缺陷和投稿窗口整理成证据表，不再只说“去查文献”。',
+                detailed: ['literature_review'],
+                goalPlaceholder: '例如：先做证据表，明确检索词、纳入重点、现有证据空白和可投稿窗口。',
+                defaultGoal: '先给出文献提取表结构和证据缺口，不要只讲背景综述。',
+                deliverables: ['检索词', '纳入排除重点', '文献证据表', '现有证据空白', '投稿窗口判断'],
+            },
+            {
+                key: 'study_design',
+                label: '研究设计',
+                icon: 'fas fa-sitemap',
+                summary: '把研究类型、纳排标准、CRF、执行路径和质控一起落到方案层。',
+                detailed: ['study_design', 'bioinformatics_plan', 'crf_design', 'execution_plan', 'quality_review'],
+                goalPlaceholder: '例如：先把纳排标准、CRF 字段和执行里程碑串起来，形成一版完整方案骨架。',
+                defaultGoal: '形成可执行研究方案，至少覆盖纳排标准、CRF、执行里程碑和质控返工点。',
+                deliverables: ['研究类型', '纳入排除标准', 'CRF 字段表', '访视/执行路径', '质控返工清单'],
+            },
+            {
+                key: 'statistical_plan',
+                label: '数据分析',
+                icon: 'fas fa-chart-line',
+                summary: '把样本量、分析集、主分析模型、敏感性分析和最终总结真正写出来。',
+                detailed: ['statistical_plan', 'consensus'],
+                goalPlaceholder: '例如：先把样本量前提、主分析模型、敏感性分析和最终报告骨架确定。',
+                defaultGoal: '把样本量前提、主分析模型、分析集、敏感性分析和最终结论一起做实。',
+                deliverables: ['样本量前提', '分析集定义', '主分析模型', '敏感性分析', '最终总结'],
+            }
+        ];
+        const layoutDensityOptions = [
+            { key: 'compact', label: '紧凑' },
+            { key: 'standard', label: '标准' },
+            { key: 'expanded', label: '展开' }
+        ];
+        let stageWorkbenchState = loadStageWorkbenchState();
+        let selectedStageKey = stageWorkbenchState.selectedStageKey || '';
 
         function escapeHtml(value) {
             return String(value)
@@ -599,6 +973,14 @@
             mockReplyTimers = [];
         }
 
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed left-1/2 top-6 z-50 -translate-x-1/2 rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-2xl';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            window.setTimeout(() => toast.remove(), 2600);
+        }
+
         function closeEventSource() {
             if (eventSource) {
                 eventSource.close();
@@ -613,6 +995,232 @@
                 console.error('加载会话偏好失败:', err);
                 return {};
             }
+        }
+
+        function loadStageWorkbenchState() {
+            try {
+                const raw = JSON.parse(localStorage.getItem('mrt_stage_workbench') || '{}');
+                return raw[String(roundtableId)] || { density: 'standard', stagePlans: {} };
+            } catch (err) {
+                console.error('加载阶段工作台失败:', err);
+                return { density: 'standard', stagePlans: {} };
+            }
+        }
+
+        function saveStageWorkbenchState() {
+            try {
+                const all = JSON.parse(localStorage.getItem('mrt_stage_workbench') || '{}');
+                all[String(roundtableId)] = stageWorkbenchState;
+                localStorage.setItem('mrt_stage_workbench', JSON.stringify(all));
+            } catch (err) {
+                console.error('保存阶段工作台失败:', err);
+            }
+        }
+
+        function getStageMeta(key) {
+            return topLevelStages.find((item) => item.key === key) || topLevelStages[0];
+        }
+
+        function mapDetailedStageToTopLevel(stage) {
+            const match = topLevelStages.find((item) => item.detailed.includes(stage));
+            return match ? match.key : 'problem_presentation';
+        }
+
+        function getActiveStageKey() {
+            if (selectedStageKey) return selectedStageKey;
+            const latestDetailedStage = getLatestMessageStage(mockMessages);
+            return mapDetailedStageToTopLevel(latestDetailedStage);
+        }
+
+        function getStagePlan(key = getActiveStageKey()) {
+            const meta = getStageMeta(key);
+            stageWorkbenchState.stagePlans = stageWorkbenchState.stagePlans || {};
+            if (!stageWorkbenchState.stagePlans[key]) {
+                stageWorkbenchState.stagePlans[key] = {
+                    goal: meta.defaultGoal,
+                    notes: '',
+                    completed: []
+                };
+            }
+            return stageWorkbenchState.stagePlans[key];
+        }
+
+        function setLayoutDensity(density) {
+            stageWorkbenchState.density = density;
+            document.body.dataset.density = density;
+            saveStageWorkbenchState();
+            renderDensityControls();
+        }
+
+        function renderDensityControls() {
+            const container = document.getElementById('layoutDensityControl');
+            if (!container) return;
+            container.innerHTML = '';
+            layoutDensityOptions.forEach((option) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = `density-chip ${stageWorkbenchState.density === option.key ? 'active' : ''}`.trim();
+                button.textContent = option.label;
+                button.addEventListener('click', () => setLayoutDensity(option.key));
+                container.appendChild(button);
+            });
+        }
+
+        function renderStageBar() {
+            const container = document.getElementById('stageStepper');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const activeKey = getActiveStageKey();
+            const activeIndex = topLevelStages.findIndex((item) => item.key === activeKey);
+
+            topLevelStages.forEach((stage, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                const stateClass = index < activeIndex ? 'done' : (stage.key === activeKey ? 'active' : '');
+                button.className = `stage-step ${stateClass}`.trim();
+                button.innerHTML = `<i class="${stage.icon} text-[11px]"></i><span>${escapeHtml(stage.label)}</span>`;
+                button.addEventListener('click', () => selectStage(stage.key));
+                container.appendChild(button);
+
+                if (index < topLevelStages.length - 1) {
+                    const arrow = document.createElement('span');
+                    arrow.className = 'stage-arrow';
+                    arrow.innerHTML = '<i class="fas fa-chevron-right text-xs"></i>';
+                    container.appendChild(arrow);
+                }
+            });
+        }
+
+        function renderStageCards() {
+            const container = document.getElementById('topStageCards');
+            if (!container) return;
+            const activeKey = getActiveStageKey();
+            const activeIndex = topLevelStages.findIndex((item) => item.key === activeKey);
+            container.innerHTML = '';
+
+            topLevelStages.forEach((stage, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                const stateClass = index < activeIndex ? 'done' : (stage.key === activeKey ? 'active' : '');
+                button.className = `stage-card ${stateClass}`.trim();
+                button.innerHTML = `
+                    <div class="stage-card-label">Phase ${index + 1}</div>
+                    <div class="stage-card-title">${escapeHtml(stage.label)}</div>
+                    <div class="stage-card-copy">${escapeHtml(stage.summary)}</div>
+                `;
+                button.addEventListener('click', () => selectStage(stage.key));
+                container.appendChild(button);
+            });
+        }
+
+        function renderStageWorkbench() {
+            const stageKey = getActiveStageKey();
+            const meta = getStageMeta(stageKey);
+            const plan = getStagePlan(stageKey);
+
+            const title = document.getElementById('stageWorkbenchTitle');
+            const summary = document.getElementById('stageWorkbenchSummary');
+            const kpi = document.getElementById('stageWorkbenchKpi');
+            const detailedCopy = document.getElementById('stageDetailedCopy');
+            const detailedChips = document.getElementById('stageDetailedChips');
+            const checklist = document.getElementById('stageChecklist');
+            const goalInput = document.getElementById('stageGoalInput');
+            const notesInput = document.getElementById('stageNotesInput');
+
+            if (title) title.textContent = `${meta.label}：把这一阶段真正做实`;
+            if (summary) summary.textContent = meta.summary;
+            if (kpi) kpi.innerHTML = `<i class="${meta.icon}"></i>当前阶段：${escapeHtml(meta.label)}`;
+            if (detailedCopy) {
+                detailedCopy.textContent = `你现在可以直接调整 ${meta.label} 的目标、清单和笔记，再把本阶段要求带入对话。`;
+            }
+
+            if (detailedChips) {
+                detailedChips.innerHTML = '';
+                meta.detailed.forEach((item) => {
+                    const chip = document.createElement('span');
+                    chip.className = 'prompt-chip subtle';
+                    chip.innerHTML = `<span>${escapeHtml(item.replace(/_/g, ' '))}</span>`;
+                    detailedChips.appendChild(chip);
+                });
+            }
+
+            if (checklist) {
+                checklist.innerHTML = '';
+                meta.deliverables.forEach((item) => {
+                    const done = (plan.completed || []).includes(item);
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = `check-item ${done ? 'done' : ''}`.trim();
+                    button.innerHTML = `
+                        <span class="check-badge">${done ? '<i class="fas fa-check"></i>' : ''}</span>
+                        <span>
+                            <span class="block text-sm font-semibold text-slate-900">${escapeHtml(item)}</span>
+                            <span class="mt-1 block text-xs text-slate-500">${done ? '已标记完成，可继续往下推进。' : '点一下可标记已完成，帮助你按阶段推进。'}</span>
+                        </span>
+                    `;
+                    button.addEventListener('click', () => toggleStageDeliverable(stageKey, item));
+                    checklist.appendChild(button);
+                });
+            }
+
+            if (goalInput) {
+                goalInput.placeholder = meta.goalPlaceholder;
+                goalInput.value = plan.goal || meta.defaultGoal;
+            }
+            if (notesInput) {
+                notesInput.value = plan.notes || '';
+            }
+
+            renderStageBar();
+            renderStageCards();
+            renderDensityControls();
+        }
+
+        function selectStage(stageKey) {
+            selectedStageKey = stageKey;
+            stageWorkbenchState.selectedStageKey = stageKey;
+            getStagePlan(stageKey);
+            saveStageWorkbenchState();
+            renderStageWorkbench();
+            renderConversationControls();
+            updateComposerAffordance();
+        }
+
+        function toggleStageDeliverable(stageKey, item) {
+            const plan = getStagePlan(stageKey);
+            plan.completed = plan.completed || [];
+            if (plan.completed.includes(item)) {
+                plan.completed = plan.completed.filter((entry) => entry !== item);
+            } else {
+                plan.completed.push(item);
+            }
+            saveStageWorkbenchState();
+            renderStageWorkbench();
+        }
+
+        function persistCurrentStagePlan() {
+            const stageKey = getActiveStageKey();
+            const plan = getStagePlan(stageKey);
+            const goalInput = document.getElementById('stageGoalInput');
+            const notesInput = document.getElementById('stageNotesInput');
+            plan.goal = goalInput ? goalInput.value.trim() : plan.goal;
+            plan.notes = notesInput ? notesInput.value.trim() : plan.notes;
+            stageWorkbenchState.selectedStageKey = stageKey;
+            saveStageWorkbenchState();
+        }
+
+        function buildStagePrompt(stageKey = getActiveStageKey()) {
+            persistCurrentStagePlan();
+            const meta = getStageMeta(stageKey);
+            const plan = getStagePlan(stageKey);
+            const openItems = meta.deliverables.filter((item) => !(plan.completed || []).includes(item));
+            const itemLines = (openItems.length > 0 ? openItems : meta.deliverables)
+                .slice(0, 5)
+                .map((item, index) => `${index + 1}. ${item}`)
+                .join('\n');
+            const notesBlock = plan.notes ? `\n补充笔记：${plan.notes}` : '';
+            return `请直接进入“${meta.label}”阶段，不要重复背景。当前阶段目标：${plan.goal || meta.defaultGoal}\n本轮请优先完成：\n${itemLines}${notesBlock}\n请直接给出可执行结论、字段、时间窗、里程碑或分析口径。`;
         }
 
         function normalizeExpertRole(role) {
@@ -630,6 +1238,40 @@
 
         function getSessionClientContext(sessionId) {
             return loadSessionClientContexts()[String(sessionId)] || null;
+        }
+
+        function getAllExpertRoles() {
+            if (expertCatalog && Array.isArray(expertCatalog.experts) && expertCatalog.experts.length > 0) {
+                return expertCatalog.experts.map((expert) => normalizeExpertRole(expert.role));
+            }
+            return [...fallbackParticipants];
+        }
+
+        function getStageSequenceForQuestion(question) {
+            const stages = [...stageSequence];
+            if (!/(多组学|gwas|基因|单细胞|rna|测序|组学|omics)/i.test(String(question || ''))) {
+                return stages.filter((stage) => stage !== 'bioinformatics_plan');
+            }
+            return stages;
+        }
+
+        function getLatestMessageStage(messages) {
+            const list = Array.isArray(messages) ? messages : [];
+            for (let idx = list.length - 1; idx >= 0; idx -= 1) {
+                const stage = list[idx] && list[idx].metadata ? list[idx].metadata.stage : null;
+                if (stage) return stage;
+            }
+            return null;
+        }
+
+        function getNextDiscussionStage(question, messages) {
+            const stages = getStageSequenceForQuestion(question);
+            const latest = getLatestMessageStage(messages);
+            if (!latest) return stages[0];
+            const index = stages.indexOf(latest);
+            if (index === -1) return stages[0];
+            if (index >= stages.length - 1) return stages[stages.length - 1];
+            return stages[index + 1];
         }
 
         async function initializeBackendMode() {
@@ -663,19 +1305,32 @@
         }
 
         function getRoundtableParticipants(session) {
-            if (session && Array.isArray(session.participants) && session.participants.length > 0) {
-                return session.participants.map((role) => normalizeExpertRole(role));
-            }
             const preferredRole = getPreferredExpertRole(session);
-            return preferredRole ? [preferredRole, ...fallbackParticipants] : [...fallbackParticipants];
+            const aiPackRoles = session && session.ai_pack && Array.isArray(session.ai_pack.expertRoles)
+                ? session.ai_pack.expertRoles.map((role) => normalizeExpertRole(role))
+                : [];
+            const sessionRoles = session && Array.isArray(session.participants) && session.participants.length > 0
+                ? session.participants.map((role) => normalizeExpertRole(role))
+                : [];
+            const allRoles = getAllExpertRoles();
+            const ordered = [
+                preferredRole,
+                ...aiPackRoles,
+                ...sessionRoles,
+                ...fallbackParticipants,
+                ...allRoles
+            ].filter(Boolean);
+            return [...new Set(ordered)];
         }
 
         function renderParticipantAvatars(participants) {
             const container = document.getElementById('roundtableParticipants');
             if (!container) return;
 
-            const deduped = [...new Set(participants)].slice(0, 4);
-            container.innerHTML = deduped.map((role) => {
+            const deduped = [...new Set(participants)];
+            const visible = deduped.slice(0, 8);
+            const hiddenCount = Math.max(deduped.length - visible.length, 0);
+            container.innerHTML = visible.map((role) => {
                 const expert = expertCatalog ? expertCatalog.getExpert(normalizeExpertRole(role)) : null;
                 const name = expert ? expert.name : getAgentName(role);
                 const avatar = expert ? expertCatalog.resolveAvatar(expert) : '';
@@ -683,6 +1338,24 @@
                     return `<img src="${avatar}" alt="${name}" title="${name}" class="agent-avatar bg-white object-cover">`;
                 }
                 return `<div class="agent-avatar bg-blue-100 text-sm font-semibold text-blue-700" title="${name}">${name.slice(0, 2)}</div>`;
+            }).join('') + (hiddenCount > 0
+                ? `<div class="agent-avatar bg-slate-900 text-[11px] font-bold text-white" title="还有 ${hiddenCount} 位专家">+${hiddenCount}</div>`
+                : '');
+        }
+
+        function renderParticipantRoster(participants) {
+            const container = document.getElementById('participantRosterChips');
+            const badge = document.getElementById('participantCountBadge');
+            if (!container) return;
+            const deduped = [...new Set(participants)];
+            if (badge) {
+                badge.textContent = `${deduped.length} 位专家`;
+            }
+            container.innerHTML = deduped.map((role) => {
+                const expert = expertCatalog ? expertCatalog.getExpert(normalizeExpertRole(role)) : null;
+                const name = expert ? expert.name : getAgentName(role);
+                const group = expert && expert.groupLabel ? expert.groupLabel : '圆桌角色';
+                return `<span class="prompt-chip subtle" title="${escapeHtml(group)}">${escapeHtml(name)}</span>`;
             }).join('');
         }
 
@@ -768,6 +1441,7 @@
         }
 
         function updateComposerAffordance() {
+            const stageMeta = getStageMeta(getActiveStageKey());
             const selectedFocusBadge = document.getElementById('selectedFocusBadge');
             const composerFocusSummary = document.getElementById('composerFocusSummary');
             const composerHint = document.getElementById('composerHint');
@@ -785,20 +1459,20 @@
 
             if (composerFocusSummary) {
                 composerFocusSummary.textContent = selectedTargetRole === 'all'
-                    ? '默认由全体专家接力，建议优先挑一位最相关的专家先回应。'
-                    : `当前优先由 ${label} 先接球，再由系统拉其他专家补位。`;
+                    ? `当前聚焦「${stageMeta.label}」，默认由全体专家接力，建议优先挑一位最相关的专家先回应。`
+                    : `当前聚焦「${stageMeta.label}」，优先由 ${label} 先接球，再由系统拉其他专家补位。`;
             }
 
             if (composerHint) {
                 composerHint.textContent = selectedTargetRole === 'all'
-                    ? '尽量写清研究对象、终点、时间窗或你现在最想拿到的交付物。'
-                    : `当前优先追问 ${label}。直接写你要 TA 给出的判断、数字、字段表或执行动作。`;
+                    ? `尽量直接写出你要推进的阶段、对象、终点、时间窗或交付物。当前默认聚焦 ${stageMeta.label}。`
+                    : `当前优先追问 ${label}。直接写你要 TA 在 ${stageMeta.label} 里给出的判断、数字、字段表或执行动作。`;
             }
 
             if (input) {
                 input.placeholder = selectedTargetRole === 'all'
-                    ? '例如：请统计专家先把主终点定义、样本量前提和敏感性分析口径列出来。'
-                    : `例如：请${label}先直接给我可执行建议，不要重复背景。`;
+                    ? `例如：请直接进入「${stageMeta.label}」，先把最关键的 3 个交付物列出来。`
+                    : `例如：请${label}先在「${stageMeta.label}」里给我可执行建议，不要重复背景。`;
             }
         }
 
@@ -858,34 +1532,103 @@
                 orderedRoles.push(role);
             });
 
-            return ['all', ...new Set(orderedRoles.filter(Boolean))].slice(0, 6);
+            getAllExpertRoles().forEach((role) => orderedRoles.push(role));
+
+            return ['all', ...new Set(orderedRoles.filter(Boolean))];
         }
 
         function getQuickQuestionTemplates() {
+            const activeStage = getActiveStageKey();
             const preferredExpert = getPreferredExpert(currentRoundtable);
             const preferredRole = preferredExpert ? preferredExpert.role : 'clinical_director';
             const preferredName = preferredExpert ? preferredExpert.name : '临床主任';
             const clinicalQuestion = String(currentRoundtable?.clinical_question || '');
 
+            const templatesByStage = {
+                problem_presentation: [
+                    {
+                        key: 'go-no-go',
+                        label: '值不值得继续做',
+                        role: preferredRole,
+                        text: `请${preferredName}先判断这个题值不值得继续做，并直接指出研究对象、主终点和时间窗最该怎么收窄。`
+                    },
+                    {
+                        key: 'risk',
+                        label: '先列 3 个最大风险',
+                        role: 'clinical_director',
+                        text: '请先不要复述背景，直接列出当前方案最大的 3 个设计风险，并给出对应修正动作。'
+                    },
+                    {
+                        key: 'problem-scope',
+                        label: '收窄研究问题',
+                        role: 'epidemiologist',
+                        text: '请流行病学家先把研究对象、暴露/干预、主终点和时间窗各给一版最小可行定义。'
+                    },
+                ],
+                literature_review: [
+                    {
+                        key: 'literature',
+                        label: '先补证据缺口',
+                        role: 'phd_student',
+                        text: '请博士生先给我一个文献回顾框架：检索词、纳入重点、最常见设计缺陷，以及现有研究最大的证据空白。'
+                    },
+                    {
+                        key: 'evidence-table',
+                        label: '证据表结构',
+                        role: 'phd_student',
+                        text: '请先给一版证据表结构，至少包含研究对象、暴露/干预、终点、样本量、统计方法和主要缺陷。'
+                    },
+                    {
+                        key: 'publication-window',
+                        label: '投稿窗口判断',
+                        role: 'trend_researcher',
+                        text: '请趋势研究员判断这个题目前的投稿窗口、潜在期刊和最该强调的创新点。'
+                    }
+                ],
+                study_design: [
+                    {
+                        key: 'design-frame',
+                        label: '先立设计骨架',
+                        role: 'epidemiologist',
+                        text: '请先把研究类型、纳入排除标准、偏倚控制动作和执行难点一并列出来。'
+                    },
+                    {
+                        key: 'crf',
+                        label: '先做 CRF 草案',
+                        role: 'research_nurse',
+                        text: '请研究护士直接列出 CRF 必填字段，按筛选、基线、干预、疗效、安全和偏离六页拆开。'
+                    },
+                    {
+                        key: 'execution',
+                        label: '先排执行里程碑',
+                        role: 'experiment_tracker',
+                        text: '请实验追踪员先排本周、下周、下下周的里程碑，并列出每一步负责人。'
+                    }
+                ],
+                statistical_plan: [
+                    {
+                        key: 'sample-size',
+                        label: '样本量前提',
+                        role: 'statistician',
+                        text: '请统计专家直接列出样本量估算需要的前提参数、默认脱落率和敏感性分析口径。'
+                    },
+                    {
+                        key: 'analysis-set',
+                        label: '分析集定义',
+                        role: 'statistician',
+                        text: '请直接给我 ITT、PP 和安全集的定义，以及主分析模型和敏感性分析应如何衔接。'
+                    },
+                    {
+                        key: 'report',
+                        label: '先做总结骨架',
+                        role: 'clinical_director',
+                        text: '请先按最终报告口径列出结论、证据、风险和下一步交付，不要再停留在原则层。'
+                    }
+                ]
+            };
+
             const templates = [
-                {
-                    key: 'go-no-go',
-                    label: '值不值得继续做',
-                    role: preferredRole,
-                    text: `请${preferredName}先判断这个题值不值得继续做，并直接指出研究对象、主终点和时间窗最该怎么收窄。`
-                },
-                {
-                    key: 'risk',
-                    label: '先列 3 个最大风险',
-                    role: 'clinical_director',
-                    text: '请先不要复述背景，直接列出当前方案最大的 3 个设计风险，并给出对应修正动作。'
-                },
-                {
-                    key: 'literature',
-                    label: '先补证据缺口',
-                    role: 'phd_student',
-                    text: '请博士生先给我一个文献回顾框架：检索词、纳入重点、最常见设计缺陷，以及现有研究最大的证据空白。'
-                },
+                ...(templatesByStage[activeStage] || templatesByStage.problem_presentation),
                 {
                     key: 'continue',
                     label: '继续往下做',
@@ -916,38 +1659,86 @@
         }
 
         function getDeliverableTemplates() {
-            return [
+            const activeStage = getActiveStageKey();
+            const templatesByStage = {
+                problem_presentation: [
+                    {
+                        key: 'endpoint',
+                        label: '主终点定义',
+                        role: 'clinical_director',
+                        text: '请直接给我一个单一主要终点定义，并说明为什么它最适合作为这项研究的主问题。'
+                    },
+                    {
+                        key: 'risk-map',
+                        label: '风险点清单',
+                        role: 'clinical_director',
+                        text: '请直接列出当前题目最大的 3 个风险点，并给出每一个的修正动作。'
+                    }
+                ],
+                literature_review: [
+                    {
+                        key: 'evidence-sheet',
+                        label: '文献证据表',
+                        role: 'phd_student',
+                        text: '请给我一版文献证据表结构，至少包括研究对象、暴露/干预、终点、样本量、统计方法和主要缺陷。'
+                    },
+                    {
+                        key: 'search-strategy',
+                        label: '检索式',
+                        role: 'phd_student',
+                        text: '请直接写出文献检索式、纳入重点和应优先查找的指南或高质量研究类型。'
+                    }
+                ],
+                study_design: [
+                    {
+                        key: 'crf',
+                        label: 'CRF 关键字段表',
+                        role: 'research_nurse',
+                        text: '请研究护士直接列出 CRF 必填字段，按筛选、基线、干预、疗效、安全和偏离六页拆开。'
+                    },
+                    {
+                        key: 'visit-schedule',
+                        label: '访视表草案',
+                        role: 'research_nurse',
+                        text: '请先给我一版访视表草案，至少说明筛选、基线、关键评估和结局确认四个时间点。'
+                    },
+                    {
+                        key: 'milestone',
+                        label: '执行里程碑',
+                        role: 'experiment_tracker',
+                        text: '请实验追踪员列出从定题、文献、CRF、SAP、伦理到试运行的里程碑和负责人。'
+                    }
+                ],
+                statistical_plan: [
+                    {
+                        key: 'sample-size',
+                        label: '样本量前提',
+                        role: 'statistician',
+                        text: '请统计专家直接列出样本量估算需要的前提参数、默认脱落率和敏感性分析口径。'
+                    },
+                    {
+                        key: 'analysis-plan',
+                        label: '分析骨架',
+                        role: 'statistician',
+                        text: '请直接给我主分析模型、分析集定义、缺失数据处理和敏感性分析框架。'
+                    },
+                    {
+                        key: 'final-summary',
+                        label: '最终总结骨架',
+                        role: 'clinical_director',
+                        text: '请按最终报告格式写一版执行摘要，至少包括结论、证据、风险和下一步交付。'
+                    }
+                ]
+            };
+
+            return (templatesByStage[activeStage] || templatesByStage.problem_presentation).concat([
                 {
-                    key: 'endpoint',
-                    label: '主终点定义',
-                    role: 'clinical_director',
-                    text: '请直接给我一个单一主要终点定义，并说明为什么它最适合作为这项研究的主问题。'
-                },
-                {
-                    key: 'sample-size',
-                    label: '样本量前提',
-                    role: 'statistician',
-                    text: '请统计专家直接列出样本量估算需要的前提参数、默认脱落率和敏感性分析口径。'
-                },
-                {
-                    key: 'crf',
-                    label: 'CRF 关键字段表',
-                    role: 'research_nurse',
-                    text: '请研究护士直接列出 CRF 必填字段，按筛选、基线、干预、疗效、安全和偏离六页拆开。'
-                },
-                {
-                    key: 'visit-schedule',
-                    label: '访视表草案',
-                    role: 'research_nurse',
-                    text: '请先给我一版访视表草案，至少说明筛选、基线、关键评估和结局确认四个时间点。'
-                },
-                {
-                    key: 'evidence-sheet',
-                    label: '文献证据表',
-                    role: 'phd_student',
-                    text: '请给我一版文献证据表结构，至少包括研究对象、暴露/干预、终点、样本量、统计方法和主要缺陷。'
+                    key: 'stage-guide',
+                    label: '带入当前阶段',
+                    role: 'all',
+                    text: buildStagePrompt(activeStage)
                 }
-            ];
+            ]);
         }
 
         function renderChipButtons(containerId, items, activeKey, onSelect) {
@@ -1039,8 +1830,15 @@
                 document.getElementById('roundtableStatus').textContent = preferredExpert
                     ? `由 ${preferredExpert.name} 先介入`
                     : (currentRoundtable.status === 'active' ? '进行中' : currentRoundtable.status);
-                renderParticipantAvatars(getRoundtableParticipants(currentRoundtable));
+                const participants = getRoundtableParticipants(currentRoundtable);
+                renderParticipantAvatars(participants);
+                renderParticipantRoster(participants);
                 renderCollaborationContext(currentRoundtable);
+                if (!stageWorkbenchState.selectedStageKey && currentRoundtable?.status) {
+                    selectedStageKey = mapDetailedStageToTopLevel(currentRoundtable.status);
+                }
+                document.body.dataset.density = stageWorkbenchState.density || 'standard';
+                renderStageWorkbench();
                 renderConversationControls();
                 updateComposerAffordance();
             } catch (err) {
@@ -1064,6 +1862,7 @@
                     messages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
                 } else {
                     messages = await api.fetchJson(`/api/v1/roundtables/${roundtableId}/messages`);
+                    mockMessages = Array.isArray(messages) ? [...messages] : [];
                 }
                 
                 const container = document.getElementById('chatContainer');
@@ -1074,12 +1873,22 @@
                 if (messages.length === 0) {
                     const kickoffMessage = buildInitialKickoffMessage();
                     renderMessage(kickoffMessage);
+                    if (MOCK_MODE) {
+                        mockMessages = [kickoffMessage];
+                        localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
+                    }
                     if (!MOCK_MODE && currentRoundtable && currentRoundtable.status !== 'init') {
                         showTypingIndicator(getAgentName(kickoffMessage.from_role));
                     }
                 }
                 
                 messages.forEach(msg => renderMessage(msg));
+                if (!stageWorkbenchState.selectedStageKey) {
+                    selectedStageKey = mapDetailedStageToTopLevel(getLatestMessageStage(messages));
+                }
+                renderStageWorkbench();
+                renderConversationControls();
+                updateComposerAffordance();
             } catch (err) {
                 console.error('加载消息失败:', err);
             }
@@ -1120,6 +1929,12 @@
             renderedMessageKeys.add(dedupeKey);
             if (options.optimistic) {
                 rememberOptimisticMessage(msg, div);
+            }
+            if (!stageWorkbenchState.selectedStageKey && msg?.metadata?.stage) {
+                selectedStageKey = mapDetailedStageToTopLevel(msg.metadata.stage);
+                renderStageWorkbench();
+                renderConversationControls();
+                updateComposerAffordance();
             }
             container.scrollTop = container.scrollHeight;
             return true;
@@ -1179,7 +1994,10 @@
             return {
                 from_role: role,
                 content: `${opener}${collaborationNote ? ` ${collaborationNote}` : ''}\n本轮优先补这几项：\n${outputLines}\n接下来不再空谈背景，而是直接往数字、字段、时间窗和风险点推进。`,
-                created_at: new Date().toISOString()
+                created_at: new Date().toISOString(),
+                metadata: {
+                    stage: 'problem_presentation'
+                }
             };
         }
 
@@ -1192,99 +2010,188 @@
             if (/(样本量|效能|power|终点|sap|统计)/i.test(lowered)) return '统计专家';
             if (/(文献|检索|综述|证据|指南)/i.test(lowered)) return '博士生';
             if (/(设计|偏倚|混杂|纳入|排除)/i.test(lowered)) return '流行病学家';
-            if (/^(继续|开始讨论|开始|继续讨论|ok|好的)$/i.test(String(content || '').trim())) {
+            if (/^(继续|开始讨论|开始|继续讨论|ok|好的)([。！，,\s].*)?$/i.test(String(content || '').trim())) {
                 return '临床主任';
             }
             const preferredExpert = getPreferredExpert(currentRoundtable);
             return preferredExpert ? preferredExpert.name : '临床主任';
         }
 
+        function createMockTurn(role, content, stage, extraMeta = {}) {
+            return {
+                from_role: role,
+                content,
+                created_at: new Date().toISOString(),
+                metadata: {
+                    stage,
+                    ...extraMeta
+                }
+            };
+        }
+
+        function buildMockStageTurns(stage) {
+            const clinicalQuestion = String(currentRoundtable?.clinical_question || '');
+            const loweredQuestion = clinicalQuestion.toLowerCase();
+            const endpoint = /(神经元|电信号|放电|突触|电生理|神经传导)/i.test(loweredQuestion)
+                ? '第 28 天神经元平均放电频率较基线变化值'
+                : '单一主要终点';
+
+            const stageTurns = {
+                problem_presentation: [
+                    createMockTurn('clinical_director', `我先把题目收窄：围绕“${clinicalQuestion}”，本轮必须先锁定研究对象、主终点和时间窗，不再空谈背景。建议先用“${endpoint}”作为主问题收口。`, stage),
+                    createMockTurn('phd_student', '我接临床主任的框架，把文献提取表先定成 6 列：研究对象、暴露/干预、主终点、时间窗、样本量、主要缺陷。这样后面不会只剩概念性结论。', stage),
+                    createMockTurn('epidemiologist', '我补方法学边界：如果研究对象、纳排标准和结局确认时间点不先写死，后面所有设计都会漂。建议今天先把这三项固定下来。', stage),
+                    createMockTurn('statistician', '我把统计约束补上：主终点只能有一个，样本量估算需要最小临床差异、标准差/事件率、把握度和脱落率四个前提。', stage)
+                ],
+                literature_review: [
+                    createMockTurn('phd_student', '文献回顾我不写综述腔，直接给执行表：检索词、纳入范围、终点定义、分析方法、结论强度、主要缺陷。先把已有研究最稳定的终点口径找出来。', stage),
+                    createMockTurn('trend_researcher', '我补投稿窗口判断：不仅要看“有没有文章”，还要看哪些题已经拥挤、哪些题还有发表空间。建议把创新点、可重复性、期刊匹配度一起评。', stage),
+                    createMockTurn('clinical_director', '从临床价值看，文献回顾要回答一个核心问题：这个题最后能改变什么临床决策。如果做不到这一点，再多文献也只是背景堆砌。', stage)
+                ],
+                study_design: [
+                    createMockTurn('epidemiologist', '研究设计我先落骨架：优先采用小而准的验证性设计，先明确研究类型、分组方式、纳入/排除标准和偏倚控制动作。', stage),
+                    createMockTurn('statistician', '我接着补主终点、次终点和分析集定义。没有主终点、时间窗和分析集，后面样本量和 SAP 都没法继续。', stage),
+                    createMockTurn('research_nurse', '执行位补一句：纳排标准必须能在现场真正筛查出来，不能写得过于理想化。否则招募一开始就会卡住。', stage),
+                    createMockTurn('clinical_director', '我做临床收口：这版设计可以继续，但要避免一口气追太多结局。先围绕最能回答临床问题的单一主终点推进。', stage)
+                ],
+                bioinformatics_plan: [
+                    createMockTurn('clawbio_galaxy', '如果进入多组学阶段，我先给 workflow：数据入库、质控、标准化、主分析、下游验证五段，不直接上“全家桶式分析”。', stage),
+                    createMockTurn('clawbio_gwas', 'GWAS 这边最先要收紧的是表型定义、对照选择和协变量。表型不稳，后面出来的位点会非常散。', stage),
+                    createMockTurn('clawbio_pharmgx', '药物基因组学位我补一句：如果研究涉及治疗反应或不良反应，候选基因 panel 和临床结局必须同步设计，不能各说各话。', stage),
+                    createMockTurn('clawbio_sc_rna', '单细胞这边先明确采样时间点、目标细胞群和验证路径，不建议一上来全量扩张实验范围。', stage),
+                    createMockTurn('ai_data_engineer', '数据工程位负责把这套 workflow 变成可执行管道：文件命名、元数据规范、批次记录和质控日志必须前置。', stage)
+                ],
+                statistical_plan: [
+                    createMockTurn('statistician', '统计计划先落 4 件事：样本量前提、主分析模型、亚组/敏感性分析、缺失数据处理。每一项都要写成能执行的口径。', stage),
+                    createMockTurn('epidemiologist', '我补一个方法学提醒：样本量和模型不能脱离纳排标准与结局时间点单独讨论，这三者必须一起锁。', stage),
+                    createMockTurn('ai_data_engineer', '我把数据结构补齐：分析前要先统一字段、编码和分析集标记，否则统计方案会落不下来。', stage),
+                    createMockTurn('model_qa', 'QA 位提醒：请在统计计划里写清楚复核节点，尤其是分析集划分、缺失值处理和主终点程序复算。', stage)
+                ],
+                crf_design: [
+                    createMockTurn('research_nurse', '我先把 CRF 页签拆成筛选、基线、干预、访视结果、安全性、方案偏离六页，并把最容易漏采的字段单独标红。', stage),
+                    createMockTurn('statistician', '统计位补两项：主要终点必须有“基线值 + 每次访视值 + 是否进入分析集 + 缺失原因”；关键协变量不能埋在自由文本里。', stage),
+                    createMockTurn('model_qa', 'QA 位要求在 CRF 里加逻辑校验，例如日期前后关系、取值范围和关键字段联动，否则后面清洗成本会很高。', stage)
+                ],
+                execution_plan: [
+                    createMockTurn('research_nurse', '执行计划先按现实推进：筛选、培训、招募、访视、录入、质控，每一步都要有人负责。', stage),
+                    createMockTurn('experiment_tracker', '我补里程碑：本周完成研究问题和终点锁定，下周完成 CRF 草稿与 SAP 骨架，再下周进入伦理与试运行。', stage),
+                    createMockTurn('ux_researcher', '用户体验位提醒：如果录入流程太绕，执行团队很快会跳过关键字段，所以表单和操作提示必须尽量顺手。', stage)
+                ],
+                quality_review: [
+                    createMockTurn('model_qa', '质量审核结论：当前版本具备继续推进条件，但有三处必须返工：主终点定义、缺失数据口径、CRF 逻辑校验。', stage),
+                    createMockTurn('clinical_director', '临床位认可这个判断。只要这三处补齐，就可以进入正式文档整理，而不是继续停留在概念讨论。', stage),
+                    createMockTurn('epidemiologist', '方法学位补充：请同步核查纳排标准和结局确认路径，避免执行时出现病例定义漂移。', stage),
+                    createMockTurn('statistician', '统计位确认：返工后应优先输出主终点定义表、样本量前提表和分析集划分说明。', stage)
+                ],
+                consensus: [
+                    createMockTurn('clinical_director', '我来做最终收口：本题可以继续推进，当前共识版已经明确了研究对象、主终点、统计骨架和执行路径。', stage),
+                    createMockTurn('phd_student', '我负责把最终共识整理成研究摘要、证据表和下一步材料清单，避免讨论完又散掉。', stage),
+                    createMockTurn('experiment_tracker', '我把任务落到时间表：今天定题，48 小时内完成文献提要和设计骨架，随后进入 CRF 与统计方案整理。', stage),
+                    createMockTurn('clinical_director', `📋 **讨论总结报告**\n\n1. 已确认结论：围绕“${clinicalQuestion}”继续推进，主终点、样本量前提、CRF 骨架和执行里程碑已形成初稿。\n2. 仍需补齐：最终样本量数字、CRF 逻辑校验、关键文献证据表。\n3. 角色分工：博士生整理证据，流行病学家与统计专家固化方案，研究护士负责执行草案，QA 负责复核。\n4. 下一步交付：研究方案摘要、CRF 字段表、统计分析骨架、执行里程碑。\n\n现在已经不是概念讨论，可以进入正式文档整理。`, stage, { is_final_summary: true })
+                ]
+            };
+
+            return stageTurns[stage] || [];
+        }
+
+        function inferRequestedStageFromText(content) {
+            const text = String(content || '').toLowerCase();
+            const stageMatchers = [
+                ['problem_presentation', /(问题识别|立项|研究问题|主问题|go\/no-go|值得做)/i],
+                ['literature_review', /(文献回顾|文献|证据表|检索|综述|指南)/i],
+                ['study_design', /(研究设计|纳入排除|纳排|偏倚控制|方案骨架)/i],
+                ['bioinformatics_plan', /(生信|组学|gwas|单细胞|转录组|多组学|workflow)/i],
+                ['statistical_plan', /(数据分析|统计分析|样本量|sap|敏感性分析|分析集)/i],
+                ['crf_design', /(crf|字段表|访视表)/i],
+                ['execution_plan', /(执行计划|里程碑|排期|试运行|培训)/i],
+                ['quality_review', /(质控|qa|复核|返工|一致性)/i],
+                ['consensus', /(总结|最终报告|形成报告|执行摘要|共识)/i]
+            ];
+
+            const matched = stageMatchers.find(([, pattern]) => pattern.test(text));
+            return matched ? matched[0] : '';
+        }
+
         function buildMockDiscussionTurns(content, targetRole = 'all') {
             const lowered = content.toLowerCase();
-            const preferredExpert = getPreferredExpert(currentRoundtable);
             const explicitTargetRole = targetRole && targetRole !== 'all' ? normalizeExpertRole(targetRole) : null;
-            const preferredRole = explicitTargetRole || (preferredExpert ? preferredExpert.role : 'clinical_director');
-            const normalizedRole = normalizeExpertRole(preferredRole);
             const clinicalQuestion = String(currentRoundtable?.clinical_question || '').toLowerCase();
-            const asksConcreteOutput = /(样本量|效能|power|终点|sap|统计|crf|字段|表格|访视|录入)/i.test(content) ||
-                /(样本量|终点|crf|访视|字段)/i.test(clinicalQuestion);
             const asksLiterature = /(文献|回顾|检索|综述|证据|指南)/i.test(content);
-            const isKickoff = /^(继续|开始讨论|开始|继续讨论|ok|好的)$/i.test(content.trim());
-            const isNeuroSignalTopic = /(神经元|电信号|放电|突触|电生理|神经传导)/i.test(clinicalQuestion);
+            const isContinue = /^(继续|开始讨论|开始|继续讨论|ok|好的)([。！，,\s].*)?$/i.test(content.trim());
+            const explicitStage = inferRequestedStageFromText(content);
 
-            const roleMatch = (role, reply) => ({
-                from_role: role,
-                content: reply,
-                created_at: new Date().toISOString()
-            });
+            if (isContinue) {
+                const nextStage = getNextDiscussionStage(currentRoundtable?.clinical_question, mockMessages);
+                return buildMockStageTurns(nextStage);
+            }
 
-            if (/(crf|字段|表格|访视|录入)/i.test(content)) {
+            if (explicitStage) {
+                return buildMockStageTurns(explicitStage);
+            }
+
+            if (/(生成报告|最终报告|总结|形成报告|导出报告)/i.test(content)) {
+                return buildMockStageTurns('consensus').slice(-1);
+            }
+
+            if (/(crf|字段|表格|访视|录入|sop)/i.test(content)) {
                 return [
-                    roleMatch('research_nurse', `我先把 CRF 落成可执行结构，不空谈原则。建议至少拆成 6 页：筛选、基线、干预、访视结果、安全性、方案偏离。先锁定必填字段：受试者编号、访视日期、主要终点原始值、关键合并用药、不良事件分级。`),
-                    roleMatch('statistician', `我接着研究护士这版往下补两点：第一，主要终点字段要有“基线值 + 每次访视值 + 是否进入分析集”；第二，缺失原因必须单列，不然之后 ITT 和敏感性分析做不扎实。下一步就按访视顺序把字段表展开，别再停在原则层。`)
+                    createMockTurn('research_nurse', '我先把 CRF 落成可执行结构：筛选、基线、干预、访视结果、安全性、偏离六页，并优先锁定受试者编号、访视日期、主终点原始值、不良事件分级。', 'crf_design'),
+                    createMockTurn('statistician', '我补统计位要求：主终点字段必须包含基线值、每次访视值、分析集标记和缺失原因，否则后面 ITT 与敏感性分析会失真。', 'crf_design'),
+                    createMockTurn('model_qa', 'QA 位补一条：日期逻辑、范围校验和联动规则要在表单层就设好，不要等导出后再返工。', 'crf_design')
                 ];
             }
 
             if (/(样本量|效能|power|终点|sap|统计)/i.test(content)) {
                 return [
-                    roleMatch('statistician', `先把统计骨架钉住：请先确认一个主终点，不要同时拿多个指标当主问题。样本量我建议按“主终点差值 + 15% 脱落”来估，先不要急着定例数，先把最小临床差异和标准差来源补齐。`),
-                    roleMatch('epidemiologist', `我补一句：统计学家这点是关键。如果主终点和时间窗不先锁定，后面的纳排标准、混杂控制和随访频率都会漂。我们最好先把研究对象、暴露定义、结局时间点三件事定死。`)
+                    createMockTurn('statistician', '先把统计骨架钉住：主终点只能有一个，样本量估算至少需要最小临床差异、标准差或事件率、把握度和脱落率。', 'statistical_plan'),
+                    createMockTurn('epidemiologist', '我补一句：样本量、纳排标准和结局时间窗必须一起锁定，否则后面的偏倚控制和执行频率都会漂。', 'statistical_plan'),
+                    createMockTurn('model_qa', 'QA 位提醒：SAP 里要预留主程序复算和敏感性分析，不然后面很难自证稳健。', 'quality_review')
                 ];
             }
 
             if (/(基因|药物|用药|代谢)/i.test(lowered)) {
                 return [
-                    roleMatch('clawbio_pharmgx', `我先不讲泛泛的精准医疗，直接说可执行项：这题如果和药物反应差异有关，建议先查 CYP2D6、CYP2C19、SLCO1B1 这几类位点，先把候选基因 panel 收窄。`),
-                    roleMatch('clinical_director', `我接着药物基因组学专家这点提醒一句：基因检测不能脱离临床结局单独做。我们需要同步定义真实临床终点，比如疗效响应、不良反应或剂量调整需求，不然结果很难解释。`)
+                    createMockTurn('clawbio_pharmgx', '如果这题和药物反应相关，我建议先锁候选基因 panel，例如 CYP2D6、CYP2C19、SLCO1B1，再同步定义临床反应终点。', 'bioinformatics_plan'),
+                    createMockTurn('clinical_director', '临床位接一句：基因检测不能离开真实临床结局单独存在，必须同步定义疗效响应、不良反应或剂量调整需求。', 'study_design'),
+                    createMockTurn('trend_researcher', '趋势位补一条：如果能把药物反应差异和临床结局挂钩，投稿故事会比单纯机制分析更完整。', 'literature_review')
                 ];
             }
 
             if (/(gwas|变异|snp|位点)/i.test(lowered)) {
                 return [
-                    roleMatch('clawbio_gwas', `这类问题我建议先把表型定义收紧，再谈 GWAS。表型如果太松，后面出来的位点会很散。先决定病例定义、对照定义、校正协变量和人群分层。`),
-                    roleMatch('phd_student', `我补充文献侧证据：这题如果已有公开队列或复现研究，我们最好先查有没有稳定复现的位点，再决定是做 discovery 还是 replication，不然成本会被拉高。`)
+                    createMockTurn('clawbio_gwas', 'GWAS 这类问题先别急着跑全流程，先把病例定义、对照定义、分层策略和协变量写死。表型一松，位点结果会非常散。', 'bioinformatics_plan'),
+                    createMockTurn('phd_student', '我补文献侧证据：先查有没有稳定复现的位点和公开可复用队列，再决定是做 discovery 还是 replication。', 'literature_review'),
+                    createMockTurn('ai_data_engineer', '数据工程位补一句：如果打算做 GWAS，批次、祖源、缺失率和质控日志必须从一开始就单独记录。', 'bioinformatics_plan')
                 ];
             }
 
             if (/(单细胞|scrna|细胞|转录组)/i.test(lowered)) {
                 return [
-                    roleMatch('clawbio_sc_rna', `如果你问的是单细胞层面的机制，我建议先明确采样时间点和目标细胞群，而不是一上来全量上机。先把“要验证哪类细胞变化”说清楚，实验设计才会稳。`),
-                    roleMatch('ai_data_engineer', `我接着单细胞分析师的点补一句：样本处理链要前置设计，批次效应、细胞活性阈值和元数据命名规范必须先定，不然后面会把一半时间耗在清洗上。`)
+                    createMockTurn('clawbio_sc_rna', '单细胞问题不要一上来全量上机，先明确采样时间点、目标细胞群和验证目的。', 'bioinformatics_plan'),
+                    createMockTurn('ai_data_engineer', '我补执行链：样本处理链、批次记录、细胞活性阈值和元数据命名规范都必须前置。', 'bioinformatics_plan'),
+                    createMockTurn('clawbio_galaxy', '如果后面要扩到多组学整合，我可以把流程收成标准 workflow，避免手工拼接。', 'bioinformatics_plan')
                 ];
             }
 
             if (asksLiterature) {
                 return [
-                    roleMatch('phd_student', `我先把文献回顾落成检索框架：先查“研究对象/模型、暴露定义、主要终点、样本量、统计方法”五列，不再泛泛报背景。优先确认已有研究里最稳定的终点口径和常见设计缺陷。`),
-                    roleMatch('trend_researcher', `我接着博士生的框架补一句：文献回顾不只看有没有文章，更要看哪些题已经做滥了、哪些题仍有投稿窗口。我们最好把“创新点、可重复性、期刊匹配度”三列一起拉进证据表。`)
+                    createMockTurn('phd_student', '文献回顾我先给执行框架：检索词、提取表头、证据缺口、设计缺陷、可投稿窗口五列一起拉。', 'literature_review'),
+                    createMockTurn('trend_researcher', '趋势位接着补：文献不只看多少篇，而是看哪些问题已经做滥、哪些问题还有创新空间和期刊窗口。', 'literature_review'),
+                    createMockTurn('clinical_director', '临床位收口：文献回顾最后必须落回临床问题本身，回答“这项研究到底解决什么决策”。', 'literature_review')
                 ];
             }
 
-            if (isKickoff && asksConcreteOutput) {
-                const endpoint = isNeuroSignalTopic
-                    ? '第 28 天神经元平均放电频率较基线变化值'
-                    : '预先定义的单一主要终点';
+            if (explicitTargetRole) {
                 return [
-                    roleMatch('clinical_director', `我先拍板：这题可以继续，但只按小而准的验证研究推进。现在先锁定一个主终点，我建议用“${endpoint}”，别一开始同时追多个结局。`),
-                    roleMatch('statistician', `我接着把统计骨架补上：样本量先按主终点差值和 15% 脱落估算，同时在 CRF 里固定“基线值、各访视值、是否进入分析集、缺失原因”四类字段。`),
-                    roleMatch('research_nurse', `我把执行位直接接上：访视或采样时间点至少拆成筛选、基线、干预后关键评估、结局确认四段；CRF 页签建议按筛选、基线、干预、疗效、安全、偏离六页建。`)
+                    createMockTurn(explicitTargetRole, `${getAgentName(explicitTargetRole)}先接这个问题。我不复述背景，直接给你这个角色最该先回答的一步。`, getLatestMessageStage(mockMessages)),
+                    createMockTurn('clinical_director', '我补一句总控视角：你现在追问的点需要回到主终点、执行成本和临床意义上统一收口。', getLatestMessageStage(mockMessages))
                 ];
             }
-
-            const opener = explicitTargetRole
-                ? `${getAgentName(explicitTargetRole)}先接这个问题。我先不复述背景，直接给你这个角色最该先回答的一步。`
-                : (preferredExpert
-                    ? `${preferredExpert.name}先接这个问题。我先把问题收窄：${preferredExpert.prompt}`
-                    : '临床主任先接这个问题。我先不重复背景，而是先把研究问题拆成“研究对象、干预/暴露、主终点、时间窗”四块。');
-
-            const followUpRole = normalizedRole === 'clinical_director' ? 'phd_student' : 'clinical_director';
-            const followUpText = normalizedRole === 'clinical_director'
-                ? '我接着临床主任的框架往下走。下一步最该做的不是继续泛泛讨论，而是先查现有证据缺口：已有研究做到了哪一步、样本量大概在哪个量级、最大的设计缺陷是什么。'
-                : '我接着前一位专家的判断补一句：如果这个题最后要落成正式研究，临床可执行性必须和文献证据一起看，不能只有机制亮点。';
 
             return [
-                roleMatch(normalizedRole, opener),
-                roleMatch(followUpRole, followUpText)
+                createMockTurn('clinical_director', '临床主任先接这个问题。我先不重复背景，而是先把研究对象、暴露/干预、主终点和时间窗四块收窄。', getLatestMessageStage(mockMessages)),
+                createMockTurn('phd_student', '博士生接着把文献与证据缺口补上，避免后面继续停留在概念层。', 'literature_review'),
+                createMockTurn('epidemiologist', '流行病学家补方法学边界，确保这不是一个说起来热闹但做不下去的题。', 'study_design')
             ];
         }
 
@@ -1299,6 +2206,23 @@
                 if (renderMessage(message)) {
                     mockMessages.push(message);
                     localStorage.setItem(`mockMessages_${roundtableId}`, JSON.stringify(mockMessages));
+                    if (currentRoundtable && message.metadata && message.metadata.stage) {
+                        currentRoundtable.status = message.metadata.stage === 'consensus' && message.metadata.is_final_summary
+                            ? 'completed'
+                            : message.metadata.stage;
+                        const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                        const nextSessions = sessions.map((session) => String(session.id) === String(roundtableId)
+                            ? {
+                                ...session,
+                                status: currentRoundtable.status,
+                                current_round: (session.current_round || 0) + 1
+                            }
+                            : session);
+                        localStorage.setItem('mockSessions', JSON.stringify(nextSessions));
+                    }
+                    if (message.metadata && message.metadata.is_final_summary) {
+                        showToast('最终报告摘要已生成，可点击“最终报告”导出。', 'success');
+                    }
                 }
             };
 
@@ -1324,6 +2248,102 @@
             showTypingIndicator(getAgentName(turns[0].from_role));
             const firstTimer = window.setTimeout(() => deliverTurn(0), 900);
             mockReplyTimers.push(firstTimer);
+        }
+
+        function buildLocalFinalReport() {
+            const participants = getRoundtableParticipants(currentRoundtable);
+            const grouped = {};
+            [...mockMessages].forEach((message) => {
+                const role = normalizeExpertRole(message.from_role || 'user');
+                if (role === 'user') return;
+                grouped[role] = grouped[role] || [];
+                grouped[role].push(message.content);
+            });
+            const latestSummary = [...mockMessages].reverse().find((message) => message.metadata && message.metadata.is_final_summary);
+
+            const lines = [
+                `# MedRoundTable 最终报告`,
+                ``,
+                `## 研究标题`,
+                `${currentRoundtable?.title || '未命名圆桌'}`,
+                ``,
+                `## 临床问题`,
+                `${currentRoundtable?.clinical_question || '未提供'}`,
+                ``,
+                `## 圆桌阵容`,
+                participants.map((role) => `- ${getAgentName(role)}`).join('\n'),
+                ``,
+                `## 执行摘要`,
+                latestSummary ? latestSummary.content : '当前尚未形成独立总结消息，以下为按角色整理的讨论要点。',
+                ``
+            ];
+
+            Object.entries(grouped).forEach(([role, contents]) => {
+                lines.push(`## ${getAgentName(role)}`);
+                contents.slice(-3).forEach((content, idx) => {
+                    lines.push(`### 观点 ${idx + 1}`);
+                    lines.push(content);
+                    lines.push('');
+                });
+            });
+
+            lines.push('## 下一步建议');
+            lines.push('- 固化主终点、时间窗与样本量前提');
+            lines.push('- 输出 CRF 字段表与访视表');
+            lines.push('- 补齐文献证据表与执行里程碑');
+            lines.push('');
+            return lines.join('\n');
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+        }
+
+        async function generateFinalReport() {
+            if (!roundtableId) {
+                showToast('当前圆桌不存在，无法生成报告');
+                return;
+            }
+
+            if (MOCK_MODE) {
+                const report = buildLocalFinalReport();
+                downloadBlob(
+                    new Blob([report], { type: 'text/markdown;charset=utf-8' }),
+                    `${(currentRoundtable?.title || 'MedRoundTable_报告').replace(/[\\\\/:*?\"<>|]/g, '_')}_最终报告.md`
+                );
+                showToast('已导出本地最终报告');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/export/generate-report/${roundtableId}`, {
+                    method: 'POST'
+                });
+                if (!response.ok) {
+                    throw new Error(`报告生成失败 (${response.status})`);
+                }
+                const blob = await response.blob();
+                const contentDisposition = response.headers.get('content-disposition') || '';
+                const match = contentDisposition.match(/filename=\"?([^\";]+)\"?/i);
+                const filename = match ? decodeURIComponent(match[1]) : `roundtable-${roundtableId}-完整研究报告.docx`;
+                downloadBlob(blob, filename);
+                showToast('最终报告已开始下载');
+            } catch (error) {
+                console.error('生成最终报告失败:', error);
+                const report = buildLocalFinalReport();
+                downloadBlob(
+                    new Blob([report], { type: 'text/markdown;charset=utf-8' }),
+                    `${(currentRoundtable?.title || 'MedRoundTable_报告').replace(/[\\\\/:*?\"<>|]/g, '_')}_最终报告.md`
+                );
+                showToast('后端导出失败，已回退到本地报告');
+            }
         }
         
         // 格式化时间
@@ -1419,6 +2439,10 @@
         }
         
         const messageInput = document.getElementById('messageInput');
+        const stageGoalInput = document.getElementById('stageGoalInput');
+        const stageNotesInput = document.getElementById('stageNotesInput');
+        const applyStagePromptButton = document.getElementById('applyStagePromptButton');
+        const saveStagePlanButton = document.getElementById('saveStagePlanButton');
 
         if (messageInput) {
             messageInput.addEventListener('input', autosizeComposer);
@@ -1431,6 +2455,29 @@
                     e.preventDefault();
                     sendMessage();
                 }
+            });
+        }
+
+        if (stageGoalInput) {
+            stageGoalInput.addEventListener('change', persistCurrentStagePlan);
+            stageGoalInput.addEventListener('blur', persistCurrentStagePlan);
+        }
+
+        if (stageNotesInput) {
+            stageNotesInput.addEventListener('change', persistCurrentStagePlan);
+            stageNotesInput.addEventListener('blur', persistCurrentStagePlan);
+        }
+
+        if (applyStagePromptButton) {
+            applyStagePromptButton.addEventListener('click', () => {
+                injectPrompt(buildStagePrompt(), { replace: false });
+            });
+        }
+
+        if (saveStagePlanButton) {
+            saveStagePlanButton.addEventListener('click', () => {
+                persistCurrentStagePlan();
+                showToast('当前阶段配置已保存');
             });
         }
 
@@ -1453,7 +2500,9 @@
         // 页面加载
         document.addEventListener('DOMContentLoaded', async function() {
             syncViewportHeight();
+            document.body.dataset.density = stageWorkbenchState.density || 'standard';
             autosizeComposer();
+            renderStageWorkbench();
             renderConversationControls();
             updateComposerAffordance();
             await initializeBackendMode();
