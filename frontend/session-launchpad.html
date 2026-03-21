@@ -66,10 +66,10 @@
                     </div>
 
                     <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <button id="launchSessionBtn" class="rounded-3xl bg-blue-600 px-6 py-5 text-left text-white hover:bg-blue-700 transition">
-                            <div class="text-sm text-blue-100">Primary Action</div>
-                            <div class="mt-2 text-2xl font-bold">回主页创建新圆桌会</div>
-                            <p class="mt-2 text-sm text-blue-100">直接打开首页的创建圆桌会入口。</p>
+                        <button id="launchSessionBtn" class="rounded-3xl border border-slate-200 bg-white px-6 py-5 text-left hover:bg-slate-50 transition">
+                            <div class="text-sm text-slate-500">Optional</div>
+                            <div class="mt-2 text-2xl font-bold text-slate-900">回首页总控台</div>
+                            <p class="mt-2 text-sm text-slate-600">只在你想切回首页继续选数据库、专家或收费方案时使用。</p>
                         </button>
                         <a href="./protocol-upload.html" class="rounded-3xl border border-emerald-200 bg-emerald-50 px-6 py-5 text-left hover:bg-emerald-100 transition">
                             <div class="text-sm text-emerald-700">Alternative</div>
@@ -208,7 +208,7 @@
                 </article>
             `).join('') || `
                 <div class="rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-500">
-                    当前入口暂时没有直接挂载能力加持，仍可以先发起圆桌会，再从技能市场补充能力链路。
+                    当前入口没有额外挂载能力也没关系，你仍可以直接创建圆桌会，系统会先让基础临床团队把问题、方案和分析框架做实。
                 </div>
             `;
         }
@@ -307,7 +307,17 @@
                     session = await api.fetchJson('/api/v1/roundtables', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ title, clinical_question: question })
+                        body: JSON.stringify({
+                            title,
+                            clinical_question: question,
+                            preferred_expert: preferredRole,
+                            human_participants: [],
+                            secondme_shades: [],
+                            ai_pack: null,
+                            collaboration_label: preferredRole ? `${getSuggestedTitle()} · 快速启动` : null,
+                            auto_discussion: Boolean(autofill || instantMode),
+                            human_can_interrupt: true
+                        })
                     });
                     await api.fetchJson(`/api/v1/roundtables/${session.id}/start`, { method: 'POST' });
                 } else {
@@ -352,18 +362,18 @@
         async function detectLaunchpadMode() {
             if (!api || api.isStaticMode) {
                 canUseSharedBackend = false;
-                if (modeBadge) modeBadge.textContent = '静态工作台模式';
+                if (modeBadge) modeBadge.textContent = '浏览器演示模式';
                 return;
             }
 
             try {
                 await api.healthcheck();
                 canUseSharedBackend = true;
-                if (modeBadge) modeBadge.textContent = '共享后端模式';
+                if (modeBadge) modeBadge.textContent = '共享协作模式';
             } catch (error) {
                 console.warn('Launchpad healthcheck failed, fallback to static mode:', error);
                 canUseSharedBackend = false;
-                if (modeBadge) modeBadge.textContent = '静态工作台模式';
+                if (modeBadge) modeBadge.textContent = '浏览器演示模式';
             }
         }
 
@@ -374,8 +384,8 @@
 
         if (selectedExpert) {
             document.getElementById('selectedExpertBanner').classList.remove('hidden');
-            document.getElementById('selectedExpertText').textContent = `当前推荐由「${selectedExpert.name}」先介入。你回到首页后，可以先发起圆桌会，再按这位专家的视角组织问题。`;
-            document.getElementById('launchSessionBtn').querySelector('.text-2xl').textContent = `回主页创建新圆桌会（${selectedExpert.name}）`;
+            document.getElementById('selectedExpertText').textContent = `当前推荐由「${selectedExpert.name}」先介入。你可以直接在本页创建并进入圆桌会，系统会自动把这位专家放到第一顺位。`;
+            document.getElementById('launchSessionBtn').querySelector('.text-2xl').textContent = `回首页总控台（${selectedExpert.name}）`;
         }
 
         prefillFromExpert();
