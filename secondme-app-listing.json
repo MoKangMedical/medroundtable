@@ -1,5 +1,9 @@
 {
+  "appName": "MedRoundTable-临床科研圆桌会",
   "slug": "medroundtable",
+  "subtitle": "3 步把真人、分身与 14 位医学科研 Agent 带进同一场圆桌",
+  "shortDescription": "先登录真人身份，再选分身与 AI 阵容，最后把圆桌计划回填到正式站直接开始讨论。",
+  "description": "MedRoundTable 面向临床科研协作场景，把真人研究者、SecondMe 分身、14 位医学科研 Agent 和公开数据库入口收成一条短路径。登录完成后，用户只需再做一次分身与 AI 选择，就能把协作阵容带回主站开始圆桌、上传材料和继续分析。",
   "category": "health",
   "tags": [
     "medical-research",
@@ -10,12 +14,32 @@
   ],
   "developerName": "MoKangMedical",
   "appUrl": "https://medroundtable-secondme.vercel.app/",
-  "subtitle": "14 位医学科研 Agent 驱动的临床研究协作入口",
+  "loginUrl": "https://medroundtable-secondme.vercel.app/api/auth/login",
+  "mcpEndpoint": "https://medroundtable-secondme.vercel.app/api/mcp",
   "iconUrl": "https://mokangmedical.github.io/medroundtable/assets/doctors.jpg",
   "ogImageUrl": "https://mokangmedical.github.io/medroundtable/assets/doctors.jpg",
-  "screenshots": [],
+  "screenshots": [
+    {
+      "title": "SecondMe 登录入口",
+      "url": "https://mokangmedical.github.io/medroundtable/assets/secondme-store/secondme-login-portal.png"
+    },
+    {
+      "title": "SecondMe 三步协作配置页",
+      "url": "https://mokangmedical.github.io/medroundtable/assets/secondme-store/secondme-collaboration-hub.png"
+    },
+    {
+      "title": "主页回填后的真人协作入口",
+      "url": "https://mokangmedical.github.io/medroundtable/assets/secondme-store/secondme-home-handoff.png"
+    }
+  ],
   "promoVideoUrl": "",
   "websiteUrl": "https://mokangmedical.github.io/medroundtable/",
   "supportUrl": "https://medroundtable-secondme.vercel.app/support",
-  "privacyPolicyUrl": "https://medroundtable-secondme.vercel.app/privacy"
+  "privacyPolicyUrl": "https://medroundtable-secondme.vercel.app/privacy",
+  "highlights": [
+    "3 步演示流清晰：登录真人身份、选择分身与 AI、带回主页开始圆桌。",
+    "不是只展示专家名册，而是能直接分诊临床问题并生成启动计划。",
+    "MCP 接口可暴露圆桌分诊、公开数据库检索、专家名册和平台快照。",
+    "主站和 SecondMe 登录入口已上线，适合审核页直接演示。"
+  ]
 }

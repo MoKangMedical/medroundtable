@@ -866,9 +866,9 @@
                                 <div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-blue-800 shadow-sm ring-1 ring-blue-100">
                                     <i class="fas fa-id-card"></i> 真人身份入口
                                 </div>
-                                <h3 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">先登录真人身份，再决定让哪个分身和 AI 一起接管这场圆桌</h3>
+                                <h3 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">3 步把真人、分身和 AI 一起带进这场圆桌</h3>
                                 <p id="secondMeLiveEntrySummary" class="mt-4 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-                                    登录成功后，主页会识别你本人是谁、你的 SecondMe 分身是否已带入，以及哪组 AI 会先接管首轮讨论。授权本身经由独立的 SecondMe 安全入口完成。
+                                    第 1 步登录真人身份，第 2 步选分身与 AI 阵容，第 3 步把整套协作阵容回填到主页，直接开始圆桌讨论。
                                 </p>
                                 <div id="secondMeLiveEntryActions" class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap"></div>
                             </div>
@@ -1389,13 +1389,13 @@
                         <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">真人协作入口</p>
-                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">把真人研究者、SecondMe 分身和 AI agent 真正放进同一个圆桌</h3>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">把真人研究者、SecondMe 分身和 AI agent 以 3 步流真正带进同一个圆桌</h3>
                                 <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
-                                    先决定谁作为真人主导者进入、是否带上你的 SecondMe 分身，再选择一组 AI agent 作为协作底盘。完成后会直接回填到首页创建流程。
+                                    第 1 步登录真人身份，第 2 步决定带不带分身以及哪组 AI 先接手，第 3 步直接把结果回填到首页创建流程。
                                 </p>
                             </div>
                             <a href="./frontend/secondme-hub.html" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
-                                配置 SecondMe 阵容 <i class="fas fa-arrow-right"></i>
+                                第 2 步：配置 SecondMe 阵容 <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
                         <div id="secondMeScenarioGrid" class="mt-6 grid gap-4 xl:grid-cols-3"></div>
@@ -1788,9 +1788,14 @@
         // 测试JavaScript是否正常工作
         console.log('✅ JavaScript 加载成功');
         
-        // API 配置 - 使用 Render 后端
-        const API_BASE = window.MRTApiConfig ? window.MRTApiConfig.API_BASE : 'https://medroundtable-api.onrender.com';
+        // API 配置 - GitHub Pages 静态工作台优先，增强模式可切回共享后端
         const api = window.MRTApiConfig || null;
+        const siteBasePath = window.location.pathname.split('/').filter(Boolean)[0] === 'medroundtable' ? '/medroundtable' : '';
+        const API_BASE = api
+            ? api.API_BASE
+            : (window.location.hostname === 'localhost'
+                ? 'http://localhost:8000'
+                : `${window.location.origin}${siteBasePath}`);
         const SECONDME_PORTAL_BASE = 'https://medroundtable-secondme.vercel.app';
         const SECONDME_LOGIN_URL = `${SECONDME_PORTAL_BASE}/api/auth/login`;
         
@@ -2989,16 +2994,13 @@
             }
 
             if (secondMeIdentity && secondMeIdentity.name) {
-                summary.textContent = `${secondMeIdentity.name} 已通过 SecondMe 登录。现在最适合做的不是再去注册，而是把真人角色、分身模板和 AI pack 一起带入本轮任务。`;
+                summary.textContent = `${secondMeIdentity.name} 已通过 SecondMe 登录。现在只剩两步：选一个分身模板和 AI 阵容，然后把整套配置带回主页开始圆桌。`;
                 actions.innerHTML = `
                     <a href="./frontend/secondme-hub.html" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:bg-blue-800">
-                        <i class="fas fa-user-check"></i>继续配置真人 + 分身 + AI 阵容
+                        <i class="fas fa-user-check"></i>第 2 步：选分身和 AI 阵容
                     </a>
                     <button type="button" onclick="launchSecondMeScenario('clinical_cocreation')" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-50">
-                        <i class="fas fa-rocket"></i>以研究发起人身份直接开始
-                    </button>
-                    <button type="button" onclick="launchSecondMeScenario('evidence_acceleration')" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-50">
-                        <i class="fas fa-book-medical"></i>以共同作者身份推进证据协作
+                        <i class="fas fa-rocket"></i>第 3 步：用默认临床协作直接开始
                     </button>
                 `;
                 identityPanel.innerHTML = `
@@ -3009,9 +3011,9 @@
                             <h4 class="mt-2 text-2xl font-bold text-white">${escapeHtml(secondMeIdentity.name)}</h4>
                             <p class="mt-2 text-sm leading-7 text-slate-300">${escapeHtml(secondMeIdentity.email || '身份已回填到主页，下一步将作为真人成员进入圆桌。')}</p>
                             <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-                                <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-emerald-200">真人身份已回填</span>
-                                <span class="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-cyan-100">分身待装载</span>
-                                <span class="rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-blue-100">AI pack 可一起接管</span>
+                                <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-emerald-200">第 1 步已完成</span>
+                                <span class="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-cyan-100">第 2 步待选分身与 AI</span>
+                                <span class="rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-blue-100">第 3 步回到主页开始</span>
                             </div>
                         </div>
                     </div>
@@ -3019,22 +3021,22 @@
                 return;
             }
 
-            summary.textContent = '如果不先登录 SecondMe，首页只能模拟“有真人加入”。登录会先跳去独立安全入口，回来后平台才知道你是谁、你的分身是什么、哪些 AI 阵容要跟着你一起进入。';
+            summary.textContent = '三步完成：先登录真人身份，再选分身和 AI 阵容，最后把整套配置带回主页开始圆桌。';
             actions.innerHTML = `
                 <a href="${SECONDME_LOGIN_URL}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:bg-blue-800">
-                    <i class="fas fa-right-to-bracket"></i>先登录 SecondMe 真人身份
+                    <i class="fas fa-right-to-bracket"></i>第 1 步：登录 SecondMe 真人身份
                 </a>
             `;
             identityPanel.innerHTML = `
                 <div class="space-y-4">
                     <div>
                         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">未登录状态</p>
-                        <h4 class="mt-2 text-2xl font-bold text-white">先把真人研究者接进来，再谈分身和 AI 协作</h4>
+                        <h4 class="mt-2 text-2xl font-bold text-white">先把真人研究者接进来，再用 3 步流完成协作配置</h4>
                     </div>
                     <div class="grid gap-3">
-                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">登录后会把你的姓名、头像和邮箱带回首页，用作真人成员卡片。授权本身走独立 SecondMe 入口，主页只负责接住返回结果。</div>
-                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">角色选择页会继续问你：这轮你是研究发起人、共同作者，还是负责证据整合的真实研究者。</div>
-                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">回到主页后，你的 SecondMe 分身和 AI pack 会一起写进创建流程和圆桌详情页。</div>
+                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">第 1 步：登录后会把你的姓名、头像和邮箱带回首页，用作真人成员卡片。</div>
+                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">第 2 步：角色选择页会让你决定本轮是否带入分身，以及由哪组 AI 先接手。</div>
+                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">第 3 步：回到主页后，真人、分身和 AI pack 会一起写进创建流程和圆桌详情页。</div>
                     </div>
                 </div>
             `;
