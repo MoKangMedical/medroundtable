@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import asyncio
 import json
@@ -36,6 +36,13 @@ app.add_middleware(
 class CreateRoundTableRequest(BaseModel):
     title: str
     clinical_question: str
+    preferred_expert: Optional[str] = None
+    human_participants: List[Dict[str, Any]] = Field(default_factory=list)
+    secondme_shades: List[Dict[str, Any]] = Field(default_factory=list)
+    ai_pack: Optional[Dict[str, Any]] = None
+    collaboration_label: Optional[str] = None
+    auto_discussion: bool = False
+    human_can_interrupt: bool = True
 
 class SendMessageRequest(BaseModel):
     content: str
@@ -47,6 +54,13 @@ class RoundTableResponse(BaseModel):
     clinical_question: str
     status: str
     participants: List[str]
+    preferred_expert: Optional[str]
+    human_participants: List[Dict[str, Any]]
+    secondme_shades: List[Dict[str, Any]]
+    ai_pack: Optional[Dict[str, Any]]
+    collaboration_label: Optional[str]
+    auto_discussion: bool
+    human_can_interrupt: bool
     current_round: int
     created_at: datetime
     completed_at: Optional[datetime]
@@ -167,6 +181,15 @@ def _persist_roundtable(roundtable: RoundTable):
         history = db.query(SessionHistory).filter(SessionHistory.session_id == roundtable.id).first()
         messages_payload = [_serialize_message(message) for message in roundtable.messages]
         current_stage = _extract_current_stage(roundtable)
+        client_context = {
+            "preferred_expert": roundtable.preferred_expert,
+            "human_participants": roundtable.human_participants,
+            "secondme_shades": roundtable.secondme_shades,
+            "ai_pack": roundtable.ai_pack,
+            "collaboration_label": roundtable.collaboration_label,
+            "auto_discussion": roundtable.auto_discussion,
+            "human_can_interrupt": roundtable.human_can_interrupt,
+        }
 
         if not history:
             history = SessionHistory(
@@ -192,6 +215,11 @@ def _persist_roundtable(roundtable: RoundTable):
             history.messages = messages_payload
             history.updated_at = datetime.utcnow()
             history.completed_at = roundtable.completed_at
+
+        problem_analysis = history.problem_analysis or {}
+        if isinstance(problem_analysis, dict):
+            problem_analysis["client_context"] = client_context
+            history.problem_analysis = problem_analysis
 
         if roundtable.output:
             history.study_design = _dump_model(roundtable.output.study_design)
@@ -262,6 +290,13 @@ def _hydrate_roundtable(session_id: str) -> Optional[RoundTable]:
             status=_roundtable_status_from_value(history.status),
             participants=list(AgentRole),
             messages=messages,
+            preferred_expert=((history.problem_analysis or {}).get("client_context") or {}).get("preferred_expert"),
+            human_participants=((history.problem_analysis or {}).get("client_context") or {}).get("human_participants") or [],
+            secondme_shades=((history.problem_analysis or {}).get("client_context") or {}).get("secondme_shades") or [],
+            ai_pack=((history.problem_analysis or {}).get("client_context") or {}).get("ai_pack"),
+            collaboration_label=((history.problem_analysis or {}).get("client_context") or {}).get("collaboration_label"),
+            auto_discussion=bool(((history.problem_analysis or {}).get("client_context") or {}).get("auto_discussion")),
+            human_can_interrupt=((history.problem_analysis or {}).get("client_context") or {}).get("human_can_interrupt", True),
             current_round=max(
                 [int((message.metadata or {}).get("round", 0)) for message in messages] or [0]
             ),
@@ -279,6 +314,13 @@ def _build_roundtable_response(roundtable: RoundTable) -> RoundTableResponse:
         clinical_question=roundtable.clinical_question,
         status=roundtable.status.value,
         participants=[participant.value for participant in roundtable.participants],
+        preferred_expert=roundtable.preferred_expert,
+        human_participants=roundtable.human_participants,
+        secondme_shades=roundtable.secondme_shades,
+        ai_pack=roundtable.ai_pack,
+        collaboration_label=roundtable.collaboration_label,
+        auto_discussion=roundtable.auto_discussion,
+        human_can_interrupt=roundtable.human_can_interrupt,
         current_round=roundtable.current_round,
         created_at=roundtable.created_at,
         completed_at=roundtable.completed_at
@@ -330,7 +372,14 @@ async def create_roundtable(request: CreateRoundTableRequest):
     """创建新的圆桌会"""
     roundtable = await orchestrator.create_roundtable(
         title=request.title,
-        clinical_question=request.clinical_question
+        clinical_question=request.clinical_question,
+        preferred_expert=request.preferred_expert,
+        human_participants=request.human_participants,
+        secondme_shades=request.secondme_shades,
+        ai_pack=request.ai_pack,
+        collaboration_label=request.collaboration_label,
+        auto_discussion=request.auto_discussion,
+        human_can_interrupt=request.human_can_interrupt
     )
     roundtables[roundtable.id] = roundtable
     _persist_roundtable(roundtable)

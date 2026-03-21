@@ -18,9 +18,8 @@ class LLMClient:
         self.moonshot_key = os.getenv("MOONSHOT_API_KEY")
         self.moonshot_base = os.getenv("MOONSHOT_BASE_URL", "https://api.moonshot.cn/v1")
         self.moonshot_model = os.getenv("MOONSHOT_MODEL", "moonshot-v1-128k")
-        # 首轮圆桌如果等待太久，用户会误以为“没有真的开始讨论”。
-        # 默认把超时压到 1.5 秒，超时后立即切高质量模拟响应，优先保证讨论连贯性。
-        self.request_timeout = float(os.getenv("MOONSHOT_TIMEOUT", "1.5"))
+        # 演示阶段仍需优先保证“真的在讨论”，但 1.5 秒过于激进，容易过早回退到 mock。
+        self.request_timeout = float(os.getenv("MOONSHOT_TIMEOUT", "6"))
         self.force_mock = False
         self.mock_until = 0.0
         self.prefer_discussion_mock = os.getenv(
@@ -103,8 +102,8 @@ class LLMClient:
                     "rate limit"
                 ]
             ):
-                self.mock_until = time.time() + 300
-                print(f"⚠️ LLM 服务抖动，未来 5 分钟切换为高质量模拟响应: {e}")
+                self.mock_until = time.time() + 60
+                print(f"⚠️ LLM 服务抖动，未来 60 秒切换为高质量模拟响应: {e}")
                 return self._generate_mock_response(system_prompt, user_prompt)
 
             print(f"❌ LLM API 调用失败: {e}")

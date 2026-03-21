@@ -9,16 +9,20 @@ from backend.study_design_generator import study_design_generator
 
 router = APIRouter(prefix="/api/v1/export", tags=["导出"])
 
+
+def _get_roundtable_or_404(session_id: str):
+    from backend.main import roundtables, _hydrate_roundtable
+
+    rt = roundtables.get(session_id) or _hydrate_roundtable(session_id)
+    if not rt:
+        raise HTTPException(status_code=404, detail="RoundTable not found")
+    return rt
+
 @router.post("/protocol/{session_id}")
 async def export_protocol(session_id: str):
     """导出研究方案Word文档"""
     try:
-        # 这里应该从数据库获取数据，现在使用模拟数据
-        from backend.main import roundtables
-        
-        rt = roundtables.get(session_id)
-        if not rt:
-            raise HTTPException(status_code=404, detail="RoundTable not found")
+        rt = _get_roundtable_or_404(session_id)
         
         # 转换消息格式
         messages = [
@@ -50,11 +54,7 @@ async def export_protocol(session_id: str):
 async def export_crf(session_id: str):
     """导出CRF表格模板"""
     try:
-        from backend.main import roundtables
-        
-        rt = roundtables.get(session_id)
-        if not rt:
-            raise HTTPException(status_code=404, detail="RoundTable not found")
+        rt = _get_roundtable_or_404(session_id)
         
         output_path = exporter.generate_crf_template(
             study_title=rt.title
@@ -73,11 +73,7 @@ async def export_crf(session_id: str):
 async def export_analysis_plan(session_id: str):
     """导出统计分析计划"""
     try:
-        from backend.main import roundtables
-        
-        rt = roundtables.get(session_id)
-        if not rt:
-            raise HTTPException(status_code=404, detail="RoundTable not found")
+        rt = _get_roundtable_or_404(session_id)
         
         messages = [
             {
@@ -109,11 +105,7 @@ async def export_all(session_id: str):
     from datetime import datetime
     
     try:
-        from backend.main import roundtables
-        
-        rt = roundtables.get(session_id)
-        if not rt:
-            raise HTTPException(status_code=404, detail="RoundTable not found")
+        rt = _get_roundtable_or_404(session_id)
         
         messages = [
             {
@@ -157,11 +149,7 @@ async def export_all(session_id: str):
 async def get_study_design(session_id: str):
     """获取自动生成的研究设计"""
     try:
-        from backend.main import roundtables
-        
-        rt = roundtables.get(session_id)
-        if not rt:
-            raise HTTPException(status_code=404, detail="RoundTable not found")
+        rt = _get_roundtable_or_404(session_id)
         
         messages = [
             {
@@ -197,12 +185,8 @@ async def get_study_design(session_id: str):
 async def get_citations(session_id: str):
     """获取当前会话的所有参考文献"""
     try:
-        from backend.main import roundtables
         from backend.citation_manager import citation_manager
-        
-        rt = roundtables.get(session_id)
-        if not rt:
-            raise HTTPException(status_code=404, detail="RoundTable not found")
+        _get_roundtable_or_404(session_id)
         
         # 获取所有引用
         citations = citation_manager.get_all_citations()
@@ -221,15 +205,12 @@ async def get_citations(session_id: str):
 async def generate_complete_report(session_id: str):
     """生成完整的研究报告Word文档"""
     try:
-        from backend.main import roundtables
         from backend.citation_manager import citation_manager
         from docx import Document
         from docx.shared import Pt, RGBColor, Inches
         from docx.enum.text import WD_ALIGN_PARAGRAPH
         
-        rt = roundtables.get(session_id)
-        if not rt:
-            raise HTTPException(status_code=404, detail="RoundTable not found")
+        rt = _get_roundtable_or_404(session_id)
         
         messages = [
             {

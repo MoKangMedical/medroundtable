@@ -95,6 +95,13 @@ class RoundTable(BaseModel):
     status: RoundTableStatus = RoundTableStatus.INIT
     participants: List[AgentRole] = Field(default_factory=list)
     messages: List[A2AMessage] = Field(default_factory=list)
+    preferred_expert: Optional[str] = None
+    human_participants: List[Dict[str, Any]] = Field(default_factory=list)
+    secondme_shades: List[Dict[str, Any]] = Field(default_factory=list)
+    ai_pack: Optional[Dict[str, Any]] = None
+    collaboration_label: Optional[str] = None
+    auto_discussion: bool = False
+    human_can_interrupt: bool = True
     current_round: int = 0
     created_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = None
