@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   const clientId = process.env.SECONDME_CLIENT_ID;
   const redirectUri = process.env.SECONDME_REDIRECT_URI;
-  const authEndpoint = process.env.SECONDME_AUTHORIZATION_ENDPOINT || 'https://go.second.me/oauth/authorize';
+  const authEndpoint = process.env.SECONDME_AUTHORIZATION_ENDPOINT || 'https://go.second.me/oauth/';
 
   if (!clientId || !redirectUri) {
     return NextResponse.redirect(new URL('/?error=auth_failed&details=missing_oauth_env', redirectUri || 'http://localhost:3000'));

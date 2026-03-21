@@ -66,10 +66,10 @@ export default function Home({
                 SecondMe Login Portal
               </div>
               <h1 style={{ margin: 0, fontSize: 'clamp(36px, 5vw, 58px)', lineHeight: 1.02, fontWeight: 900, letterSpacing: '-0.04em' }}>
-                先登录真人身份，再让 SecondMe 分身和 AI agent 一起进入圆桌
+                3 步把真人、分身和 AI agent 带进同一场圆桌
               </h1>
               <p style={{ margin: 0, color: '#475569', fontSize: 18, lineHeight: 1.9, maxWidth: 720 }}>
-                这里不是普通介绍页，而是 SecondMe 的正式接入入口。先完成真人身份授权，再把分身、协作阵容和圆桌任务一起回填到 MedRoundTable。
+                第 1 步先登录真人身份，第 2 步选这轮要不要带上你的 SecondMe 分身，第 3 步把协作阵容回填到 MedRoundTable 主站，直接开始圆桌讨论。
               </p>
               {errorMessage ? (
                 <div style={{ padding: 16, borderRadius: 20, background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontWeight: 700, lineHeight: 1.8 }}>
@@ -88,7 +88,7 @@ export default function Home({
                     boxShadow: '0 18px 36px rgba(29,78,216,0.22)',
                   }}
                 >
-                  立即 SecondMe 登录
+                  第 1 步：登录 SecondMe 真人身份
                 </a>
                 <a
                   href="https://mokangmedical.github.io/medroundtable/frontend/secondme-hub.html"
@@ -102,50 +102,36 @@ export default function Home({
                     fontWeight: 800,
                   }}
                 >
-                  查看协作配置页
+                  第 3 步预览：查看协作配置页
                 </a>
-                <a
-                  href="/api/mcp"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    padding: '14px 20px',
-                    borderRadius: 999,
-                    border: '1px solid rgba(148,163,184,0.22)',
-                    background: '#fff',
-                    fontWeight: 800,
-                  }}
-                >
-                  查看 MCP Endpoint
-                </a>
-                <a
-                  href="/skill.md"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    padding: '14px 20px',
-                    borderRadius: 999,
-                    border: '1px solid rgba(148,163,184,0.22)',
-                    background: '#fff',
-                    fontWeight: 800,
-                  }}
-                >
-                  查看 Skill.md
-                </a>
-                <a
-                  href="/secondme-integration-manifest.json"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    padding: '14px 20px',
-                    borderRadius: 999,
-                    border: '1px solid rgba(148,163,184,0.22)',
-                    background: '#fff',
-                    fontWeight: 800,
-                  }}
-                >
-                  查看 Integration Manifest
-                </a>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginTop: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: '#64748b' }}>
+                  Review Assets
+                </div>
+                {[
+                  { href: '/api/mcp', label: 'MCP Endpoint' },
+                  { href: '/skill.md', label: 'Skill.md' },
+                  { href: '/secondme-integration-manifest.json', label: 'Integration Manifest' },
+                  { href: '/secondme-app-listing.json', label: 'Store Listing JSON' },
+                ].map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: 999,
+                      border: '1px solid rgba(148,163,184,0.22)',
+                      background: '#fff',
+                      fontWeight: 800,
+                      fontSize: 13,
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                ))}
               </div>
             </div>
 
@@ -161,24 +147,20 @@ export default function Home({
               }}
             >
               <div style={{ color: '#bae6fd', fontSize: 12, fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-                What happens next
+                3-Step Demo Flow
               </div>
               <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
                 <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
-                  <div style={{ fontWeight: 800 }}>1. 真人身份登录</div>
-                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>确认你是谁，后续的头像、姓名和邮箱才能带回首页。</div>
+                  <div style={{ fontWeight: 800 }}>1. 登录真人身份</div>
+                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>确认你是谁，姓名、头像和邮箱才能作为真人成员带回主站。</div>
                 </div>
                 <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
-                  <div style={{ fontWeight: 800 }}>2. 装载 SecondMe 分身</div>
-                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>把临床判断、文献记忆或多组学上下文一起带进来。</div>
+                  <div style={{ fontWeight: 800 }}>2. 选择分身与 AI 阵容</div>
+                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>装载你的临床判断、文献记忆或多组学上下文，并指定谁先接手。</div>
                 </div>
                 <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
-                  <div style={{ fontWeight: 800 }}>3. 选择 AI agent 阵容</div>
-                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>让 MedRoundTable 的 14 个 Agent 按任务直接开始讨论。</div>
-                </div>
-                <div style={{ padding: 14, borderRadius: 20, background: 'rgba(255,255,255,0.08)' }}>
-                  <div style={{ fontWeight: 800 }}>4. 让 OpenClaw 找到这个应用</div>
-                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>Vercel 站点内置了 MCP endpoint，可直接用于 SecondMe Integration 提审。</div>
+                  <div style={{ fontWeight: 800 }}>3. 带回主页并开始圆桌</div>
+                  <div style={{ marginTop: 6, color: '#cbd5e1', lineHeight: 1.8, fontSize: 14 }}>把真人、分身和 AI pack 一起回填到 MedRoundTable，直接进入讨论。</div>
                 </div>
               </div>
             </div>
@@ -240,8 +222,8 @@ export default function Home({
           }}
         >
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <SectionLabel title="Quick Scenario" subtitle="最常见的三种协作起点" tone="#1d4ed8" />
-            <div style={{ color: '#64748b', fontSize: 14 }}>登录后，场景会直接回填到主页创建流程。</div>
+            <SectionLabel title="Step 3 Shortcuts" subtitle="最常见的 3 条带回主页路径" tone="#1d4ed8" />
+            <div style={{ color: '#64748b', fontSize: 14 }}>登录完成后，点任一场景就能直接把阵容回填到主页。</div>
           </div>
           <div style={{ marginTop: 18, display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
             {quickScenarios.map((scenario) => (

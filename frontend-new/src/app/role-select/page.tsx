@@ -36,13 +36,13 @@ export default function RoleSelectPage() {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ maxWidth: 760 }}>
               <div style={{ color: '#bae6fd', fontSize: 12, fontWeight: 800, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-                Logged In With SecondMe
+                Step 2 Of 3
               </div>
               <h1 style={{ margin: '14px 0 0', fontSize: 46, lineHeight: 1.05, fontWeight: 800 }}>
-                {profile?.name ? `${profile.name}，现在决定你要以什么身份进入圆桌` : '选择你的进入方式'}
+                {profile?.name ? `${profile.name}，现在选定这轮真人身份、分身和首轮 AI` : '第 2 步：确定这轮怎么进入圆桌'}
               </h1>
               <p style={{ margin: '18px 0 0', color: '#e2e8f0', fontSize: 18, lineHeight: 1.8 }}>
-                OAuth 已完成，下一步不是停在“已登录”，而是把你本人、SecondMe 分身和 AI 阵容一起带回正式站。
+                登录已经完成。现在只要确定真人角色、要不要带分身，以及哪组 AI 先接手，第 3 步就能把整套阵容带回主站直接开始圆桌。
               </p>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 260 }}>
@@ -69,10 +69,32 @@ export default function RoleSelectPage() {
                   textAlign: 'center',
                 }}
               >
-                直接进入默认协作阵容
+                直接完成第 2/3 步
               </Link>
             </div>
           </div>
+        </section>
+
+        <section style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+          {[
+            ['第 1 步已完成', '真人身份已经授权，姓名、头像和邮箱会作为真人成员回到主页。'],
+            ['第 2 步当前页面', '从真人角色、SecondMe 分身和 AI 阵容里选一个最适合这轮题目的组合。'],
+            ['第 3 步即将发生', '点击任一场景或组合后，系统会把协作阵容带回 MedRoundTable 正式站。'],
+          ].map(([title, body]) => (
+            <div
+              key={title}
+              style={{
+                borderRadius: 26,
+                padding: 20,
+                background: 'rgba(255,255,255,0.84)',
+                border: '1px solid rgba(148,163,184,0.22)',
+                boxShadow: '0 20px 36px rgba(15,23,42,0.08)',
+              }}
+            >
+              <div style={{ color: '#1d4ed8', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>{title}</div>
+              <div style={{ marginTop: 10, color: '#475569', lineHeight: 1.8, fontSize: 15 }}>{body}</div>
+            </div>
+          ))}
         </section>
 
         <section style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
@@ -95,11 +117,11 @@ export default function RoleSelectPage() {
               }}
             >
               <div style={{ color: '#1d4ed8', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-                Quick Scenario
+                Step 3 Shortcut
               </div>
               <div style={{ marginTop: 10, fontSize: 24, fontWeight: 800 }}>{scenario.title}</div>
               <div style={{ marginTop: 10, color: '#475569', lineHeight: 1.8 }}>{scenario.description}</div>
-              <div style={{ marginTop: 18, fontWeight: 800, color: '#1d4ed8' }}>带回正式站</div>
+              <div style={{ marginTop: 18, fontWeight: 800, color: '#1d4ed8' }}>第 3 步：带回正式站</div>
             </Link>
           ))}
         </section>
@@ -109,6 +131,7 @@ export default function RoleSelectPage() {
             <div style={{ color: '#1d4ed8', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
               Human Roles
             </div>
+            <div style={{ marginTop: 6, color: '#64748b', fontSize: 14 }}>先定真人身份。</div>
             <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
               {humanRoles.map((role) => (
                 <Link
@@ -128,6 +151,7 @@ export default function RoleSelectPage() {
             <div style={{ color: '#0f766e', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
               SecondMe Shades
             </div>
+            <div style={{ marginTop: 6, color: '#64748b', fontSize: 14 }}>再决定这轮是否带上分身。</div>
             <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
               {shadeTemplates.map((shade) => (
                 <Link
@@ -147,6 +171,7 @@ export default function RoleSelectPage() {
             <div style={{ color: '#7c3aed', fontSize: 12, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
               AI Packs
             </div>
+            <div style={{ marginTop: 6, color: '#64748b', fontSize: 14 }}>最后锁定谁先接手首轮讨论。</div>
             <div style={{ marginTop: 12, display: 'grid', gap: 12 }}>
               {aiPacks.map((pack) => (
                 <Link
