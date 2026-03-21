@@ -5,6 +5,7 @@ from typing import List, Dict, Optional, Callable
 from datetime import datetime
 from dataclasses import dataclass, field
 import json
+import re
 
 from backend.models import A2AMessage, AgentRole, MessageType, RoundTable, RoundTableStatus
 from agents.prompts import AGENT_PROFILES, DISCUSSION_STAGES
@@ -275,11 +276,103 @@ class A2AOrchestrator:
             AgentRole.RESEARCH_NURSE,
         ])
 
+        if self._requires_bioinformatics_stage(roundtable.clinical_question):
+            ordered_roles.extend([
+                AgentRole.GALAXY_BRIDGE,
+                AgentRole.DATA_ENGINEER,
+            ])
+        else:
+            ordered_roles.extend([
+                AgentRole.TREND_RESEARCHER,
+                AgentRole.EXPERIMENT_TRACKER,
+            ])
+
         deduped_roles: List[AgentRole] = []
         for role in ordered_roles:
             if role not in deduped_roles:
                 deduped_roles.append(role)
-        return deduped_roles[:3]
+        return deduped_roles[:5]
+
+    def _get_stage_roles(
+        self,
+        stage: str,
+        roundtable: RoundTable,
+        extra_text: str = ""
+    ) -> List[AgentRole]:
+        """返回某个阶段应当参与的完整角色集合，而不是只保留 2-3 个默认专家。"""
+        stage_config = DISCUSSION_STAGES.get(stage, {})
+        ordered_roles: List[AgentRole] = []
+
+        leader_value = stage_config.get("leader")
+        if leader_value in AgentRole._value2member_map_:
+            ordered_roles.append(AgentRole(leader_value))
+
+        for role in stage_config.get("participants", []):
+            if role in AgentRole._value2member_map_:
+                ordered_roles.append(AgentRole(role))
+
+        requested_roles = self._get_requested_roles(
+            f"{roundtable.clinical_question}\n{extra_text}".strip()
+        )
+        ordered_roles.extend(requested_roles)
+
+        stage_support_roles = {
+            "problem_presentation": [
+                AgentRole.STATISTICIAN,
+                AgentRole.RESEARCH_NURSE,
+                AgentRole.TREND_RESEARCHER,
+            ],
+            "literature_review": [
+                AgentRole.TREND_RESEARCHER,
+                AgentRole.QA_EXPERT,
+            ],
+            "study_design": [
+                AgentRole.RESEARCH_NURSE,
+                AgentRole.TREND_RESEARCHER,
+                AgentRole.UX_RESEARCHER,
+            ],
+            "bioinformatics_plan": [
+                AgentRole.PHARMACOGENOMICS_EXPERT,
+                AgentRole.GWAS_EXPERT,
+                AgentRole.SINGLE_CELL_ANALYST,
+                AgentRole.GALAXY_BRIDGE,
+                AgentRole.DATA_ENGINEER,
+            ],
+            "statistical_plan": [
+                AgentRole.RESEARCH_NURSE,
+                AgentRole.QA_EXPERT,
+                AgentRole.DATA_ENGINEER,
+            ],
+            "crf_design": [
+                AgentRole.EXPERIMENT_TRACKER,
+                AgentRole.UX_RESEARCHER,
+                AgentRole.QA_EXPERT,
+            ],
+            "execution_plan": [
+                AgentRole.DATA_ENGINEER,
+                AgentRole.QA_EXPERT,
+                AgentRole.EXPERIMENT_TRACKER,
+            ],
+            "quality_review": [
+                AgentRole.EXPERIMENT_TRACKER,
+                AgentRole.TREND_RESEARCHER,
+                AgentRole.UX_RESEARCHER,
+                AgentRole.QA_EXPERT,
+            ],
+            "consensus": [
+                AgentRole.EXPERIMENT_TRACKER,
+                AgentRole.TREND_RESEARCHER,
+                AgentRole.PHD_STUDENT,
+            ],
+        }
+        ordered_roles.extend(stage_support_roles.get(stage, []))
+
+        deduped_roles: List[AgentRole] = []
+        for role in ordered_roles:
+            if role not in deduped_roles:
+                deduped_roles.append(role)
+
+        return deduped_roles
 
     def _get_stage_sequence(self, roundtable: RoundTable) -> List[str]:
         stages = [
@@ -293,8 +386,6 @@ class A2AOrchestrator:
             "quality_review",
             "consensus",
         ]
-        if not self._requires_bioinformatics_stage(roundtable.clinical_question):
-            stages = [stage for stage in stages if stage != "bioinformatics_plan"]
         return stages
 
     def _get_next_stage(self, roundtable: RoundTable) -> str:
@@ -306,6 +397,24 @@ class A2AOrchestrator:
         if latest_index >= len(stages) - 1:
             return stages[-1]
         return stages[latest_index + 1]
+
+    def _infer_requested_stage(self, user_content: str) -> Optional[str]:
+        lowered = (user_content or "").lower()
+        stage_patterns = [
+            ("problem_presentation", ["问题识别", "立项", "研究问题", "主问题", "go/no-go", "值得做"]),
+            ("literature_review", ["文献回顾", "文献", "证据表", "检索", "综述", "指南"]),
+            ("study_design", ["研究设计", "纳排", "纳入排除", "偏倚控制", "方案骨架"]),
+            ("bioinformatics_plan", ["生信", "组学", "gwas", "单细胞", "转录组", "多组学", "workflow"]),
+            ("statistical_plan", ["数据分析", "统计分析", "样本量", "sap", "敏感性分析", "分析集"]),
+            ("crf_design", ["crf", "字段表", "访视表"]),
+            ("execution_plan", ["执行计划", "里程碑", "排期", "试运行", "培训"]),
+            ("quality_review", ["质控", "qa", "复核", "返工", "一致性"]),
+            ("consensus", ["总结", "最终报告", "形成报告", "执行摘要", "共识"]),
+        ]
+        for stage, markers in stage_patterns:
+            if any(marker in lowered for marker in markers):
+                return stage
+        return None
 
     def _build_kickoff_placeholder(self, roundtable: RoundTable) -> str:
         requested_outputs = self._infer_requested_outputs(roundtable.clinical_question)
@@ -357,69 +466,10 @@ class A2AOrchestrator:
         target_stage: Optional[str] = None
     ) -> List[AgentRole]:
         latest_stage = target_stage or self._get_latest_stage(roundtable)
-        stage_defaults = {
-            "problem_presentation": [
-                AgentRole.CLINICAL_DIRECTOR,
-                AgentRole.STATISTICIAN,
-                AgentRole.RESEARCH_NURSE,
-            ],
-            "literature_review": [
-                AgentRole.PHD_STUDENT,
-                AgentRole.EPIDEMIOLOGIST,
-                AgentRole.STATISTICIAN,
-            ],
-            "study_design": [
-                AgentRole.EPIDEMIOLOGIST,
-                AgentRole.STATISTICIAN,
-                AgentRole.RESEARCH_NURSE,
-            ],
-            "bioinformatics_plan": [
-                AgentRole.GALAXY_BRIDGE,
-                AgentRole.DATA_ENGINEER,
-                AgentRole.QA_EXPERT,
-            ],
-            "statistical_plan": [
-                AgentRole.STATISTICIAN,
-                AgentRole.RESEARCH_NURSE,
-                AgentRole.EPIDEMIOLOGIST,
-            ],
-            "crf_design": [
-                AgentRole.RESEARCH_NURSE,
-                AgentRole.STATISTICIAN,
-                AgentRole.QA_EXPERT,
-            ],
-            "execution_plan": [
-                AgentRole.RESEARCH_NURSE,
-                AgentRole.QA_EXPERT,
-                AgentRole.CLINICAL_DIRECTOR,
-            ],
-            "quality_review": [
-                AgentRole.QA_EXPERT,
-                AgentRole.CLINICAL_DIRECTOR,
-                AgentRole.STATISTICIAN,
-            ],
-            "consensus": [
-                AgentRole.CLINICAL_DIRECTOR,
-                AgentRole.STATISTICIAN,
-                AgentRole.RESEARCH_NURSE,
-            ],
-        }
-
-        ordered_roles = self._get_requested_roles(
-            f"{roundtable.clinical_question}\n{user_content}"
-        )
-        ordered_roles.extend(
-            stage_defaults.get(
-                latest_stage,
-                [AgentRole.STATISTICIAN, AgentRole.RESEARCH_NURSE, AgentRole.EPIDEMIOLOGIST],
-            )
-        )
-
-        deduped_roles: List[AgentRole] = []
-        for role in ordered_roles:
-            if role not in deduped_roles:
-                deduped_roles.append(role)
-        return deduped_roles[:3]
+        stage_roles = self._get_stage_roles(latest_stage, roundtable, user_content)
+        if stage_roles:
+            return stage_roles[:5]
+        return [AgentRole.CLINICAL_DIRECTOR, AgentRole.STATISTICIAN, AgentRole.RESEARCH_NURSE]
 
     def _requires_bioinformatics_stage(self, clinical_question: str) -> bool:
         lowered = (clinical_question or "").lower()
@@ -634,6 +684,9 @@ class A2AOrchestrator:
         roundtable = self.sessions.get(session_id)
         if not roundtable:
             return
+
+        if any((message.metadata or {}).get("is_final_summary") for message in roundtable.messages):
+            return
         
         roundtable.status = RoundTableStatus.COMPLETED
         roundtable.completed_at = datetime.utcnow()
@@ -777,17 +830,8 @@ class A2AOrchestrator:
         stage_config = DISCUSSION_STAGES.get(stage, {})
         prompt = stage_config.get("prompt", "请发表你的观点")
         participant_roles = [
-            AgentRole(role)
-            for role in stage_config.get("participants", [])
-            if role in [agent_role.value for agent_role in AgentRole]
-        ]
-        for role in self._get_requested_roles(roundtable.clinical_question):
-            if role not in participant_roles and role != leader:
-                participant_roles.append(role)
-        participant_roles = [
-            role
-            for role in participant_roles
-            if self._is_role_relevant(role, roundtable.clinical_question)
+            role for role in self._get_stage_roles(stage, roundtable)
+            if role != leader
         ]
 
         stage_instruction = self._build_stage_instruction(stage_config, stage, roundtable.clinical_question)
@@ -946,8 +990,13 @@ class A2AOrchestrator:
     ):
         """处理用户插话 - 智能分配回应的Agent"""
         normalized = user_content.strip().lower()
-        if normalized in {"好的", "继续", "继续讨论", "开始讨论", "开始", "收到", "ok", "okay", "继续吧"}:
-            target_stage = self._get_next_stage(roundtable)
+        explicit_stage = self._infer_requested_stage(user_content)
+        should_stage_drive = explicit_stage and any(
+            marker in normalized for marker in ["阶段", "进入", "推进", "先做", "先把", "当前"]
+        )
+
+        if re.match(r"^(好的|继续|继续讨论|开始讨论|开始|收到|ok|okay|继续吧)([。！，,\s].*)?$", normalized) or should_stage_drive:
+            target_stage = explicit_stage or self._get_next_stage(roundtable)
             follow_up_prompt = self._build_continue_prompt(roundtable, user_content, target_stage)
             responding_agents = self._select_continue_roles(roundtable, follow_up_prompt, target_stage)
             responded = False
@@ -973,6 +1022,14 @@ class A2AOrchestrator:
                     original_question=user_content,
                     stage=target_stage
                 )
+
+            if target_stage == "consensus" and roundtable.status != RoundTableStatus.COMPLETED:
+                await asyncio.sleep(0.4)
+                await self._clinical_director_summary(session_id)
+            return
+
+        if re.search(r"(总结|生成总结|最终总结|最终报告|生成报告|导出报告|形成报告)", normalized):
+            await self._clinical_director_summary(session_id)
             return
 
         # 如果用户指定了特定Agent，直接由该Agent回应
@@ -992,6 +1049,15 @@ class A2AOrchestrator:
             AgentRole.EPIDEMIOLOGIST: ["设计", "方法", "偏倚", "样本", "队列", "对照", "随机", "盲法", "质量", "纳入", "排除"],
             AgentRole.STATISTICIAN: ["统计", "样本量", "效能", "分析", "检验", "P值", "置信区间", "多因素", "回归", "显著性", "终点", "字段", "变量", "crf", "表格", "sap"],
             AgentRole.RESEARCH_NURSE: ["执行", "操作", "随访", "数据", "CRF", "表格", "字段", "流程", "质控", "实施", "可行", "访视", "录入", "sop", "培训", "依从性"],
+            AgentRole.PHARMACOGENOMICS_EXPERT: ["药物基因组", "基因", "用药", "代谢", "药敏", "不良反应"],
+            AgentRole.GWAS_EXPERT: ["gwas", "位点", "snp", "遗传", "变异", "表型"],
+            AgentRole.SINGLE_CELL_ANALYST: ["单细胞", "scrna", "细胞群", "转录组", "测序"],
+            AgentRole.GALAXY_BRIDGE: ["组学", "workflow", "管线", "galaxy", "多组学"],
+            AgentRole.UX_RESEARCHER: ["体验", "界面", "交互", "使用流程"],
+            AgentRole.DATA_ENGINEER: ["数据工程", "清洗", "etl", "管道", "数据库", "整合"],
+            AgentRole.TREND_RESEARCHER: ["趋势", "热点", "投稿", "期刊", "创新点", "竞争"],
+            AgentRole.EXPERIMENT_TRACKER: ["里程碑", "进度", "追踪", "排期", "推进"],
+            AgentRole.QA_EXPERT: ["qa", "质控", "核查", "一致性", "偏差", "复核"],
         }
 
         # 计算每个Agent的相关性得分
@@ -1022,7 +1088,7 @@ class A2AOrchestrator:
         else:
             # 选择得分最高的若干 Agent 回应；具体任务允许 3 位专家协作而不是 1-2 位模板式接话
             sorted_roles = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-            max_responders = 3 if any(word in user_content_lower for word in concrete_markers) else 2
+            max_responders = 4 if any(word in user_content_lower for word in concrete_markers) else 3
             responding_agents = [role for role, _ in sorted_roles[:max_responders]]
 
         if any(word in user_content_lower for word in ["crf", "字段", "表格", "访视", "录入", "sop"]) and AgentRole.RESEARCH_NURSE not in responding_agents:
@@ -1039,7 +1105,7 @@ class A2AOrchestrator:
         for role in responding_agents:
             if role not in deduped_agents:
                 deduped_agents.append(role)
-        responding_agents = deduped_agents[:3]
+        responding_agents = deduped_agents[:4]
 
         # 让这些Agent依次回应
         for role in responding_agents:
