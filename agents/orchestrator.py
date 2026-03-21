@@ -140,6 +140,7 @@ class Agent:
 7. 优先给出样本量、字段、终点、风险点、交付物，而不是复述概念
 8. 不要复述阶段任务原文，不要把提示词当作回答内容，也不要用“如果你要我可以继续”收尾
 9. 避免写“尊敬的各位专家”“下面我汇报”等空泛开场，直接进入问题本身
+10. 每次专家输出不少于 200 个中文字符
 """
 
         if stage_contract:
@@ -315,6 +316,9 @@ class A2AOrchestrator:
         if not text:
             return True
 
+        if len(text) < 200:
+            return True
+
         has_number = bool(re.search(r"\d", text))
         has_list = bool(re.search(r"(^|\n)\s*(?:[-*]|\d+\.)\s+", text))
         has_deliverable_marker = any(
@@ -354,8 +358,10 @@ class A2AOrchestrator:
 补充要求：
 1. 不要复述背景或阶段说明
 2. 必须至少给出两类具体信息：数字/阈值/时间窗；字段/表头/流程步骤；风险点和下一步负责人
-3. 用 3-6 条 bullet 输出，像工作清单，不要写成散文
-4. 至少点名一位其他专家，说明下一步由谁补位""",
+3. 输出不少于 220 个中文字符，内容要像真实会诊发言，而不是一句话总结
+4. 用 4-6 条 bullet 输出，像工作清单，不要写成散文
+5. 至少点名一位其他专家，说明下一步由谁补位
+6. 结尾请自然带出 1-2 条 PubMed 证据的落脚点，方便系统追加参考文献""",
             metadata=message.metadata or {},
         )
         return await agent.generate_response(retry_message, context, stage, roundtable)
@@ -385,7 +391,10 @@ class A2AOrchestrator:
         for role in ordered_roles:
             if role not in deduped_roles:
                 deduped_roles.append(role)
-        return deduped_roles[:7]
+        for role in AgentRole:
+            if role not in deduped_roles:
+                deduped_roles.append(role)
+        return deduped_roles
 
     def _get_stage_roles(
         self,
@@ -572,7 +581,10 @@ class A2AOrchestrator:
         ]
         if stage_roles:
             ordered = unseen_stage_roles + seen_stage_roles + unseen_global_roles
-            limit = 8 if latest_stage in {"study_design", "bioinformatics_plan", "statistical_plan"} else 6
+            if any(marker in (user_content or "") for marker in ["全体专家", "14 位", "14位", "全员", "接力", "逐个", "每位专家"]):
+                limit = 14
+            else:
+                limit = 8 if latest_stage in {"study_design", "bioinformatics_plan", "statistical_plan"} else 6
             return ordered[:limit]
         return [AgentRole.CLINICAL_DIRECTOR, AgentRole.STATISTICIAN, AgentRole.RESEARCH_NURSE]
 
@@ -638,7 +650,7 @@ class A2AOrchestrator:
         await self._run_initial_discussion_burst(session_id)
 
     async def _run_initial_discussion_burst(self, session_id: str):
-        """首轮只给一个可执行开场，不自动把整套阶段一次跑完。"""
+        """首轮自动拉起 14 位专家，给用户一个可直接打断的全员开场。"""
         roundtable = self.sessions[session_id]
         roundtable.current_round += 1
 
@@ -696,7 +708,8 @@ class A2AOrchestrator:
                 to_role="all",
                 type=MessageType.FEEDBACK,
                 content=f"""{stage_instruction}
-请只补你负责的最关键一项交付物，不要重复他人已经说过的背景。""",
+请只补你负责的最关键一项交付物，不要重复他人已经说过的背景。
+每位专家输出至少 200 字，并尽量给出 PubMed 可对照的证据方向。""",
                 metadata={
                     "clinical_question": roundtable.clinical_question,
                     "title": roundtable.title,
@@ -1118,6 +1131,8 @@ class A2AOrchestrator:
             target_stage = explicit_stage or self._get_next_stage(roundtable)
             follow_up_prompt = self._build_continue_prompt(roundtable, user_content, target_stage)
             responding_agents = self._select_continue_roles(roundtable, follow_up_prompt, target_stage)
+            if any(marker in normalized for marker in ["全体专家", "14位", "14 位", "逐个", "每位专家", "所有专家"]):
+                responding_agents = self._select_continue_roles(roundtable, "全体专家接力 " + follow_up_prompt, target_stage)
             responded = False
 
             for role in responding_agents:

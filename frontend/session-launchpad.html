@@ -269,15 +269,19 @@
             localStorage.setItem('mrt_session_preferences', JSON.stringify(preferences));
         }
 
-        function persistSessionClientContext(sessionId, role) {
+        function persistSessionClientContext(sessionId, role, options = {}) {
             const raw = localStorage.getItem('mrt_session_client_contexts');
             const contexts = raw ? JSON.parse(raw) : {};
+            const { autoDiscussion = false } = options;
             contexts[String(sessionId)] = {
                 preferred_expert: normalizeExpertRole(role),
                 human_participants: [],
                 secondme_shades: [],
                 ai_pack: null,
-                collaboration_label: null
+                collaboration_label: null,
+                auto_discussion: autoDiscussion,
+                auto_mode: autoDiscussion ? 'full_panel' : null,
+                human_can_interrupt: true
             };
             localStorage.setItem('mrt_session_client_contexts', JSON.stringify(contexts));
         }
@@ -323,13 +327,22 @@
                     localStorage.setItem('mockSessions', JSON.stringify(sessions));
                 }
 
-                if (preferredRole) {
-                    localStorage.setItem('mrt_preferred_expert', preferredRole);
-                    persistSessionPreference(session.id, preferredRole);
-                    persistSessionClientContext(session.id, preferredRole);
+                if (preferredRole || autofill) {
+                    if (preferredRole) {
+                        localStorage.setItem('mrt_preferred_expert', preferredRole);
+                    }
+                    persistSessionPreference(session.id, preferredRole || 'clinical_director');
+                    persistSessionClientContext(session.id, preferredRole || 'clinical_director', {
+                        autoDiscussion: Boolean(autofill || instantMode)
+                    });
                 }
 
-                window.location.href = `../roundtables/detail.html?sessionId=${encodeURIComponent(session.id)}`;
+                const nextUrl = new URL('../roundtables/detail.html', window.location.href);
+                nextUrl.searchParams.set('sessionId', String(session.id));
+                if (autofill || instantMode) {
+                    nextUrl.searchParams.set('auto', '1');
+                }
+                window.location.href = nextUrl.toString();
             } catch (error) {
                 console.error('Launchpad create failed:', error);
                 window.alert(`创建圆桌会失败：${error.message}`);

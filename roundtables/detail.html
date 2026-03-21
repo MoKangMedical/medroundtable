@@ -696,7 +696,7 @@
                 <div>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-blue-700">Conversation Controls</p>
                     <h3 class="mt-1 text-base font-bold text-slate-900">先选交付方向，再发具体问题</h3>
-                    <p id="composerFocusSummary" class="mt-1 text-sm leading-6 text-slate-600">默认由全体专家接力，建议优先挑一位最相关的专家先回应。</p>
+                    <p id="composerFocusSummary" class="mt-1 text-sm leading-6 text-slate-600">默认由全体专家接力，建议优先挑一位最相关的专家先回应。你随时发送新消息，都会立即打断当前自动讨论并重排顺序。</p>
                 </div>
             </div>
 
@@ -731,7 +731,7 @@
             <div class="composer-meta mb-3">
                 <div>
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Ask Precisely</p>
-                    <p id="composerHint" class="mt-1 text-sm text-slate-600">尽量写清研究对象、终点、时间窗或你现在最想拿到的交付物。</p>
+                    <p id="composerHint" class="mt-1 text-sm text-slate-600">尽量写清研究对象、终点、时间窗或你现在最想拿到的交付物。真人输入会优先于自动讨论。</p>
                 </div>
                 <button type="button" onclick="injectPrompt('继续。请直接把主终点、样本量前提和 CRF 关键字段列出来。', { replace: false })" class="composer-shortcut">
                     <i class="fas fa-bolt text-amber-500"></i>继续推进
@@ -898,6 +898,57 @@
             { key: 'standard', label: '标准' },
             { key: 'expanded', label: '展开' }
         ];
+        const autoDiscussionStartedKey = `mrt_auto_discussion_started_${roundtableId}`;
+        const mockPubMedLibrary = {
+            general_clinical: [
+                { id: 'pm-general-1', label: 'Sackett DL, et al. Evidence based medicine: what it is and what it is not. BMJ. 1996.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Evidence+based+medicine+what+it+is+and+what+it+is+not+BMJ+1996' },
+                { id: 'pm-general-2', label: 'Schulz KF, Altman DG, Moher D. CONSORT 2010 Statement. BMJ. 2010.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=CONSORT+2010+Statement+BMJ' }
+            ],
+            literature: [
+                { id: 'pm-lit-1', label: 'Page MJ, et al. PRISMA 2020 statement. BMJ. 2021.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=PRISMA+2020+statement+BMJ+2021' },
+                { id: 'pm-lit-2', label: 'Higgins JPT, et al. Cochrane Handbook for Systematic Reviews of Interventions.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Cochrane+Handbook+Systematic+Reviews+of+Interventions' }
+            ],
+            epidemiology: [
+                { id: 'pm-epi-1', label: 'STROBE Statement. Guidelines for observational studies. PLoS Med. 2007.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=STROBE+statement+observational+studies' },
+                { id: 'pm-epi-2', label: 'Hernán MA, Robins JM. Using Big Data to Emulate a Target Trial. Am J Epidemiol. 2016.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Using+Big+Data+to+Emulate+a+Target+Trial' }
+            ],
+            statistics: [
+                { id: 'pm-stat-1', label: 'Julious SA. Sample size of 12 per group rule of thumb for a pilot study. Pharm Stat. 2005.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Sample+size+of+12+per+group+rule+of+thumb+for+a+pilot+study' },
+                { id: 'pm-stat-2', label: 'Gupta SK. Intention-to-treat concept: A review. Perspect Clin Res. 2011.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Intention-to-treat+concept+a+review' }
+            ],
+            execution: [
+                { id: 'pm-exec-1', label: 'ICH E6(R2) Good Clinical Practice.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=ICH+E6+R2+Good+Clinical+Practice' },
+                { id: 'pm-exec-2', label: 'FDA guidance on patient-reported outcome measures.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=FDA+guidance+patient-reported+outcome+measures' }
+            ],
+            omics: [
+                { id: 'pm-omics-1', label: 'Stuart T, Satija R. Integrative single-cell analysis. Nat Rev Genet. 2019.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Integrative+single-cell+analysis+Stuart+Satija' },
+                { id: 'pm-omics-2', label: 'Visscher PM, et al. 10 Years of GWAS Discovery. Am J Hum Genet. 2017.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=10+Years+of+GWAS+Discovery+Visscher' }
+            ],
+            pharmacogenomics: [
+                { id: 'pm-pgx-1', label: 'Relling MV, Evans WE. Pharmacogenomics in the clinic. Nature. 2015.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Pharmacogenomics+in+the+clinic+Relling+Evans' },
+                { id: 'pm-pgx-2', label: 'Caudle KE, et al. Incorporation of pharmacogenomics into routine clinical practice. Clin Pharmacol Ther. 2014.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Incorporation+of+pharmacogenomics+into+routine+clinical+practice' }
+            ],
+            neuroscience: [
+                { id: 'pm-neuro-1', label: 'Bean BP. The action potential in mammalian central neurons. Nat Rev Neurosci. 2007.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=The+action+potential+in+mammalian+central+neurons' },
+                { id: 'pm-neuro-2', label: 'Debanne D, et al. Axon physiology. Physiol Rev. 2011.', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Axon+physiology+Debanne' }
+            ]
+        };
+        const mockRoleBlueprints = {
+            clinical_director: { focus: '临床价值、主终点与 go / no-go 决策', deliverable: '研究对象、主终点、时间窗和临床意义', next: 'phd_student' },
+            phd_student: { focus: '文献检索、证据缺口与研究叙事', deliverable: '检索词、证据表和创新空白', next: 'epidemiologist' },
+            epidemiologist: { focus: '研究设计、纳排标准与偏倚控制', deliverable: '研究类型、纳排标准和偏倚控制动作', next: 'statistician' },
+            statistician: { focus: '样本量、分析集与统计模型', deliverable: '样本量前提、分析模型和敏感性分析', next: 'research_nurse' },
+            research_nurse: { focus: 'CRF、访视路径与现场执行', deliverable: 'CRF 字段、访视表和执行 SOP', next: 'experiment_tracker' },
+            clawbio_pharmgx: { focus: '药物基因组学与候选基因 panel', deliverable: '候选基因、药物反应终点和验证策略', next: 'clawbio_gwas' },
+            clawbio_gwas: { focus: '表型定义、协变量与遗传关联设计', deliverable: '病例/对照定义、祖源分层与协变量表', next: 'clawbio_sc_rna' },
+            clawbio_sc_rna: { focus: '单细胞样本设计与细胞异质性分析', deliverable: '采样时间点、目标细胞群和验证路径', next: 'clawbio_galaxy' },
+            clawbio_galaxy: { focus: '工作流编排与多组学分析管线', deliverable: 'workflow、质控节点和工具链顺序', next: 'ai_data_engineer' },
+            ux_researcher: { focus: '用户交互、表单摩擦与输入体验', deliverable: '低摩擦录入路径和真人打断机制', next: 'ai_data_engineer' },
+            ai_data_engineer: { focus: '数据管道、字段标准化与回填机制', deliverable: '元数据规范、命名规则和报告回填链路', next: 'trend_researcher' },
+            trend_researcher: { focus: '创新定位、投稿窗口与叙事策略', deliverable: '创新点、投稿窗口和差异化表达', next: 'experiment_tracker' },
+            experiment_tracker: { focus: '里程碑、排期与责任人拆解', deliverable: '本周/下周行动清单和负责人', next: 'model_qa' },
+            model_qa: { focus: '质控闸门、复核规则与返工条件', deliverable: '关键 QC 节点、返工阈值和核查逻辑', next: 'clinical_director' }
+        };
         let stageWorkbenchState = loadStageWorkbenchState();
         let selectedStageKey = stageWorkbenchState.selectedStageKey || '';
 
@@ -911,7 +962,10 @@
         }
 
         function formatMessageContent(content) {
-            return escapeHtml(content || '').replace(/\n/g, '<br>');
+            let html = escapeHtml(content || '');
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline break-all">$1</a>');
+            return html.replace(/\n/g, '<br>');
         }
 
         function normalizeMessageContent(content) {
@@ -1521,13 +1575,13 @@
 
             if (composerFocusSummary) {
                 composerFocusSummary.textContent = selectedTargetRole === 'all'
-                    ? `当前聚焦「${stageMeta.label}」，默认由全体专家接力，建议优先挑一位最相关的专家先回应。`
-                    : `当前聚焦「${stageMeta.label}」，优先由 ${label} 先接球，再由系统拉其他专家补位。`;
+                    ? `当前聚焦「${stageMeta.label}」，默认由全体专家接力，真人任何时候发新消息都会立即打断当前自动讨论。`
+                    : `当前聚焦「${stageMeta.label}」，优先由 ${label} 先接球，再由系统拉其他专家补位。你随时可以改方向。`;
             }
 
             if (composerHint) {
                 composerHint.textContent = selectedTargetRole === 'all'
-                    ? `尽量直接写出你要推进的阶段、对象、终点、时间窗或交付物。当前默认聚焦 ${stageMeta.label}。`
+                    ? `尽量直接写出你要推进的阶段、对象、终点、时间窗或交付物。当前默认聚焦 ${stageMeta.label}，新消息会重排专家顺序。`
                     : `当前优先追问 ${label}。直接写你要 TA 在 ${stageMeta.label} 里给出的判断、数字、字段表或执行动作。`;
             }
 
@@ -2089,6 +2143,127 @@
             };
         }
 
+        function getQuestionFocus(questionText) {
+            const text = String(questionText || '');
+            if (/(神经元|电信号|放电|突触|神经传导|电生理)/i.test(text)) {
+                return {
+                    label: '神经电生理方向',
+                    object: '研究对象与电生理模型',
+                    endpoint: '第 28 天神经元平均放电频率较基线变化值',
+                    dataSource: '电生理原始波形、基线协变量和访视时间窗',
+                    refs: [...mockPubMedLibrary.neuroscience, ...mockPubMedLibrary.statistics]
+                };
+            }
+            if (/(gwas|位点|snp|遗传|变异)/i.test(text)) {
+                return {
+                    label: 'GWAS / 遗传关联方向',
+                    object: '表型定义、病例/对照与祖源分层',
+                    endpoint: '与主要临床结局一致的遗传表型口径',
+                    dataSource: '基因型矩阵、表型表和质控日志',
+                    refs: [...mockPubMedLibrary.omics, ...mockPubMedLibrary.statistics]
+                };
+            }
+            if (/(单细胞|scrna|转录组|细胞群)/i.test(text)) {
+                return {
+                    label: '单细胞 / 多组学方向',
+                    object: '采样时间点、目标细胞群与验证路径',
+                    endpoint: '细胞状态差异与功能验证的一致性',
+                    dataSource: '单细胞矩阵、元数据和批次记录',
+                    refs: [...mockPubMedLibrary.omics, ...mockPubMedLibrary.general_clinical]
+                };
+            }
+            return {
+                label: '临床研究方向',
+                object: '研究对象、干预/暴露与对照边界',
+                endpoint: '单一主要终点与固定时间窗',
+                dataSource: 'CRF、访视记录和统计分析集',
+                refs: [...mockPubMedLibrary.general_clinical, ...mockPubMedLibrary.statistics]
+            };
+        }
+
+        function getRolePubMedRefs(role, stage, questionText) {
+            const focus = getQuestionFocus(questionText);
+            const normalized = normalizeExpertRole(role);
+            if (normalized === 'phd_student' || stage === 'literature_review') {
+                return [...mockPubMedLibrary.literature, ...focus.refs].slice(0, 2);
+            }
+            if (normalized === 'epidemiologist') {
+                return [...mockPubMedLibrary.epidemiology, ...focus.refs].slice(0, 2);
+            }
+            if (normalized === 'statistician' || stage === 'statistical_plan') {
+                return [...mockPubMedLibrary.statistics, ...focus.refs].slice(0, 2);
+            }
+            if (normalized === 'research_nurse' || normalized === 'experiment_tracker' || normalized === 'model_qa') {
+                return [...mockPubMedLibrary.execution, ...focus.refs].slice(0, 2);
+            }
+            if (['clawbio_pharmgx', 'clawbio_gwas', 'clawbio_sc_rna', 'clawbio_galaxy'].includes(normalized)) {
+                return [
+                    ...(normalized === 'clawbio_pharmgx' ? mockPubMedLibrary.pharmacogenomics : mockPubMedLibrary.omics),
+                    ...focus.refs
+                ].slice(0, 2);
+            }
+            return focus.refs.slice(0, 2);
+        }
+
+        function formatPubMedBlock(refs) {
+            if (!Array.isArray(refs) || refs.length === 0) return '';
+            const lines = refs.map((ref, index) => `[${index + 1}] ${ref.label}\nPubMed: ${ref.url}`);
+            return `\n\nPubMed 参考文献：\n${lines.join('\n')}`;
+        }
+
+        function buildLongformMockContent(role, stage, questionText, handoffRole) {
+            const normalized = normalizeExpertRole(role);
+            const blueprint = mockRoleBlueprints[normalized] || {
+                focus: '当前阶段最关键的执行口径',
+                deliverable: '具体交付物与下一步动作',
+                next: 'clinical_director'
+            };
+            const meta = getStageMeta(mapDetailedStageToTopLevel(stage));
+            const focus = getQuestionFocus(questionText);
+            const refs = getRolePubMedRefs(normalized, stage, questionText);
+            const nextRole = handoffRole || blueprint.next || 'clinical_director';
+            const deliverables = (meta.deliverables || []).slice(0, 3).join('、');
+            const narrative = `${getAgentName(normalized)}现在从“${blueprint.focus}”切入。围绕“${questionText}”，我不再复述背景，而是直接把「${meta.label}」阶段要落地的内容写清楚：第一，先把 ${focus.object} 固定成所有专家都能引用的共同口径，避免不同角色用不同定义说话；第二，我负责的交付物是 ${blueprint.deliverable}，这部分必须直接落在 ${deliverables} 上，不能再停留在概念层；第三，结合当前题目更像“${focus.label}”的判断，我建议优先锁定 ${focus.endpoint}，并把 ${focus.dataSource} 一起前置，否则后面的样本量、CRF、组学流程和最终报告都会反复返工。对于真人研究者来说，这一轮最有价值的不是再听结论，而是立刻拿到可执行清单，所以我建议把本轮输出直接视为下一步文档骨架，由 ${getAgentName(nextRole)} 接着补位，把缺口做实。`;
+            return `${narrative}${formatPubMedBlock(refs)}`;
+        }
+
+        function buildMockFinalSummary(questionText) {
+            const focus = getQuestionFocus(questionText);
+            const refs = [...focus.refs, ...mockPubMedLibrary.general_clinical].slice(0, 3);
+            return `📋 **讨论总结报告**\n\n1. 当前共识：围绕“${questionText}”，已经由 14 位专家把研究对象、单一主终点、阶段交付和里程碑拆成可执行骨架，不再停留在概念层。\n2. 已做实内容：问题识别阶段明确了 ${focus.object} 与 go / no-go 边界；文献回顾阶段形成了检索与证据表框架；研究设计阶段串起了纳排标准、CRF、workflow 与执行路径；数据分析阶段锁定了样本量前提、分析集和最终报告结构。\n3. 真人下一步最值得做的动作：直接挑一位专家打断并改方向，例如让统计专家重算样本量、让研究护士展开 CRF，或让组学专家改写分析 workflow。\n4. 当前建议交付：研究方案摘要、文献证据表、样本量口径、CRF 字段表、执行里程碑和最终报告初稿。\n${formatPubMedBlock(refs)}`;
+        }
+
+        function buildComprehensiveMockStageTurns(stage) {
+            const questionText = String(currentRoundtable?.clinical_question || '当前研究方向');
+            const participants = getRoundtableParticipants(currentRoundtable);
+            const orderedRoles = [];
+            (mockStageBlueprints[stage] || []).forEach((role) => orderedRoles.push(normalizeExpertRole(role)));
+            participants.forEach((role) => orderedRoles.push(normalizeExpertRole(role)));
+            getAllExpertRoles().forEach((role) => orderedRoles.push(normalizeExpertRole(role)));
+            const dedupedRoles = [...new Set(orderedRoles)];
+            const turns = dedupedRoles.map((role, index) => {
+                const nextRole = dedupedRoles[index + 1] || 'clinical_director';
+                const refs = getRolePubMedRefs(role, stage, questionText);
+                return createMockTurn(
+                    role,
+                    buildLongformMockContent(role, stage, questionText, nextRole),
+                    stage,
+                    {
+                        auto_generated: true,
+                        citations: refs.map((ref) => ref.id),
+                        pubmed_refs: refs
+                    }
+                );
+            });
+            if (stage === 'consensus') {
+                turns.push(createMockTurn('clinical_director', buildMockFinalSummary(questionText), stage, {
+                    is_final_summary: true,
+                    auto_generated: true
+                }));
+            }
+            return turns;
+        }
+
         function guessResponderLabel(content, targetRole = 'all') {
             if (targetRole && targetRole !== 'all') {
                 return getAgentName(targetRole);
@@ -2203,45 +2378,49 @@
         function buildMockDiscussionTurns(content, targetRole = 'all') {
             const lowered = content.toLowerCase();
             const explicitTargetRole = targetRole && targetRole !== 'all' ? normalizeExpertRole(targetRole) : null;
-            const clinicalQuestion = String(currentRoundtable?.clinical_question || '').toLowerCase();
             const asksLiterature = /(文献|回顾|检索|综述|证据|指南)/i.test(content);
             const isContinue = /^(继续|开始讨论|开始|继续讨论|ok|好的)([。！，,\s].*)?$/i.test(content.trim());
             const explicitStage = inferRequestedStageFromText(content);
+            const asksEveryone = /(全体专家|14位|14 位|所有专家|逐个|每位专家|轮流|接力)/i.test(content);
 
             if (isContinue) {
                 const nextStage = getNextDiscussionStage(currentRoundtable?.clinical_question, mockMessages);
-                return buildMockStageTurns(nextStage);
+                return buildComprehensiveMockStageTurns(nextStage);
             }
 
             if (explicitStage) {
-                return buildMockStageTurns(explicitStage);
+                return buildComprehensiveMockStageTurns(explicitStage);
             }
 
             if (/(生成报告|最终报告|总结|形成报告|导出报告)/i.test(content)) {
-                return buildMockStageTurns('consensus').slice(-1);
+                return buildComprehensiveMockStageTurns('consensus').slice(-1);
+            }
+
+            if (asksEveryone) {
+                return buildComprehensiveMockStageTurns(getActiveStageKey());
             }
 
             if (/(crf|字段|表格|访视|录入|sop)/i.test(content)) {
                 return [
-                    createMockTurn('research_nurse', '我先把 CRF 落成可执行结构：筛选、基线、干预、访视结果、安全性、偏离六页，并优先锁定受试者编号、访视日期、主终点原始值、不良事件分级。', 'crf_design'),
-                    createMockTurn('statistician', '我补统计位要求：主终点字段必须包含基线值、每次访视值、分析集标记和缺失原因，否则后面 ITT 与敏感性分析会失真。', 'crf_design'),
-                    createMockTurn('model_qa', 'QA 位补一条：日期逻辑、范围校验和联动规则要在表单层就设好，不要等导出后再返工。', 'crf_design')
+                    createMockTurn('research_nurse', buildLongformMockContent('research_nurse', 'crf_design', currentRoundtable?.clinical_question || content, 'statistician'), 'crf_design', { pubmed_refs: getRolePubMedRefs('research_nurse', 'crf_design', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('statistician', buildLongformMockContent('statistician', 'crf_design', currentRoundtable?.clinical_question || content, 'model_qa'), 'crf_design', { pubmed_refs: getRolePubMedRefs('statistician', 'crf_design', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('model_qa', buildLongformMockContent('model_qa', 'quality_review', currentRoundtable?.clinical_question || content, 'clinical_director'), 'quality_review', { pubmed_refs: getRolePubMedRefs('model_qa', 'quality_review', currentRoundtable?.clinical_question || content) })
                 ];
             }
 
             if (/(样本量|效能|power|终点|sap|统计)/i.test(content)) {
                 return [
-                    createMockTurn('statistician', '先把统计骨架钉住：主终点只能有一个，样本量估算至少需要最小临床差异、标准差或事件率、把握度和脱落率。', 'statistical_plan'),
-                    createMockTurn('epidemiologist', '我补一句：样本量、纳排标准和结局时间窗必须一起锁定，否则后面的偏倚控制和执行频率都会漂。', 'statistical_plan'),
-                    createMockTurn('model_qa', 'QA 位提醒：SAP 里要预留主程序复算和敏感性分析，不然后面很难自证稳健。', 'quality_review')
+                    createMockTurn('statistician', buildLongformMockContent('statistician', 'statistical_plan', currentRoundtable?.clinical_question || content, 'epidemiologist'), 'statistical_plan', { pubmed_refs: getRolePubMedRefs('statistician', 'statistical_plan', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('epidemiologist', buildLongformMockContent('epidemiologist', 'statistical_plan', currentRoundtable?.clinical_question || content, 'model_qa'), 'statistical_plan', { pubmed_refs: getRolePubMedRefs('epidemiologist', 'statistical_plan', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('model_qa', buildLongformMockContent('model_qa', 'quality_review', currentRoundtable?.clinical_question || content, 'clinical_director'), 'quality_review', { pubmed_refs: getRolePubMedRefs('model_qa', 'quality_review', currentRoundtable?.clinical_question || content) })
                 ];
             }
 
             if (/(基因|药物|用药|代谢)/i.test(lowered)) {
                 return [
-                    createMockTurn('clawbio_pharmgx', '如果这题和药物反应相关，我建议先锁候选基因 panel，例如 CYP2D6、CYP2C19、SLCO1B1，再同步定义临床反应终点。', 'bioinformatics_plan'),
-                    createMockTurn('clinical_director', '临床位接一句：基因检测不能离开真实临床结局单独存在，必须同步定义疗效响应、不良反应或剂量调整需求。', 'study_design'),
-                    createMockTurn('trend_researcher', '趋势位补一条：如果能把药物反应差异和临床结局挂钩，投稿故事会比单纯机制分析更完整。', 'literature_review')
+                    createMockTurn('clawbio_pharmgx', buildLongformMockContent('clawbio_pharmgx', 'bioinformatics_plan', currentRoundtable?.clinical_question || content, 'clinical_director'), 'bioinformatics_plan', { pubmed_refs: getRolePubMedRefs('clawbio_pharmgx', 'bioinformatics_plan', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('clinical_director', buildLongformMockContent('clinical_director', 'study_design', currentRoundtable?.clinical_question || content, 'trend_researcher'), 'study_design', { pubmed_refs: getRolePubMedRefs('clinical_director', 'study_design', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('trend_researcher', buildLongformMockContent('trend_researcher', 'literature_review', currentRoundtable?.clinical_question || content, 'experiment_tracker'), 'literature_review', { pubmed_refs: getRolePubMedRefs('trend_researcher', 'literature_review', currentRoundtable?.clinical_question || content) })
                 ];
             }
 
@@ -2263,23 +2442,23 @@
 
             if (asksLiterature) {
                 return [
-                    createMockTurn('phd_student', '文献回顾我先给执行框架：检索词、提取表头、证据缺口、设计缺陷、可投稿窗口五列一起拉。', 'literature_review'),
-                    createMockTurn('trend_researcher', '趋势位接着补：文献不只看多少篇，而是看哪些问题已经做滥、哪些问题还有创新空间和期刊窗口。', 'literature_review'),
-                    createMockTurn('clinical_director', '临床位收口：文献回顾最后必须落回临床问题本身，回答“这项研究到底解决什么决策”。', 'literature_review')
+                    createMockTurn('phd_student', buildLongformMockContent('phd_student', 'literature_review', currentRoundtable?.clinical_question || content, 'trend_researcher'), 'literature_review', { pubmed_refs: getRolePubMedRefs('phd_student', 'literature_review', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('trend_researcher', buildLongformMockContent('trend_researcher', 'literature_review', currentRoundtable?.clinical_question || content, 'clinical_director'), 'literature_review', { pubmed_refs: getRolePubMedRefs('trend_researcher', 'literature_review', currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('clinical_director', buildLongformMockContent('clinical_director', 'literature_review', currentRoundtable?.clinical_question || content, 'epidemiologist'), 'literature_review', { pubmed_refs: getRolePubMedRefs('clinical_director', 'literature_review', currentRoundtable?.clinical_question || content) })
                 ];
             }
 
             if (explicitTargetRole) {
                 return [
-                    createMockTurn(explicitTargetRole, `${getAgentName(explicitTargetRole)}先接这个问题。我不复述背景，直接给你这个角色最该先回答的一步。`, getLatestMessageStage(mockMessages)),
-                    createMockTurn('clinical_director', '我补一句总控视角：你现在追问的点需要回到主终点、执行成本和临床意义上统一收口。', getLatestMessageStage(mockMessages))
+                    createMockTurn(explicitTargetRole, buildLongformMockContent(explicitTargetRole, getLatestMessageStage(mockMessages) || getActiveStageKey(), currentRoundtable?.clinical_question || content, 'clinical_director'), getLatestMessageStage(mockMessages) || getActiveStageKey(), { pubmed_refs: getRolePubMedRefs(explicitTargetRole, getLatestMessageStage(mockMessages) || getActiveStageKey(), currentRoundtable?.clinical_question || content) }),
+                    createMockTurn('clinical_director', buildLongformMockContent('clinical_director', getLatestMessageStage(mockMessages) || getActiveStageKey(), currentRoundtable?.clinical_question || content, 'phd_student'), getLatestMessageStage(mockMessages) || getActiveStageKey(), { pubmed_refs: getRolePubMedRefs('clinical_director', getLatestMessageStage(mockMessages) || getActiveStageKey(), currentRoundtable?.clinical_question || content) })
                 ];
             }
 
             return [
-                createMockTurn('clinical_director', '临床主任先接这个问题。我先不重复背景，而是先把研究对象、暴露/干预、主终点和时间窗四块收窄。', getLatestMessageStage(mockMessages)),
-                createMockTurn('phd_student', '博士生接着把文献与证据缺口补上，避免后面继续停留在概念层。', 'literature_review'),
-                createMockTurn('epidemiologist', '流行病学家补方法学边界，确保这不是一个说起来热闹但做不下去的题。', 'study_design')
+                createMockTurn('clinical_director', buildLongformMockContent('clinical_director', getLatestMessageStage(mockMessages) || 'problem_presentation', currentRoundtable?.clinical_question || content, 'phd_student'), getLatestMessageStage(mockMessages) || 'problem_presentation', { pubmed_refs: getRolePubMedRefs('clinical_director', getLatestMessageStage(mockMessages) || 'problem_presentation', currentRoundtable?.clinical_question || content) }),
+                createMockTurn('phd_student', buildLongformMockContent('phd_student', 'literature_review', currentRoundtable?.clinical_question || content, 'epidemiologist'), 'literature_review', { pubmed_refs: getRolePubMedRefs('phd_student', 'literature_review', currentRoundtable?.clinical_question || content) }),
+                createMockTurn('epidemiologist', buildLongformMockContent('epidemiologist', 'study_design', currentRoundtable?.clinical_question || content, 'statistician'), 'study_design', { pubmed_refs: getRolePubMedRefs('epidemiologist', 'study_design', currentRoundtable?.clinical_question || content) })
             ];
         }
 
@@ -2338,14 +2517,37 @@
             mockReplyTimers.push(firstTimer);
         }
 
+        function shouldAutoStartDiscussion() {
+            if (!MOCK_MODE || !currentRoundtable) return false;
+            const clientContext = getSessionClientContext(roundtableId);
+            if (!clientContext || !clientContext.auto_discussion) return false;
+            if (localStorage.getItem(autoDiscussionStartedKey) === '1') return false;
+            const agentMessages = mockMessages.filter((message) => normalizeExpertRole(message.from_role || 'user') !== 'user');
+            return agentMessages.length <= 1;
+        }
+
+        function startAutoDiscussionIfNeeded() {
+            if (!shouldAutoStartDiscussion()) return;
+            localStorage.setItem(autoDiscussionStartedKey, '1');
+            const stage = getActiveStageKey();
+            showToast('已自动拉起 14 位专家讨论。你现在随时可以发新消息打断并改方向。', 'success');
+            queueMockDiscussion(buildComprehensiveMockStageTurns(stage));
+        }
+
         function buildLocalFinalReport() {
             const participants = getRoundtableParticipants(currentRoundtable);
             const grouped = {};
+            const refMap = new Map();
             [...mockMessages].forEach((message) => {
                 const role = normalizeExpertRole(message.from_role || 'user');
                 if (role === 'user') return;
                 grouped[role] = grouped[role] || [];
                 grouped[role].push(message.content);
+                ((message.metadata && message.metadata.pubmed_refs) || []).forEach((ref) => {
+                    if (ref && ref.id && !refMap.has(ref.id)) {
+                        refMap.set(ref.id, ref);
+                    }
+                });
             });
             const latestSummary = [...mockMessages].reverse().find((message) => message.metadata && message.metadata.is_final_summary);
 
@@ -2380,6 +2582,17 @@
             lines.push('- 输出 CRF 字段表与访视表');
             lines.push('- 补齐文献证据表与执行里程碑');
             lines.push('');
+            lines.push('## PubMed 参考文献');
+            if (refMap.size > 0) {
+                Array.from(refMap.values()).forEach((ref, index) => {
+                    lines.push(`[${index + 1}] ${ref.label}`);
+                    lines.push(`PubMed: ${ref.url}`);
+                    lines.push('');
+                });
+            } else {
+                lines.push('- 当前本地演示尚未提取到独立 PubMed 引文。');
+                lines.push('');
+            }
             return lines.join('\n');
         }
 
@@ -2614,6 +2827,7 @@
             renderIdentityContext();
             await loadRoundtableInfo();
             await loadMessages();
+            startAutoDiscussionIfNeeded();
             connectEventSource();
         });
     </script>
