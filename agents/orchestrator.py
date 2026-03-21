@@ -532,12 +532,12 @@ class A2AOrchestrator:
             f"{index}. {label}" for index, label in enumerate(requested_outputs[:4], start=1)
         )
 
-        return f"""我先把首轮会诊的目标钉住，不重复背景。
+        return f"""我先代表临床主任把这轮会诊的边界收一下，不重复背景，也不讲空话。
 
-本轮优先收这几项可交付内容：
+这题现在最需要的不是更多观点，而是先把几项会直接影响方案能不能往下走的内容对齐：
 {output_lines}
 
-先由 {role_labels} 依次补齐；每位专家都直接给数字、字段、时间窗、风险点或下一步动作。"""
+接下来请按 {role_labels} 的顺序接力发言。每位专家都直接给数字、字段、时间窗、风险点或下一步动作；如果真人研究者临时改方向，后面的讨论就立刻跟着调整。"""
 
     def _build_continue_prompt(
         self,

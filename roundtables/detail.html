@@ -2319,17 +2319,17 @@
             const preferredExpert = getPreferredExpert(currentRoundtable);
             const role = preferredExpert ? preferredExpert.role : 'clinical_director';
             const collaborationNote = currentRoundtable && currentRoundtable.collaboration_label
-                ? `当前已加载 ${currentRoundtable.collaboration_label}。`
+                ? `这轮会诊已经带上 ${currentRoundtable.collaboration_label}。`
                 : '';
             const outputs = inferKickoffOutputs(currentRoundtable?.clinical_question || '');
             const outputLines = outputs.slice(0, 4).map((item, index) => `${index + 1}. ${item}`).join('\n');
             const opener = preferredExpert
-                ? `${preferredExpert.name}先介入，我先把本轮要收的结果钉住。`
-                : '临床主任先介入，我先把本轮要收的结果钉住。';
+                ? `我先从 ${preferredExpert.name} 的视角开场。先不重复背景，直接把这轮会诊最该收住的几件事摆在桌面上。`
+                : '我先代表临床主任开场。先不讲套话，直接把这轮会诊最该收住的几件事摆在桌面上。';
 
             return {
                 from_role: role,
-                content: `${opener}${collaborationNote ? ` ${collaborationNote}` : ''}\n本轮优先补这几项：\n${outputLines}\n接下来不再空谈背景，而是直接往数字、字段、时间窗和风险点推进。`,
+                content: `${opener}${collaborationNote ? ` ${collaborationNote}` : ''}\n\n我先给一个临床判断：这题现在最怕的不是没人给意见，而是每个人说的不是同一个研究问题。所以第一轮不要散开，先把下面几项对齐：\n${outputLines}\n\n接下来请大家都按“可执行”的标准发言，直接给数字、字段、时间窗、风险点和下一步动作。真人研究者随时可以打断我们，重新改方向。`,
                 created_at: new Date().toISOString(),
                 metadata: {
                     stage: 'problem_presentation'
@@ -2417,7 +2417,7 @@
             const refs = getRolePubMedRefs(normalized, stage, questionText);
             const nextRole = handoffRole || blueprint.next || 'clinical_director';
             const deliverables = (meta.deliverables || []).slice(0, 3).join('、');
-            const narrative = `${getAgentName(normalized)}现在从“${blueprint.focus}”切入。围绕“${questionText}”，我不再复述背景，而是直接把「${meta.label}」阶段要落地的内容写清楚：第一，先把 ${focus.object} 固定成所有专家都能引用的共同口径，避免不同角色用不同定义说话；第二，我负责的交付物是 ${blueprint.deliverable}，这部分必须直接落在 ${deliverables} 上，不能再停留在概念层；第三，结合当前题目更像“${focus.label}”的判断，我建议优先锁定 ${focus.endpoint}，并把 ${focus.dataSource} 一起前置，否则后面的样本量、CRF、组学流程和最终报告都会反复返工。对于真人研究者来说，这一轮最有价值的不是再听结论，而是立刻拿到可执行清单，所以我建议把本轮输出直接视为下一步文档骨架，由 ${getAgentName(nextRole)} 接着补位，把缺口做实。`;
+            const narrative = `我先接着上一位专家往下做，不重复背景。站在${getAgentName(normalized)}这个角色上，我的判断是：围绕“${questionText}”，现在真正要做实的是「${meta.label}」这一步里最容易影响后续执行的部分。第一，先把 ${focus.object} 固定成所有人都能引用的统一口径，避免临床、统计和执行位各说各话；第二，我负责的重点不是泛泛提建议，而是把 ${blueprint.deliverable} 直接落到 ${deliverables} 上，让下一位专家拿到就能继续接；第三，既然这个题更偏向“${focus.label}”，那就应该优先锁定 ${focus.endpoint}，并同步确认 ${focus.dataSource} 是否已经准备好，否则后面的样本量、CRF、组学流程和最终报告都会来回返工。我的建议是把这一轮输出直接当成会诊纪要的一部分，由 ${getAgentName(nextRole)} 继续补缺口，真人研究者如果觉得方向偏了，也可以现在就打断我们改线。`;
             return `${narrative}${formatPubMedBlock(refs)}`;
         }
 
