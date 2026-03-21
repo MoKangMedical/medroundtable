@@ -610,14 +610,32 @@ class A2AOrchestrator:
             return True
         return any(keyword in lowered for keyword in role_keywords[role])
     
-    async def create_roundtable(self, title: str, clinical_question: str) -> RoundTable:
+    async def create_roundtable(
+        self,
+        title: str,
+        clinical_question: str,
+        preferred_expert: Optional[str] = None,
+        human_participants: Optional[List[Dict]] = None,
+        secondme_shades: Optional[List[Dict]] = None,
+        ai_pack: Optional[Dict] = None,
+        collaboration_label: Optional[str] = None,
+        auto_discussion: bool = False,
+        human_can_interrupt: bool = True
+    ) -> RoundTable:
         """创建新的圆桌会"""
         roundtable = RoundTable(
             id=str(uuid.uuid4()),
             title=title,
             clinical_question=clinical_question,
             participants=list(AgentRole),
-            status=RoundTableStatus.INIT
+            status=RoundTableStatus.INIT,
+            preferred_expert=preferred_expert,
+            human_participants=human_participants or [],
+            secondme_shades=secondme_shades or [],
+            ai_pack=ai_pack,
+            collaboration_label=collaboration_label,
+            auto_discussion=auto_discussion,
+            human_can_interrupt=human_can_interrupt
         )
         self.sessions[roundtable.id] = roundtable
         return roundtable
@@ -648,6 +666,8 @@ class A2AOrchestrator:
             await self._broadcast_message(kickoff_message)
             roundtable.messages.append(kickoff_message)
         await self._run_initial_discussion_burst(session_id)
+        if roundtable.auto_discussion:
+            asyncio.create_task(self._safe_run_discussion_flow(session_id))
 
     async def _run_initial_discussion_burst(self, session_id: str):
         """首轮自动拉起 14 位专家，给用户一个可直接打断的全员开场。"""
@@ -785,11 +805,16 @@ class A2AOrchestrator:
         if not self._requires_bioinformatics_stage(roundtable.clinical_question):
             stages = [stage for stage in stages if stage[0] != "bioinformatics_plan"]
 
-        for stage_name, leader_role in stages:
+        stage_names = [stage_name for stage_name, _ in stages]
+        latest_stage = self._get_latest_stage(roundtable)
+        start_index = 0
+        if latest_stage in stage_names:
+            start_index = stage_names.index(latest_stage) + 1
+
+        for stage_name, leader_role in stages[start_index:]:
             # 检查是否有用户最近插话，如果有，先处理用户问题
             if self._has_recent_user_message(session_id, seconds=10):
-                await asyncio.sleep(1)
-                continue  # 跳过当前阶段，让用户主导
+                break  # 用户已经打断，当前自动流程先停，让真人主导
 
             await self._run_stage(session_id, stage_name, leader_role)
 
@@ -797,7 +822,7 @@ class A2AOrchestrator:
             for _ in range(3):
                 await asyncio.sleep(0.8)
                 if self._has_recent_user_message(session_id, seconds=2):
-                    break  # 用户插话了，提前结束等待
+                    return  # 用户插话了，结束自动推进
 
         # 完成讨论
         if roundtable.status != RoundTableStatus.COMPLETED:
