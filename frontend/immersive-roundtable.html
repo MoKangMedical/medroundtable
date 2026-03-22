@@ -121,7 +121,7 @@
         }
         .bubble {
             position: relative;
-            max-width: min(860px, 92%);
+            max-width: min(1060px, 96%);
             border-radius: 26px;
             border: 1px solid rgba(148, 163, 184, 0.16);
             background: rgba(255,255,255,0.03);
@@ -170,6 +170,19 @@
                 radial-gradient(circle at top left, rgba(110, 231, 249, 0.12), transparent 30%),
                 linear-gradient(180deg, rgba(8, 19, 35, 0.96), rgba(6, 15, 28, 0.92));
         }
+        .compact-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+            border: 1px solid rgba(148, 163, 184, 0.14);
+        }
+        .headline-card {
+            background:
+                radial-gradient(circle at top right, rgba(110, 231, 249, 0.12), transparent 35%),
+                linear-gradient(180deg, rgba(8, 20, 39, 0.96), rgba(7, 16, 31, 0.95));
+        }
+        .project-lane {
+            border: 1px solid rgba(110, 231, 249, 0.16);
+            background: rgba(255,255,255,0.04);
+        }
         .stage-control {
             cursor: pointer;
             transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
@@ -193,120 +206,105 @@
 </head>
 <body class="grain">
     <main class="h-screen overflow-hidden px-4 py-4 lg:px-6 lg:py-5">
-        <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[1.1fr_0.9fr_320px]">
-            <section class="glass hero-frame flex min-h-0 flex-col rounded-[2rem] p-5 lg:p-6">
+        <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.75fr)_360px] xl:grid-rows-[auto_minmax(0,1fr)]">
+            <section class="glass hero-frame xl:col-span-2 rounded-[2rem] p-5 lg:p-6">
                 <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div class="max-w-3xl">
+                    <div class="max-w-4xl">
                         <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
                             <a href="../index.html" class="rounded-full border border-white/10 px-3 py-2 text-slate-300 transition hover:bg-white/5">
                                 <i class="fas fa-arrow-left mr-2"></i>返回首页
                             </a>
                             <span class="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-2">Immersive 14-Agent Roundtable</span>
-                            <span class="rounded-full border border-white/10 px-3 py-2">真人随时打断</span>
+                            <span class="rounded-full border border-white/10 px-3 py-2">围绕项目思路自动推进</span>
+                            <span id="identityBadge" class="hidden rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200"></span>
                         </div>
-                        <h1 class="mt-4 text-3xl font-bold leading-tight text-white lg:text-5xl">14 位 Agent 同屏会诊，一句话启动研究讨论</h1>
-                        <p class="mt-4 max-w-3xl text-sm leading-8 text-slate-300 lg:text-base">
-                            不再用勾选式流程推动讨论。这里直接进入动态会诊模式：14 位专家按各自设定自动接力发言，真人研究者随时可以插话、改方向、点名某位专家继续深挖。
+                        <h1 class="mt-4 text-3xl font-bold leading-tight text-white lg:text-5xl">围绕你的研究项目，14 位 Agent 自动会诊并持续收口</h1>
+                        <p class="mt-4 max-w-4xl text-sm leading-8 text-slate-300 lg:text-base">
+                            这页只做一件事：把你的研究思路推进成方案、数据来源、分析方法和最终纪要。主屏只保留对话，周边只保留阶段切换、点名专家和下载总结。
                         </p>
                     </div>
-                    <div class="grid gap-3 sm:grid-cols-2">
-                        <div class="glass status-orb rounded-3xl px-5 py-4">
-                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">当前模式</div>
-                            <div class="mt-2 text-lg font-semibold text-white">沉浸式自动会诊</div>
-                            <div class="mt-1 text-sm text-slate-400">交互优先，不走静态步骤表</div>
-                        </div>
-                        <div class="glass status-orb rounded-3xl px-5 py-4">
-                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">讨论节奏</div>
+                    <div class="grid gap-3 sm:grid-cols-3">
+                        <div class="compact-card rounded-3xl px-4 py-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">当前阶段</div>
                             <div id="liveStageLabel" class="mt-2 text-lg font-semibold text-cyan-200">等待启动</div>
                             <div id="liveStageHint" class="mt-1 text-sm text-slate-400">系统会自动推进 4 段研究讨论</div>
+                        </div>
+                        <div class="compact-card rounded-3xl px-4 py-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">参与进度</div>
+                            <div id="summaryCoverage" class="mt-2 text-lg font-semibold text-white">0 / 14 位专家</div>
+                            <div id="summaryCoverageHint" class="mt-1 text-sm text-slate-400">会按研究推进顺序逐步让所有专家进场。</div>
+                        </div>
+                        <div class="compact-card rounded-3xl px-4 py-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">待发言</div>
+                            <div id="queueBadge" class="mt-2 text-lg font-semibold text-white">0 位待发言</div>
+                            <div id="summaryNextSpeaker" class="mt-1 text-sm text-cyan-200">等待队列生成</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-                    <div class="glass rounded-[1.8rem] border-white/10 p-4">
+                <div class="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
+                    <div class="headline-card rounded-[1.8rem] p-4">
                         <div class="flex flex-wrap items-center gap-3">
-                            <span class="stage-pill rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">研究主题</span>
-                            <span id="identityBadge" class="hidden rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200"></span>
+                            <span class="stage-pill rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">项目核心问题</span>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">真人随时打断</span>
                         </div>
-                        <div class="mt-4 flex flex-col gap-3">
+                        <div class="mt-4 grid gap-3">
                             <input id="topicTitle" class="topic-input rounded-2xl px-4 py-3 text-lg font-semibold text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" value="MedRoundTable 沉浸式 14 Agent 医学科研会诊">
                             <textarea id="topicQuestion" rows="3" class="topic-input rounded-2xl px-4 py-3 text-base leading-8 text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10">请围绕肿瘤免疫治疗患者疗效预测这个方向，直接开始一轮真实会诊：先判断立项价值，再补文献缺口、研究设计、CRF 与统计分析，最后形成可执行的研究方案。</textarea>
                             <div class="flex flex-wrap gap-3">
                                 <button id="startDiscussionBtn" class="rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">
-                                    <i class="fas fa-bolt mr-2"></i>一键启动 14 Agent 会诊
+                                    <i class="fas fa-bolt mr-2"></i>开始自动讨论
                                 </button>
                                 <button id="interruptBtn" class="rounded-2xl border border-amber-300/30 bg-amber-400/10 px-5 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-400/20">
-                                    <i class="fas fa-wave-square mr-2"></i>立即打断并改方向
+                                    <i class="fas fa-wave-square mr-2"></i>真人打断改方向
                                 </button>
-                                <button id="restartBtn" class="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-                                    <i class="fas fa-rotate-right mr-2"></i>重开一轮会诊
+                                <button id="downloadBtn" class="rounded-2xl border border-cyan-200/30 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/20">
+                                    <i class="fas fa-download mr-2"></i>一键下载讨论纪要
                                 </button>
-                                <a id="formalExportBtn" href="../roundtables/detail.html?mrt_backend_mode=static&sessionId=12&auto=1" class="rounded-2xl border border-cyan-200/30 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/20">
-                                    <i class="fas fa-file-export mr-2"></i>进入正式详情页导出报告
-                                </a>
                             </div>
                         </div>
                     </div>
                     <div class="report-panel rounded-[1.8rem] border border-white/10 p-4">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Live Summary</div>
-                                <h2 class="mt-2 text-xl font-bold text-white">会诊实时摘要</h2>
-                            </div>
-                            <span id="queueBadge" class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">0 位待发言</span>
-                        </div>
-                        <div class="mt-4 grid gap-3 text-sm">
-                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Project Progress</div>
+                        <h2 class="mt-2 text-xl font-bold text-white">本轮会诊在帮你确认什么</h2>
+                        <div class="mt-4 grid gap-3">
+                            <div class="compact-card rounded-2xl p-4">
                                 <div class="text-xs uppercase tracking-[0.18em] text-slate-400">当前收口</div>
                                 <div id="summaryFocus" class="mt-2 text-base font-semibold text-white">等待临床主任开场</div>
-                                <p id="summaryNarrative" class="mt-2 leading-7 text-slate-300">系统会先把研究对象、主终点、时间窗和下一步交付物收紧，再逐段把方案做实。</p>
+                                <p id="summaryNarrative" class="mt-2 leading-7 text-slate-300">系统会先确认研究思路，再逐段收方案、数据来源与分析方法。</p>
                             </div>
-                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">下一位补位专家</div>
-                                <div id="summaryNextSpeaker" class="mt-2 text-base font-semibold text-cyan-200">等待队列生成</div>
-                            </div>
-                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">已参与 / 待命</div>
-                                <div id="summaryCoverage" class="mt-2 text-base font-semibold text-white">0 / 14 位专家</div>
-                                <p id="summaryCoverageHint" class="mt-2 text-sm leading-7 text-slate-300">一键启动后会先拉起全员分阶段发言，真人打断后会保留剩余待命专家。</p>
-                            </div>
-                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">预计输出</div>
+                            <div class="compact-card rounded-2xl p-4">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">当前目标</div>
                                 <div id="summaryOutputs" class="mt-2 flex flex-wrap gap-2"></div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="agent-orbit mt-5 rounded-[1.8rem] border border-white/10 bg-white/[0.02] p-4">
-                    <div class="mb-3 flex items-center justify-between gap-3">
-                        <div>
-                            <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">14 Agent Live Board</div>
-                            <h2 class="mt-2 text-xl font-bold text-white">谁在发言、谁在待命，一眼看清</h2>
-                        </div>
-                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">头像高亮代表当前发言</span>
-                    </div>
-                    <div id="agentGrid" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div>
-                </div>
             </section>
 
-            <section class="glass flex min-h-0 flex-col rounded-[2rem] p-4 lg:p-5">
+            <section class="glass flex min-h-0 flex-col rounded-[2rem] p-5 lg:p-6 xl:row-start-2">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                     <div>
                         <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Dynamic Transcript</div>
-                        <h2 class="mt-2 text-2xl font-bold text-white">研究会诊实录</h2>
+                        <h2 class="mt-2 text-2xl font-bold text-white">研究会诊主屏</h2>
+                        <p class="mt-2 text-sm leading-7 text-slate-300">这里专门展示围绕你的项目展开的讨论：研究思路、研究方案、数据来源、分析方法，以及最后的总结。</p>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap gap-2">
                         <button id="continueBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
                             <i class="fas fa-forward mr-2"></i>继续推进
                         </button>
                         <button id="summaryBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
                             <i class="fas fa-file-lines mr-2"></i>生成总结
                         </button>
+                        <button id="restartBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
+                            <i class="fas fa-rotate-right mr-2"></i>重开一轮
+                        </button>
+                        <a id="formalExportBtn" href="../roundtables/detail.html?mrt_backend_mode=static&sessionId=12&auto=1" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
+                            <i class="fas fa-file-export mr-2"></i>正式报告页
+                        </a>
                     </div>
                 </div>
-                <div id="transcript" class="transcript mt-4 flex-1 space-y-4 overflow-auto pr-2"></div>
+                <div id="transcript" class="transcript mt-4 flex-1 space-y-5 overflow-auto pr-2"></div>
                 <div id="typingIndicator" class="hidden px-2 pt-3">
                     <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
                         <div class="flex items-center gap-3">
@@ -317,15 +315,15 @@
                 </div>
                 <div class="composer-shell mt-4 rounded-[1.8rem] p-4">
                     <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">真人直接引导</div>
-                    <p class="mt-2 text-sm leading-7 text-slate-300">不用点步骤表。直接输入你要推进的问题，例如“先别谈大方向，请统计专家先给样本量前提和分析集定义”。</p>
+                    <p class="mt-2 text-sm leading-7 text-slate-300">不用勾步骤。直接说你现在最想确认的内容，比如“先确认方案是否成立”“先把数据来源讲清楚”“先锁定分析方法”。</p>
                     <div class="mt-3 flex flex-wrap gap-2">
-                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请先判断这个项目值不值得继续做，并锁定一个单一主终点。">值不值得继续做</button>
-                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请博士生和趋势研究员先补文献缺口与投稿窗口，不要泛谈背景。">先补文献缺口</button>
-                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请研究护士先把 CRF 页面和访视表展开成可执行清单。">先做 CRF / 访视表</button>
-                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请统计专家先把样本量前提、分析集和敏感性分析口径列出来。">先做统计分析</button>
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请先确认这个研究方向值不值得继续做，并且明确唯一的主要研究问题。">先确认研究思路</button>
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请把研究方案讲实：纳排标准、主要终点、访视路径和 CRF 字段先收紧。">先确认研究方案</button>
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请先确定这项研究最合适的数据来源，优先说清楚公开数据库、现有数据和缺口。">先确定数据来源</button>
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请先把分析方法确定下来：样本量前提、分析集定义、主要模型和敏感性分析怎么做。">先确定分析方法</button>
                     </div>
                     <div class="mt-4 flex gap-3">
-                        <textarea id="humanInput" rows="3" class="topic-input flex-1 rounded-[1.4rem] px-4 py-3 text-base leading-7 text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" placeholder="真人研究者在这里随时插话，系统会立刻重排后续专家顺序。"></textarea>
+                        <textarea id="humanInput" rows="4" class="topic-input flex-1 rounded-[1.4rem] px-4 py-4 text-base leading-8 text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" placeholder="例如：请先不要讲背景，直接确认这个项目的主要终点、数据来源和分析方法。"></textarea>
                         <button id="sendHumanBtn" class="rounded-[1.4rem] bg-white px-5 py-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100">
                             <i class="fas fa-paper-plane mr-2"></i>发送并接管
                         </button>
@@ -333,22 +331,28 @@
                 </div>
             </section>
 
-            <aside class="glass flex min-h-0 flex-col rounded-[2rem] p-4">
-                <div>
-                    <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Live Controls</div>
-                    <h2 class="mt-2 text-2xl font-bold text-white">自动推进控制台</h2>
-                </div>
-                <div class="mt-4 space-y-3 text-sm">
-                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+            <aside class="glass flex min-h-0 flex-col rounded-[2rem] p-4 xl:row-start-2">
+                <div class="space-y-3 text-sm">
+                    <div class="compact-card rounded-2xl p-4">
                         <div class="text-xs uppercase tracking-[0.18em] text-slate-400">当前状态</div>
                         <div id="engineStatus" class="mt-2 text-lg font-semibold text-cyan-200">待命</div>
-                        <p id="engineNarrative" class="mt-2 leading-7 text-slate-300">点击“一键启动 14 Agent 会诊”后，系统会自动把 14 位专家按阶段拉进讨论。</p>
+                        <p id="engineNarrative" class="mt-2 leading-7 text-slate-300">点击“开始自动讨论”后，系统会自动把 14 位专家按研究推进顺序拉进讨论。</p>
                     </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">阶段轨迹</div>
+                    <div class="compact-card rounded-2xl p-4">
+                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">项目推进阶段</div>
                         <div id="stageRail" class="mt-3 space-y-2"></div>
                     </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                    <div class="compact-card rounded-2xl p-4">
+                        <div class="mb-3 flex items-center justify-between gap-3">
+                            <div>
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">14 Agent 头像面板</div>
+                                <div class="mt-1 text-sm font-semibold text-white">点头像，指定谁先讲</div>
+                            </div>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300">高亮 = 正在发言</span>
+                        </div>
+                        <div id="agentGrid" class="grid gap-3 md:grid-cols-2"></div>
+                    </div>
+                    <div class="compact-card rounded-2xl p-4">
                         <div class="text-xs uppercase tracking-[0.18em] text-slate-400">本轮参考文献</div>
                         <div id="citationFeed" class="mt-3 space-y-3 text-sm leading-6 text-slate-300"></div>
                     </div>
@@ -362,10 +366,10 @@
         const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
         const urlParams = new URLSearchParams(window.location.search);
         const stageBlueprint = [
-            { key: 'problem_identification', label: '问题识别', summary: '先收研究对象、主终点与 go / no-go 判断。', roles: ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse'], outputs: ['立项判断', '主终点', '时间窗', '风险点'] },
-            { key: 'literature_review', label: '文献回顾', summary: '把证据缺口、指南与投稿窗口做成共识。', roles: ['trend_researcher', 'experiment_tracker'], outputs: ['文献证据表', '创新缺口', '投稿窗口'] },
-            { key: 'study_design', label: '研究设计', summary: '把生信、工作流、执行与交互真正落到方案里。', roles: ['clawbio_pharmgx', 'clawbio_gwas', 'clawbio_sc_rna', 'clawbio_galaxy', 'ux_researcher', 'ai_data_engineer'], outputs: ['workflow', 'CRF 字段', '样本路径', '数据规范'] },
-            { key: 'data_analysis', label: '数据分析', summary: '收样本量、分析集、质控与最终报告骨架。', roles: ['model_qa', 'statistician', 'clinical_director'], outputs: ['样本量前提', '分析集', '敏感性分析', '会诊总结'] }
+            { key: 'research_direction', label: '研究思路确认', summary: '先确认题目是否值得做、核心研究问题是什么、主要终点是否单一。', roles: ['clinical_director', 'phd_student', 'epidemiologist', 'trend_researcher'], outputs: ['立项判断', '核心研究问题', '主要终点', '创新切口'] },
+            { key: 'protocol_confirmation', label: '研究方案确认', summary: '把纳排标准、访视路径、CRF 字段与执行风险真正说实。', roles: ['research_nurse', 'experiment_tracker', 'ux_researcher', 'clawbio_galaxy'], outputs: ['方案骨架', 'CRF 字段', '访视路径', '执行风险'] },
+            { key: 'data_source_confirmation', label: '数据来源确认', summary: '确认公开数据库、已有材料、本地数据和组学来源，避免后面无数据可做。', roles: ['ai_data_engineer', 'clawbio_gwas', 'clawbio_sc_rna'], outputs: ['数据来源清单', '字段映射', '缺失数据缺口', '组学输入路径'] },
+            { key: 'analysis_plan', label: '分析方法确认', summary: '收样本量前提、分析集、主要模型、敏感性分析和最终总结。', roles: ['statistician', 'model_qa', 'clawbio_pharmgx'], outputs: ['样本量前提', '分析集定义', '主要分析方法', '讨论总结'] }
         ];
         const allRoles = [
             'clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse',
@@ -408,7 +412,7 @@
         };
 
         const state = {
-            activeStage: 'problem_identification',
+            activeStage: 'research_direction',
             queue: [],
             messages: [],
             timers: [],
@@ -457,9 +461,9 @@
             const expertRole = urlParams.get('expert');
             const expert = expertRole ? getExpert(expertRole) : null;
             if (expert && expert.prompt) {
-                return `${expert.prompt} 请让 14 位专家像真实会诊一样依次讨论，不要停留在概念层。`;
+                return `${expert.prompt} 请让 14 位专家围绕研究思路、研究方案、数据来源和分析方法依次讨论，不要停留在概念层。`;
             }
-            return '请围绕肿瘤免疫治疗患者疗效预测这个方向，直接开始一轮真实会诊：先判断立项价值，再补文献缺口、研究设计、CRF 与统计分析，最后形成可执行的研究方案。';
+            return '请围绕肿瘤免疫治疗患者疗效预测这个方向，直接开始一轮真实会诊：先确认这个研究值不值得做，再收紧研究方案，确认可用数据来源，最后锁定分析方法并形成可执行总结。';
         }
 
         function setIdentityBadge() {
@@ -538,7 +542,7 @@
                 : '等待临床主任开场';
             document.getElementById('summaryNarrative').textContent = last
                 ? last.summary
-                : '系统会先收研究对象、主终点与时间窗，再逐段补证据、方案、CRF 与分析。';
+                : '系统会先确认研究思路，再逐段把方案、数据来源和分析方法做实。';
             document.getElementById('summaryNextSpeaker').textContent = next
                 ? `${roleLabel(next.role)} 将接着补位`
                 : '当前没有待发言专家';
@@ -618,23 +622,19 @@
 
         function detectFocus(text) {
             const raw = String(text || '');
-            const lowered = raw.toLowerCase();
-            if (/(文献|综述|指南|检索|证据)/i.test(raw)) {
-                return { stage: 'literature_review', roles: ['phd_student', 'trend_researcher', 'clinical_director'] };
+            if (/(思路|值不值得|立项|主终点|临床问题|研究问题|创新)/i.test(raw)) {
+                return { stage: 'research_direction', roles: ['clinical_director', 'phd_student', 'epidemiologist', 'trend_researcher'] };
             }
-            if (/(样本量|统计|分析集|敏感性|sap)/i.test(raw)) {
-                return { stage: 'data_analysis', roles: ['statistician', 'model_qa', 'clinical_director'] };
+            if (/(方案|纳排|终点|crf|访视|执行|sop|伦理)/i.test(raw)) {
+                return { stage: 'protocol_confirmation', roles: ['research_nurse', 'experiment_tracker', 'ux_researcher', 'clawbio_galaxy'] };
             }
-            if (/(crf|访视|随访|sop|执行)/i.test(raw)) {
-                return { stage: 'study_design', roles: ['research_nurse', 'experiment_tracker', 'ux_researcher', 'ai_data_engineer'] };
+            if (/(数据来源|数据库|nhanes|seer|charls|cnki|pubmed|组学|gwas|单细胞|数据集)/i.test(raw)) {
+                return { stage: 'data_source_confirmation', roles: ['ai_data_engineer', 'clawbio_gwas', 'clawbio_sc_rna', 'clawbio_galaxy'] };
             }
-            if (/(gwas|单细胞|组学|基因|workflow|galaxy)/i.test(raw)) {
-                return { stage: 'study_design', roles: ['clawbio_pharmgx', 'clawbio_gwas', 'clawbio_sc_rna', 'clawbio_galaxy', 'ai_data_engineer'] };
+            if (/(分析|样本量|统计|分析集|敏感性|模型|回归|sap)/i.test(raw)) {
+                return { stage: 'analysis_plan', roles: ['statistician', 'model_qa', 'clawbio_pharmgx', 'clinical_director'] };
             }
-            if (/(风险|值不值得|立项|主终点|临床问题)/i.test(raw)) {
-                return { stage: 'problem_identification', roles: ['clinical_director', 'epidemiologist', 'statistician'] };
-            }
-            return { stage: state.activeStage || 'problem_identification', roles: getStageMeta(state.activeStage || 'problem_identification').roles.slice(0, 4) };
+            return { stage: state.activeStage || 'research_direction', roles: getStageMeta(state.activeStage || 'research_direction').roles.slice(0, 4) };
         }
 
         function getStageSupportRoles(stageKey, anchorRole) {
@@ -653,7 +653,13 @@
             const responsibilityA = expert.responsibilities[0] || expert.summary;
             const responsibilityB = expert.responsibilities[1] || expert.summary;
             const deliverable = (expert.deliverables || []).slice(0, 2).join('、');
-            const reply = `${handoff}${steerLine} 站在${expert.name}这个角色上，我先把「${stage.label}」阶段里最容易卡住的部分说透：第一，${responsibilityA.replace(/。$/, '')}，这一步必须直接对应到“${topic}”的真实研究问题上；第二，${responsibilityB.replace(/。$/, '')}，否则后面的统计、CRF 和报告会因为口径不一致反复返工；第三，我这轮想真正交付的是 ${deliverable}，不是再给一个概念性建议。我的判断是，先把 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]} 对齐，再让下一位专家继续补位，整个讨论才会像真实会诊一样往前走。`;
+            const stageLens = {
+                research_direction: '先把研究思路和立项边界说清楚',
+                protocol_confirmation: '先把研究方案和执行骨架落地',
+                data_source_confirmation: '先把数据来源、字段和可得性讲透',
+                analysis_plan: '先把分析方法、样本量前提和质控口径锁住'
+            };
+            const reply = `${handoff}${steerLine} 站在${expert.name}这个角色上，这一轮我会围绕「${stage.label}」直接回答项目推进最关键的问题。${stageLens[stageKey] || ''}。第一，${responsibilityA.replace(/。$/, '')}，这一步必须直接对应到“${topic}”的真实研究场景；第二，${responsibilityB.replace(/。$/, '')}，否则后面的方案、数据和分析会来回返工；第三，我这轮想真正交付的是 ${deliverable}，而不是再给一个概念性建议。我的建议是，先把 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]} 收紧，再让下一位专家继续补位，这样才能把项目真正推进到可执行层。`;
             return {
                 role,
                 stage: stageKey,
@@ -712,7 +718,7 @@
         function buildHumanKickoffMessage() {
             const who = state.identity && state.identity.name ? `${state.identity.name}` : '真人研究者';
             const topic = document.getElementById('topicQuestion').value.trim();
-            return `${who} 发起本轮会诊：${topic} 先不要讲套话，请 14 位专家按阶段接力，把能直接执行的研究口径、变量、CRF 和分析框架做出来。`;
+            return `${who} 发起本轮会诊：${topic} 请 14 位专家围绕研究思路、研究方案、数据来源和分析方法依次推进，每一轮都要给出能直接执行的口径和下一步动作。`;
         }
 
         function addHumanMessage(text) {
@@ -783,12 +789,77 @@
             document.getElementById('transcript').innerHTML = '';
             state.messages = [];
             state.holdQueue = [];
-            state.activeStage = 'problem_identification';
+            state.activeStage = 'research_direction';
             state.paused = false;
             addHumanMessage(buildHumanKickoffMessage());
             renderAgentGrid();
             renderSummary();
             queueReplies(buildInitialFlow());
+        }
+
+        function buildDiscussionDigest() {
+            const byStage = stageBlueprint.map((stage) => {
+                const stageMessages = state.messages.filter((message) => message.stage === stage.key && message.role !== 'human');
+                const lastStageMessage = stageMessages[stageMessages.length - 1];
+                return {
+                    stage,
+                    lastStageMessage,
+                    speakers: [...new Set(stageMessages.map((message) => roleLabel(message.role)))]
+                };
+            });
+
+            const summaryText = byStage.map(({ stage, lastStageMessage, speakers }) => {
+                const headline = `## ${stage.label}`;
+                const who = speakers.length ? `参与专家：${speakers.join('、')}` : '参与专家：待补';
+                const note = lastStageMessage ? lastStageMessage.text : `本阶段目标：${stage.outputs.join('、')}`;
+                return `${headline}\n${who}\n${note}`;
+            }).join('\n\n');
+
+            const refs = [...new Map(
+                state.messages.flatMap((message) => (message.refs || []).map((ref) => [ref.url, ref]))
+            ).values()];
+
+            return {
+                summaryText,
+                refs
+            };
+        }
+
+        function downloadDiscussionMemo() {
+            const digest = buildDiscussionDigest();
+            const transcript = state.messages.map((message) => {
+                const stage = getStageMeta(message.stage || state.activeStage).label;
+                const speaker = message.role === 'human' ? (state.identity?.name || '真人研究者') : roleLabel(message.role);
+                return `### ${speaker}｜${stage}\n${message.text}`;
+            }).join('\n\n');
+            const refBlock = digest.refs.length
+                ? digest.refs.map((ref, index) => `${index + 1}. ${ref.label} ${ref.url}`).join('\n')
+                : '暂无额外参考文献';
+            const content = [
+                `# ${document.getElementById('topicTitle').value.trim() || 'MedRoundTable 会诊纪要'}`,
+                '',
+                `## 研究问题`,
+                document.getElementById('topicQuestion').value.trim(),
+                '',
+                `## 讨论总结`,
+                digest.summaryText,
+                '',
+                `## 全部讨论实录`,
+                transcript,
+                '',
+                `## 参考文献`,
+                refBlock,
+                ''
+            ].join('\n');
+            const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${(document.getElementById('topicTitle').value.trim() || 'medroundtable-discussion').replace(/[\\/:*?\"<>|]/g, '-')}.md`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
         }
 
         function injectQuickQuestion(text) {
@@ -814,7 +885,7 @@
             document.getElementById('restartBtn').addEventListener('click', startDiscussion);
             document.getElementById('continueBtn').addEventListener('click', resumeHeldQueue);
             document.getElementById('summaryBtn').addEventListener('click', () => {
-                handleHumanInterrupt('请临床主任现在给出一版会诊总结，至少包括当前共识、仍需补齐的风险点和下一步交付。');
+                handleHumanInterrupt('请现在收束全场讨论，明确研究思路、研究方案、数据来源和分析方法的当前共识，并给出下一步执行清单。');
             });
             document.getElementById('interruptBtn').addEventListener('click', () => {
                 if (state.queue.length) {
@@ -858,6 +929,7 @@
                 if (!chip) return;
                 injectQuickQuestion(`请先把 ${chip.dataset.output} 做出来，不要继续讲背景。`);
             });
+            document.getElementById('downloadBtn').addEventListener('click', downloadDiscussionMemo);
 
             if (urlParams.get('autostart') !== '0') {
                 window.setTimeout(startDiscussion, 480);
