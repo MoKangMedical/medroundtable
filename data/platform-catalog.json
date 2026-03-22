@@ -4,7 +4,7 @@
     "openclaw_wrapped_skills": 869,
     "experts_total": 14,
     "stella_meta_roles": 3,
-    "featured_integrations_total": 4,
+    "featured_integrations_total": 5,
     "frontier_models_total": 2
   },
   "source_packages": [
@@ -81,6 +81,17 @@
       "owner_roles": ["临床主任", "流行病学家", "统计学家", "AI 数据工程师"],
       "scenarios": ["多模态病例会诊", "影像 + 病历联合判断", "关键指标量化复核", "循证诊断路径验证"],
       "deliverables": ["诊断计划 JSON", "关键指标量化表", "风险评分结论", "病例会诊纪要"]
+    },
+    {
+      "id": "neuragraph",
+      "name": "NeuraGraph",
+      "tone": "fuchsia",
+      "headline": "把生物医学文本挖掘工作流变成可视化 DAG，让文本到结构化知识的提取真正自动化。",
+      "summary": "通过 NeuraGraph 的 LLM + 规则 + 专用 NLP 工具混编工作流，把生物医学文本中的实体识别、关系抽取、共指消解、MeSH 层次分析和依存句法三元组提取接进平台，用于把文献与病历文本快速变成可分析知识。",
+      "highlights": ["可视化 DAG 工作流", "LLM / PGM / SUB 混合智能体", "SSE 流式实验与自动报告"],
+      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师", "临床主任"],
+      "scenarios": ["文献自动结构化", "病历 / 摘要关系抽取", "实体与 MeSH 编码整理", "知识图谱前置构建"],
+      "deliverables": ["实体关系表", "知识三元组", "实验指标报告", "结构化语义图谱"]
     }
   ],
   "frontier_models": [
@@ -237,6 +248,16 @@
       "owner_roles": ["临床主任", "流行病学家", "统计学家", "AI 数据工程师"],
       "coverage": ["指南检索与诊断计划", "多模态病例编排", "定量指标提取", "风险加权诊断决策"],
       "deliverables": ["诊断计划 JSON", "指标证据表", "风险评分结论", "病例讨论纪要"]
+    },
+    {
+      "id": "biomedical-text-mining",
+      "name": "生物医学文本挖掘引擎",
+      "count": 16,
+      "tone": "fuchsia",
+      "description": "通过 NeuraGraph 把 LLM、规则和专用 NLP 工具编成可视化文本挖掘工作流，用于从文献、摘要和病例文本中自动抽取结构化知识。",
+      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师", "临床主任"],
+      "coverage": ["命名实体识别", "关系抽取", "共指消解与 MeSH 层次化", "依存句法转知识三元组"],
+      "deliverables": ["实体关系表", "知识图谱草案", "文本挖掘实验报告", "结构化证据清单"]
     }
   ],
   "databases": [

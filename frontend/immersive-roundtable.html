@@ -633,6 +633,7 @@
         const capabilitySpotlights = {
             research_direction: [
                 { name: 'MedAgent-Pro', tone: 'text-teal-200', summary: '先按医学指南生成标准化诊断计划，避免讨论一开始就凭经验跳结论。' },
+                { name: 'NeuraGraph', tone: 'text-fuchsia-200', summary: '把前期资料中的疾病、干预、结局和关系先抽成结构化知识，避免会诊一直停留在原始长文本。' },
                 { name: 'QwQ-Med-3', tone: 'text-cyan-200', summary: '补疾病知识链和临床问题推理，让立项判断更可解释。' }
             ],
             protocol_confirmation: [
@@ -641,6 +642,7 @@
             ],
             data_source_confirmation: [
                 { name: 'OmicClaw × OmicVerse', tone: 'text-lime-200', summary: '在组学或多模态输入阶段补共享 Kernel、本地生信与 MCP 调度。' },
+                { name: 'NeuraGraph', tone: 'text-fuchsia-200', summary: '需要从病历、摘要或全文里批量抽实体关系时，先用可视化文本挖掘工作流结构化数据来源。' },
                 { name: 'QuantClaw × CNKI', tone: 'text-orange-200', summary: '需要补中文指南、综述和期刊级别时，直接拉这条能力进场。' }
             ],
             analysis_plan: [
