@@ -649,9 +649,10 @@
             return roles.slice(0, 2);
         }
 
-        function buildAgentReply(role, stageKey, topic, steer, previousSpeaker) {
+        function buildAgentReply(role, stageKey, topic, steer, previousSpeaker, options = {}) {
             const expert = getExpert(role);
             const stage = getStageMeta(stageKey);
+            const compact = options.compact !== false;
             const refs = role.includes('clawbio') || role === 'ai_data_engineer'
                 ? citationLibrary.omics
                 : (role === 'statistician' || role === 'model_qa' ? citationLibrary.stats : (role === 'research_nurse' || role === 'experiment_tracker' ? citationLibrary.execution : citationLibrary.general));
@@ -666,7 +667,9 @@
                 data_source_confirmation: '先把数据来源、字段和可得性讲透',
                 analysis_plan: '先把分析方法、样本量前提和质控口径锁住'
             };
-            const reply = `${handoff}${steerLine} 站在${expert.name}这个角色上，这一轮我会围绕「${stage.label}」直接回答项目推进最关键的问题。${stageLens[stageKey] || ''}。第一，${responsibilityA.replace(/。$/, '')}，这一步必须直接对应到“${topic}”的真实研究场景；第二，${responsibilityB.replace(/。$/, '')}，否则后面的方案、数据和分析会来回返工；第三，我这轮想真正交付的是 ${deliverable}，而不是再给一个概念性建议。我的建议是，先把 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]} 收紧，再让下一位专家继续补位，这样才能把项目真正推进到可执行层。`;
+            const reply = compact
+                ? `${handoff}${steerLine} 站在${expert.name}这个角色上，我先把「${stage.label}」直接收口。${stageLens[stageKey] || ''}：先抓 ${stage.outputs[0]}，再补 ${stage.outputs[1] || stage.outputs[0]}。我这一轮重点推进 ${responsibilityA.replace(/。$/, '')}，并把 ${deliverable} 交出来。`
+                : `${handoff}${steerLine} 站在${expert.name}这个角色上，这一轮我会围绕「${stage.label}」直接回答项目推进最关键的问题。${stageLens[stageKey] || ''}。第一，${responsibilityA.replace(/。$/, '')}，这一步必须直接对应到“${topic}”的真实研究场景；第二，${responsibilityB.replace(/。$/, '')}，否则后面的方案、数据和分析会来回返工；第三，我这轮想真正交付的是 ${deliverable}，而不是再给一个概念性建议。我的建议是，先把 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]} 收紧，再让下一位专家继续补位，这样才能把项目真正推进到可执行层。`;
             return {
                 role,
                 stage: stageKey,
@@ -682,7 +685,7 @@
             state.running = true;
             renderSummary();
 
-            let delay = 500;
+            let delay = 220;
             items.forEach((item, index) => {
                 const timer = window.setTimeout(() => {
                     showTyping(item.role);
@@ -700,11 +703,11 @@
                             state.running = false;
                             renderSummary();
                         }
-                    }, 520);
+                    }, 260);
                     state.timers.push(speakingTimer);
                 }, delay);
                 state.timers.push(timer);
-                delay += 1480;
+                delay += 820;
             });
         }
 
@@ -715,7 +718,7 @@
             let previousRole = '';
             stageBlueprint.forEach((stage) => {
                 stage.roles.forEach((role) => {
-                    queue.push(buildAgentReply(role, stage.key, topic, '', previousRole));
+                    queue.push(buildAgentReply(role, stage.key, topic, '', previousRole, { compact: true }));
                     previousRole = role;
                 });
             });
