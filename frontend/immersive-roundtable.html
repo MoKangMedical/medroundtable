@@ -316,6 +316,32 @@
             background: rgba(255,255,255,0.04);
             padding: 0.95rem;
         }
+        .project-brief.is-hidden {
+            display: none;
+        }
+        .project-brief.is-collapsed {
+            padding-bottom: 0.8rem;
+        }
+        .project-brief-body {
+            margin-top: 0.9rem;
+        }
+        .project-brief.is-collapsed .project-brief-body {
+            display: none;
+        }
+        .project-brief-summary {
+            display: none;
+            margin-top: 0.75rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: rgba(255,255,255,0.04);
+            padding: 0.75rem 0.9rem;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        .project-brief.is-collapsed .project-brief-summary {
+            display: block;
+        }
         .agenda-grid {
             display: grid;
             gap: 0.75rem;
@@ -326,6 +352,35 @@
             border: 1px solid rgba(148, 163, 184, 0.14);
             background: rgba(255,255,255,0.04);
             padding: 0.85rem 0.95rem;
+        }
+        .thought-card {
+            margin-top: 0.85rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(255,255,255,0.04);
+            padding: 0.8rem 0.95rem;
+        }
+        .thought-list {
+            margin-top: 0.45rem;
+            display: grid;
+            gap: 0.4rem;
+        }
+        .thought-item {
+            display: flex;
+            gap: 0.55rem;
+            align-items: flex-start;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.65;
+        }
+        .thought-dot {
+            margin-top: 0.42rem;
+            width: 6px;
+            height: 6px;
+            flex: 0 0 6px;
+            border-radius: 999px;
+            background: rgba(110, 231, 249, 0.9);
+            box-shadow: 0 0 10px rgba(110, 231, 249, 0.5);
         }
         @keyframes sweep {
             0% { transform: translateX(-110%); opacity: 0.2; }
@@ -458,12 +513,19 @@
                 </div>
 
                 <div id="projectBriefCard" class="mt-4 project-brief">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="arena-chip">先说你想讨论什么</span>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">系统会先生成议程，再拉起 14 位专家</span>
+                        </div>
+                        <button id="toggleProjectBriefBtn" type="button" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
+                            <i class="fas fa-chevron-up mr-2"></i>收起项目设定
+                        </button>
+                    </div>
+                    <div id="projectBriefSummary" class="project-brief-summary"></div>
+                    <div class="project-brief-body">
                     <div class="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                         <div class="min-w-0 flex-1">
-                            <div class="flex flex-wrap items-center gap-3">
-                                <span class="arena-chip">先说你想讨论什么</span>
-                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">系统会先生成议程，再拉起 14 位专家</span>
-                            </div>
                             <div class="mt-3 grid gap-2.5">
                                 <input id="topicTitle" class="topic-input rounded-2xl px-4 py-2.5 text-base font-semibold text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" value="MedRoundTable 沉浸式 14 Agent 医学科研会诊">
                                 <textarea id="topicQuestion" rows="2" class="topic-input h-20 rounded-2xl px-4 py-2.5 text-sm leading-7 text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10">请围绕肿瘤免疫治疗患者疗效预测这个方向讨论：我希望先确认立项价值，再补文献缺口、研究设计、可用数据来源、统计分析与最终研究方案。</textarea>
@@ -484,6 +546,7 @@
                             <p id="summaryNarrative" class="mt-2 text-sm leading-7 text-slate-300">系统会先确认研究思路，再逐段把方案、数据来源和分析方法做实。</p>
                             <div id="summaryOutputs" class="mt-3 flex flex-wrap gap-2"></div>
                         </div>
+                    </div>
                     </div>
                 </div>
             </section>
@@ -684,6 +747,41 @@
                     </div>
                 `;
             }).join('');
+            renderProjectBriefSummary();
+        }
+
+        function renderProjectBriefSummary() {
+            const summary = document.getElementById('projectBriefSummary');
+            if (!summary) return;
+            const title = document.getElementById('topicTitle').value.trim() || '未命名项目';
+            const topic = document.getElementById('topicQuestion').value.trim();
+            const agenda = state.agendaPlan.length ? state.agendaPlan : buildAgendaPlan(topic);
+            summary.innerHTML = `
+                <div class="text-xs uppercase tracking-[0.16em] text-cyan-200">当前项目</div>
+                <div class="mt-1 text-sm font-semibold text-white">${escapeHtml(title)}</div>
+                <div class="mt-2 text-sm leading-7 text-slate-300">${escapeHtml(summarizeIntent(topic))}</div>
+                <div class="mt-2 text-xs text-slate-400">议程：${escapeHtml(agenda.map((item) => item.title).join(' / '))}</div>
+            `;
+        }
+
+        function setProjectBriefCollapsed(collapsed) {
+            const card = document.getElementById('projectBriefCard');
+            const button = document.getElementById('toggleProjectBriefBtn');
+            if (!card || !button) return;
+            card.classList.toggle('is-collapsed', collapsed);
+            button.innerHTML = collapsed
+                ? '<i class="fas fa-chevron-down mr-2"></i>展开项目设定'
+                : '<i class="fas fa-chevron-up mr-2"></i>收起项目设定';
+        }
+
+        function setProjectBriefHidden(hidden) {
+            const card = document.getElementById('projectBriefCard');
+            const trigger = document.getElementById('startDiscussionBtn');
+            if (!card || !trigger) return;
+            card.classList.toggle('is-hidden', hidden);
+            trigger.innerHTML = hidden
+                ? '<i class="fas fa-sliders mr-2"></i>修改讨论内容'
+                : '<i class="fas fa-pen-to-square mr-2"></i>先设讨论内容';
         }
 
         function setIdentityBadge() {
@@ -813,7 +911,7 @@
             transcript.innerHTML = [...state.messages].reverse().map((message) => {
                 const isHuman = message.role === 'human';
                 const avatar = isHuman
-                    ? (state.identity && state.identity.avatar ? state.identity.avatar : '../assets/secondme/researcher.png')
+                    ? (state.identity && state.identity.avatar ? state.identity.avatar : '../assets/secondme/director.png')
                     : getExpertAvatar(message.role);
                 const stage = getStageMeta(message.stage || state.activeStage);
                 return `
@@ -827,6 +925,20 @@
                                         <span class="rounded-full border border-white/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100 bg-white/5">${escapeHtml(stage.label)}</span>
                                     </div>
                                     <div class="mt-3 text-[15px] leading-8 ${isHuman ? 'text-white' : 'text-slate-100'}">${formatMessageText(message.text)}</div>
+                                    ${!isHuman && message.thinking && message.thinking.length ? `
+                                        <div class="thought-card">
+                                            <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">本轮思路</div>
+                                            <div class="thought-list">
+                                                ${message.thinking.map((item) => `
+                                                    <div class="thought-item">
+                                                        <span class="thought-dot"></span>
+                                                        <span>${escapeHtml(item)}</span>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                            ${message.handoffTo ? `<div class="mt-3 text-xs text-slate-400">下一棒交给：<span class="text-cyan-100">${escapeHtml(roleLabel(message.handoffTo))}</span></div>` : ''}
+                                        </div>
+                                    ` : ''}
                                     ${message.refs && message.refs.length ? `<div class="mt-4 space-y-2">${message.refs.map((ref, index) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-slate-200 transition hover:border-cyan-300/30">[${index + 1}] ${escapeHtml(ref.label)}</a>`).join('')}</div>` : ''}
                                 </div>
                             </div>
@@ -896,8 +1008,14 @@
             const responsibilityB = (expert.responsibilities && expert.responsibilities[1]) || expert.summary || `${stage.outputs[1] || stage.outputs[0]} 的补位动作`;
             const summary = `${expert.name} 先把 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]} 收住，让下一位能直接接。`;
             const topicLine = `围绕「${summarizeIntent(topic)}」，我不会停留在泛泛建议，而是直接给能执行的收口。`;
+            const nextRole = getStageSupportRoles(stageKey, role)[0] || null;
+            const thinking = [
+                `我先收住 ${stage.outputs[0]}，避免讨论继续停留在概念层。`,
+                `我重点看 ${responsibilityA.replace(/。$/, '')} 和 ${responsibilityB.replace(/。$/, '')}，把字段、时间窗和判定标准讲实。`,
+                nextRole ? `我会把这一轮结论交给 ${roleLabel(nextRole)}，让下一位直接补方案、数据或分析方法。` : '这轮结束后需要把结论沉淀进最终方案和汇报材料。'
+            ];
             const text = `${handoff}${steerLine}${topicLine} 站在${expert.name}这个角色上，我先把「${stage.label}」里最影响成败的两件事定下来：第一，${responsibilityA.replace(/。$/, '')}，这里必须明确字段、时间窗和判定标准，不能只说原则；第二，${responsibilityB.replace(/。$/, '')}，这一点直接决定下一位专家能否把方案、数据或分析方法接上。我的建议是本轮先锁 ${stage.outputs[0]}，再补 ${stage.outputs[1] || stage.outputs[0]}，同时把潜在风险、数据缺口和需要验证的文献依据说清楚。这样下一位专家不需要回到背景介绍，而是可以直接沿着现有口径继续把研究项目往前推。`;
-            return { role, stage: stageKey, text, summary, refs };
+            return { role, stage: stageKey, text, summary, refs, thinking, handoffTo: nextRole };
         }
 
         function queueReplies(items) {
@@ -1032,6 +1150,8 @@
             state.activeStage = 'research_direction';
             state.paused = false;
             state.activeRole = '';
+            setProjectBriefHidden(true);
+            setProjectBriefCollapsed(true);
             addHumanMessage(buildHumanKickoffMessage());
             renderRoundtableSeats();
             renderStageRail();
@@ -1254,8 +1374,10 @@
             renderAgendaPlan();
             renderSummary();
             renderTranscript();
+            setProjectBriefHidden(false);
 
             document.getElementById('startDiscussionBtn').addEventListener('click', () => {
+                setProjectBriefHidden(false);
                 document.getElementById('projectBriefCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 document.getElementById('topicQuestion').focus();
             });
@@ -1267,6 +1389,14 @@
             document.getElementById('generateAgendaBtn').addEventListener('click', () => {
                 state.agendaPlan = buildAgendaPlan(document.getElementById('topicQuestion').value.trim());
                 renderAgendaPlan();
+            });
+            document.getElementById('toggleProjectBriefBtn').addEventListener('click', () => {
+                const card = document.getElementById('projectBriefCard');
+                if (card.classList.contains('is-collapsed')) {
+                    setProjectBriefCollapsed(false);
+                    return;
+                }
+                setProjectBriefHidden(true);
             });
             document.getElementById('restartBtn').addEventListener('click', startDiscussion);
             document.getElementById('continueBtn').addEventListener('click', resumeHeldQueue);
@@ -1321,6 +1451,7 @@
                 state.agendaPlan = buildAgendaPlan(document.getElementById('topicQuestion').value.trim());
                 renderAgendaPlan();
             });
+            document.getElementById('topicTitle').addEventListener('input', renderProjectBriefSummary);
 
             if (urlParams.get('autostart') !== '0' && urlParams.get('topic')) {
                 window.setTimeout(startDiscussion, 420);
