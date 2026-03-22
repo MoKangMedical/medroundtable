@@ -932,7 +932,7 @@
                                                 ${message.thinking.map((item) => `
                                                     <div class="thought-item">
                                                         <span class="thought-dot"></span>
-                                                        <span>${escapeHtml(item)}</span>
+                                                        <span><strong class="text-cyan-100">${escapeHtml(item.label)}：</strong>${escapeHtml(item.body)}</span>
                                                     </div>
                                                 `).join('')}
                                             </div>
@@ -1010,9 +1010,20 @@
             const topicLine = `围绕「${summarizeIntent(topic)}」，我不会停留在泛泛建议，而是直接给能执行的收口。`;
             const nextRole = getStageSupportRoles(stageKey, role)[0] || null;
             const thinking = [
-                `我先收住 ${stage.outputs[0]}，避免讨论继续停留在概念层。`,
-                `我重点看 ${responsibilityA.replace(/。$/, '')} 和 ${responsibilityB.replace(/。$/, '')}，把字段、时间窗和判定标准讲实。`,
-                nextRole ? `我会把这一轮结论交给 ${roleLabel(nextRole)}，让下一位直接补方案、数据或分析方法。` : '这轮结束后需要把结论沉淀进最终方案和汇报材料。'
+                {
+                    label: '我为什么这么判断',
+                    body: `因为这一轮最容易失焦的是 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]}，如果不先把 ${responsibilityA.replace(/。$/, '')} 讲实，后面的方案、数据和分析都会继续悬空。`
+                },
+                {
+                    label: '我需要谁补证据',
+                    body: nextRole
+                        ? `我需要 ${roleLabel(nextRole)} 接着补位，把 ${responsibilityB.replace(/。$/, '')} 的证据、字段或方法依据接上，避免讨论只停在原则判断。`
+                        : `我需要下一轮把文献依据、数据口径和执行风险继续补齐，确保这不是单点判断，而是可以被验证的结论。`
+                },
+                {
+                    label: '我建议下一步做什么',
+                    body: `先锁 ${stage.outputs[0]}，再补 ${stage.outputs[1] || stage.outputs[0]}，同时把时间窗、判定标准和需要核对的参考文献一起收口，马上推进到下一位专家的执行环节。`
+                }
             ];
             const text = `${handoff}${steerLine}${topicLine} 站在${expert.name}这个角色上，我先把「${stage.label}」里最影响成败的两件事定下来：第一，${responsibilityA.replace(/。$/, '')}，这里必须明确字段、时间窗和判定标准，不能只说原则；第二，${responsibilityB.replace(/。$/, '')}，这一点直接决定下一位专家能否把方案、数据或分析方法接上。我的建议是本轮先锁 ${stage.outputs[0]}，再补 ${stage.outputs[1] || stage.outputs[0]}，同时把潜在风险、数据缺口和需要验证的文献依据说清楚。这样下一位专家不需要回到背景介绍，而是可以直接沿着现有口径继续把研究项目往前推。`;
             return { role, stage: stageKey, text, summary, refs, thinking, handoffTo: nextRole };
