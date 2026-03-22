@@ -183,6 +183,18 @@
             border: 1px solid rgba(110, 231, 249, 0.16);
             background: rgba(255,255,255,0.04);
         }
+        .agent-ribbon {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(110, 231, 249, 0.28) transparent;
+        }
+        .agent-ribbon::-webkit-scrollbar { height: 8px; }
+        .agent-ribbon::-webkit-scrollbar-thumb {
+            background: rgba(110, 231, 249, 0.24);
+            border-radius: 999px;
+        }
+        .agent-compact {
+            min-width: 146px;
+        }
         .stage-control {
             cursor: pointer;
             transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
@@ -205,9 +217,9 @@
     </style>
 </head>
 <body class="grain">
-    <main class="h-screen overflow-hidden px-4 py-4 lg:px-6 lg:py-5">
+    <main class="h-screen overflow-hidden px-3 py-3 lg:px-4 lg:py-4">
         <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.75fr)_360px] xl:grid-rows-[auto_minmax(0,1fr)]">
-            <section class="glass hero-frame xl:col-span-2 rounded-[2rem] p-5 lg:p-6">
+            <section class="glass hero-frame xl:col-span-2 rounded-[2rem] p-4 lg:p-5">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="max-w-4xl">
                         <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
@@ -218,23 +230,23 @@
                             <span class="rounded-full border border-white/10 px-3 py-2">围绕项目思路自动推进</span>
                             <span id="identityBadge" class="hidden rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200"></span>
                         </div>
-                        <h1 class="mt-4 text-3xl font-bold leading-tight text-white lg:text-5xl">围绕你的研究项目，14 位 Agent 自动会诊并持续收口</h1>
-                        <p class="mt-4 max-w-4xl text-sm leading-8 text-slate-300 lg:text-base">
-                            这页只做一件事：把你的研究思路推进成方案、数据来源、分析方法和最终纪要。主屏只保留对话，周边只保留阶段切换、点名专家和下载总结。
+                        <h1 class="mt-3 text-2xl font-bold leading-tight text-white lg:text-4xl">围绕你的研究项目，14 位 Agent 自动会诊并持续收口</h1>
+                        <p class="mt-3 max-w-4xl text-sm leading-7 text-slate-300 lg:text-[15px]">
+                            这页只保留三件事：看清讨论、随时打断、带走纪要。研究思路、研究方案、数据来源和分析方法会顺次收口。
                         </p>
                     </div>
                     <div class="grid gap-3 sm:grid-cols-3">
-                        <div class="compact-card rounded-3xl px-4 py-4">
+                        <div class="compact-card rounded-3xl px-4 py-3">
                             <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">当前阶段</div>
                             <div id="liveStageLabel" class="mt-2 text-lg font-semibold text-cyan-200">等待启动</div>
                             <div id="liveStageHint" class="mt-1 text-sm text-slate-400">系统会自动推进 4 段研究讨论</div>
                         </div>
-                        <div class="compact-card rounded-3xl px-4 py-4">
+                        <div class="compact-card rounded-3xl px-4 py-3">
                             <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">参与进度</div>
                             <div id="summaryCoverage" class="mt-2 text-lg font-semibold text-white">0 / 14 位专家</div>
                             <div id="summaryCoverageHint" class="mt-1 text-sm text-slate-400">会按研究推进顺序逐步让所有专家进场。</div>
                         </div>
-                        <div class="compact-card rounded-3xl px-4 py-4">
+                        <div class="compact-card rounded-3xl px-4 py-3">
                             <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">待发言</div>
                             <div id="queueBadge" class="mt-2 text-lg font-semibold text-white">0 位待发言</div>
                             <div id="summaryNextSpeaker" class="mt-1 text-sm text-cyan-200">等待队列生成</div>
@@ -242,16 +254,18 @@
                     </div>
                 </div>
 
-                <div class="mt-5 grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.65fr)]">
+                <div class="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.55fr)]">
                     <div class="headline-card rounded-[1.8rem] p-4">
                         <div class="flex flex-wrap items-center gap-3">
                             <span class="stage-pill rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">项目核心问题</span>
                             <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">真人随时打断</span>
                         </div>
-                        <div class="mt-4 grid gap-3">
-                            <input id="topicTitle" class="topic-input rounded-2xl px-4 py-3 text-lg font-semibold text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" value="MedRoundTable 沉浸式 14 Agent 医学科研会诊">
-                            <textarea id="topicQuestion" rows="3" class="topic-input rounded-2xl px-4 py-3 text-base leading-8 text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10">请围绕肿瘤免疫治疗患者疗效预测这个方向，直接开始一轮真实会诊：先判断立项价值，再补文献缺口、研究设计、CRF 与统计分析，最后形成可执行的研究方案。</textarea>
-                            <div class="flex flex-wrap gap-3">
+                        <div class="mt-4 grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
+                            <div class="grid gap-3">
+                                <input id="topicTitle" class="topic-input rounded-2xl px-4 py-3 text-base font-semibold text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" value="MedRoundTable 沉浸式 14 Agent 医学科研会诊">
+                                <textarea id="topicQuestion" rows="2" class="topic-input rounded-2xl px-4 py-3 text-sm leading-7 text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10">请围绕肿瘤免疫治疗患者疗效预测这个方向，直接开始一轮真实会诊：先判断立项价值，再补文献缺口、研究设计、CRF 与统计分析，最后形成可执行的研究方案。</textarea>
+                            </div>
+                            <div class="flex flex-wrap gap-3 xl:max-w-[340px]">
                                 <button id="startDiscussionBtn" class="rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">
                                     <i class="fas fa-bolt mr-2"></i>开始自动讨论
                                 </button>
@@ -282,7 +296,7 @@
                 </div>
             </section>
 
-            <section class="glass flex min-h-0 flex-col rounded-[2rem] p-5 lg:p-6 xl:row-start-2">
+            <section class="glass flex min-h-0 flex-col rounded-[2rem] p-4 lg:p-5 xl:row-start-2">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
                     <div>
                         <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Dynamic Transcript</div>
@@ -303,6 +317,9 @@
                             <i class="fas fa-file-export mr-2"></i>正式报告页
                         </a>
                     </div>
+                </div>
+                <div class="agent-ribbon mt-4 overflow-x-auto pb-2">
+                    <div id="agentGrid" class="flex gap-3 pr-2"></div>
                 </div>
                 <div id="transcript" class="transcript mt-4 flex-1 space-y-5 overflow-auto pr-2"></div>
                 <div id="typingIndicator" class="hidden px-2 pt-3">
@@ -341,16 +358,6 @@
                     <div class="compact-card rounded-2xl p-4">
                         <div class="text-xs uppercase tracking-[0.18em] text-slate-400">项目推进阶段</div>
                         <div id="stageRail" class="mt-3 space-y-2"></div>
-                    </div>
-                    <div class="compact-card rounded-2xl p-4">
-                        <div class="mb-3 flex items-center justify-between gap-3">
-                            <div>
-                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">14 Agent 头像面板</div>
-                                <div class="mt-1 text-sm font-semibold text-white">点头像，指定谁先讲</div>
-                            </div>
-                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300">高亮 = 正在发言</span>
-                        </div>
-                        <div id="agentGrid" class="grid gap-3 md:grid-cols-2"></div>
                     </div>
                     <div class="compact-card rounded-2xl p-4">
                         <div class="text-xs uppercase tracking-[0.18em] text-slate-400">本轮参考文献</div>
@@ -499,7 +506,7 @@
                 const expert = getExpert(role);
                 const active = state.activeRole === role;
                 const done = state.messages.some((message) => message.role === role);
-                const classes = ['agent-card', 'rounded-[1.4rem]', 'border', 'p-3', 'bg-white/[0.03]', 'border-white/10'];
+                const classes = ['agent-card', 'agent-compact', 'shrink-0', 'rounded-[1.4rem]', 'border', 'p-3', 'bg-white/[0.03]', 'border-white/10'];
                 if (active) classes.push('is-active');
                 else if (done) classes.push('is-done');
                 const avatar = getExpertAvatar(role);
