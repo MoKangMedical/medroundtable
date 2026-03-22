@@ -59,9 +59,9 @@
                                 <h2 class="mt-2 text-2xl font-bold text-slate-900">一键进入 14 位专家讨论</h2>
                                 <p class="mt-2 text-sm leading-7 text-slate-600">系统会自动补一个默认标题和一句话问题，直接带你进入圆桌详情页。适合演示、快速试用和先让真人带着 14 位专家开会。</p>
                             </div>
-                            <button id="instantLaunchBtn" class="rounded-2xl bg-slate-950 px-6 py-4 text-sm font-semibold text-white hover:bg-slate-800 transition">
+                            <a id="instantLaunchBtn" href="./immersive-roundtable.html?autostart=1" class="inline-flex items-center justify-center rounded-2xl bg-slate-950 px-6 py-4 text-sm font-semibold text-white hover:bg-slate-800 transition">
                                 <i class="fas fa-users-rays mr-2"></i>一键进入 14 位专家讨论
-                            </button>
+                            </a>
                         </div>
                     </div>
 
@@ -147,6 +147,7 @@
         const capabilityGrid = document.getElementById('launchpadCapabilityGrid');
         const capabilityTitle = document.getElementById('launchpadCapabilityTitle');
         const capabilityDescription = document.getElementById('launchpadCapabilityDescription');
+        const instantLaunchLink = document.getElementById('instantLaunchBtn');
         const titleInput = document.getElementById('launchpadTitle');
         const questionInput = document.getElementById('launchpadQuestion');
         const modeBadge = document.getElementById('launchpadModeBadge');
@@ -234,6 +235,18 @@
             if (!questionInput.value.trim()) {
                 questionInput.value = getSuggestedQuestion();
             }
+            updateInstantLaunchLink();
+        }
+
+        function updateInstantLaunchLink() {
+            const nextUrl = new URL('./immersive-roundtable.html', window.location.href);
+            nextUrl.searchParams.set('autostart', '1');
+            nextUrl.searchParams.set('title', titleInput.value.trim() || getSuggestedTitle());
+            nextUrl.searchParams.set('topic', questionInput.value.trim() || getSuggestedQuestion());
+            if (selectedExpertRole) {
+                nextUrl.searchParams.set('expert', selectedExpertRole);
+            }
+            instantLaunchLink.href = nextUrl.toString();
         }
 
         function buildSessionParticipants(role) {
@@ -380,6 +393,7 @@
         function prefillFromExpert() {
             titleInput.value = getSuggestedTitle();
             questionInput.value = getSuggestedQuestion();
+            updateInstantLaunchLink();
         }
 
         if (selectedExpert) {
@@ -392,6 +406,7 @@
         if (instantMode) {
             ensureLaunchpadPrefill();
         }
+        updateInstantLaunchLink();
 
         document.getElementById('launchSessionBtn').addEventListener('click', () => {
             localStorage.setItem('mrt_pending_home_action', JSON.stringify({ type: 'start-session', preferredExpert: selectedExpertRole || null }));
@@ -402,8 +417,9 @@
         });
 
         document.getElementById('directCreateBtn').addEventListener('click', () => createSessionAndEnter());
-        document.getElementById('instantLaunchBtn').addEventListener('click', () => createSessionAndEnter({ autofill: true }));
         document.getElementById('prefillStageBtn').addEventListener('click', prefillFromExpert);
+        titleInput.addEventListener('input', updateInstantLaunchLink);
+        questionInput.addEventListener('input', updateInstantLaunchLink);
 
         Promise.allSettled([
             detectLaunchpadMode(),
