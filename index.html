@@ -1079,7 +1079,7 @@
                         <div class="mt-5 flex flex-wrap gap-2 text-xs text-slate-200">
                             <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">展示口径：按 Agent 主责技能面重排</span>
                             <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">技能数为非去重覆盖口径</span>
-                                <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">对应 13 条分析路径与 4 组能力来源</span>
+                                <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">对应 14 条分析路径与 4 组能力来源</span>
                         </div>
                         <div id="agentSkillDeckGrid" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
                     </section>
@@ -1184,7 +1184,7 @@
                             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div>
                                     <p class="atlas-mini-label">分析路径</p>
-                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">13 条分析路径分别适合什么问题、通常由谁先接手</h3>
+                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">14 条分析路径分别适合什么问题、通常由谁先接手</h3>
                                     <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">首页先把适用场景、常见交付和推荐 Agent 写清楚，避免你一开始就陷进抽象能力名词。</p>
                                 </div>
                                 <a href="./frontend/capability-matrix.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
@@ -2245,6 +2245,19 @@
                 cta: '查看能力'
             },
             {
+                name: 'NeuraGraph',
+                subtitle: '生物医学文本挖掘平台',
+                icon: 'fas fa-diagram-project',
+                iconBg: 'bg-fuchsia-100',
+                iconText: 'text-fuchsia-700',
+                border: 'border-fuchsia-100',
+                features: ['文献实体与关系抽取', 'LLM / 规则 / NLP 工具混编', 'SSE 实验与自动报告'],
+                integration: '把生物医学文本中的实体、关系和知识三元组自动提取出来，作为方案与证据链前置结构层。',
+                integrationClass: 'bg-fuchsia-50 text-fuchsia-800',
+                href: './frontend/capability-matrix.html#neuragraph',
+                cta: '查看能力'
+            },
+            {
                 name: 'SecondMe 协作层',
                 subtitle: '真人身份 + AI 阵容',
                 icon: 'fas fa-user-group',
@@ -2298,7 +2311,7 @@
             },
             {
                 name: '能力矩阵',
-                subtitle: '13 条分析路径',
+                subtitle: '14 条分析路径',
                 icon: 'fas fa-diagram-project',
                 iconBg: 'bg-violet-100',
                 iconText: 'text-violet-700',
@@ -2398,12 +2411,13 @@
                 outputs: ['核心研究问题', 'PICO 草稿', '3 个关键风险', '继续 / 暂停判断'],
                 checklist: [
                     '用临床主任把问题改写成可执行的临床研究命题，先判断是否值得立项。',
+                    '如果前期资料分散在摘要、病历或综述文字里，先用 NeuraGraph 把实体、关系和关键证据抽成结构化底稿。',
                     '让博士生快速补证据空白，先确认这个方向有没有明显重复或已被做透。',
                     '让流行病学家同步校正研究对象、时间窗和结局定义，避免题目一开始就发散。',
                     '如果本题本身是诊断或分层判断问题，先用 MedAgent-Pro 生成一版标准化诊断计划，再决定后续指标怎么收。'
                 ],
                 databaseCategories: ['文献', '疾病/表型', '法规/指南'],
-                toolNames: ['MedRoundTable', 'SecondMe 协作层', '数据库浏览器', '专家总览', 'QwQ-Med-3', 'AutoResearchClaw', 'MedAgent-Pro']
+                toolNames: ['MedRoundTable', 'SecondMe 协作层', '数据库浏览器', '专家总览', 'QwQ-Med-3', 'AutoResearchClaw', 'MedAgent-Pro', 'NeuraGraph']
             },
             evidence_review: {
                 label: '文献回顾',
@@ -2413,11 +2427,12 @@
                 outputs: ['证据缺口列表', '核心参考文献', '在研试验清单', '中文综述素材'],
                 checklist: [
                     '用 QuantClaw × CNKI 先抓中文期刊、综述和政策口径，避免只看英文证据。',
+                    '用 NeuraGraph 把摘要和全文里的疾病、干预、结局与关系抽成结构化图，帮助快速找证据缺口。',
                     '用 Clinical Trials Reviewer 同步查在研试验与竞品方案，确认研究问题有没有窗口期。',
                     '把关键综述、指南和最新高影响力论文回填到圆桌会，作为下一阶段设计依据。'
                 ],
                 databaseCategories: ['文献', '临床试验', '法规/指南'],
-                toolNames: ['QuantClaw × CNKI', 'Clinical Trials Reviewer', 'QwQ-Med-3', '数据库浏览器', '技能市场', 'AutoResearchClaw']
+                toolNames: ['QuantClaw × CNKI', 'Clinical Trials Reviewer', 'QwQ-Med-3', '数据库浏览器', '技能市场', 'AutoResearchClaw', 'NeuraGraph']
             },
             study_design: {
                 label: '研究设计',
@@ -2492,6 +2507,7 @@
             'QwQ-Med-3': ['problem_identification', 'evidence_review', 'data_analysis'],
             'Evo 2': ['data_analysis'],
             'MedAgent-Pro': ['problem_identification', 'study_design', 'data_analysis', 'output_delivery'],
+            'NeuraGraph': ['problem_identification', 'evidence_review'],
             'SecondMe 协作层': ['problem_identification', 'data_preparation', 'output_delivery'],
             'AutoResearchClaw': ['problem_identification', 'evidence_review', 'study_design', 'output_delivery'],
             '数据库浏览器': ['problem_identification', 'evidence_review', 'data_preparation'],
