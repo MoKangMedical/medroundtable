@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immersive 14-Agent Roundtable - MedRoundTable</title>
+    <link rel="icon" href="../assets/doctor1.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./secondme-identity.js"></script>
+    <script src="./expert-data.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+        :root {
+            --bg-0: #06111f;
+            --bg-1: #0a1b33;
+            --panel: rgba(7, 17, 34, 0.8);
+            --line: rgba(148, 163, 184, 0.18);
+            --text-soft: rgba(226, 232, 240, 0.72);
+            --cyan: #6ee7f9;
+            --blue: #4f7cff;
+            --lime: #b5ff72;
+            --pink: #ff7edb;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #e2e8f0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(79, 124, 255, 0.2), transparent 24%),
+                radial-gradient(circle at 80% 18%, rgba(110, 231, 249, 0.18), transparent 20%),
+                radial-gradient(circle at 50% 80%, rgba(181, 255, 114, 0.1), transparent 22%),
+                linear-gradient(180deg, var(--bg-0), var(--bg-1) 55%, #07111c 100%);
+            overflow: hidden;
+        }
+        h1, h2, h3 {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .grain::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.06;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 120px 120px;
+            mix-blend-mode: soft-light;
+        }
+        .glass {
+            background: linear-gradient(180deg, rgba(8, 18, 38, 0.82), rgba(8, 18, 38, 0.7));
+            border: 1px solid var(--line);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.28);
+        }
+        .hero-frame {
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-frame::after {
+            content: "";
+            position: absolute;
+            inset: -20% auto auto -10%;
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(110, 231, 249, 0.26), transparent 62%);
+            pointer-events: none;
+        }
+        .status-orb {
+            box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.22), 0 0 30px rgba(79, 124, 255, 0.16);
+        }
+        .stage-pill {
+            border: 1px solid rgba(110, 231, 249, 0.2);
+            background: rgba(14, 165, 233, 0.08);
+        }
+        .agent-orbit {
+            position: relative;
+            overflow: hidden;
+        }
+        .agent-orbit::before {
+            content: "";
+            position: absolute;
+            inset: 10% 6%;
+            border-radius: 999px;
+            border: 1px dashed rgba(110, 231, 249, 0.16);
+            pointer-events: none;
+        }
+        .agent-card {
+            cursor: pointer;
+            transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+        }
+        .agent-card.is-active {
+            transform: translateY(-4px);
+            border-color: rgba(110, 231, 249, 0.58);
+            background: linear-gradient(180deg, rgba(9, 27, 51, 0.96), rgba(13, 32, 58, 0.86));
+            box-shadow: 0 18px 50px rgba(79, 124, 255, 0.22);
+        }
+        .agent-card.is-done {
+            border-color: rgba(181, 255, 114, 0.22);
+            background: rgba(9, 22, 37, 0.9);
+        }
+        .agent-avatar {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            object-fit: cover;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.06);
+        }
+        .transcript {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(110, 231, 249, 0.28) transparent;
+        }
+        .transcript::-webkit-scrollbar { width: 8px; }
+        .transcript::-webkit-scrollbar-thumb {
+            background: rgba(110, 231, 249, 0.24);
+            border-radius: 999px;
+        }
+        .bubble {
+            position: relative;
+            max-width: min(860px, 92%);
+            border-radius: 26px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255,255,255,0.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        }
+        .bubble.agent {
+            background:
+                linear-gradient(180deg, rgba(10, 26, 49, 0.96), rgba(7, 18, 33, 0.92));
+        }
+        .bubble.user {
+            background:
+                linear-gradient(180deg, rgba(62, 94, 233, 0.94), rgba(39, 65, 184, 0.94));
+            border-color: rgba(99, 102, 241, 0.34);
+        }
+        .typing-ribbon {
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(110, 231, 249, 0), rgba(110, 231, 249, 1), rgba(110, 231, 249, 0));
+            animation: sweep 1.4s linear infinite;
+        }
+        .command-chip {
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255,255,255,0.04);
+            transition: all 180ms ease;
+        }
+        .command-chip:hover {
+            border-color: rgba(110, 231, 249, 0.4);
+            background: rgba(110, 231, 249, 0.1);
+            transform: translateY(-2px);
+        }
+        .command-chip.is-live {
+            border-color: rgba(110, 231, 249, 0.4);
+            background: rgba(110, 231, 249, 0.14);
+        }
+        .composer-shell {
+            background: linear-gradient(180deg, rgba(8, 20, 39, 0.95), rgba(7, 16, 31, 0.95));
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.22);
+        }
+        .topic-input {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+        .report-panel {
+            background:
+                radial-gradient(circle at top left, rgba(110, 231, 249, 0.12), transparent 30%),
+                linear-gradient(180deg, rgba(8, 19, 35, 0.96), rgba(6, 15, 28, 0.92));
+        }
+        .stage-control {
+            cursor: pointer;
+            transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+        }
+        .stage-control:hover {
+            transform: translateY(-1px);
+        }
+        .stage-control.is-active {
+            border-color: rgba(110, 231, 249, 0.45);
+            background: rgba(34, 211, 238, 0.12);
+        }
+        @keyframes sweep {
+            0% { transform: translateX(-110%); opacity: 0.2; }
+            45% { opacity: 1; }
+            100% { transform: translateX(150%); opacity: 0.2; }
+        }
+        @media (max-width: 1280px) {
+            body { overflow: auto; }
+        }
+    </style>
+</head>
+<body class="grain">
+    <main class="h-screen overflow-hidden px-4 py-4 lg:px-6 lg:py-5">
+        <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[1.1fr_0.9fr_320px]">
+            <section class="glass hero-frame flex min-h-0 flex-col rounded-[2rem] p-5 lg:p-6">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div class="max-w-3xl">
+                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
+                            <a href="../index.html" class="rounded-full border border-white/10 px-3 py-2 text-slate-300 transition hover:bg-white/5">
+                                <i class="fas fa-arrow-left mr-2"></i>返回首页
+                            </a>
+                            <span class="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-2">Immersive 14-Agent Roundtable</span>
+                            <span class="rounded-full border border-white/10 px-3 py-2">真人随时打断</span>
+                        </div>
+                        <h1 class="mt-4 text-3xl font-bold leading-tight text-white lg:text-5xl">14 位 Agent 同屏会诊，一句话启动研究讨论</h1>
+                        <p class="mt-4 max-w-3xl text-sm leading-8 text-slate-300 lg:text-base">
+                            不再用勾选式流程推动讨论。这里直接进入动态会诊模式：14 位专家按各自设定自动接力发言，真人研究者随时可以插话、改方向、点名某位专家继续深挖。
+                        </p>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div class="glass status-orb rounded-3xl px-5 py-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">当前模式</div>
+                            <div class="mt-2 text-lg font-semibold text-white">沉浸式自动会诊</div>
+                            <div class="mt-1 text-sm text-slate-400">交互优先，不走静态步骤表</div>
+                        </div>
+                        <div class="glass status-orb rounded-3xl px-5 py-4">
+                            <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">讨论节奏</div>
+                            <div id="liveStageLabel" class="mt-2 text-lg font-semibold text-cyan-200">等待启动</div>
+                            <div id="liveStageHint" class="mt-1 text-sm text-slate-400">系统会自动推进 4 段研究讨论</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+                    <div class="glass rounded-[1.8rem] border-white/10 p-4">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="stage-pill rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">研究主题</span>
+                            <span id="identityBadge" class="hidden rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200"></span>
+                        </div>
+                        <div class="mt-4 flex flex-col gap-3">
+                            <input id="topicTitle" class="topic-input rounded-2xl px-4 py-3 text-lg font-semibold text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" value="MedRoundTable 沉浸式 14 Agent 医学科研会诊">
+                            <textarea id="topicQuestion" rows="3" class="topic-input rounded-2xl px-4 py-3 text-base leading-8 text-slate-100 outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10">请围绕肿瘤免疫治疗患者疗效预测这个方向，直接开始一轮真实会诊：先判断立项价值，再补文献缺口、研究设计、CRF 与统计分析，最后形成可执行的研究方案。</textarea>
+                            <div class="flex flex-wrap gap-3">
+                                <button id="startDiscussionBtn" class="rounded-2xl bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">
+                                    <i class="fas fa-bolt mr-2"></i>一键启动 14 Agent 会诊
+                                </button>
+                                <button id="interruptBtn" class="rounded-2xl border border-amber-300/30 bg-amber-400/10 px-5 py-3 text-sm font-semibold text-amber-100 transition hover:bg-amber-400/20">
+                                    <i class="fas fa-wave-square mr-2"></i>立即打断并改方向
+                                </button>
+                                <button id="restartBtn" class="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+                                    <i class="fas fa-rotate-right mr-2"></i>重开一轮会诊
+                                </button>
+                                <a id="formalExportBtn" href="../roundtables/detail.html?mrt_backend_mode=static&sessionId=12&auto=1" class="rounded-2xl border border-cyan-200/30 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-cyan-500/20">
+                                    <i class="fas fa-file-export mr-2"></i>进入正式详情页导出报告
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="report-panel rounded-[1.8rem] border border-white/10 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Live Summary</div>
+                                <h2 class="mt-2 text-xl font-bold text-white">会诊实时摘要</h2>
+                            </div>
+                            <span id="queueBadge" class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">0 位待发言</span>
+                        </div>
+                        <div class="mt-4 grid gap-3 text-sm">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">当前收口</div>
+                                <div id="summaryFocus" class="mt-2 text-base font-semibold text-white">等待临床主任开场</div>
+                                <p id="summaryNarrative" class="mt-2 leading-7 text-slate-300">系统会先把研究对象、主终点、时间窗和下一步交付物收紧，再逐段把方案做实。</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">下一位补位专家</div>
+                                <div id="summaryNextSpeaker" class="mt-2 text-base font-semibold text-cyan-200">等待队列生成</div>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">已参与 / 待命</div>
+                                <div id="summaryCoverage" class="mt-2 text-base font-semibold text-white">0 / 14 位专家</div>
+                                <p id="summaryCoverageHint" class="mt-2 text-sm leading-7 text-slate-300">一键启动后会先拉起全员分阶段发言，真人打断后会保留剩余待命专家。</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <div class="text-xs uppercase tracking-[0.18em] text-slate-400">预计输出</div>
+                                <div id="summaryOutputs" class="mt-2 flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-orbit mt-5 rounded-[1.8rem] border border-white/10 bg-white/[0.02] p-4">
+                    <div class="mb-3 flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">14 Agent Live Board</div>
+                            <h2 class="mt-2 text-xl font-bold text-white">谁在发言、谁在待命，一眼看清</h2>
+                        </div>
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300">头像高亮代表当前发言</span>
+                    </div>
+                    <div id="agentGrid" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div>
+                </div>
+            </section>
+
+            <section class="glass flex min-h-0 flex-col rounded-[2rem] p-4 lg:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                    <div>
+                        <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Dynamic Transcript</div>
+                        <h2 class="mt-2 text-2xl font-bold text-white">研究会诊实录</h2>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="continueBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
+                            <i class="fas fa-forward mr-2"></i>继续推进
+                        </button>
+                        <button id="summaryBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
+                            <i class="fas fa-file-lines mr-2"></i>生成总结
+                        </button>
+                    </div>
+                </div>
+                <div id="transcript" class="transcript mt-4 flex-1 space-y-4 overflow-auto pr-2"></div>
+                <div id="typingIndicator" class="hidden px-2 pt-3">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="typing-ribbon w-20"></div>
+                            <span id="typingLabel" class="text-sm text-slate-300">专家正在组织下一轮意见...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="composer-shell mt-4 rounded-[1.8rem] p-4">
+                    <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">真人直接引导</div>
+                    <p class="mt-2 text-sm leading-7 text-slate-300">不用点步骤表。直接输入你要推进的问题，例如“先别谈大方向，请统计专家先给样本量前提和分析集定义”。</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请先判断这个项目值不值得继续做，并锁定一个单一主终点。">值不值得继续做</button>
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请博士生和趋势研究员先补文献缺口与投稿窗口，不要泛谈背景。">先补文献缺口</button>
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请研究护士先把 CRF 页面和访视表展开成可执行清单。">先做 CRF / 访视表</button>
+                        <button class="command-chip rounded-full px-4 py-2 text-sm text-white" data-quick="请统计专家先把样本量前提、分析集和敏感性分析口径列出来。">先做统计分析</button>
+                    </div>
+                    <div class="mt-4 flex gap-3">
+                        <textarea id="humanInput" rows="3" class="topic-input flex-1 rounded-[1.4rem] px-4 py-3 text-base leading-7 text-white outline-none focus:border-cyan-300/40 focus:ring-2 focus:ring-cyan-300/10" placeholder="真人研究者在这里随时插话，系统会立刻重排后续专家顺序。"></textarea>
+                        <button id="sendHumanBtn" class="rounded-[1.4rem] bg-white px-5 py-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-100">
+                            <i class="fas fa-paper-plane mr-2"></i>发送并接管
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="glass flex min-h-0 flex-col rounded-[2rem] p-4">
+                <div>
+                    <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Live Controls</div>
+                    <h2 class="mt-2 text-2xl font-bold text-white">自动推进控制台</h2>
+                </div>
+                <div class="mt-4 space-y-3 text-sm">
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">当前状态</div>
+                        <div id="engineStatus" class="mt-2 text-lg font-semibold text-cyan-200">待命</div>
+                        <p id="engineNarrative" class="mt-2 leading-7 text-slate-300">点击“一键启动 14 Agent 会诊”后，系统会自动把 14 位专家按阶段拉进讨论。</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">阶段轨迹</div>
+                        <div id="stageRail" class="mt-3 space-y-2"></div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">本轮参考文献</div>
+                        <div id="citationFeed" class="mt-3 space-y-3 text-sm leading-6 text-slate-300"></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        const expertApi = window.MedRoundTableExperts;
+        const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
+        const urlParams = new URLSearchParams(window.location.search);
+        const stageBlueprint = [
+            { key: 'problem_identification', label: '问题识别', summary: '先收研究对象、主终点与 go / no-go 判断。', roles: ['clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse'], outputs: ['立项判断', '主终点', '时间窗', '风险点'] },
+            { key: 'literature_review', label: '文献回顾', summary: '把证据缺口、指南与投稿窗口做成共识。', roles: ['trend_researcher', 'experiment_tracker'], outputs: ['文献证据表', '创新缺口', '投稿窗口'] },
+            { key: 'study_design', label: '研究设计', summary: '把生信、工作流、执行与交互真正落到方案里。', roles: ['clawbio_pharmgx', 'clawbio_gwas', 'clawbio_sc_rna', 'clawbio_galaxy', 'ux_researcher', 'ai_data_engineer'], outputs: ['workflow', 'CRF 字段', '样本路径', '数据规范'] },
+            { key: 'data_analysis', label: '数据分析', summary: '收样本量、分析集、质控与最终报告骨架。', roles: ['model_qa', 'statistician', 'clinical_director'], outputs: ['样本量前提', '分析集', '敏感性分析', '会诊总结'] }
+        ];
+        const allRoles = [
+            'clinical_director', 'phd_student', 'epidemiologist', 'statistician', 'research_nurse',
+            'clawbio_pharmgx', 'clawbio_gwas', 'clawbio_sc_rna', 'clawbio_galaxy',
+            'ux_researcher', 'ai_data_engineer', 'trend_researcher', 'experiment_tracker', 'model_qa'
+        ];
+        const aliasToDetailRole = {
+            clinical_director: 'clinical_director',
+            phd_student: 'phd_student',
+            epidemiologist: 'epidemiologist',
+            statistician: 'statistician',
+            research_nurse: 'research_nurse',
+            clawbio_pharmgx: 'pharmacogenomics_expert',
+            clawbio_gwas: 'gwas_expert',
+            clawbio_sc_rna: 'single_cell_analyst',
+            clawbio_galaxy: 'galaxy_bridge',
+            ux_researcher: 'ux_researcher',
+            ai_data_engineer: 'data_engineer',
+            trend_researcher: 'trend_researcher',
+            experiment_tracker: 'experiment_tracker',
+            model_qa: 'qa_expert'
+        };
+        const citationLibrary = {
+            general: [
+                { label: 'CONSORT 2010 Statement', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=CONSORT+2010+Statement' },
+                { label: 'PRISMA 2020 Statement', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=PRISMA+2020+statement' }
+            ],
+            stats: [
+                { label: 'Intention-to-treat concept review', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Intention-to-treat+concept+a+review' },
+                { label: 'Pilot sample size guidance', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Sample+size+of+12+per+group+rule+of+thumb+for+a+pilot+study' }
+            ],
+            omics: [
+                { label: '10 Years of GWAS Discovery', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=10+Years+of+GWAS+Discovery+Visscher' },
+                { label: 'Integrative single-cell analysis', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Integrative+single-cell+analysis+Stuart+Satija' }
+            ],
+            execution: [
+                { label: 'ICH E6(R2) Good Clinical Practice', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=ICH+E6+R2+Good+Clinical+Practice' },
+                { label: 'Target Trial Emulation', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Using+Big+Data+to+Emulate+a+Target+Trial' }
+            ]
+        };
+
+        const state = {
+            activeStage: 'problem_identification',
+            queue: [],
+            messages: [],
+            timers: [],
+            holdQueue: [],
+            activeRole: '',
+            running: false,
+            paused: false,
+            topic: '',
+            title: '',
+            identity: secondMeIdentityStore ? secondMeIdentityStore.consumeIdentityFromLocation(window) : null
+        };
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getExpert(role) {
+            return expertApi ? expertApi.getExpert(role) : null;
+        }
+
+        function getExpertAvatar(role) {
+            const expert = getExpert(role);
+            return expert ? expertApi.resolveAvatar(expert) : '';
+        }
+
+        function getStageMeta(stageKey) {
+            return stageBlueprint.find((stage) => stage.key === stageKey) || stageBlueprint[0];
+        }
+
+        function roleTone(role) {
+            const expert = getExpert(role);
+            return expert ? expert.accent : '#4f7cff';
+        }
+
+        function roleLabel(role) {
+            const expert = getExpert(role);
+            return expert ? expert.name : role;
+        }
+
+        function defaultTopic() {
+            const expertRole = urlParams.get('expert');
+            const expert = expertRole ? getExpert(expertRole) : null;
+            if (expert && expert.prompt) {
+                return `${expert.prompt} 请让 14 位专家像真实会诊一样依次讨论，不要停留在概念层。`;
+            }
+            return '请围绕肿瘤免疫治疗患者疗效预测这个方向，直接开始一轮真实会诊：先判断立项价值，再补文献缺口、研究设计、CRF 与统计分析，最后形成可执行的研究方案。';
+        }
+
+        function setIdentityBadge() {
+            const badge = document.getElementById('identityBadge');
+            if (!badge) return;
+            if (!state.identity || !state.identity.name) {
+                badge.classList.add('hidden');
+                return;
+            }
+            badge.classList.remove('hidden');
+            badge.textContent = `SecondMe 真人：${state.identity.name}`;
+        }
+
+        function renderStageRail() {
+            const rail = document.getElementById('stageRail');
+            rail.innerHTML = stageBlueprint.map((stage, index) => {
+                const isActive = stage.key === state.activeStage;
+                const hasPassed = stageBlueprint.findIndex((item) => item.key === state.activeStage) > index;
+                const tone = isActive ? 'border-cyan-300/40 bg-cyan-400/10 text-cyan-100' : (hasPassed ? 'border-lime-300/25 bg-lime-400/10 text-lime-100' : 'border-white/10 bg-white/[0.03] text-slate-300');
+                return `
+                    <button type="button" class="stage-control w-full rounded-2xl border px-4 py-3 text-left ${tone} ${isActive ? 'is-active' : ''}" data-stage="${stage.key}">
+                        <div class="text-xs uppercase tracking-[0.18em] ${isActive ? 'text-cyan-200' : 'text-slate-400'}">Phase ${index + 1}</div>
+                        <div class="mt-1 text-sm font-semibold">${escapeHtml(stage.label)}</div>
+                        <div class="mt-1 text-xs leading-6 ${isActive ? 'text-cyan-50/80' : 'text-slate-400'}">${escapeHtml(stage.summary)}</div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderAgentGrid() {
+            const grid = document.getElementById('agentGrid');
+            grid.innerHTML = allRoles.map((role) => {
+                const expert = getExpert(role);
+                const active = state.activeRole === role;
+                const done = state.messages.some((message) => message.role === role);
+                const classes = ['agent-card', 'rounded-[1.4rem]', 'border', 'p-3', 'bg-white/[0.03]', 'border-white/10'];
+                if (active) classes.push('is-active');
+                else if (done) classes.push('is-done');
+                const avatar = getExpertAvatar(role);
+                return `
+                    <div class="${classes.join(' ')}" data-role="${role}">
+                        <div class="flex items-center gap-3">
+                            ${avatar ? `<img src="${avatar}" class="agent-avatar" alt="${escapeHtml(expert.name)}">` : `<div class="agent-avatar flex items-center justify-center text-sm font-bold text-white">${escapeHtml(expert.fallback || expert.name.slice(0, 1))}</div>`}
+                            <div class="min-w-0">
+                                <div class="truncate text-sm font-semibold text-white">${escapeHtml(expert.name)}</div>
+                                <div class="truncate text-xs text-slate-400">${escapeHtml(expert.subtitle)}</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-center justify-between gap-3">
+                            <span class="truncate text-[11px] uppercase tracking-[0.18em] text-slate-500">${escapeHtml(expert.stage)}</span>
+                            <span class="h-2.5 w-2.5 rounded-full" style="background:${active ? 'var(--cyan)' : (done ? 'var(--lime)' : 'rgba(148,163,184,0.4)')}; box-shadow:${active ? '0 0 16px rgba(110,231,249,0.8)' : 'none'}"></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSummary() {
+            const stage = getStageMeta(state.activeStage);
+            const last = state.messages[state.messages.length - 1];
+            const next = state.queue[0];
+            document.getElementById('liveStageLabel').textContent = stage.label;
+            document.getElementById('liveStageHint').textContent = stage.summary;
+            document.getElementById('engineStatus').textContent = state.running ? '自动推进中' : '等待你的下一句';
+            document.getElementById('engineNarrative').textContent = state.running
+                ? `系统正在自动推进「${stage.label}」，当前发言专家会围绕研究问题继续接力。`
+                : '你可以直接输入一句话打断讨论，系统会按你的问题重排发言顺序。';
+            document.getElementById('queueBadge').textContent = `${state.queue.length} 位待发言`;
+            const coveredRoles = new Set(state.messages.filter((item) => item.role !== 'human').map((item) => item.role));
+            document.getElementById('summaryCoverage').textContent = `${coveredRoles.size} / 14 位专家`;
+            document.getElementById('summaryCoverageHint').textContent = state.holdQueue.length
+                ? `当前有 ${state.holdQueue.length} 位专家处于待命状态，真人可随时恢复自动接力。`
+                : '一键启动后会先拉起全员分阶段发言，真人打断后会保留剩余待命专家。';
+            document.getElementById('summaryFocus').textContent = last
+                ? `${roleLabel(last.role)} 刚刚把「${stage.label}」推进了一步`
+                : '等待临床主任开场';
+            document.getElementById('summaryNarrative').textContent = last
+                ? last.summary
+                : '系统会先收研究对象、主终点与时间窗，再逐段补证据、方案、CRF 与分析。';
+            document.getElementById('summaryNextSpeaker').textContent = next
+                ? `${roleLabel(next.role)} 将接着补位`
+                : '当前没有待发言专家';
+            document.getElementById('summaryOutputs').innerHTML = stage.outputs.map((item) => `
+                <button type="button" class="command-chip rounded-full px-3 py-2 text-xs font-semibold text-slate-200" data-output="${escapeHtml(item)}">${escapeHtml(item)}</button>
+            `).join('');
+
+            const citationFeed = document.getElementById('citationFeed');
+            const refs = (last && last.refs ? last.refs : []).slice(0, 2);
+            citationFeed.innerHTML = refs.length > 0
+                ? refs.map((ref) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-cyan-300/30 hover:bg-white/[0.05]"><div class="text-xs uppercase tracking-[0.18em] text-cyan-200">PubMed</div><div class="mt-2 text-sm text-slate-200">${escapeHtml(ref.label)}</div></a>`).join('')
+                : '<div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-sm text-slate-400">会在发言过程中自动补入当前轮次最相关的参考文献。</div>';
+        }
+
+        function formatMessageText(text) {
+            return escapeHtml(text).replace(/\n/g, '<br>');
+        }
+
+        function renderTranscript() {
+            const transcript = document.getElementById('transcript');
+            transcript.innerHTML = state.messages.map((message) => {
+                const expert = getExpert(message.role);
+                const avatar = message.role === 'human'
+                    ? (state.identity && state.identity.avatar ? state.identity.avatar : '../assets/secondme/researcher.png')
+                    : getExpertAvatar(message.role);
+                const isHuman = message.role === 'human';
+                const tone = isHuman ? '#dbeafe' : (expert ? expert.accent : '#4f7cff');
+                const stage = getStageMeta(message.stage || state.activeStage);
+                return `
+                    <div class="flex ${isHuman ? 'justify-end' : 'justify-start'}">
+                        <article class="bubble ${isHuman ? 'user' : 'agent'} px-5 py-4">
+                            <div class="flex items-start gap-3">
+                                ${avatar ? `<img src="${avatar}" alt="${escapeHtml(isHuman ? '真人研究者' : roleLabel(message.role))}" class="agent-avatar mt-1">` : ''}
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="text-sm font-semibold ${isHuman ? 'text-white' : 'text-white'}">${escapeHtml(isHuman ? (state.identity?.name || '真人研究者') : roleLabel(message.role))}</span>
+                                        <span class="rounded-full border px-2.5 py-1 text-[11px] uppercase tracking-[0.18em]" style="border-color:${isHuman ? 'rgba(255,255,255,0.22)' : tone + '55'}; color:${isHuman ? '#dbeafe' : tone}; background:${isHuman ? 'rgba(255,255,255,0.08)' : tone + '12'}">${escapeHtml(stage.label)}</span>
+                                    </div>
+                                    <div class="mt-3 text-[15px] leading-8 ${isHuman ? 'text-white' : 'text-slate-100'}">${formatMessageText(message.text)}</div>
+                                    ${message.refs && message.refs.length ? `<div class="mt-4 space-y-2">${message.refs.map((ref, index) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-slate-200 transition hover:border-cyan-300/30">[${index + 1}] ${escapeHtml(ref.label)}</a>`).join('')}</div>` : ''}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                `;
+            }).join('');
+            transcript.scrollTop = transcript.scrollHeight;
+        }
+
+        function showTyping(role) {
+            const indicator = document.getElementById('typingIndicator');
+            const label = document.getElementById('typingLabel');
+            state.activeRole = role;
+            renderAgentGrid();
+            label.textContent = `${roleLabel(role)} 正在组织下一轮意见...`;
+            indicator.classList.remove('hidden');
+        }
+
+        function hideTyping() {
+            document.getElementById('typingIndicator').classList.add('hidden');
+            state.activeRole = '';
+            renderAgentGrid();
+        }
+
+        function clearQueue(options = {}) {
+            if (options.preserveQueue && state.queue.length) {
+                state.holdQueue = state.queue.slice();
+            }
+            state.timers.forEach((timer) => window.clearTimeout(timer));
+            state.timers = [];
+            state.queue = [];
+            state.running = false;
+            state.paused = false;
+            hideTyping();
+            renderSummary();
+        }
+
+        function detectFocus(text) {
+            const raw = String(text || '');
+            const lowered = raw.toLowerCase();
+            if (/(文献|综述|指南|检索|证据)/i.test(raw)) {
+                return { stage: 'literature_review', roles: ['phd_student', 'trend_researcher', 'clinical_director'] };
+            }
+            if (/(样本量|统计|分析集|敏感性|sap)/i.test(raw)) {
+                return { stage: 'data_analysis', roles: ['statistician', 'model_qa', 'clinical_director'] };
+            }
+            if (/(crf|访视|随访|sop|执行)/i.test(raw)) {
+                return { stage: 'study_design', roles: ['research_nurse', 'experiment_tracker', 'ux_researcher', 'ai_data_engineer'] };
+            }
+            if (/(gwas|单细胞|组学|基因|workflow|galaxy)/i.test(raw)) {
+                return { stage: 'study_design', roles: ['clawbio_pharmgx', 'clawbio_gwas', 'clawbio_sc_rna', 'clawbio_galaxy', 'ai_data_engineer'] };
+            }
+            if (/(风险|值不值得|立项|主终点|临床问题)/i.test(raw)) {
+                return { stage: 'problem_identification', roles: ['clinical_director', 'epidemiologist', 'statistician'] };
+            }
+            return { stage: state.activeStage || 'problem_identification', roles: getStageMeta(state.activeStage || 'problem_identification').roles.slice(0, 4) };
+        }
+
+        function getStageSupportRoles(stageKey, anchorRole) {
+            const roles = getStageMeta(stageKey).roles.filter((role) => role !== anchorRole);
+            return roles.slice(0, 2);
+        }
+
+        function buildAgentReply(role, stageKey, topic, steer, previousSpeaker) {
+            const expert = getExpert(role);
+            const stage = getStageMeta(stageKey);
+            const refs = role.includes('clawbio') || role === 'ai_data_engineer'
+                ? citationLibrary.omics
+                : (role === 'statistician' || role === 'model_qa' ? citationLibrary.stats : (role === 'research_nurse' || role === 'experiment_tracker' ? citationLibrary.execution : citationLibrary.general));
+            const handoff = previousSpeaker ? `我先接着 ${roleLabel(previousSpeaker)} 刚才那句往下做。` : '我先直接接球，不再重复背景。';
+            const steerLine = steer ? `真人研究者刚刚明确要求我们优先处理“${steer}”。` : '这轮目标不是把问题讲得更宏大，而是把研究方案往可执行层推。';
+            const responsibilityA = expert.responsibilities[0] || expert.summary;
+            const responsibilityB = expert.responsibilities[1] || expert.summary;
+            const deliverable = (expert.deliverables || []).slice(0, 2).join('、');
+            const reply = `${handoff}${steerLine} 站在${expert.name}这个角色上，我先把「${stage.label}」阶段里最容易卡住的部分说透：第一，${responsibilityA.replace(/。$/, '')}，这一步必须直接对应到“${topic}”的真实研究问题上；第二，${responsibilityB.replace(/。$/, '')}，否则后面的统计、CRF 和报告会因为口径不一致反复返工；第三，我这轮想真正交付的是 ${deliverable}，不是再给一个概念性建议。我的判断是，先把 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]} 对齐，再让下一位专家继续补位，整个讨论才会像真实会诊一样往前走。`;
+            return {
+                role,
+                stage: stageKey,
+                text: reply,
+                summary: `${expert.name} 刚把 ${stage.label} 里的关键口径往执行层推进了一步。`,
+                refs
+            };
+        }
+
+        function queueReplies(items) {
+            clearQueue();
+            state.queue = items.slice();
+            state.running = true;
+            renderSummary();
+
+            let delay = 500;
+            items.forEach((item, index) => {
+                const timer = window.setTimeout(() => {
+                    showTyping(item.role);
+                    const speakingTimer = window.setTimeout(() => {
+                        state.activeStage = item.stage;
+                        state.messages.push({
+                            ...item,
+                            createdAt: new Date().toISOString()
+                        });
+                        state.queue.shift();
+                        hideTyping();
+                        renderTranscript();
+                        renderSummary();
+                        if (index === items.length - 1) {
+                            state.running = false;
+                            renderSummary();
+                        }
+                    }, 520);
+                    state.timers.push(speakingTimer);
+                }, delay);
+                state.timers.push(timer);
+                delay += 1480;
+            });
+        }
+
+        function buildInitialFlow() {
+            const topic = document.getElementById('topicQuestion').value.trim();
+            state.topic = topic;
+            const queue = [];
+            let previousRole = '';
+            stageBlueprint.forEach((stage) => {
+                stage.roles.forEach((role) => {
+                    queue.push(buildAgentReply(role, stage.key, topic, '', previousRole));
+                    previousRole = role;
+                });
+            });
+            return queue;
+        }
+
+        function buildHumanKickoffMessage() {
+            const who = state.identity && state.identity.name ? `${state.identity.name}` : '真人研究者';
+            const topic = document.getElementById('topicQuestion').value.trim();
+            return `${who} 发起本轮会诊：${topic} 先不要讲套话，请 14 位专家按阶段接力，把能直接执行的研究口径、变量、CRF 和分析框架做出来。`;
+        }
+
+        function addHumanMessage(text) {
+            state.messages.push({
+                role: 'human',
+                stage: state.activeStage,
+                text,
+                summary: '真人研究者刚刚重新定义了下一轮讨论方向。',
+                refs: []
+            });
+            renderTranscript();
+            renderSummary();
+        }
+
+        function handleHumanInterrupt(text) {
+            const clean = text.trim();
+            if (!clean) return;
+            if (state.queue.length) {
+                clearQueue({ preserveQueue: true });
+                state.paused = true;
+            }
+            addHumanMessage(clean);
+            const focus = detectFocus(clean);
+            state.activeStage = focus.stage;
+            const replies = focus.roles.map((role, index) => buildAgentReply(role, focus.stage, state.topic || clean, clean, index > 0 ? focus.roles[index - 1] : 'human'));
+            queueReplies(replies);
+        }
+
+        function focusStage(stageKey) {
+            const stage = getStageMeta(stageKey);
+            state.activeStage = stage.key;
+            renderStageRail();
+            renderSummary();
+            handleHumanInterrupt(`请先切到「${stage.label}」阶段，不要泛泛讨论，直接围绕 ${stage.outputs.join('、')} 推进。`);
+        }
+
+        function focusAgent(role) {
+            const expert = getExpert(role);
+            if (!expert) return;
+            const stageKey = detectFocus(`${expert.name} ${expert.stage}`).stage;
+            state.activeStage = stageKey;
+            const supportRoles = getStageSupportRoles(stageKey, role);
+            if (state.queue.length) {
+                clearQueue({ preserveQueue: true });
+                state.paused = true;
+            }
+            const prompt = `现在请 ${expert.name} 先主讲，直接从 ${expert.stage} 这个角度推进，不要复述背景，要给出可执行建议。`;
+            addHumanMessage(prompt);
+            queueReplies([
+                buildAgentReply(role, stageKey, state.topic || prompt, prompt, 'human'),
+                ...supportRoles.map((supportRole, index) => buildAgentReply(supportRole, stageKey, state.topic || prompt, prompt, index === 0 ? role : supportRoles[index - 1]))
+            ]);
+        }
+
+        function resumeHeldQueue() {
+            if (!state.holdQueue.length) {
+                handleHumanInterrupt('继续往下做，但不要再讲背景，请把下一阶段真正落到可执行清单。');
+                return;
+            }
+            const held = state.holdQueue.slice();
+            state.holdQueue = [];
+            state.paused = false;
+            addHumanMessage('继续，恢复刚才还没发言的专家队列，但请保持执行口吻。');
+            queueReplies(held);
+        }
+
+        function startDiscussion() {
+            document.getElementById('transcript').innerHTML = '';
+            state.messages = [];
+            state.holdQueue = [];
+            state.activeStage = 'problem_identification';
+            state.paused = false;
+            addHumanMessage(buildHumanKickoffMessage());
+            renderAgentGrid();
+            renderSummary();
+            queueReplies(buildInitialFlow());
+        }
+
+        function injectQuickQuestion(text) {
+            const input = document.getElementById('humanInput');
+            input.value = text;
+            input.focus();
+        }
+
+        function init() {
+            const title = urlParams.get('title');
+            const topic = urlParams.get('topic');
+            if (title) document.getElementById('topicTitle').value = title;
+            document.getElementById('topicQuestion').value = topic || defaultTopic();
+            state.title = document.getElementById('topicTitle').value;
+            state.topic = document.getElementById('topicQuestion').value;
+
+            setIdentityBadge();
+            renderStageRail();
+            renderAgentGrid();
+            renderSummary();
+
+            document.getElementById('startDiscussionBtn').addEventListener('click', startDiscussion);
+            document.getElementById('restartBtn').addEventListener('click', startDiscussion);
+            document.getElementById('continueBtn').addEventListener('click', resumeHeldQueue);
+            document.getElementById('summaryBtn').addEventListener('click', () => {
+                handleHumanInterrupt('请临床主任现在给出一版会诊总结，至少包括当前共识、仍需补齐的风险点和下一步交付。');
+            });
+            document.getElementById('interruptBtn').addEventListener('click', () => {
+                if (state.queue.length) {
+                    clearQueue({ preserveQueue: true });
+                    state.paused = true;
+                    addHumanMessage('先暂停当前自动接力，改成真人主导。先从最影响立项成败的 3 个问题开始讨论。');
+                    document.getElementById('humanInput').focus();
+                    renderSummary();
+                    return;
+                }
+                handleHumanInterrupt('请先停一下自动接力，改成真人主导。先从最影响立项成败的 3 个问题开始讨论。');
+            });
+            document.getElementById('sendHumanBtn').addEventListener('click', () => {
+                const input = document.getElementById('humanInput');
+                const value = input.value.trim();
+                if (!value) return;
+                handleHumanInterrupt(value);
+                input.value = '';
+            });
+            document.getElementById('humanInput').addEventListener('keydown', (event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+                    event.preventDefault();
+                    document.getElementById('sendHumanBtn').click();
+                }
+            });
+            document.querySelectorAll('[data-quick]').forEach((button) => {
+                button.addEventListener('click', () => injectQuickQuestion(button.dataset.quick));
+            });
+            document.getElementById('stageRail').addEventListener('click', (event) => {
+                const button = event.target.closest('[data-stage]');
+                if (!button) return;
+                focusStage(button.dataset.stage);
+            });
+            document.getElementById('agentGrid').addEventListener('click', (event) => {
+                const card = event.target.closest('[data-role]');
+                if (!card) return;
+                focusAgent(card.dataset.role);
+            });
+            document.getElementById('summaryOutputs').addEventListener('click', (event) => {
+                const chip = event.target.closest('[data-output]');
+                if (!chip) return;
+                injectQuickQuestion(`请先把 ${chip.dataset.output} 做出来，不要继续讲背景。`);
+            });
+
+            if (urlParams.get('autostart') !== '0') {
+                window.setTimeout(startDiscussion, 480);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
