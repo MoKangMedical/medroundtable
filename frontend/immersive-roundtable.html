@@ -99,6 +99,37 @@
             border-color: rgba(110, 231, 249, 0.34);
             box-shadow: 0 0 0 1px rgba(110, 231, 249, 0.16), 0 0 26px rgba(110, 231, 249, 0.18);
         }
+        .speaker-sync-line {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 3px;
+            border-radius: 999px;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 40;
+            transform-origin: 0 50%;
+            background: linear-gradient(90deg, rgba(110, 231, 249, 0.95), rgba(110, 231, 249, 0.08));
+            box-shadow: 0 0 18px rgba(110, 231, 249, 0.32);
+            transition: opacity 140ms ease;
+        }
+        .speaker-sync-line.is-visible {
+            opacity: 1;
+            animation: speakerSyncFlash 0.55s ease-out 1;
+        }
+        .speaker-sync-line::after {
+            content: "";
+            position: absolute;
+            right: -2px;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: rgba(110, 231, 249, 0.92);
+            transform: translateY(-50%);
+            box-shadow: 0 0 16px rgba(110, 231, 249, 0.58);
+        }
         .bubble.user {
             background: linear-gradient(180deg, rgba(55, 87, 225, 0.96), rgba(37, 61, 177, 0.95));
             border-color: rgba(99, 102, 241, 0.32);
@@ -278,6 +309,14 @@
             background: var(--lime);
             box-shadow: 0 0 14px rgba(181, 255, 114, 0.62);
         }
+        .roundtable-seat.is-done:not(.is-active):not(.is-next) .roundtable-seat-avatar::before {
+            content: "";
+            position: absolute;
+            inset: -3px;
+            border-radius: 20px;
+            border: 1px solid rgba(181, 255, 114, 0.28);
+            animation: doneSeatGlow 2.2s ease-in-out infinite;
+        }
         .roundtable-seat-label {
             margin-top: 0.35rem;
             text-align: center;
@@ -306,6 +345,9 @@
                 linear-gradient(180deg, rgba(10, 24, 45, 0.96), rgba(8, 19, 35, 0.96));
             box-shadow: inset 0 0 22px rgba(79, 124, 255, 0.14), 0 22px 60px rgba(0,0,0,0.28);
             text-align: center;
+        }
+        .roundtable-center.is-handoff {
+            box-shadow: inset 0 0 22px rgba(79, 124, 255, 0.14), 0 22px 60px rgba(0,0,0,0.28), 0 0 0 1px rgba(181, 255, 114, 0.18), 0 0 28px rgba(181, 255, 114, 0.18);
         }
         .arena-orb {
             width: 74px;
@@ -506,9 +548,18 @@
             35% { transform: translateY(0) scale(1.01); opacity: 1; }
             100% { transform: translateY(0) scale(1); opacity: 1; }
         }
+        @keyframes speakerSyncFlash {
+            0% { opacity: 0; }
+            28% { opacity: 1; }
+            100% { opacity: 0; }
+        }
         @keyframes haloOrbit {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+        @keyframes doneSeatGlow {
+            0%, 100% { opacity: 0.24; box-shadow: 0 0 0 rgba(181, 255, 114, 0); }
+            50% { opacity: 0.72; box-shadow: 0 0 14px rgba(181, 255, 114, 0.2); }
         }
         @media (max-width: 1380px) {
             body { overflow: auto; }
@@ -549,6 +600,7 @@
     </style>
 </head>
 <body class="grain">
+    <div id="speakerSyncLine" class="speaker-sync-line"></div>
     <main class="h-screen overflow-hidden px-3 py-3 lg:px-4 lg:py-4">
         <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.68fr)_400px]">
             <section class="glass flex min-h-0 flex-col overflow-hidden rounded-[2rem] p-4 lg:p-5">
@@ -987,6 +1039,44 @@
             return last ? last.handoffTo : null;
         }
 
+        function updateSpeakerSyncLine() {
+            const line = document.getElementById('speakerSyncLine');
+            const seat = document.querySelector('.roundtable-seat.is-active .roundtable-seat-avatar');
+            const card = document.querySelector('.bubble.agent.is-live');
+            if (!line || !seat || !card) {
+                line.classList.remove('is-visible');
+                return;
+            }
+            const seatRect = seat.getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
+            const startX = seatRect.left + seatRect.width / 2;
+            const startY = seatRect.top + seatRect.height / 2;
+            const endX = cardRect.left + 18;
+            const endY = cardRect.top + Math.min(cardRect.height * 0.42, 120);
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const distance = Math.hypot(dx, dy);
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            line.style.left = `${startX}px`;
+            line.style.top = `${startY}px`;
+            line.style.width = `${distance}px`;
+            line.style.transform = `rotate(${angle}deg)`;
+            line.classList.add('is-visible');
+        }
+
+        function flashHandoffCue() {
+            const center = document.querySelector('.roundtable-center');
+            const subtitle = document.getElementById('roundtableSubtitle');
+            if (!center || !subtitle) return;
+            center.classList.add('is-handoff');
+            subtitle.textContent = '接棒';
+            const timer = window.setTimeout(() => {
+                center.classList.remove('is-handoff');
+                updateRoundtableBeam();
+            }, 260);
+            state.timers.push(timer);
+        }
+
         function updateRoundtableBeam() {
             const beam = document.getElementById('roundtableBeam');
             const nextBeam = document.getElementById('roundtableNextBeam');
@@ -1005,6 +1095,7 @@
                 pulse.textContent = state.running
                     ? '系统正在按研究推进顺序点亮当前发言专家，真人可以随时插话改变顺序。'
                     : '系统会按研究推进顺序点亮当前发言专家，真人可随时插话打断。';
+                updateSpeakerSyncLine();
                 return;
             }
             const index = allRoles.indexOf(state.activeRole);
@@ -1033,6 +1124,7 @@
             pulse.textContent = nextRole
                 ? `${roleLabel(state.activeRole)} 正在围绕「${stage.label}」发言，${roleLabel(nextRole)} 将接着补位。`
                 : `${roleLabel(state.activeRole)} 正在围绕「${stage.label}」给出本轮最关键的执行建议。`;
+            updateSpeakerSyncLine();
         }
 
         function renderRoundtableSeats() {
@@ -1188,6 +1280,7 @@
                 `;
             }).join('');
             transcript.scrollTop = 0;
+            updateSpeakerSyncLine();
         }
 
         function showTyping(role) {
@@ -1203,6 +1296,7 @@
             document.getElementById('typingIndicator').classList.add('hidden');
             state.activeRole = '';
             renderRoundtableSeats();
+            updateSpeakerSyncLine();
         }
 
         function clearQueue(options = {}) {
@@ -1294,6 +1388,7 @@
                         renderTranscript();
                         renderSummary();
                         const settleTimer = window.setTimeout(() => {
+                            flashHandoffCue();
                             state.flashMessageId = '';
                             hideTyping();
                             renderTranscript();
