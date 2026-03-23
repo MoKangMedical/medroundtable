@@ -201,10 +201,12 @@
         }
         .roundtable-seat.is-active {
             transform: translate(-50%, -50%) scale(1.12);
+            animation: activeSeatBreathe 1.35s ease-in-out infinite;
         }
         .roundtable-seat.is-next {
             transform: translate(-50%, -50%) scale(1.06);
             filter: saturate(1.15);
+            animation: nextSeatRhythm 1s ease-in-out infinite;
         }
         .roundtable-seat-avatar {
             position: relative;
@@ -472,8 +474,16 @@
             50% { opacity: 0.82; }
         }
         @keyframes nextSeatBlink {
-            0%, 100% { opacity: 0.3; transform: scale(0.96); }
+            0%, 100% { opacity: 0.18; transform: scale(0.96); }
             50% { opacity: 1; transform: scale(1.08); }
+        }
+        @keyframes activeSeatBreathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1.08); }
+            50% { transform: translate(-50%, -50%) scale(1.16); }
+        }
+        @keyframes nextSeatRhythm {
+            0%, 100% { transform: translate(-50%, -50%) scale(1.02); opacity: 0.82; }
+            50% { transform: translate(-50%, -50%) scale(1.09); opacity: 1; }
         }
         @media (max-width: 1380px) {
             body { overflow: auto; }
@@ -665,6 +675,7 @@
                                 <i class="fas fa-staff-snake text-2xl text-white"></i>
                             </div>
                             <div id="currentSpeakerBadge" class="arena-chip">等待第一位专家开场</div>
+                            <div id="roundtableSubtitle" class="text-xs font-semibold tracking-[0.08em] text-cyan-100/90">等待第一位专家开场</div>
                             <div id="roundtableCenterStage" class="text-lg font-semibold text-white">研究思路确认</div>
                             <p id="roundtablePulseLabel" class="max-w-[220px] text-sm leading-6 text-slate-300">系统会按研究推进顺序点亮当前发言专家，真人可随时插话打断。</p>
                         </div>
@@ -953,6 +964,7 @@
             const beam = document.getElementById('roundtableBeam');
             const nextBeam = document.getElementById('roundtableNextBeam');
             const badge = document.getElementById('currentSpeakerBadge');
+            const subtitle = document.getElementById('roundtableSubtitle');
             const pulse = document.getElementById('roundtablePulseLabel');
             const stageCenter = document.getElementById('roundtableCenterStage');
             const stage = getStageMeta(state.activeStage);
@@ -962,6 +974,7 @@
                 beam.classList.remove('is-visible');
                 nextBeam.classList.remove('is-visible');
                 badge.textContent = state.running ? '准备点亮下一位专家' : '等待第一位专家开场';
+                subtitle.textContent = state.running ? '正在排队点亮下一位专家' : '等待第一位专家开场';
                 pulse.textContent = state.running
                     ? '系统正在按研究推进顺序点亮当前发言专家，真人可以随时插话改变顺序。'
                     : '系统会按研究推进顺序点亮当前发言专家，真人可随时插话打断。';
@@ -987,6 +1000,9 @@
             badge.textContent = nextRole
                 ? `${roleLabel(state.activeRole)} 正在发言 · ${roleLabel(nextRole)} 待命`
                 : `${roleLabel(state.activeRole)} 正在发言`;
+            subtitle.textContent = nextRole
+                ? `${roleLabel(state.activeRole)} 发言中，${roleLabel(nextRole)} 待补位`
+                : `${roleLabel(state.activeRole)} 发言中`;
             pulse.textContent = nextRole
                 ? `${roleLabel(state.activeRole)} 正在围绕「${stage.label}」发言，${roleLabel(nextRole)} 将接着补位。`
                 : `${roleLabel(state.activeRole)} 正在围绕「${stage.label}」给出本轮最关键的执行建议。`;
