@@ -94,6 +94,11 @@
         .bubble.agent {
             background: linear-gradient(180deg, rgba(10, 26, 49, 0.96), rgba(7, 18, 33, 0.92));
         }
+        .bubble.agent.is-live {
+            animation: speakerCardFlash 0.7s ease-out 1;
+            border-color: rgba(110, 231, 249, 0.34);
+            box-shadow: 0 0 0 1px rgba(110, 231, 249, 0.16), 0 0 26px rgba(110, 231, 249, 0.18);
+        }
         .bubble.user {
             background: linear-gradient(180deg, rgba(55, 87, 225, 0.96), rgba(37, 61, 177, 0.95));
             border-color: rgba(99, 102, 241, 0.32);
@@ -141,6 +146,17 @@
             width: min(100%, 360px);
             aspect-ratio: 1 / 1;
             margin: 1rem auto 0;
+        }
+        .roundtable-halo {
+            position: absolute;
+            inset: 3%;
+            border-radius: 999px;
+            pointer-events: none;
+            opacity: 0.38;
+            background: conic-gradient(from 0deg, rgba(110, 231, 249, 0.02), rgba(110, 231, 249, 0.24), rgba(79, 124, 255, 0.08), rgba(181, 255, 114, 0.18), rgba(110, 231, 249, 0.02));
+            filter: blur(10px);
+            animation: haloOrbit 7.5s linear infinite;
+            z-index: 0;
         }
         .roundtable-arena::before {
             content: "";
@@ -485,6 +501,15 @@
             0%, 100% { transform: translate(-50%, -50%) scale(1.02); opacity: 0.82; }
             50% { transform: translate(-50%, -50%) scale(1.09); opacity: 1; }
         }
+        @keyframes speakerCardFlash {
+            0% { transform: translateY(6px) scale(0.995); opacity: 0.78; }
+            35% { transform: translateY(0) scale(1.01); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes haloOrbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
         @media (max-width: 1380px) {
             body { overflow: auto; }
         }
@@ -667,6 +692,7 @@
                         <div class="arena-chip">点击头像点名</div>
                     </div>
                     <div class="roundtable-arena">
+                        <div id="roundtableHalo" class="roundtable-halo"></div>
                         <div id="roundtableBeam" class="roundtable-beam"></div>
                         <div id="roundtableNextBeam" class="roundtable-beam is-next"></div>
                         <div id="roundtableSeats" class="roundtable-seat-layer"></div>
@@ -766,6 +792,7 @@
             messages: [],
             expandedMessages: {},
             messageSeq: 0,
+            flashMessageId: '',
             timers: [],
             activeRole: '',
             running: false,
@@ -1113,9 +1140,10 @@
                 const expanded = isHuman || !!state.expandedMessages[message.messageId];
                 const summary = message.summary || summarizeMessagePreview(message.text, 72);
                 const preview = summarizeMessagePreview(message.text, 120);
+                const isLive = !isHuman && message.messageId === state.flashMessageId;
                 return `
                     <div class="flex ${isHuman ? 'justify-end' : 'justify-start'}">
-                        <article class="bubble ${isHuman ? 'user' : 'agent'} px-5 py-4">
+                        <article class="bubble ${isHuman ? 'user' : 'agent'} ${isLive ? 'is-live' : ''} px-5 py-4">
                             <div class="flex items-start gap-3">
                                 ${avatar ? `<img src="${avatar}" alt="${escapeHtml(roleLabel(message.role))}" class="agent-avatar mt-1">` : ''}
                                 <div class="min-w-0 flex-1">
@@ -1186,6 +1214,7 @@
             state.queue = [];
             state.running = false;
             state.paused = false;
+            state.flashMessageId = '';
             hideTyping();
             renderSummary();
         }
@@ -1254,15 +1283,23 @@
                     showTyping(item.role);
                     const speakingTimer = window.setTimeout(() => {
                         state.activeStage = item.stage;
+                        const messageId = getMessageId();
+                        state.flashMessageId = messageId;
                         state.messages.push({
                             ...item,
-                            messageId: getMessageId(),
+                            messageId,
                             createdAt: new Date().toISOString()
                         });
                         state.queue.shift();
-                        hideTyping();
                         renderTranscript();
                         renderSummary();
+                        const settleTimer = window.setTimeout(() => {
+                            state.flashMessageId = '';
+                            hideTyping();
+                            renderTranscript();
+                            renderSummary();
+                        }, 320);
+                        state.timers.push(settleTimer);
                         if (index === items.length - 1) {
                             state.running = false;
                             renderSummary();
