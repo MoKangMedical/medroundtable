@@ -315,6 +315,16 @@
             border: 1px solid rgba(148, 163, 184, 0.14);
             background: rgba(255,255,255,0.04);
             padding: 0.95rem;
+            flex: 0 0 auto;
+            max-height: min(34vh, 320px);
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(110, 231, 249, 0.24) transparent;
+        }
+        .project-brief::-webkit-scrollbar { width: 8px; }
+        .project-brief::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(110, 231, 249, 0.22);
         }
         .project-brief.is-hidden {
             display: none;
@@ -373,6 +383,43 @@
             font-size: 13px;
             line-height: 1.65;
         }
+        .message-summary {
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(255,255,255,0.03);
+            padding: 0.72rem 0.9rem;
+        }
+        .message-detail {
+            margin-top: 0.85rem;
+        }
+        .message-detail.is-collapsed {
+            display: none;
+        }
+        .message-preview {
+            margin-top: 0.55rem;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.75;
+        }
+        .message-toggle {
+            margin-top: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255,255,255,0.04);
+            padding: 0.42rem 0.75rem;
+            font-size: 12px;
+            font-weight: 700;
+            color: #dbeafe;
+            transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+        }
+        .message-toggle:hover {
+            transform: translateY(-1px);
+            border-color: rgba(110, 231, 249, 0.3);
+            background: rgba(110, 231, 249, 0.08);
+        }
         .thought-dot {
             margin-top: 0.42rem;
             width: 6px;
@@ -414,13 +461,25 @@
                 width: 52px;
                 height: 52px;
             }
+            .project-brief {
+                max-height: min(30vh, 260px);
+            }
+        }
+        @media (max-width: 1024px) {
+            main {
+                height: auto !important;
+                min-height: 100vh;
+            }
+            .project-brief {
+                max-height: none;
+            }
         }
     </style>
 </head>
 <body class="grain">
     <main class="h-screen overflow-hidden px-3 py-3 lg:px-4 lg:py-4">
         <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.68fr)_400px]">
-            <section class="glass flex min-h-0 flex-col rounded-[2rem] p-4 lg:p-5">
+            <section class="glass flex min-h-0 flex-col overflow-hidden rounded-[2rem] p-4 lg:p-5">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="max-w-4xl">
                         <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
@@ -440,7 +499,7 @@
                     </div>
                 </div>
 
-                <div class="mt-4 flex min-h-0 flex-1 flex-col rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-4">
+                <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-4">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
                         <div>
                             <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">实时会诊对话</div>
@@ -448,7 +507,7 @@
                             <p class="mt-1 text-xs leading-6 text-slate-300">这块永远优先显示研究问题、专家发言、真人打断和最终总结，最新发言置顶。</p>
                         </div>
                     </div>
-                    <div id="transcript" class="transcript mt-3 flex-1 space-y-4 overflow-auto pr-2"></div>
+                    <div id="transcript" class="transcript mt-3 min-h-[280px] flex-1 space-y-4 overflow-auto pr-2 lg:min-h-[360px]"></div>
                     <div id="typingIndicator" class="hidden px-2 pt-3">
                         <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
                             <div class="flex items-center gap-3">
@@ -512,7 +571,7 @@
                     </div>
                 </div>
 
-                <div id="projectBriefCard" class="mt-4 project-brief">
+                <div id="projectBriefCard" class="mt-4 project-brief is-collapsed">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <span class="arena-chip">先说你想讨论什么</span>
@@ -581,6 +640,10 @@
                         <p id="engineNarrative" class="mt-2 leading-7 text-slate-300">点击“开始自动讨论”后，系统会自动把 14 位专家按研究推进顺序拉进讨论。</p>
                     </div>
                     <div class="compact-card rounded-2xl p-4">
+                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">本轮能力加持</div>
+                        <div id="capabilitySpotlight" class="mt-3 space-y-3 text-sm leading-6 text-slate-300"></div>
+                    </div>
+                    <div class="compact-card rounded-2xl p-4">
                         <div class="text-xs uppercase tracking-[0.18em] text-slate-400">项目推进阶段</div>
                         <div id="stageRail" class="mt-3 space-y-2"></div>
                     </div>
@@ -626,12 +689,34 @@
                 { label: 'Target Trial Emulation', url: 'https://pubmed.ncbi.nlm.nih.gov/?term=Using+Big+Data+to+Emulate+a+Target+Trial' }
             ]
         };
+        const capabilitySpotlights = {
+            research_direction: [
+                { name: 'MedAgent-Pro', tone: 'text-teal-200', summary: '先按医学指南生成标准化诊断计划，避免讨论一开始就凭经验跳结论。' },
+                { name: 'NeuraGraph', tone: 'text-fuchsia-200', summary: '把前期资料中的疾病、干预、结局和关系先抽成结构化知识，避免会诊一直停留在原始长文本。' },
+                { name: 'QwQ-Med-3', tone: 'text-cyan-200', summary: '补疾病知识链和临床问题推理，让立项判断更可解释。' }
+            ],
+            protocol_confirmation: [
+                { name: 'MedAgent-Pro', tone: 'text-teal-200', summary: '把关键临床指标、诊断步骤和定量评估点先收成可执行 workflow。' },
+                { name: 'AutoResearchClaw', tone: 'text-sky-200', summary: '适合把方案阶段的证据、实验与交付物进一步串成闭环。' }
+            ],
+            data_source_confirmation: [
+                { name: 'OmicClaw × OmicVerse', tone: 'text-lime-200', summary: '在组学或多模态输入阶段补共享 Kernel、本地生信与 MCP 调度。' },
+                { name: 'NeuraGraph', tone: 'text-fuchsia-200', summary: '需要从病历、摘要或全文里批量抽实体关系时，先用可视化文本挖掘工作流结构化数据来源。' },
+                { name: 'QuantClaw × CNKI', tone: 'text-orange-200', summary: '需要补中文指南、综述和期刊级别时，直接拉这条能力进场。' }
+            ],
+            analysis_plan: [
+                { name: 'MedAgent-Pro', tone: 'text-teal-200', summary: '把定量指标、可靠性检查和风险评分链条做实，更像真实临床会诊。' },
+                { name: 'Evo 2 / QwQ-Med-3', tone: 'text-indigo-200', summary: '遇到变异、基因组和复杂医学推理问题时，用前沿模型层做高阶核对。' }
+            ]
+        };
 
         const state = {
             activeStage: 'research_direction',
             queue: [],
             holdQueue: [],
             messages: [],
+            expandedMessages: {},
+            messageSeq: 0,
             timers: [],
             activeRole: '',
             running: false,
@@ -899,6 +984,17 @@
                 ? refs.map((ref) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-white/[0.03] p-3 transition hover:border-cyan-300/30 hover:bg-white/[0.05]"><div class="text-xs uppercase tracking-[0.18em] text-cyan-200">PubMed</div><div class="mt-2 text-sm text-slate-200">${escapeHtml(ref.label)}</div></a>`).join('')
                 : '<div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-sm text-slate-400">会在发言过程中自动补入当前轮次最相关的参考文献。</div>';
 
+            const capabilitySpotlight = document.getElementById('capabilitySpotlight');
+            const spotlightItems = capabilitySpotlights[state.activeStage] || [];
+            capabilitySpotlight.innerHTML = spotlightItems.length
+                ? spotlightItems.map((item) => `
+                    <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                        <div class="text-xs font-semibold uppercase tracking-[0.18em] ${item.tone}">${escapeHtml(item.name)}</div>
+                        <div class="mt-2 text-sm leading-6 text-slate-200">${escapeHtml(item.summary)}</div>
+                    </div>
+                `).join('')
+                : '<div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-sm text-slate-400">当前阶段没有额外能力加持，系统将继续由基础专家阵容推进。</div>';
+
             updateRoundtableBeam();
         }
 
@@ -906,14 +1002,28 @@
             return escapeHtml(text).replace(/\n/g, '<br>');
         }
 
+        function getMessageId() {
+            state.messageSeq += 1;
+            return `msg-${state.messageSeq}`;
+        }
+
+        function summarizeMessagePreview(text, max = 88) {
+            const clean = String(text || '').replace(/\s+/g, ' ').trim();
+            if (!clean) return '';
+            return clean.length > max ? `${clean.slice(0, max)}…` : clean;
+        }
+
         function renderTranscript() {
             const transcript = document.getElementById('transcript');
-            transcript.innerHTML = [...state.messages].reverse().map((message) => {
+            transcript.innerHTML = [...state.messages].reverse().map((message, index) => {
                 const isHuman = message.role === 'human';
                 const avatar = isHuman
                     ? (state.identity && state.identity.avatar ? state.identity.avatar : '../assets/secondme/director.png')
                     : getExpertAvatar(message.role);
                 const stage = getStageMeta(message.stage || state.activeStage);
+                const expanded = isHuman || !!state.expandedMessages[message.messageId];
+                const summary = message.summary || summarizeMessagePreview(message.text, 72);
+                const preview = summarizeMessagePreview(message.text, 120);
                 return `
                     <div class="flex ${isHuman ? 'justify-end' : 'justify-start'}">
                         <article class="bubble ${isHuman ? 'user' : 'agent'} px-5 py-4">
@@ -924,22 +1034,36 @@
                                         <span class="text-sm font-semibold text-white">${escapeHtml(roleLabel(message.role))}</span>
                                         <span class="rounded-full border border-white/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100 bg-white/5">${escapeHtml(stage.label)}</span>
                                     </div>
-                                    <div class="mt-3 text-[15px] leading-8 ${isHuman ? 'text-white' : 'text-slate-100'}">${formatMessageText(message.text)}</div>
-                                    ${!isHuman && message.thinking && message.thinking.length ? `
-                                        <div class="thought-card">
-                                            <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">本轮思路</div>
-                                            <div class="thought-list">
-                                                ${message.thinking.map((item) => `
-                                                    <div class="thought-item">
-                                                        <span class="thought-dot"></span>
-                                                        <span>${escapeHtml(item)}</span>
-                                                    </div>
-                                                `).join('')}
-                                            </div>
-                                            ${message.handoffTo ? `<div class="mt-3 text-xs text-slate-400">下一棒交给：<span class="text-cyan-100">${escapeHtml(roleLabel(message.handoffTo))}</span></div>` : ''}
+                                    ${!isHuman ? `
+                                        <div class="message-summary mt-3">
+                                            <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">本轮结论</div>
+                                            <div class="mt-2 text-sm leading-7 text-slate-100">${escapeHtml(summary)}</div>
+                                            ${message.handoffTo ? `<div class="mt-2 text-xs text-slate-400">下一棒交给：<span class="text-cyan-100">${escapeHtml(roleLabel(message.handoffTo))}</span></div>` : ''}
                                         </div>
                                     ` : ''}
-                                    ${message.refs && message.refs.length ? `<div class="mt-4 space-y-2">${message.refs.map((ref, index) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-slate-200 transition hover:border-cyan-300/30">[${index + 1}] ${escapeHtml(ref.label)}</a>`).join('')}</div>` : ''}
+                                    ${!isHuman ? `
+                                        <button type="button" class="message-toggle" data-message-toggle="${escapeHtml(message.messageId)}">
+                                            <i class="fas ${expanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>${expanded ? '收起详情' : '展开详情'}
+                                        </button>
+                                    ` : ''}
+                                    <div class="message-detail ${expanded ? '' : 'is-collapsed'}">
+                                        ${!isHuman ? `<div class="message-preview">${escapeHtml(preview)}</div>` : ''}
+                                        <div class="mt-3 text-[15px] leading-8 ${isHuman ? 'text-white' : 'text-slate-100'}">${formatMessageText(message.text)}</div>
+                                        ${!isHuman && message.thinking && message.thinking.length ? `
+                                            <div class="thought-card">
+                                                <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">协作推理</div>
+                                                <div class="thought-list">
+                                                    ${message.thinking.map((item) => `
+                                                        <div class="thought-item">
+                                                            <span class="thought-dot"></span>
+                                                            <span><strong class="text-cyan-100">${escapeHtml(item.label)}：</strong>${escapeHtml(item.body)}</span>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                        ${message.refs && message.refs.length ? `<div class="mt-4 space-y-2">${message.refs.map((ref, refIndex) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-slate-200 transition hover:border-cyan-300/30">[${refIndex + 1}] ${escapeHtml(ref.label)}</a>`).join('')}</div>` : ''}
+                                    </div>
                                 </div>
                             </div>
                         </article>
@@ -1010,9 +1134,20 @@
             const topicLine = `围绕「${summarizeIntent(topic)}」，我不会停留在泛泛建议，而是直接给能执行的收口。`;
             const nextRole = getStageSupportRoles(stageKey, role)[0] || null;
             const thinking = [
-                `我先收住 ${stage.outputs[0]}，避免讨论继续停留在概念层。`,
-                `我重点看 ${responsibilityA.replace(/。$/, '')} 和 ${responsibilityB.replace(/。$/, '')}，把字段、时间窗和判定标准讲实。`,
-                nextRole ? `我会把这一轮结论交给 ${roleLabel(nextRole)}，让下一位直接补方案、数据或分析方法。` : '这轮结束后需要把结论沉淀进最终方案和汇报材料。'
+                {
+                    label: '我为什么这么判断',
+                    body: `因为这一轮最容易失焦的是 ${stage.outputs[0]} 和 ${stage.outputs[1] || stage.outputs[0]}，如果不先把 ${responsibilityA.replace(/。$/, '')} 讲实，后面的方案、数据和分析都会继续悬空。`
+                },
+                {
+                    label: '我需要谁补证据',
+                    body: nextRole
+                        ? `我需要 ${roleLabel(nextRole)} 接着补位，把 ${responsibilityB.replace(/。$/, '')} 的证据、字段或方法依据接上，避免讨论只停在原则判断。`
+                        : `我需要下一轮把文献依据、数据口径和执行风险继续补齐，确保这不是单点判断，而是可以被验证的结论。`
+                },
+                {
+                    label: '我建议下一步做什么',
+                    body: `先锁 ${stage.outputs[0]}，再补 ${stage.outputs[1] || stage.outputs[0]}，同时把时间窗、判定标准和需要核对的参考文献一起收口，马上推进到下一位专家的执行环节。`
+                }
             ];
             const text = `${handoff}${steerLine}${topicLine} 站在${expert.name}这个角色上，我先把「${stage.label}」里最影响成败的两件事定下来：第一，${responsibilityA.replace(/。$/, '')}，这里必须明确字段、时间窗和判定标准，不能只说原则；第二，${responsibilityB.replace(/。$/, '')}，这一点直接决定下一位专家能否把方案、数据或分析方法接上。我的建议是本轮先锁 ${stage.outputs[0]}，再补 ${stage.outputs[1] || stage.outputs[0]}，同时把潜在风险、数据缺口和需要验证的文献依据说清楚。这样下一位专家不需要回到背景介绍，而是可以直接沿着现有口径继续把研究项目往前推。`;
             return { role, stage: stageKey, text, summary, refs, thinking, handoffTo: nextRole };
@@ -1032,6 +1167,7 @@
                         state.activeStage = item.stage;
                         state.messages.push({
                             ...item,
+                            messageId: getMessageId(),
                             createdAt: new Date().toISOString()
                         });
                         state.queue.shift();
@@ -1081,6 +1217,7 @@
 
         function addHumanMessage(text) {
             state.messages.push({
+                messageId: getMessageId(),
                 role: 'human',
                 stage: state.activeStage,
                 text,
@@ -1146,6 +1283,7 @@
         function startDiscussion() {
             document.getElementById('transcript').innerHTML = '';
             state.messages = [];
+            state.expandedMessages = {};
             state.holdQueue = [];
             state.activeStage = 'research_direction';
             state.paused = false;
@@ -1375,9 +1513,11 @@
             renderSummary();
             renderTranscript();
             setProjectBriefHidden(false);
+            setProjectBriefCollapsed(true);
 
             document.getElementById('startDiscussionBtn').addEventListener('click', () => {
                 setProjectBriefHidden(false);
+                setProjectBriefCollapsed(false);
                 document.getElementById('projectBriefCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 document.getElementById('topicQuestion').focus();
             });
@@ -1452,8 +1592,15 @@
                 renderAgendaPlan();
             });
             document.getElementById('topicTitle').addEventListener('input', renderProjectBriefSummary);
+            document.getElementById('transcript').addEventListener('click', (event) => {
+                const button = event.target.closest('[data-message-toggle]');
+                if (!button) return;
+                const id = button.dataset.messageToggle;
+                state.expandedMessages[id] = !state.expandedMessages[id];
+                renderTranscript();
+            });
 
-            if (urlParams.get('autostart') !== '0' && urlParams.get('topic')) {
+            if (urlParams.get('autostart') === '1' || (urlParams.get('autostart') !== '0' && urlParams.get('topic'))) {
                 window.setTimeout(startDiscussion, 420);
             }
         }
