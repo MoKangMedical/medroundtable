@@ -177,6 +177,13 @@
         .roundtable-beam.is-visible {
             opacity: 1;
         }
+        .roundtable-beam.is-next {
+            height: 2px;
+            width: 31%;
+            background: linear-gradient(90deg, rgba(181, 255, 114, 0.92), rgba(181, 255, 114, 0.03));
+            box-shadow: 0 0 14px rgba(181, 255, 114, 0.24);
+            animation: handoffBeamPulse 1.2s ease-in-out infinite;
+        }
         .roundtable-seat-layer {
             position: absolute;
             inset: 0;
@@ -194,6 +201,10 @@
         }
         .roundtable-seat.is-active {
             transform: translate(-50%, -50%) scale(1.12);
+        }
+        .roundtable-seat.is-next {
+            transform: translate(-50%, -50%) scale(1.06);
+            filter: saturate(1.15);
         }
         .roundtable-seat-avatar {
             position: relative;
@@ -217,6 +228,17 @@
             border: 2px solid rgba(110, 231, 249, 0.62);
             animation: arenaPulse 1.15s ease-out infinite;
         }
+        .roundtable-seat.is-next .roundtable-seat-avatar {
+            box-shadow: 0 0 0 1px rgba(181, 255, 114, 0.28), 0 0 24px rgba(181, 255, 114, 0.34);
+        }
+        .roundtable-seat.is-next .roundtable-seat-avatar::after {
+            content: "";
+            position: absolute;
+            inset: -4px;
+            border-radius: 22px;
+            border: 2px dashed rgba(181, 255, 114, 0.55);
+            animation: nextSeatBlink 0.95s ease-in-out infinite;
+        }
         .roundtable-seat-status {
             position: absolute;
             right: -1px;
@@ -234,6 +256,10 @@
             background: var(--cyan);
             box-shadow: 0 0 16px rgba(110, 231, 249, 0.75);
         }
+        .roundtable-seat.is-next .roundtable-seat-status {
+            background: var(--lime);
+            box-shadow: 0 0 14px rgba(181, 255, 114, 0.62);
+        }
         .roundtable-seat-label {
             margin-top: 0.35rem;
             text-align: center;
@@ -241,6 +267,9 @@
             line-height: 1.35;
             color: rgba(226, 232, 240, 0.92);
             text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+        }
+        .roundtable-seat.is-next .roundtable-seat-label {
+            color: rgba(217, 249, 157, 0.98);
         }
         .roundtable-center {
             position: absolute;
@@ -438,6 +467,14 @@
             0% { transform: scale(0.88); opacity: 0.75; }
             100% { transform: scale(1.18); opacity: 0; }
         }
+        @keyframes handoffBeamPulse {
+            0%, 100% { opacity: 0.24; }
+            50% { opacity: 0.82; }
+        }
+        @keyframes nextSeatBlink {
+            0%, 100% { opacity: 0.3; transform: scale(0.96); }
+            50% { opacity: 1; transform: scale(1.08); }
+        }
         @media (max-width: 1380px) {
             body { overflow: auto; }
         }
@@ -621,6 +658,7 @@
                     </div>
                     <div class="roundtable-arena">
                         <div id="roundtableBeam" class="roundtable-beam"></div>
+                        <div id="roundtableNextBeam" class="roundtable-beam is-next"></div>
                         <div id="roundtableSeats" class="roundtable-seat-layer"></div>
                         <div class="roundtable-center">
                             <div class="arena-orb">
@@ -897,15 +935,32 @@
             }).join('');
         }
 
+        function getUpcomingRole() {
+            if (state.activeRole && state.queue.length > 1 && state.queue[0] && state.queue[0].role === state.activeRole) {
+                return state.queue[1] ? state.queue[1].role : null;
+            }
+            if (state.queue.length) {
+                return state.queue[0].role;
+            }
+            if (state.holdQueue.length) {
+                return state.holdQueue[0].role;
+            }
+            const last = state.messages.find((message) => message.role !== 'human' && message.handoffTo);
+            return last ? last.handoffTo : null;
+        }
+
         function updateRoundtableBeam() {
             const beam = document.getElementById('roundtableBeam');
+            const nextBeam = document.getElementById('roundtableNextBeam');
             const badge = document.getElementById('currentSpeakerBadge');
             const pulse = document.getElementById('roundtablePulseLabel');
             const stageCenter = document.getElementById('roundtableCenterStage');
             const stage = getStageMeta(state.activeStage);
+            const nextRole = getUpcomingRole();
             stageCenter.textContent = stage.label;
             if (!state.activeRole) {
                 beam.classList.remove('is-visible');
+                nextBeam.classList.remove('is-visible');
                 badge.textContent = state.running ? '准备点亮下一位专家' : '等待第一位专家开场';
                 pulse.textContent = state.running
                     ? '系统正在按研究推进顺序点亮当前发言专家，真人可以随时插话改变顺序。'
@@ -917,24 +972,42 @@
             const angleDeg = -90 + (360 / allRoles.length) * index;
             beam.style.transform = `translate(-50%, -50%) rotate(${angleDeg}deg)`;
             beam.classList.add('is-visible');
-            badge.textContent = `${roleLabel(state.activeRole)} 正在发言`;
-            pulse.textContent = `${roleLabel(state.activeRole)} 正在围绕「${stage.label}」给出本轮最关键的执行建议。`;
+            if (nextRole) {
+                const nextIndex = allRoles.indexOf(nextRole);
+                if (nextIndex !== -1) {
+                    const nextAngleDeg = -90 + (360 / allRoles.length) * nextIndex;
+                    nextBeam.style.transform = `translate(-50%, -50%) rotate(${nextAngleDeg}deg)`;
+                    nextBeam.classList.add('is-visible');
+                } else {
+                    nextBeam.classList.remove('is-visible');
+                }
+            } else {
+                nextBeam.classList.remove('is-visible');
+            }
+            badge.textContent = nextRole
+                ? `${roleLabel(state.activeRole)} 正在发言 · ${roleLabel(nextRole)} 待命`
+                : `${roleLabel(state.activeRole)} 正在发言`;
+            pulse.textContent = nextRole
+                ? `${roleLabel(state.activeRole)} 正在围绕「${stage.label}」发言，${roleLabel(nextRole)} 将接着补位。`
+                : `${roleLabel(state.activeRole)} 正在围绕「${stage.label}」给出本轮最关键的执行建议。`;
         }
 
         function renderRoundtableSeats() {
             const layer = document.getElementById('roundtableSeats');
             if (!layer) return;
+            const nextRole = getUpcomingRole();
             layer.innerHTML = allRoles.map((role, index) => {
                 const angle = -Math.PI / 2 + ((Math.PI * 2) / allRoles.length) * index;
                 const left = 50 + Math.cos(angle) * 41;
                 const top = 50 + Math.sin(angle) * 41;
                 const expert = getExpert(role);
                 const active = state.activeRole === role;
+                const next = !active && nextRole === role;
                 const done = state.messages.some((message) => message.role === role);
                 const avatar = getExpertAvatar(role);
                 const label = expert ? expert.name : role;
                 return `
-                    <button type="button" class="roundtable-seat ${active ? 'is-active' : ''} ${done ? 'is-done' : ''}" data-role="${role}" style="left:${left}%; top:${top}%;">
+                    <button type="button" class="roundtable-seat ${active ? 'is-active' : ''} ${next ? 'is-next' : ''} ${done ? 'is-done' : ''}" data-role="${role}" style="left:${left}%; top:${top}%;">
                         <div class="roundtable-seat-avatar">
                             ${avatar ? `<img src="${avatar}" alt="${escapeHtml(label)}" class="h-full w-full object-cover">` : `<div class="flex h-full w-full items-center justify-center font-bold text-white">${escapeHtml(label.slice(0, 1))}</div>`}
                             <span class="roundtable-seat-status"></span>
