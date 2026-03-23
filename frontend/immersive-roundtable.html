@@ -315,6 +315,16 @@
             border: 1px solid rgba(148, 163, 184, 0.14);
             background: rgba(255,255,255,0.04);
             padding: 0.95rem;
+            flex: 0 0 auto;
+            max-height: min(34vh, 320px);
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(110, 231, 249, 0.24) transparent;
+        }
+        .project-brief::-webkit-scrollbar { width: 8px; }
+        .project-brief::-webkit-scrollbar-thumb {
+            border-radius: 999px;
+            background: rgba(110, 231, 249, 0.22);
         }
         .project-brief.is-hidden {
             display: none;
@@ -373,6 +383,43 @@
             font-size: 13px;
             line-height: 1.65;
         }
+        .message-summary {
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(255,255,255,0.03);
+            padding: 0.72rem 0.9rem;
+        }
+        .message-detail {
+            margin-top: 0.85rem;
+        }
+        .message-detail.is-collapsed {
+            display: none;
+        }
+        .message-preview {
+            margin-top: 0.55rem;
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.75;
+        }
+        .message-toggle {
+            margin-top: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255,255,255,0.04);
+            padding: 0.42rem 0.75rem;
+            font-size: 12px;
+            font-weight: 700;
+            color: #dbeafe;
+            transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+        }
+        .message-toggle:hover {
+            transform: translateY(-1px);
+            border-color: rgba(110, 231, 249, 0.3);
+            background: rgba(110, 231, 249, 0.08);
+        }
         .thought-dot {
             margin-top: 0.42rem;
             width: 6px;
@@ -414,13 +461,25 @@
                 width: 52px;
                 height: 52px;
             }
+            .project-brief {
+                max-height: min(30vh, 260px);
+            }
+        }
+        @media (max-width: 1024px) {
+            main {
+                height: auto !important;
+                min-height: 100vh;
+            }
+            .project-brief {
+                max-height: none;
+            }
         }
     </style>
 </head>
 <body class="grain">
     <main class="h-screen overflow-hidden px-3 py-3 lg:px-4 lg:py-4">
         <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.68fr)_400px]">
-            <section class="glass flex min-h-0 flex-col rounded-[2rem] p-4 lg:p-5">
+            <section class="glass flex min-h-0 flex-col overflow-hidden rounded-[2rem] p-4 lg:p-5">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="max-w-4xl">
                         <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
@@ -440,7 +499,7 @@
                     </div>
                 </div>
 
-                <div class="mt-4 flex min-h-0 flex-1 flex-col rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-4">
+                <div class="mt-4 flex min-h-0 flex-1 flex-col overflow-hidden rounded-[1.8rem] border border-white/10 bg-white/[0.03] p-4">
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
                         <div>
                             <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">实时会诊对话</div>
@@ -448,7 +507,7 @@
                             <p class="mt-1 text-xs leading-6 text-slate-300">这块永远优先显示研究问题、专家发言、真人打断和最终总结，最新发言置顶。</p>
                         </div>
                     </div>
-                    <div id="transcript" class="transcript mt-3 flex-1 space-y-4 overflow-auto pr-2"></div>
+                    <div id="transcript" class="transcript mt-3 min-h-[280px] flex-1 space-y-4 overflow-auto pr-2 lg:min-h-[360px]"></div>
                     <div id="typingIndicator" class="hidden px-2 pt-3">
                         <div class="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
                             <div class="flex items-center gap-3">
@@ -512,7 +571,7 @@
                     </div>
                 </div>
 
-                <div id="projectBriefCard" class="mt-4 project-brief">
+                <div id="projectBriefCard" class="mt-4 project-brief is-collapsed">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <span class="arena-chip">先说你想讨论什么</span>
@@ -656,6 +715,8 @@
             queue: [],
             holdQueue: [],
             messages: [],
+            expandedMessages: {},
+            messageSeq: 0,
             timers: [],
             activeRole: '',
             running: false,
@@ -941,14 +1002,28 @@
             return escapeHtml(text).replace(/\n/g, '<br>');
         }
 
+        function getMessageId() {
+            state.messageSeq += 1;
+            return `msg-${state.messageSeq}`;
+        }
+
+        function summarizeMessagePreview(text, max = 88) {
+            const clean = String(text || '').replace(/\s+/g, ' ').trim();
+            if (!clean) return '';
+            return clean.length > max ? `${clean.slice(0, max)}…` : clean;
+        }
+
         function renderTranscript() {
             const transcript = document.getElementById('transcript');
-            transcript.innerHTML = [...state.messages].reverse().map((message) => {
+            transcript.innerHTML = [...state.messages].reverse().map((message, index) => {
                 const isHuman = message.role === 'human';
                 const avatar = isHuman
                     ? (state.identity && state.identity.avatar ? state.identity.avatar : '../assets/secondme/director.png')
                     : getExpertAvatar(message.role);
                 const stage = getStageMeta(message.stage || state.activeStage);
+                const expanded = isHuman || !!state.expandedMessages[message.messageId];
+                const summary = message.summary || summarizeMessagePreview(message.text, 72);
+                const preview = summarizeMessagePreview(message.text, 120);
                 return `
                     <div class="flex ${isHuman ? 'justify-end' : 'justify-start'}">
                         <article class="bubble ${isHuman ? 'user' : 'agent'} px-5 py-4">
@@ -959,22 +1034,36 @@
                                         <span class="text-sm font-semibold text-white">${escapeHtml(roleLabel(message.role))}</span>
                                         <span class="rounded-full border border-white/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-cyan-100 bg-white/5">${escapeHtml(stage.label)}</span>
                                     </div>
-                                    <div class="mt-3 text-[15px] leading-8 ${isHuman ? 'text-white' : 'text-slate-100'}">${formatMessageText(message.text)}</div>
-                                    ${!isHuman && message.thinking && message.thinking.length ? `
-                                        <div class="thought-card">
-                                            <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">本轮思路</div>
-                                            <div class="thought-list">
-                                                ${message.thinking.map((item) => `
-                                                    <div class="thought-item">
-                                                        <span class="thought-dot"></span>
-                                                        <span><strong class="text-cyan-100">${escapeHtml(item.label)}：</strong>${escapeHtml(item.body)}</span>
-                                                    </div>
-                                                `).join('')}
-                                            </div>
-                                            ${message.handoffTo ? `<div class="mt-3 text-xs text-slate-400">下一棒交给：<span class="text-cyan-100">${escapeHtml(roleLabel(message.handoffTo))}</span></div>` : ''}
+                                    ${!isHuman ? `
+                                        <div class="message-summary mt-3">
+                                            <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">本轮结论</div>
+                                            <div class="mt-2 text-sm leading-7 text-slate-100">${escapeHtml(summary)}</div>
+                                            ${message.handoffTo ? `<div class="mt-2 text-xs text-slate-400">下一棒交给：<span class="text-cyan-100">${escapeHtml(roleLabel(message.handoffTo))}</span></div>` : ''}
                                         </div>
                                     ` : ''}
-                                    ${message.refs && message.refs.length ? `<div class="mt-4 space-y-2">${message.refs.map((ref, index) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-slate-200 transition hover:border-cyan-300/30">[${index + 1}] ${escapeHtml(ref.label)}</a>`).join('')}</div>` : ''}
+                                    ${!isHuman ? `
+                                        <button type="button" class="message-toggle" data-message-toggle="${escapeHtml(message.messageId)}">
+                                            <i class="fas ${expanded ? 'fa-chevron-up' : 'fa-chevron-down'}"></i>${expanded ? '收起详情' : '展开详情'}
+                                        </button>
+                                    ` : ''}
+                                    <div class="message-detail ${expanded ? '' : 'is-collapsed'}">
+                                        ${!isHuman ? `<div class="message-preview">${escapeHtml(preview)}</div>` : ''}
+                                        <div class="mt-3 text-[15px] leading-8 ${isHuman ? 'text-white' : 'text-slate-100'}">${formatMessageText(message.text)}</div>
+                                        ${!isHuman && message.thinking && message.thinking.length ? `
+                                            <div class="thought-card">
+                                                <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">协作推理</div>
+                                                <div class="thought-list">
+                                                    ${message.thinking.map((item) => `
+                                                        <div class="thought-item">
+                                                            <span class="thought-dot"></span>
+                                                            <span><strong class="text-cyan-100">${escapeHtml(item.label)}：</strong>${escapeHtml(item.body)}</span>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                        ${message.refs && message.refs.length ? `<div class="mt-4 space-y-2">${message.refs.map((ref, refIndex) => `<a href="${ref.url}" target="_blank" rel="noopener" class="block rounded-2xl border border-white/10 bg-black/10 px-3 py-2 text-sm text-slate-200 transition hover:border-cyan-300/30">[${refIndex + 1}] ${escapeHtml(ref.label)}</a>`).join('')}</div>` : ''}
+                                    </div>
                                 </div>
                             </div>
                         </article>
@@ -1078,6 +1167,7 @@
                         state.activeStage = item.stage;
                         state.messages.push({
                             ...item,
+                            messageId: getMessageId(),
                             createdAt: new Date().toISOString()
                         });
                         state.queue.shift();
@@ -1127,6 +1217,7 @@
 
         function addHumanMessage(text) {
             state.messages.push({
+                messageId: getMessageId(),
                 role: 'human',
                 stage: state.activeStage,
                 text,
@@ -1192,6 +1283,7 @@
         function startDiscussion() {
             document.getElementById('transcript').innerHTML = '';
             state.messages = [];
+            state.expandedMessages = {};
             state.holdQueue = [];
             state.activeStage = 'research_direction';
             state.paused = false;
@@ -1421,9 +1513,11 @@
             renderSummary();
             renderTranscript();
             setProjectBriefHidden(false);
+            setProjectBriefCollapsed(true);
 
             document.getElementById('startDiscussionBtn').addEventListener('click', () => {
                 setProjectBriefHidden(false);
+                setProjectBriefCollapsed(false);
                 document.getElementById('projectBriefCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 document.getElementById('topicQuestion').focus();
             });
@@ -1498,8 +1592,15 @@
                 renderAgendaPlan();
             });
             document.getElementById('topicTitle').addEventListener('input', renderProjectBriefSummary);
+            document.getElementById('transcript').addEventListener('click', (event) => {
+                const button = event.target.closest('[data-message-toggle]');
+                if (!button) return;
+                const id = button.dataset.messageToggle;
+                state.expandedMessages[id] = !state.expandedMessages[id];
+                renderTranscript();
+            });
 
-            if (urlParams.get('autostart') !== '0' && urlParams.get('topic')) {
+            if (urlParams.get('autostart') === '1' || (urlParams.get('autostart') !== '0' && urlParams.get('topic'))) {
                 window.setTimeout(startDiscussion, 420);
             }
         }
