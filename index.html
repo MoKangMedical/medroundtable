@@ -419,132 +419,6 @@
             color: #334155;
         }
 
-        .relationship-workbench {
-            border: 1px solid rgba(191, 219, 254, 0.95);
-            background:
-                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.14), transparent 28%),
-                radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.12), transparent 22%),
-                linear-gradient(135deg, rgba(239, 246, 255, 0.92), rgba(255, 255, 255, 0.98));
-            box-shadow: 0 24px 50px rgba(30, 64, 175, 0.08);
-        }
-
-        .relationship-legend-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 14px;
-            border-radius: 999px;
-            border: 1px solid rgba(148, 163, 184, 0.14);
-            background: rgba(255, 255, 255, 0.88);
-            font-size: 12px;
-            font-weight: 600;
-            color: #334155;
-        }
-
-        .relationship-legend-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 999px;
-            flex-shrink: 0;
-        }
-
-        .relationship-board {
-            position: relative;
-            min-height: 460px;
-            border-radius: 28px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            background:
-                radial-gradient(circle at 20% 18%, rgba(59, 130, 246, 0.16), transparent 22%),
-                radial-gradient(circle at 80% 84%, rgba(14, 165, 233, 0.12), transparent 18%),
-                linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(241, 245, 249, 0.96));
-        }
-
-        .relationship-board::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-        }
-
-        .relationship-board svg {
-            position: relative;
-            z-index: 1;
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-
-        .relationship-link {
-            stroke: rgba(59, 130, 246, 0.36);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-dasharray: 8 10;
-            animation: relationshipFlow 14s linear infinite;
-        }
-
-        .relationship-link.is-highlight {
-            stroke: rgba(14, 165, 233, 0.75);
-            stroke-width: 2.6;
-            filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.45));
-        }
-
-        @keyframes relationshipFlow {
-            from { stroke-dashoffset: 0; }
-            to { stroke-dashoffset: -260; }
-        }
-
-        .relationship-node {
-            cursor: grab;
-        }
-
-        .relationship-node.is-fixed {
-            cursor: grabbing;
-        }
-
-        .relationship-node circle {
-            transition: transform 180ms ease, stroke-width 180ms ease, filter 180ms ease;
-        }
-
-        .relationship-node:hover circle,
-        .relationship-node.is-active circle {
-            stroke-width: 3;
-            filter: drop-shadow(0 0 16px rgba(59, 130, 246, 0.25));
-        }
-
-        .relationship-node.is-active circle {
-            transform: scale(1.06);
-        }
-
-        .relationship-node text {
-            pointer-events: none;
-            user-select: none;
-        }
-
-        .relationship-detail-panel {
-            border: 1px solid rgba(191, 219, 254, 0.85);
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
-            box-shadow: 0 18px 40px rgba(30, 64, 175, 0.08);
-        }
-
-        .relationship-detail-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            border-radius: 999px;
-            padding: 8px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #1e3a8a;
-            background: rgba(219, 234, 254, 0.78);
-            border: 1px solid rgba(147, 197, 253, 0.8);
-        }
-
         .atlas-nav-pill {
             display: inline-flex;
             align-items: center;
@@ -1066,7 +940,7 @@
                     <section id="agent-skill-command" class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-5 py-6 text-white shadow-2xl shadow-slate-900/25 md:px-8 md:py-8">
                         <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Agent 能力卡组</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Agent Skill Decks</p>
                                 <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">选中 Agent 后，立刻看到 TA 能帮你完成什么</h3>
                                 <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
                                     不用先理解整个平台的能力结构。你只需要先选人，后面的技能面、分析路径、来源包和常见交付会自动对齐到这位 Agent。
@@ -1079,7 +953,7 @@
                         <div class="mt-5 flex flex-wrap gap-2 text-xs text-slate-200">
                             <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">展示口径：按 Agent 主责技能面重排</span>
                             <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">技能数为非去重覆盖口径</span>
-                                <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">对应 14 条分析路径与 4 组能力来源</span>
+                                <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">对应 12 条分析路径与 4 组能力来源</span>
                         </div>
                         <div id="agentSkillDeckGrid" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
                     </section>
@@ -1091,7 +965,7 @@
                     <div class="atlas-shell rounded-[2rem] px-5 py-6 md:px-8 md:py-8">
                         <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                             <div>
-                                <p class="atlas-mini-label">平台总览</p>
+                                <p class="atlas-mini-label">Research Overview</p>
                                 <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">如果你想先判断平台是否适合当前课题，这里先看真实数据、分析路径和交付方向</h2>
                                 <p class="mt-4 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
                                     这一段不是宣传页，而是给你快速判断用的。首页直接列出数据库清单、常用分析路径、能力来源和推荐入口，方便你确认这套平台能不能接住当前研究任务。
@@ -1114,7 +988,7 @@
                             <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
-                                        <p class="atlas-mini-label">能力快照</p>
+                                        <p class="atlas-mini-label">Capability Snapshot</p>
                                         <h3 class="mt-2 text-2xl font-bold text-slate-950">先看清平台能接什么数据、能做什么分析、最后交付什么</h3>
                                         <p class="mt-2 text-sm leading-7 text-slate-600">这里把能力拆成使用者更容易判断的 4 个维度：来源、数据库、分析路径，以及谁适合先介入。</p>
                                     </div>
@@ -1138,12 +1012,12 @@
                             <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
-                                <p class="atlas-mini-label">能力来源包</p>
+                                        <p class="atlas-mini-label">Skill Source Packages</p>
                                         <h3 class="mt-2 text-2xl font-bold text-slate-950">常用能力分成 4 组，方便你判断这套平台是不是你要的那种支持</h3>
                                         <p class="mt-2 text-sm leading-7 text-slate-600">这里直接交代能力来源，让你知道哪些是平台原生能力、哪些来自 OpenClaw 包装层，以及哪些是研究增强与交付扩展。</p>
                                     </div>
                                     <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
-                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">STELLA</div>
+                                        <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">STELLA</div>
                                         <div class="mt-2 text-base font-bold text-slate-950">Manager · Dev · Critic</div>
                                         <div class="mt-1 text-xs text-slate-500">负责建议首位入口、执行任务与复核结果</div>
                                     </div>
@@ -1156,7 +1030,7 @@
                             <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
-                                <p class="atlas-mini-label">外部整合能力</p>
+                                        <p class="atlas-mini-label">External Integrations</p>
                                         <h3 class="mt-2 text-2xl font-bold text-slate-950">外部整合能力层</h3>
                                         <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">把中文文献自动化与多组学生态直接接进平台，让首页就能看出哪些能力来自外部系统整合，而不是空泛口号。</p>
                                     </div>
@@ -1168,7 +1042,7 @@
                             <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
-                                        <p class="atlas-mini-label">前沿模型</p>
+                                        <p class="atlas-mini-label">Frontier Models</p>
                                         <h3 class="mt-2 text-2xl font-bold text-slate-950">前沿医学与基因组模型层</h3>
                                         <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">把医学知识图谱推理和跨生命域基因组基础模型放到平台能力图里，明确它们适合解决什么问题、应该由谁调用。</p>
                                     </div>
@@ -1183,8 +1057,8 @@
                         <div id="atlas-algorithm-board" class="mt-6">
                             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div>
-                                    <p class="atlas-mini-label">分析路径</p>
-                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">14 条分析路径分别适合什么问题、通常由谁先接手</h3>
+                                    <p class="atlas-mini-label">Algorithm Lanes</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">12 条分析路径分别适合什么问题、通常由谁先接手</h3>
                                     <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">首页先把适用场景、常见交付和推荐 Agent 写清楚，避免你一开始就陷进抽象能力名词。</p>
                                 </div>
                                 <a href="./frontend/capability-matrix.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
@@ -1197,7 +1071,7 @@
                         <div id="database-atlas" class="mt-6 atlas-panel rounded-[1.75rem] p-5 md:p-6">
                             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div>
-                                    <p class="atlas-mini-label">数据库目录</p>
+                                    <p class="atlas-mini-label">Database Inventory</p>
                                     <h3 class="mt-2 text-2xl font-bold text-slate-950">46 个数据库已按研究场景分组，你可以直接判断有没有你要的数据</h3>
                                     <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">每个分类都列出真实数据库名称，并保留直达链接。你不用猜平台连了什么，首页就能先看清楚。</p>
                                 </div>
@@ -1221,7 +1095,7 @@
                             完整研究工具生态
                         </h2>
                         <p class="text-slate-600 max-w-2xl mx-auto">
-                            MedRoundTable 与全球顶尖医学研究工具深度整合，为您提供从<span class="text-blue-600 font-semibold">试验追踪</span>到<span class="text-purple-600 font-semibold">数据可视化</span>的全流程支持
+                            MedRoundTable 与全球顶尖医学研究工具深度整合，为您提供从<span class="text-blue-600 font-semibold">试验追踪</span>到<span class="text-purple-600 font-semibold">数据可视化</span>再到<span class="text-indigo-600 font-semibold">自动科研执行</span>的全流程支持
                         </p>
                         <div class="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
                             <i class="fas fa-grid-2 text-blue-600"></i> 当前已展示 <span id="homeResearchToolCount">21</span> 个研究工具入口
@@ -1231,7 +1105,7 @@
                     <div class="mb-8 rounded-[2rem] border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/60 backdrop-blur">
                         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">研究执行工作台</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">Research Execution Workbench</p>
                                 <h3 class="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">先选研究推进阶段，再看该用哪些数据库、工具和专家把方案做下去</h3>
                                 <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
                                     这里不只是展示平台里有什么，而是把数据库来源、研究工具和 14 位专家按“问题识别 → 文献回顾 → 研究设计 → 数据准备 → 数据分析 → 报告输出”的执行顺序串起来。
@@ -1242,31 +1116,6 @@
                             </a>
                         </div>
                         <div id="researchExecutionStageTabs" class="mt-6 flex flex-wrap gap-3"></div>
-                        <div class="mt-6 relationship-workbench rounded-[1.85rem] p-5">
-                            <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                                <div class="max-w-3xl">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">关系网络</p>
-                                    <h4 class="mt-2 text-2xl font-bold text-slate-950">拖着看：这一步如何把专家、数据库、工具和交付物串成一条执行链</h4>
-                                    <p class="mt-3 text-sm leading-7 text-slate-600">你可以直接拖动节点，看它和研究执行链上的其他环节如何关联；点任一节点，右侧会解释它在当前阶段具体负责什么。</p>
-                                </div>
-                                <div id="researchExecutionGraphLegend" class="flex flex-wrap gap-2"></div>
-                            </div>
-                            <div class="mt-5 grid gap-5 xl:grid-cols-[1.3fr_0.7fr]">
-                                <div class="relationship-board p-2">
-                                    <svg id="researchExecutionRelationshipGraph" viewBox="0 0 960 520" aria-label="研究执行关系网络"></svg>
-                                </div>
-                                <div class="relationship-detail-panel rounded-[1.65rem] p-5">
-                                    <div class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">当前选中</div>
-                                    <h5 id="researchExecutionRelationTitle" class="mt-2 text-2xl font-bold text-slate-950">问题识别</h5>
-                                    <p id="researchExecutionRelationSummary" class="mt-3 text-sm leading-7 text-slate-600">点击左侧关系网络中的任一节点，可以查看它在当前阶段中的作用。</p>
-                                    <div id="researchExecutionRelationChips" class="mt-4 flex flex-wrap gap-2"></div>
-                                    <div id="researchExecutionRelationList" class="mt-5 space-y-3"></div>
-                                    <a id="researchExecutionRelationAction" href="./frontend/database-browser.html" class="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-                                        查看对应入口 <i class="fas fa-arrow-right"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
                         <div class="mt-6 grid gap-5 xl:grid-cols-[1.2fr_1fr]">
                             <div class="rounded-[1.6rem] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-5">
                                 <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -1324,7 +1173,7 @@
                             <i class="fas fa-project-diagram text-indigo-600 mr-2"></i>
                             工具整合工作流程
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
                             <div class="text-center p-4 bg-blue-50 rounded-xl">
                                 <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">1</div>
                                 <h4 class="font-semibold text-slate-900 mb-2">文献回顾</h4>
@@ -1349,10 +1198,18 @@
                                     <i class="fas fa-arrow-down"></i> 专家审核优化
                                 </div>
                             </div>
+                            <div class="text-center p-4 bg-indigo-50 rounded-xl">
+                                <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">4</div>
+                                <h4 class="font-semibold text-slate-900 mb-2">自动科研执行</h4>
+                                <p class="text-sm text-slate-600">调用 FARS 生成假设、实验清单和短论文草稿</p>
+                                <div class="mt-3 text-xs text-indigo-600 font-medium">
+                                    <i class="fas fa-arrow-down"></i> 回流 14 位专家审阅
+                                </div>
+                            </div>
                             <div class="text-center p-4 bg-green-50 rounded-xl">
-                                <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">4</div>
+                                <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">5</div>
                                 <h4 class="font-semibold text-slate-900 mb-2">结果发表</h4>
-                                <p class="text-sm text-slate-600">用 AutoResearchClaw 整理论文草稿、引用验证与交付包，再进入汇报或投稿</p>
+                                <p class="text-sm text-slate-600">在 CTR 发布成果，获取反馈</p>
                                 <div class="mt-3 text-xs text-green-600 font-medium">
                                     <i class="fas fa-check-circle"></i> 完成闭环
                                 </div>
@@ -2206,6 +2063,19 @@
                 cta: '查看能力'
             },
             {
+                name: 'FARS 自动科研',
+                subtitle: 'Fully Automated Research System',
+                icon: 'fas fa-robot',
+                iconBg: 'bg-indigo-100',
+                iconText: 'text-indigo-600',
+                border: 'border-indigo-100',
+                features: ['自动文献调研与假设生成', '代码执行与实验调度', '短论文与失败结果沉淀'],
+                integration: '把一句研究方向推进为研究议程、实验清单和短论文草稿，为 MedRoundTable 的 14 位专家提供自动科研执行底盘。',
+                integrationClass: 'bg-indigo-50 text-indigo-800',
+                href: 'https://analemma.ai/fars',
+                cta: '查看 FARS'
+            },
+            {
                 name: 'QwQ-Med-3',
                 subtitle: '知识图谱医学推理模型',
                 icon: 'fas fa-stethoscope',
@@ -2232,32 +2102,6 @@
                 cta: '查看模型'
             },
             {
-                name: 'MedAgent-Pro',
-                subtitle: '循证多模态诊断系统',
-                icon: 'fas fa-user-doctor',
-                iconBg: 'bg-teal-100',
-                iconText: 'text-teal-700',
-                border: 'border-teal-100',
-                features: ['疾病层面诊断计划', '患者层面定量分析', '风险加权决策与证据链'],
-                integration: '把医学指南检索、标准化诊断计划、视觉工具定量分析和循证风险评分接进圆桌会。',
-                integrationClass: 'bg-teal-50 text-teal-800',
-                href: './frontend/capability-matrix.html#medagent-pro',
-                cta: '查看能力'
-            },
-            {
-                name: 'NeuraGraph',
-                subtitle: '生物医学文本挖掘平台',
-                icon: 'fas fa-diagram-project',
-                iconBg: 'bg-fuchsia-100',
-                iconText: 'text-fuchsia-700',
-                border: 'border-fuchsia-100',
-                features: ['文献实体与关系抽取', 'LLM / 规则 / NLP 工具混编', 'SSE 实验与自动报告'],
-                integration: '把生物医学文本中的实体、关系和知识三元组自动提取出来，作为方案与证据链前置结构层。',
-                integrationClass: 'bg-fuchsia-50 text-fuchsia-800',
-                href: './frontend/capability-matrix.html#neuragraph',
-                cta: '查看能力'
-            },
-            {
                 name: 'SecondMe 协作层',
                 subtitle: '真人身份 + AI 阵容',
                 icon: 'fas fa-user-group',
@@ -2269,19 +2113,6 @@
                 integrationClass: 'bg-sky-50 text-sky-800',
                 href: './frontend/secondme-hub.html',
                 cta: '进入协作'
-            },
-            {
-                name: 'AutoResearchClaw',
-                subtitle: '自动研究闭环引擎',
-                icon: 'fas fa-infinity',
-                iconBg: 'bg-sky-100',
-                iconText: 'text-sky-700',
-                border: 'border-sky-100',
-                features: ['8 大阶段 / 23 个子阶段', '真实引用验证', '实验执行与论文交付包'],
-                integration: '把一句研究 idea 自动推进到文献、实验、结果分析、论文与交付包输出。',
-                integrationClass: 'bg-sky-50 text-sky-800',
-                href: './frontend/capability-matrix.html#autonomous-research-loop',
-                cta: '查看能力'
             },
             {
                 name: '数据库浏览器',
@@ -2311,7 +2142,7 @@
             },
             {
                 name: '能力矩阵',
-                subtitle: '14 条分析路径',
+                subtitle: '11 条分析路径',
                 icon: 'fas fa-diagram-project',
                 iconBg: 'bg-violet-100',
                 iconText: 'text-violet-700',
@@ -2384,7 +2215,7 @@
                 features: ['一键开 14 人会', '自动预填标题与问题', '可直接进详情页'],
                 integration: '把“开始讨论”压到最短路径，降低第一次试用门槛。',
                 integrationClass: 'bg-indigo-50 text-indigo-800',
-                href: './frontend/session-launchpad.html?mode=instant',
+                href: './frontend/immersive-roundtable.html?autostart=1',
                 cta: '立即进入'
             },
             {
@@ -2411,13 +2242,11 @@
                 outputs: ['核心研究问题', 'PICO 草稿', '3 个关键风险', '继续 / 暂停判断'],
                 checklist: [
                     '用临床主任把问题改写成可执行的临床研究命题，先判断是否值得立项。',
-                    '如果前期资料分散在摘要、病历或综述文字里，先用 NeuraGraph 把实体、关系和关键证据抽成结构化底稿。',
                     '让博士生快速补证据空白，先确认这个方向有没有明显重复或已被做透。',
-                    '让流行病学家同步校正研究对象、时间窗和结局定义，避免题目一开始就发散。',
-                    '如果本题本身是诊断或分层判断问题，先用 MedAgent-Pro 生成一版标准化诊断计划，再决定后续指标怎么收。'
+                    '让流行病学家同步校正研究对象、时间窗和结局定义，避免题目一开始就发散。'
                 ],
                 databaseCategories: ['文献', '疾病/表型', '法规/指南'],
-                toolNames: ['MedRoundTable', 'SecondMe 协作层', '数据库浏览器', '专家总览', 'QwQ-Med-3', 'AutoResearchClaw', 'MedAgent-Pro', 'NeuraGraph']
+                toolNames: ['MedRoundTable', 'SecondMe 协作层', '数据库浏览器', '专家总览', 'QwQ-Med-3']
             },
             evidence_review: {
                 label: '文献回顾',
@@ -2427,12 +2256,12 @@
                 outputs: ['证据缺口列表', '核心参考文献', '在研试验清单', '中文综述素材'],
                 checklist: [
                     '用 QuantClaw × CNKI 先抓中文期刊、综述和政策口径，避免只看英文证据。',
-                    '用 NeuraGraph 把摘要和全文里的疾病、干预、结局与关系抽成结构化图，帮助快速找证据缺口。',
                     '用 Clinical Trials Reviewer 同步查在研试验与竞品方案，确认研究问题有没有窗口期。',
-                    '把关键综述、指南和最新高影响力论文回填到圆桌会，作为下一阶段设计依据。'
+                    '把关键综述、指南和最新高影响力论文回填到圆桌会，作为下一阶段设计依据。',
+                    '需要快速验证研究方向时，调用 FARS 先生成研究议程、实验清单和短论文草稿，再回流给 14 位专家审阅。'
                 ],
                 databaseCategories: ['文献', '临床试验', '法规/指南'],
-                toolNames: ['QuantClaw × CNKI', 'Clinical Trials Reviewer', 'QwQ-Med-3', '数据库浏览器', '技能市场', 'AutoResearchClaw', 'NeuraGraph']
+                toolNames: ['QuantClaw × CNKI', 'Clinical Trials Reviewer', 'QwQ-Med-3', 'FARS 自动科研', '数据库浏览器', '技能市场']
             },
             study_design: {
                 label: '研究设计',
@@ -2443,11 +2272,10 @@
                 checklist: [
                     '用流行病学家把研究设计从“想做什么”收紧成“怎么做、为何这样做”。',
                     '让统计学家先给出分析主线和样本量前提，避免后期为了分析反改设计。',
-                    '让研究护士同步把访视、数据采集和执行节点列出来，方案才真正能落地。',
-                    '如果涉及影像、病历或多模态诊断路径，用 MedAgent-Pro 先列出疾病层面的诊断计划和关键指标。'
+                    '让研究护士同步把访视、数据采集和执行节点列出来，方案才真正能落地。'
                 ],
                 databaseCategories: ['临床试验', '流行病学/队列', '法规/指南'],
-                toolNames: ['MedRoundTable', 'Clinical Trials Reviewer', '研究方案上传', '能力矩阵', '圆桌启动页', 'AutoResearchClaw', 'MedAgent-Pro']
+                toolNames: ['MedRoundTable', 'Clinical Trials Reviewer', '研究方案上传', '能力矩阵', '圆桌启动页', 'FARS 自动科研']
             },
             data_preparation: {
                 label: '数据准备',
@@ -2472,11 +2300,10 @@
                 checklist: [
                     '临床与队列问题优先走 NHANES、SEER、CHARLS 这类成熟分析台，尽快拿到第一版主结果。',
                     '组学和变异问题直接调用 OmicClaw × OmicVerse，再按需要叠加 Evo 2 或 QwQ-Med-3 做前沿核对。',
-                    '多模态诊断问题直接调用 MedAgent-Pro，把定量指标、可靠性评估和风险评分链条做实。',
                     '把结果同步交给 MediVisual Artist 做发表级图表，让讨论从“想法”转成“图和表”。'
                 ],
                 databaseCategories: ['流行病学/队列', '肿瘤', '基因组', '蛋白质', '通路'],
-                toolNames: ['NHANES 智能分析', 'SEER-BMJ 肿瘤研究', 'Lancet CHARLS', 'MediVisual Artist', 'OmicClaw × OmicVerse', 'Evo 2', 'QwQ-Med-3', 'MedAgent-Pro']
+                toolNames: ['NHANES 智能分析', 'SEER-BMJ 肿瘤研究', 'Lancet CHARLS', 'MediVisual Artist', 'OmicClaw × OmicVerse', 'Evo 2', 'QwQ-Med-3', 'FARS 自动科研']
             },
             output_delivery: {
                 label: '报告输出',
@@ -2487,11 +2314,10 @@
                 checklist: [
                     '回到圆桌详情页把关键结论收束成最终报告，而不是停留在聊天记录。',
                     '让博士生和统计学家共同压文稿逻辑，确保结论、图表和方法口径一致。',
-                    '如果本轮有诊断路径判断，再把 MedAgent-Pro 生成的诊断计划、指标证据和风险评分一并收进导出稿。',
                     '把最终摘要、图表和参考文献打包导出，方便继续写方案、论文或给导师汇报。'
                 ],
                 databaseCategories: ['文献', '法规/指南'],
-                toolNames: ['最终报告导出', '研究方案上传', 'MediVisual Artist', 'MedRoundTable', 'SecondMe 协作层', 'AutoResearchClaw', 'MedAgent-Pro']
+                toolNames: ['最终报告导出', '研究方案上传', 'MediVisual Artist', 'MedRoundTable', 'SecondMe 协作层']
             }
         };
 
@@ -2504,12 +2330,10 @@
             'Lancet CHARLS': ['data_analysis'],
             'QuantClaw × CNKI': ['evidence_review'],
             'OmicClaw × OmicVerse': ['data_preparation', 'data_analysis'],
+            'FARS 自动科研': ['evidence_review', 'study_design', 'data_analysis'],
             'QwQ-Med-3': ['problem_identification', 'evidence_review', 'data_analysis'],
             'Evo 2': ['data_analysis'],
-            'MedAgent-Pro': ['problem_identification', 'study_design', 'data_analysis', 'output_delivery'],
-            'NeuraGraph': ['problem_identification', 'evidence_review'],
             'SecondMe 协作层': ['problem_identification', 'data_preparation', 'output_delivery'],
-            'AutoResearchClaw': ['problem_identification', 'evidence_review', 'study_design', 'output_delivery'],
             '数据库浏览器': ['problem_identification', 'evidence_review', 'data_preparation'],
             '技能市场': ['evidence_review'],
             '能力矩阵': ['study_design'],
@@ -2522,300 +2346,6 @@
         };
 
         let activeResearchExecutionStage = 'problem_identification';
-        let researchRelationshipCleanup = null;
-
-        const relationshipNodePalette = {
-            stage: { fill: '#1d4ed8', stroke: '#bfdbfe', text: '#ffffff' },
-            expert: { fill: '#0f766e', stroke: '#99f6e4', text: '#ffffff' },
-            database: { fill: '#047857', stroke: '#a7f3d0', text: '#ffffff' },
-            tool: { fill: '#7c3aed', stroke: '#ddd6fe', text: '#ffffff' },
-            output: { fill: '#ea580c', stroke: '#fed7aa', text: '#ffffff' }
-        };
-
-        const relationshipLegendItems = [
-            { key: 'stage', label: '当前阶段' },
-            { key: 'expert', label: '推荐专家' },
-            { key: 'database', label: '数据库来源' },
-            { key: 'tool', label: '研究工具' },
-            { key: 'output', label: '阶段交付' }
-        ];
-
-        function renderResearchExecutionGraphLegend() {
-            const legend = document.getElementById('researchExecutionGraphLegend');
-            if (!legend) return;
-            legend.innerHTML = relationshipLegendItems.map((item) => `
-                <span class="relationship-legend-pill">
-                    <span class="relationship-legend-dot" style="background:${relationshipNodePalette[item.key].fill}"></span>
-                    ${escapeHtml(item.label)}
-                </span>
-            `).join('');
-        }
-
-        function buildResearchExecutionGraphModel(stageKey, matchedDatabases, matchedTools) {
-            const stage = researchExecutionStages[stageKey];
-            const nodes = [];
-            const links = [];
-            const stageNode = {
-                id: `stage-${stageKey}`,
-                type: 'stage',
-                label: stage.label,
-                shortLabel: stage.label,
-                radius: 42,
-                x: 470,
-                y: 248,
-                fx: 470,
-                fy: 248,
-                meta: {
-                    summary: stage.summary,
-                    chips: ['当前阶段', stage.miniLabel],
-                    bullets: stage.checklist,
-                    href: '#researchExecutionStageTitle',
-                    actionLabel: '查看阶段详情'
-                }
-            };
-            nodes.push(stageNode);
-
-            (stage.experts || []).slice(0, 4).forEach((expert, index) => {
-                const angle = (-110 + index * 55) * (Math.PI / 180);
-                const node = {
-                    id: `expert-${index}`,
-                    type: 'expert',
-                    label: expert,
-                    shortLabel: expert,
-                    radius: 30,
-                    x: 470 + Math.cos(angle) * 220,
-                    y: 248 + Math.sin(angle) * 180,
-                    meta: {
-                        summary: `${expert} 会先在「${stage.label}」里补位，帮助你把 ${stage.outputs.slice(0, 2).join('、')} 收紧。`,
-                        chips: ['推荐先介入', stage.label],
-                        bullets: [
-                            `重点任务：${stage.checklist[(index % stage.checklist.length)]}`,
-                            `这一轮通常会帮助你先拿到：${stage.outputs[index % stage.outputs.length]}`
-                        ],
-                        href: './experts.html',
-                        actionLabel: '查看专家分工'
-                    }
-                };
-                nodes.push(node);
-                links.push({ source: stageNode.id, target: node.id, emphasis: true });
-            });
-
-            matchedDatabases.slice(0, 4).forEach((item, index) => {
-                const angle = (145 + index * 24) * (Math.PI / 180);
-                const node = {
-                    id: `db-${index}`,
-                    type: 'database',
-                    label: item.name,
-                    shortLabel: item.name.length > 12 ? `${item.name.slice(0, 11)}…` : item.name,
-                    radius: 26,
-                    x: 470 + Math.cos(angle) * 270,
-                    y: 248 + Math.sin(angle) * 170,
-                    meta: {
-                        summary: item.description || item.integration || `${item.name} 是当前阶段最直接的数据入口之一。`,
-                        chips: [item.category, item.access_mode || '公开可访问'],
-                        bullets: [
-                            `适用阶段：${stage.label}`,
-                            `用途：优先用于补 ${stage.outputs.slice(0, 2).join('、')}`
-                        ],
-                        href: item.url,
-                        external: true,
-                        actionLabel: '打开数据库'
-                    }
-                };
-                nodes.push(node);
-                links.push({ source: stageNode.id, target: node.id, emphasis: false });
-            });
-
-            matchedTools.slice(0, 5).forEach((tool, index) => {
-                const angle = (18 + index * 26) * (Math.PI / 180);
-                const node = {
-                    id: `tool-${index}`,
-                    type: 'tool',
-                    label: tool.name,
-                    shortLabel: tool.name.length > 14 ? `${tool.name.slice(0, 13)}…` : tool.name,
-                    radius: 28,
-                    x: 470 + Math.cos(angle) * 260,
-                    y: 248 + Math.sin(angle) * 170,
-                    meta: {
-                        summary: tool.integration,
-                        chips: [tool.subtitle, tool.cta],
-                        bullets: (tool.features || []).slice(0, 2),
-                        href: tool.href || './frontend/skills-market.html',
-                        action: tool.action || '',
-                        external: /^https?:\/\//.test(tool.href || ''),
-                        actionLabel: tool.cta || '进入工具'
-                    }
-                };
-                nodes.push(node);
-                links.push({ source: stageNode.id, target: node.id, emphasis: index < 3 });
-            });
-
-            (stage.outputs || []).slice(0, 4).forEach((item, index) => {
-                const angle = (220 + index * 22) * (Math.PI / 180);
-                const node = {
-                    id: `output-${index}`,
-                    type: 'output',
-                    label: item,
-                    shortLabel: item,
-                    radius: 22,
-                    x: 470 + Math.cos(angle) * 220,
-                    y: 248 + Math.sin(angle) * 120,
-                    meta: {
-                        summary: `${item} 是「${stage.label}」这一轮希望带走的直接交付。`,
-                        chips: ['阶段交付', stage.label],
-                        bullets: [
-                            `建议先让 ${stage.experts.slice(0, 2).join('、')} 把这一项说实。`,
-                            `完成后就能继续推进到下一阶段。`
-                        ],
-                        href: '#researchExecutionOutputs',
-                        actionLabel: '查看当前交付'
-                    }
-                };
-                nodes.push(node);
-                links.push({ source: stageNode.id, target: node.id, emphasis: false });
-            });
-
-            return { nodes, links, stageNode };
-        }
-
-        function renderResearchExecutionRelationDetail(nodeDatum) {
-            const titleEl = document.getElementById('researchExecutionRelationTitle');
-            const summaryEl = document.getElementById('researchExecutionRelationSummary');
-            const chipsEl = document.getElementById('researchExecutionRelationChips');
-            const listEl = document.getElementById('researchExecutionRelationList');
-            const actionEl = document.getElementById('researchExecutionRelationAction');
-            if (!titleEl || !summaryEl || !chipsEl || !listEl || !actionEl || !nodeDatum) return;
-
-            const meta = nodeDatum.meta || {};
-            titleEl.textContent = nodeDatum.label;
-            summaryEl.textContent = meta.summary || '';
-            chipsEl.innerHTML = (meta.chips || []).map((chip) => `
-                <span class="relationship-detail-chip">${escapeHtml(chip)}</span>
-            `).join('');
-            listEl.innerHTML = (meta.bullets || []).map((item) => `
-                <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-7 text-slate-600">${escapeHtml(item)}</div>
-            `).join('');
-
-            if (meta.action) {
-                actionEl.href = 'javascript:void(0)';
-                actionEl.target = '';
-                actionEl.rel = '';
-                actionEl.onclick = function () { window.eval(meta.action); };
-            } else {
-                actionEl.href = meta.href || '#researchExecutionStageTitle';
-                actionEl.target = meta.external ? '_blank' : '';
-                actionEl.rel = meta.external ? 'noopener noreferrer' : '';
-                actionEl.onclick = null;
-            }
-            actionEl.innerHTML = `${escapeHtml(meta.actionLabel || '查看对应入口')} <i class="fas fa-arrow-right"></i>`;
-        }
-
-        function renderResearchExecutionRelationshipGraph(stageKey, matchedDatabases, matchedTools) {
-            const svgEl = document.getElementById('researchExecutionRelationshipGraph');
-            if (!svgEl || !window.d3) return;
-            renderResearchExecutionGraphLegend();
-
-            if (typeof researchRelationshipCleanup === 'function') {
-                researchRelationshipCleanup();
-                researchRelationshipCleanup = null;
-            }
-
-            const { nodes, links, stageNode } = buildResearchExecutionGraphModel(stageKey, matchedDatabases, matchedTools);
-            const svg = d3.select(svgEl);
-            svg.selectAll('*').remove();
-
-            const width = 960;
-            const height = 520;
-            const g = svg.append('g');
-
-            const simulation = d3.forceSimulation(nodes)
-                .force('link', d3.forceLink(links).id((d) => d.id).distance((d) => d.source.type === 'stage' ? 150 : 120).strength(0.25))
-                .force('charge', d3.forceManyBody().strength((d) => d.type === 'stage' ? -800 : -420))
-                .force('collision', d3.forceCollide().radius((d) => d.radius + 18))
-                .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('x', d3.forceX((d) => d.type === 'stage' ? width / 2 : d.x).strength((d) => d.type === 'stage' ? 0.8 : 0.08))
-                .force('y', d3.forceY((d) => d.type === 'stage' ? height / 2 : d.y).strength((d) => d.type === 'stage' ? 0.8 : 0.08));
-
-            const link = g.append('g')
-                .selectAll('line')
-                .data(links)
-                .join('line')
-                .attr('class', (d) => `relationship-link${d.emphasis ? ' is-highlight' : ''}`);
-
-            const node = g.append('g')
-                .selectAll('g')
-                .data(nodes)
-                .join('g')
-                .attr('class', 'relationship-node')
-                .call(
-                    d3.drag()
-                        .on('start', function (event, d) {
-                            if (!event.active) simulation.alphaTarget(0.24).restart();
-                            d.fx = d.x;
-                            d.fy = d.y;
-                            d3.select(this).classed('is-fixed', true);
-                        })
-                        .on('drag', function (event, d) {
-                            d.fx = Math.max(d.radius + 12, Math.min(width - d.radius - 12, event.x));
-                            d.fy = Math.max(d.radius + 12, Math.min(height - d.radius - 12, event.y));
-                        })
-                        .on('end', function (event, d) {
-                            if (!event.active) simulation.alphaTarget(0);
-                            if (d.type === 'stage') {
-                                d.fx = width / 2;
-                                d.fy = height / 2;
-                            } else {
-                                d.fx = null;
-                                d.fy = null;
-                            }
-                            d3.select(this).classed('is-fixed', false);
-                        })
-                )
-                .on('click', function (_event, d) {
-                    node.classed('is-active', false);
-                    d3.select(this).classed('is-active', true);
-                    renderResearchExecutionRelationDetail(d);
-                });
-
-            node.append('circle')
-                .attr('r', (d) => d.radius)
-                .attr('fill', (d) => relationshipNodePalette[d.type].fill)
-                .attr('stroke', (d) => relationshipNodePalette[d.type].stroke)
-                .attr('stroke-width', 2);
-
-            node.append('text')
-                .attr('text-anchor', 'middle')
-                .attr('dy', '-0.1em')
-                .style('fill', (d) => relationshipNodePalette[d.type].text)
-                .style('font-size', (d) => d.type === 'stage' ? '15px' : '13px')
-                .style('font-weight', 700)
-                .text((d) => d.shortLabel);
-
-            node.filter((d) => d.type !== 'stage')
-                .append('text')
-                .attr('text-anchor', 'middle')
-                .attr('dy', '1.15em')
-                .style('fill', (d) => relationshipNodePalette[d.type].text)
-                .style('font-size', '10px')
-                .style('font-weight', 600)
-                .style('opacity', 0.86)
-                .text((d) => (d.type === 'database' ? '数据' : d.type === 'tool' ? '工具' : d.type === 'expert' ? '专家' : '交付'));
-
-            simulation.on('tick', () => {
-                link
-                    .attr('x1', (d) => d.source.x)
-                    .attr('y1', (d) => d.source.y)
-                    .attr('x2', (d) => d.target.x)
-                    .attr('y2', (d) => d.target.y);
-
-                node.attr('transform', (d) => `translate(${d.x},${d.y})`);
-            });
-
-            node.classed('is-active', (d) => d.id === stageNode.id);
-            renderResearchExecutionRelationDetail(stageNode);
-
-            researchRelationshipCleanup = () => simulation.stop();
-        }
 
         function renderHomeResearchToolGrid() {
             const container = document.getElementById('homeResearchToolGrid');
@@ -2993,8 +2523,6 @@
                 }).join('');
             }
 
-            renderResearchExecutionRelationshipGraph(stageKey, matchedDatabases, matchedTools);
-
             stageTabs.forEach((tab) => {
                 const active = tab.dataset.stageKey === stageKey;
                 tab.classList.toggle('bg-slate-950', active);
@@ -3142,7 +2670,7 @@
                     <article class="atlas-source-card">
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="atlas-mini-label">能力来源</p>
+                                <p class="atlas-mini-label">Source Package</p>
                                 <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
                             </div>
                             <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-bold text-slate-700">${escapeHtml(item.count)}</span>
@@ -3150,7 +2678,7 @@
                         <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
                         <div class="mt-4 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                             <span>${escapeHtml(formatPackagingLabel(item.packaging))}</span>
-                            <span>${escapeHtml(`占能力面 ${share}%`)}</span>
+                            <span>${escapeHtml(`${share}% of total`)}</span>
                         </div>
                         <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
                             <div class="h-full rounded-full bg-gradient-to-r from-slate-900 via-blue-700 to-cyan-500" style="width:${share}%"></div>
@@ -3165,7 +2693,7 @@
                     <article class="atlas-source-card" style="border-color:${palette.border}; background:${palette.surface};">
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="atlas-mini-label" style="color:${palette.text}">整合能力亮点</p>
+                                <p class="atlas-mini-label" style="color:${palette.text}">Integration Spotlight</p>
                                 <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
                             </div>
                             <span class="rounded-full px-3 py-1 text-xs font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">已整合</span>
@@ -3188,7 +2716,7 @@
                     <article class="atlas-source-card" style="border-color:${palette.border}; background:${palette.surface};">
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="atlas-mini-label" style="color:${palette.text}">${escapeHtml(item.family || '前沿模型')}</p>
+                                <p class="atlas-mini-label" style="color:${palette.text}">${escapeHtml(item.family || 'Frontier Model')}</p>
                                 <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
                             </div>
                             <span class="rounded-full px-3 py-1 text-xs font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">${escapeHtml(item.parameter_scale || 'Model')}</span>
@@ -3219,7 +2747,7 @@
                         <div class="relative z-10">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                <p class="atlas-mini-label" style="color:${palette.text}">分析路径</p>
+                                    <p class="atlas-mini-label" style="color:${palette.text}">Algorithm Lane</p>
                                     <h4 class="mt-2 text-xl font-bold leading-snug text-slate-950">${escapeHtml(lane.name)}</h4>
                                 </div>
                                 <span class="rounded-full px-3 py-1 text-sm font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">${escapeHtml(lane.count)}</span>
