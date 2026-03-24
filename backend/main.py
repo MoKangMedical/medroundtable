@@ -5,11 +5,23 @@ from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
 import asyncio
 import json
+import uuid
 from datetime import datetime
 import uvicorn
 
-from backend.models import RoundTable, A2AMessage, RoundTableStatus, ResearchOutput
+from backend.models import (
+    RoundTable,
+    A2AMessage,
+    RoundTableStatus,
+    ResearchOutput,
+    AgentRole,
+    MessageType,
+    StudyDesign,
+    CRFTemplate,
+    AnalysisPlan,
+)
 from agents.orchestrator import orchestrator
+from backend.database import SessionLocal, SessionHistory, User, init_db
 
 # 导入新的路由
 from backend.routers import protocols, databases, analysis
@@ -59,8 +71,251 @@ class MessageResponse(BaseModel):
     metadata: Dict[str, Any]
 
 # ============ 存储 ============
-# 实际项目中使用数据库
-roundtables: Dict[str, RoundTable] = {}
+roundtables: Dict[str, RoundTable] = orchestrator.sessions
+SYSTEM_USER_EMAIL = "system@medroundtable.local"
+SYSTEM_USER_NAME = "MedRoundTable System"
+PERSISTENCE_CALLBACK_REGISTERED = False
+
+
+def _ensure_system_user(db) -> User:
+    user = db.query(User).filter(User.email == SYSTEM_USER_EMAIL).first()
+    if user:
+        return user
+
+    user = User(
+        id=str(uuid.uuid4()),
+        email=SYSTEM_USER_EMAIL,
+        name=SYSTEM_USER_NAME,
+        is_active=True,
+        is_verified=True,
+        is_oauth_user=False,
+    )
+    user.set_password(uuid.uuid4().hex)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def _role_from_value(value: Any):
+    if isinstance(value, str) and value in AgentRole._value2member_map_:
+        return AgentRole(value)
+    return value
+
+
+def _message_type_from_value(value: Any):
+    if isinstance(value, str) and value in MessageType._value2member_map_:
+        return MessageType(value)
+    return MessageType.FEEDBACK
+
+
+def _roundtable_status_from_value(value: Optional[str]) -> RoundTableStatus:
+    if value and value in RoundTableStatus._value2member_map_:
+        return RoundTableStatus(value)
+    if value == "completed":
+        return RoundTableStatus.COMPLETED
+    if value == "active":
+        return RoundTableStatus.PROBLEM_PRESENTATION
+    return RoundTableStatus.INIT
+
+
+def _serialize_message(message: A2AMessage) -> Dict[str, Any]:
+    from_role = message.from_role.value if hasattr(message.from_role, "value") else str(message.from_role)
+    to_role = message.to_role.value if hasattr(message.to_role, "value") else str(message.to_role)
+    msg_type = message.type.value if hasattr(message.type, "value") else str(message.type)
+    return {
+        "id": message.id,
+        "session_id": message.session_id,
+        "from_role": from_role,
+        "to_role": to_role,
+        "type": msg_type,
+        "content": message.content,
+        "created_at": message.created_at.isoformat(),
+        "metadata": message.metadata or {},
+    }
+
+
+def _deserialize_message(payload: Dict[str, Any]) -> A2AMessage:
+    created_at_raw = payload.get("created_at")
+    created_at = datetime.fromisoformat(created_at_raw) if created_at_raw else datetime.utcnow()
+    return A2AMessage(
+        id=payload.get("id", str(uuid.uuid4())),
+        session_id=payload.get("session_id", ""),
+        from_role=_role_from_value(payload.get("from_role", "user")),
+        to_role=_role_from_value(payload.get("to_role", "all")),
+        type=_message_type_from_value(payload.get("type")),
+        content=payload.get("content", ""),
+        metadata=payload.get("metadata") or {},
+        created_at=created_at,
+    )
+
+
+def _extract_current_stage(roundtable: RoundTable) -> Optional[str]:
+    if roundtable.messages:
+        for message in reversed(roundtable.messages):
+            stage = (message.metadata or {}).get("stage")
+            if stage:
+                return stage
+    return roundtable.status.value
+
+
+def _estimate_progress(roundtable: RoundTable) -> int:
+    if roundtable.status == RoundTableStatus.COMPLETED:
+        return 100
+    return min(20 + roundtable.current_round * 9, 95)
+
+
+def _dump_model(model: Any) -> Dict[str, Any]:
+    if hasattr(model, "model_dump"):
+        return model.model_dump()
+    return model.dict()
+
+
+def _restore_research_output(history: SessionHistory, roundtable: RoundTable) -> Optional[ResearchOutput]:
+    if not (history.study_design and history.crf_template and history.analysis_plan):
+        return None
+
+    try:
+        return ResearchOutput(
+            study_design=StudyDesign(**history.study_design),
+            crf_template=CRFTemplate(**history.crf_template),
+            analysis_plan=AnalysisPlan(**history.analysis_plan),
+            operation_manual=generate_operation_manual(roundtable),
+            generated_at=history.completed_at or history.updated_at or datetime.utcnow(),
+        )
+    except Exception as exc:
+        print(f"Failed to restore research output for {history.session_id}: {exc}")
+        return None
+
+
+def _persist_roundtable(roundtable: RoundTable):
+    with SessionLocal() as db:
+        user = _ensure_system_user(db)
+        history = db.query(SessionHistory).filter(SessionHistory.session_id == roundtable.id).first()
+        messages_payload = [_serialize_message(message) for message in roundtable.messages]
+        current_stage = _extract_current_stage(roundtable)
+
+        if not history:
+            history = SessionHistory(
+                user_id=user.id,
+                session_id=roundtable.id,
+                title=roundtable.title,
+                clinical_question=roundtable.clinical_question,
+                status=roundtable.status.value,
+                progress=_estimate_progress(roundtable),
+                current_stage=current_stage,
+                messages=messages_payload,
+                created_at=roundtable.created_at,
+                updated_at=datetime.utcnow(),
+                completed_at=roundtable.completed_at,
+            )
+            db.add(history)
+        else:
+            history.title = roundtable.title
+            history.clinical_question = roundtable.clinical_question
+            history.status = roundtable.status.value
+            history.progress = _estimate_progress(roundtable)
+            history.current_stage = current_stage
+            history.messages = messages_payload
+            history.updated_at = datetime.utcnow()
+            history.completed_at = roundtable.completed_at
+
+        if roundtable.output:
+            history.study_design = _dump_model(roundtable.output.study_design)
+            history.crf_template = _dump_model(roundtable.output.crf_template)
+            history.analysis_plan = _dump_model(roundtable.output.analysis_plan)
+
+        db.commit()
+
+
+def _append_message_to_history(message: A2AMessage):
+    with SessionLocal() as db:
+        user = _ensure_system_user(db)
+        history = db.query(SessionHistory).filter(SessionHistory.session_id == message.session_id).first()
+        if not history:
+            metadata = message.metadata or {}
+            history = SessionHistory(
+                user_id=user.id,
+                session_id=message.session_id,
+                title=metadata.get("title") or f"圆桌 {message.session_id}",
+                clinical_question=metadata.get("clinical_question") or "待补充临床问题",
+                status="active",
+                progress=20,
+                current_stage=metadata.get("stage"),
+                messages=[],
+            )
+            db.add(history)
+
+        messages = history.messages or []
+        if not any(existing.get("id") == message.id for existing in messages):
+            messages.append(_serialize_message(message))
+            history.messages = messages
+
+        roundtable = roundtables.get(message.session_id)
+        if roundtable:
+            history.title = roundtable.title
+            history.clinical_question = roundtable.clinical_question
+            history.status = roundtable.status.value
+            history.progress = _estimate_progress(roundtable)
+            history.current_stage = _extract_current_stage(roundtable)
+            history.completed_at = roundtable.completed_at
+        elif message.metadata.get("stage"):
+            history.current_stage = message.metadata["stage"]
+
+        if message.metadata.get("is_final_summary"):
+            history.status = RoundTableStatus.COMPLETED.value
+            history.progress = 100
+            history.completed_at = datetime.utcnow()
+
+        history.updated_at = datetime.utcnow()
+        db.commit()
+
+
+def _hydrate_roundtable(session_id: str) -> Optional[RoundTable]:
+    existing = roundtables.get(session_id)
+    if existing:
+        return existing
+
+    with SessionLocal() as db:
+        history = db.query(SessionHistory).filter(SessionHistory.session_id == session_id).first()
+        if not history:
+            return None
+
+        messages = [_deserialize_message(payload) for payload in (history.messages or [])]
+        roundtable = RoundTable(
+            id=history.session_id,
+            title=history.title,
+            clinical_question=history.clinical_question,
+            status=_roundtable_status_from_value(history.status),
+            participants=list(AgentRole),
+            messages=messages,
+            current_round=max(
+                [int((message.metadata or {}).get("round", 0)) for message in messages] or [0]
+            ),
+            created_at=history.created_at or datetime.utcnow(),
+            completed_at=history.completed_at,
+            output=None,
+        )
+        roundtable.output = _restore_research_output(history, roundtable)
+        roundtables[session_id] = roundtable
+        return roundtable
+
+
+def _build_roundtable_response(roundtable: RoundTable) -> RoundTableResponse:
+    return RoundTableResponse(
+        id=roundtable.id,
+        title=roundtable.title,
+        clinical_question=roundtable.clinical_question,
+        status=roundtable.status.value,
+        participants=[participant.value for participant in roundtable.participants],
+        current_round=roundtable.current_round,
+        created_at=roundtable.created_at,
+        completed_at=roundtable.completed_at
+    )
+
+
+async def _persist_message_callback(message: A2AMessage):
+    _append_message_to_history(message)
 
 # ============ API端点 ============
 
@@ -107,57 +362,41 @@ async def create_roundtable(request: CreateRoundTableRequest):
         clinical_question=request.clinical_question
     )
     roundtables[roundtable.id] = roundtable
-    
-    return RoundTableResponse(
-        id=roundtable.id,
-        title=roundtable.title,
-        clinical_question=roundtable.clinical_question,
-        status=roundtable.status.value,
-        participants=[p.value for p in roundtable.participants],
-        current_round=roundtable.current_round,
-        created_at=roundtable.created_at,
-        completed_at=roundtable.completed_at
-    )
+    _persist_roundtable(roundtable)
+
+    return _build_roundtable_response(roundtable)
 
 @app.get("/api/v1/roundtables", response_model=List[RoundTableResponse])
 async def list_roundtables():
     """列出所有圆桌会"""
-    return [
-        RoundTableResponse(
-            id=rt.id,
-            title=rt.title,
-            clinical_question=rt.clinical_question,
-            status=rt.status.value,
-            participants=[p.value for p in rt.participants],
-            current_round=rt.current_round,
-            created_at=rt.created_at,
-            completed_at=rt.completed_at
+    with SessionLocal() as db:
+        histories = (
+            db.query(SessionHistory)
+            .filter(SessionHistory.is_deleted == False)
+            .order_by(SessionHistory.updated_at.desc())
+            .all()
         )
-        for rt in roundtables.values()
-    ]
+
+    responses: List[RoundTableResponse] = []
+    for history in histories:
+        roundtable = _hydrate_roundtable(history.session_id)
+        if roundtable:
+            responses.append(_build_roundtable_response(roundtable))
+    return responses
 
 @app.get("/api/v1/roundtables/{session_id}", response_model=RoundTableResponse)
 async def get_roundtable(session_id: str):
     """获取圆桌会详情"""
-    rt = roundtables.get(session_id)
+    rt = _hydrate_roundtable(session_id)
     if not rt:
         raise HTTPException(status_code=404, detail="RoundTable not found")
-    
-    return RoundTableResponse(
-        id=rt.id,
-        title=rt.title,
-        clinical_question=rt.clinical_question,
-        status=rt.status.value,
-        participants=[p.value for p in rt.participants],
-        current_round=rt.current_round,
-        created_at=rt.created_at,
-        completed_at=rt.completed_at
-    )
+
+    return _build_roundtable_response(rt)
 
 @app.post("/api/v1/roundtables/{session_id}/start")
 async def start_roundtable(session_id: str, background_tasks: BackgroundTasks):
     """开始圆桌讨论"""
-    rt = roundtables.get(session_id)
+    rt = _hydrate_roundtable(session_id)
     if not rt:
         raise HTTPException(status_code=404, detail="RoundTable not found")
     
@@ -166,17 +405,19 @@ async def start_roundtable(session_id: str, background_tasks: BackgroundTasks):
     
     # 在后台启动讨论
     background_tasks.add_task(orchestrator.start_discussion, session_id)
+    _persist_roundtable(rt)
     
     return {"status": "started", "session_id": session_id}
 
 @app.post("/api/v1/roundtables/{session_id}/pause")
 async def pause_roundtable(session_id: str):
     """暂停圆桌讨论"""
-    rt = roundtables.get(session_id)
+    rt = _hydrate_roundtable(session_id)
     if not rt:
         raise HTTPException(status_code=404, detail="RoundTable not found")
     
     rt.status = RoundTableStatus.INIT  # 简化处理
+    _persist_roundtable(rt)
     return {"status": "paused", "session_id": session_id}
 
 # ---- 消息管理 ----
@@ -184,7 +425,7 @@ async def pause_roundtable(session_id: str):
 @app.get("/api/v1/roundtables/{session_id}/messages", response_model=List[MessageResponse])
 async def get_messages(session_id: str):
     """获取圆桌会消息列表"""
-    rt = roundtables.get(session_id)
+    rt = _hydrate_roundtable(session_id)
     if not rt:
         raise HTTPException(status_code=404, detail="RoundTable not found")
     
@@ -204,7 +445,7 @@ async def get_messages(session_id: str):
 @app.post("/api/v1/roundtables/{session_id}/messages")
 async def send_message(session_id: str, request: SendMessageRequest):
     """用户发送消息"""
-    rt = roundtables.get(session_id)
+    rt = _hydrate_roundtable(session_id)
     if not rt:
         raise HTTPException(status_code=404, detail="RoundTable not found")
     
@@ -213,13 +454,14 @@ async def send_message(session_id: str, request: SendMessageRequest):
         content=request.content,
         to_role=request.to_role
     )
+    _persist_roundtable(rt)
     
     return {"status": "sent"}
 
 @app.get("/api/v1/roundtables/{session_id}/stream")
 async def stream_messages(session_id: str):
     """SSE 消息流 - 实时接收Agent消息"""
-    rt = roundtables.get(session_id)
+    rt = _hydrate_roundtable(session_id)
     if not rt:
         raise HTTPException(status_code=404, detail="RoundTable not found")
     
@@ -263,7 +505,7 @@ async def stream_messages(session_id: str):
 @app.get("/api/v1/roundtables/{session_id}/output")
 async def get_output(session_id: str):
     """获取研究成果"""
-    rt = roundtables.get(session_id)
+    rt = _hydrate_roundtable(session_id)
     if not rt:
         raise HTTPException(status_code=404, detail="RoundTable not found")
     
@@ -351,8 +593,11 @@ def generate_operation_manual(rt: RoundTable) -> str:
 @app.on_event("startup")
 async def startup_event():
     # 初始化数据库
-    from backend.database import init_db
     init_db()
+    global PERSISTENCE_CALLBACK_REGISTERED
+    if not PERSISTENCE_CALLBACK_REGISTERED:
+        orchestrator.register_message_callback(_persist_message_callback)
+        PERSISTENCE_CALLBACK_REGISTERED = True
     
     print("🚀 MedRoundTable API 启动成功")
     print("📚 文档地址: http://localhost:8000/docs")

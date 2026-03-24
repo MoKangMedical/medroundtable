@@ -160,8 +160,14 @@
         </div>
     </footer>
 
+    <script src="./api-config.js"></script>
     <script>
         let currentTab = 'protocols';
+        const api = window.MRTApiConfig;
+
+        function showLoadError(elementId, message) {
+            document.getElementById(elementId).innerHTML = `<p class="py-8 text-center text-red-500">${message}</p>`;
+        }
 
         function switchTab(tab) {
             currentTab = tab;
@@ -187,8 +193,7 @@
 
         async function loadProtocols() {
             try {
-                const response = await fetch('/api/protocols');
-                const protocols = await response.json();
+                const protocols = await api.fetchJson('/api/protocols');
                 document.getElementById('protocolCount').textContent = protocols.length;
 
                 const list = document.getElementById('protocolsList');
@@ -215,7 +220,7 @@
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <a href="/api/protocols/${p.id}/download" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
+                            <a href="${api.apiUrl(`/api/protocols/${p.id}/download`)}" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
                                 <i class="fas fa-download text-slate-600"></i>
                             </a>
                             <button onclick="analyzeProtocol('${p.id}')" class="px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition" title="AI分析">
@@ -228,14 +233,13 @@
                     </div>
                 `).join('');
             } catch (e) {
-                document.getElementById('protocolsList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+                showLoadError('protocolsList', `加载失败：${e.message}`);
             }
         }
 
         async function loadDatabases() {
             try {
-                const response = await fetch('/api/databases');
-                const databases = await response.json();
+                const databases = await api.fetchJson('/api/databases');
                 document.getElementById('databaseCount').textContent = databases.length;
 
                 let totalSize = databases.reduce((sum, d) => sum + (d.file_size || 0), 0);
@@ -271,7 +275,7 @@
                             <button onclick="previewDatabase('${d.id}')" class="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition" title="预览">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <a href="/api/databases/${d.id}/download" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
+                            <a href="${api.apiUrl(`/api/databases/${d.id}/download`)}" class="px-3 py-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-100 transition" title="下载">
                                 <i class="fas fa-download text-slate-600"></i>
                             </a>
                             <button onclick="deleteDatabase('${d.id}')" class="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition" title="删除">
@@ -281,14 +285,13 @@
                     </div>
                 `).join('');
             } catch (e) {
-                document.getElementById('databasesList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+                showLoadError('databasesList', `加载失败：${e.message}`);
             }
         }
 
         async function loadAnalysis() {
             try {
-                const response = await fetch('/api/analysis/tasks');
-                const tasks = await response.json();
+                const tasks = await api.fetchJson('/api/analysis/tasks');
                 document.getElementById('analysisCount').textContent = tasks.length;
 
                 const list = document.getElementById('analysisList');
@@ -332,7 +335,7 @@
                     </div>
                 `).join('');
             } catch (e) {
-                document.getElementById('analysisList').innerHTML = '<p class="text-center text-red-500">加载失败</p>';
+                showLoadError('analysisList', `加载失败：${e.message}`);
             }
         }
 
@@ -347,38 +350,34 @@
         async function deleteProtocol(id) {
             if (!confirm('确定要删除这个研究方案吗？')) return;
             try {
-                await fetch(`/api/protocols/${id}`, { method: 'DELETE' });
+                await api.fetchJson(`/api/protocols/${id}`, { method: 'DELETE' });
                 loadProtocols();
             } catch (e) {
-                alert('删除失败');
+                alert(`删除失败：${e.message}`);
             }
         }
 
         async function deleteDatabase(id) {
             if (!confirm('确定要删除这个数据库吗？')) return;
             try {
-                await fetch(`/api/databases/${id}`, { method: 'DELETE' });
+                await api.fetchJson(`/api/databases/${id}`, { method: 'DELETE' });
                 loadDatabases();
             } catch (e) {
-                alert('删除失败');
+                alert(`删除失败：${e.message}`);
             }
         }
 
         async function analyzeProtocol(id) {
             try {
-                const response = await fetch(`/api/protocols/${id}/analyze`, { method: 'POST' });
-                if (response.ok) {
-                    alert('AI分析已启动，请稍后查看结果');
-                } else {
-                    alert('分析启动失败');
-                }
+                await api.fetchJson(`/api/protocols/${id}/analyze`, { method: 'POST' });
+                alert('AI分析已启动，请稍后查看结果');
             } catch (e) {
-                alert('请求失败');
+                alert(`请求失败：${e.message}`);
             }
         }
 
         function previewDatabase(id) {
-            window.open(`/api/databases/${id}/preview`, '_blank');
+            window.open(api.apiUrl(`/api/databases/${id}/preview`), '_blank');
         }
 
         function viewResult(taskId) {
@@ -386,7 +385,7 @@
         }
 
         // Initial load
-        loadProtocols();
+        Promise.allSettled([loadProtocols(), loadDatabases(), loadAnalysis()]);
     </script>
 </body>
 </html>

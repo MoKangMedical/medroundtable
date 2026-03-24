@@ -12,6 +12,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from pathlib import Path
 import io
 
+from backend.database import DatabaseRecord, SessionLocal
 from backend.upload_models import (
     ResearchDatabase, DatabaseCreate, DatabaseUpdate, DatabaseResponse,
     DatabaseSchema, DatabaseColumn, DatabasePreview, SQLQuery, SQLQueryResult
@@ -24,8 +25,33 @@ DATABASES_DIR = UPLOAD_DIR / "databases"
 # 确保目录存在
 DATABASES_DIR.mkdir(parents=True, exist_ok=True)
 
-# 内存存储（生产环境应使用数据库）
-databases_db: Dict[str, ResearchDatabase] = {}
+def _dump_schema(schema: Optional[DatabaseSchema]) -> Optional[Dict[str, Any]]:
+    if not schema:
+        return None
+    if hasattr(schema, "model_dump"):
+        return schema.model_dump()
+    return schema.dict()
+
+
+def _database_from_record(record: DatabaseRecord) -> ResearchDatabase:
+    schema = DatabaseSchema(**record.schema_payload) if record.schema_payload else None
+    return ResearchDatabase(
+        id=record.id,
+        name=record.name,
+        description=record.description,
+        file_path=record.file_path,
+        file_type=record.file_type,
+        file_size=record.file_size,
+        schema=schema,
+        row_count=record.row_count,
+        column_count=record.column_count,
+        uploaded_by=record.uploaded_by,
+        roundtable_id=record.roundtable_id,
+        protocol_id=record.protocol_id,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+        metadata=record.extra_metadata or {}
+    )
 
 
 class DatabaseService:
@@ -88,16 +114,15 @@ class DatabaseService:
         except Exception as e:
             print(f"解析schema失败: {e}")
         
-        # 创建数据库记录
         now = datetime.utcnow()
-        database = ResearchDatabase(
+        record = DatabaseRecord(
             id=database_id,
             name=name,
             description=description,
             file_path=str(file_path),
             file_type=file_ext[1:],
             file_size=len(file_content),
-            schema=schema,
+            schema_payload=_dump_schema(schema),
             row_count=row_count,
             column_count=column_count,
             uploaded_by=uploaded_by,
@@ -105,17 +130,19 @@ class DatabaseService:
             protocol_id=protocol_id,
             created_at=now,
             updated_at=now,
-            metadata={
+            extra_metadata={
                 "original_filename": filename,
                 "upload_timestamp": now.isoformat(),
                 "parsed": schema is not None
             }
         )
-        
-        # 存储到数据库
-        databases_db[database_id] = database
-        
-        return database
+
+        with SessionLocal() as db:
+            db.add(record)
+            db.commit()
+            db.refresh(record)
+
+        return _database_from_record(record)
     
     @classmethod
     async def _parse_schema(
@@ -246,7 +273,9 @@ class DatabaseService:
     @classmethod
     def get_database(cls, database_id: str) -> Optional[ResearchDatabase]:
         """获取数据库信息"""
-        return databases_db.get(database_id)
+        with SessionLocal() as db:
+            record = db.query(DatabaseRecord).filter(DatabaseRecord.id == database_id).first()
+            return _database_from_record(record) if record else None
     
     @classmethod
     def get_databases(
@@ -257,17 +286,20 @@ class DatabaseService:
         limit: int = 100
     ) -> List[ResearchDatabase]:
         """获取数据库列表"""
-        databases = list(databases_db.values())
-        
-        # 过滤
-        if roundtable_id:
-            databases = [d for d in databases if d.roundtable_id == roundtable_id]
-        if protocol_id:
-            databases = [d for d in databases if d.protocol_id == protocol_id]
-        
-        # 排序和分页
-        databases.sort(key=lambda x: x.created_at, reverse=True)
-        return databases[skip:skip + limit]
+        with SessionLocal() as db:
+            query = db.query(DatabaseRecord)
+            if roundtable_id:
+                query = query.filter(DatabaseRecord.roundtable_id == roundtable_id)
+            if protocol_id:
+                query = query.filter(DatabaseRecord.protocol_id == protocol_id)
+
+            records = (
+                query.order_by(DatabaseRecord.created_at.desc())
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
+            return [_database_from_record(record) for record in records]
     
     @classmethod
     async def get_preview(
@@ -276,7 +308,7 @@ class DatabaseService:
         limit: int = 100
     ) -> Optional[DatabasePreview]:
         """获取数据预览"""
-        database = databases_db.get(database_id)
+        database = cls.get_database(database_id)
         if not database:
             return None
         
@@ -333,7 +365,7 @@ class DatabaseService:
         query: SQLQuery
     ) -> Optional[SQLQueryResult]:
         """执行SQL查询"""
-        database = databases_db.get(database_id)
+        database = cls.get_database(database_id)
         if not database:
             return None
         
@@ -382,17 +414,17 @@ class DatabaseService:
     @classmethod
     def delete_database(cls, database_id: str) -> bool:
         """删除数据库"""
-        database = databases_db.get(database_id)
-        if not database:
-            return False
-        
-        # 删除文件
-        try:
-            if os.path.exists(database.file_path):
-                os.remove(database.file_path)
-        except Exception as e:
-            print(f"删除文件失败: {e}")
-        
-        # 从数据库移除
-        del databases_db[database_id]
-        return True
+        with SessionLocal() as db:
+            record = db.query(DatabaseRecord).filter(DatabaseRecord.id == database_id).first()
+            if not record:
+                return False
+
+            try:
+                if os.path.exists(record.file_path):
+                    os.remove(record.file_path)
+            except Exception as e:
+                print(f"删除文件失败: {e}")
+
+            db.delete(record)
+            db.commit()
+            return True

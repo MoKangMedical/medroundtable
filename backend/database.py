@@ -243,6 +243,45 @@ class SavedDocument(Base):
     # 关联
     user = relationship("User", back_populates="saved_documents")
 
+class ProtocolRecord(Base):
+    """研究方案上传记录"""
+    __tablename__ = "research_protocols"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    file_path = Column(String(1000), nullable=False)
+    file_type = Column(String(20), nullable=False)
+    file_size = Column(Integer, nullable=False)
+    version = Column(Integer, default=1)
+    status = Column(String(50), default="uploaded")
+    uploaded_by = Column(String(255), nullable=True)
+    roundtable_id = Column(String(36), nullable=True, index=True)
+    extra_metadata = Column("metadata", JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class DatabaseRecord(Base):
+    """研究数据库上传记录"""
+    __tablename__ = "research_databases"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    file_path = Column(String(1000), nullable=False)
+    file_type = Column(String(20), nullable=False)
+    file_size = Column(Integer, nullable=False)
+    schema_payload = Column("schema", JSON, nullable=True)
+    row_count = Column(Integer, nullable=True)
+    column_count = Column(Integer, nullable=True)
+    uploaded_by = Column(String(255), nullable=True)
+    roundtable_id = Column(String(36), nullable=True, index=True)
+    protocol_id = Column(String(36), nullable=True, index=True)
+    extra_metadata = Column("metadata", JSON, default=dict)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 class Feedback(Base):
     """用户反馈表"""
     __tablename__ = "feedbacks"

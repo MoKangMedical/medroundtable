@@ -178,6 +178,7 @@
         </div>
     </div>
 
+    <script src="../frontend/api-config.js"></script>
     <script src="../frontend/secondme-identity.js"></script>
     <script src="../frontend/secondme-collaboration.js"></script>
     <script src="../frontend/expert-data.js"></script>
@@ -189,18 +190,29 @@
         const roundtableId = urlParams.get('sessionId') || (pathTail.endsWith('.html') ? '' : pathTail);
         
         // API 基础地址
-        const API_BASE = window.location.origin.includes('localhost') 
-            ? 'http://localhost:8000' 
-            : 'https://medroundtable-api.onrender.com';
+        const API_BASE = window.MRTApiConfig ? window.MRTApiConfig.API_BASE : (window.location.origin.includes('localhost')
+            ? 'http://localhost:8000'
+            : 'https://medroundtable-api.onrender.com');
+        const api = window.MRTApiConfig || null;
         
         // 模拟数据模式
-        const MOCK_MODE = true;
+        let MOCK_MODE = false;
         const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
         const secondMeCollaboration = window.MedRoundTableSecondMe || null;
         let mockMessages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
         const expertCatalog = window.MedRoundTableExperts || null;
         const fallbackParticipants = ['clinical_director', 'phd_student', 'epidemiologist'];
         let secondMeIdentity = secondMeIdentityStore ? secondMeIdentityStore.loadIdentity() : null;
+        let currentRoundtable = null;
+        let eventSource = null;
+        const expertRoleAliases = {
+            pharmacogenomics_expert: 'clawbio_pharmgx',
+            gwas_expert: 'clawbio_gwas',
+            single_cell_analyst: 'clawbio_sc_rna',
+            galaxy_bridge: 'clawbio_galaxy',
+            data_engineer: 'ai_data_engineer',
+            qa_expert: 'model_qa'
+        };
 
         function escapeHtml(value) {
             return String(value)
@@ -220,21 +232,56 @@
             }
         }
 
+        function normalizeExpertRole(role) {
+            return expertRoleAliases[role] || role;
+        }
+
+        function loadSessionClientContexts() {
+            try {
+                return JSON.parse(localStorage.getItem('mrt_session_client_contexts') || '{}');
+            } catch (err) {
+                console.error('加载会话客户端上下文失败:', err);
+                return {};
+            }
+        }
+
+        function getSessionClientContext(sessionId) {
+            return loadSessionClientContexts()[String(sessionId)] || null;
+        }
+
+        async function initializeBackendMode() {
+            if (!api) {
+                MOCK_MODE = true;
+                return false;
+            }
+
+            try {
+                await api.healthcheck();
+                MOCK_MODE = false;
+                return true;
+            } catch (error) {
+                console.warn('后端不可用，详情页回退到本地模式:', error.message);
+                MOCK_MODE = true;
+                return false;
+            }
+        }
+
         function getPreferredExpertRole(session) {
             if (session && session.preferred_expert) {
-                return session.preferred_expert;
+                return normalizeExpertRole(session.preferred_expert);
             }
-            return loadSessionPreferences()[String(roundtableId)] || null;
+            const clientContext = getSessionClientContext(roundtableId);
+            return normalizeExpertRole(clientContext?.preferred_expert || loadSessionPreferences()[String(roundtableId)] || null);
         }
 
         function getPreferredExpert(session) {
             const role = getPreferredExpertRole(session);
-            return expertCatalog && role ? expertCatalog.getExpert(role) : null;
+            return expertCatalog && role ? expertCatalog.getExpert(normalizeExpertRole(role)) : null;
         }
 
         function getRoundtableParticipants(session) {
             if (session && Array.isArray(session.participants) && session.participants.length > 0) {
-                return session.participants;
+                return session.participants.map((role) => normalizeExpertRole(role));
             }
             const preferredRole = getPreferredExpertRole(session);
             return preferredRole ? [preferredRole, ...fallbackParticipants] : [...fallbackParticipants];
@@ -246,7 +293,7 @@
 
             const deduped = [...new Set(participants)].slice(0, 4);
             container.innerHTML = deduped.map((role) => {
-                const expert = expertCatalog ? expertCatalog.getExpert(role) : null;
+                const expert = expertCatalog ? expertCatalog.getExpert(normalizeExpertRole(role)) : null;
                 const name = expert ? expert.name : getAgentName(role);
                 const avatar = expert ? expertCatalog.resolveAvatar(expert) : '';
                 if (avatar) {
@@ -318,40 +365,46 @@
         // 加载圆桌信息
         async function loadRoundtableInfo() {
             try {
-                let data;
-                
-                if (MOCK_MODE) {
-                    // 从本地存储查找圆桌
-                    const sessionsStr = localStorage.getItem('mockSessions') || '[]';
-                    console.log('读取到的sessions字符串:', sessionsStr);
-                    const sessions = JSON.parse(sessionsStr);
-                    console.log('解析后的sessions:', sessions);
-                    console.log('查找ID:', roundtableId, '类型:', typeof roundtableId);
-                    
-                    data = sessions.find(s => {
-                        console.log('比较:', s.id, '==', roundtableId, '结果:', s.id == roundtableId);
-                        return s.id == roundtableId;
-                    });
-                    
-                    if (!data) {
-                        console.error('未找到圆桌, ID:', roundtableId);
-                        console.error('可用ID列表:', sessions.map(s => s.id));
-                        throw new Error('Roundtable not found in localStorage');
+                let data = null;
+                const localSessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
+                const localSession = localSessions.find((session) => session.id == roundtableId) || null;
+
+                if (!MOCK_MODE) {
+                    try {
+                        data = await api.fetchJson(`/api/v1/roundtables/${roundtableId}`);
+                    } catch (error) {
+                        if (!localSession) {
+                            throw error;
+                        }
+                        MOCK_MODE = true;
                     }
-                    console.log('找到圆桌数据:', data);
-                } else {
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}`);
-                    if (!response.ok) throw new Error('Failed to load');
-                    data = await response.json();
                 }
+
+                if (MOCK_MODE) {
+                    data = localSession;
+                }
+
+                if (!data) {
+                    throw new Error('Roundtable not found');
+                }
+
+                const clientContext = getSessionClientContext(roundtableId);
+                currentRoundtable = {
+                    ...data,
+                    preferred_expert: data.preferred_expert || clientContext?.preferred_expert || null,
+                    human_participants: data.human_participants || clientContext?.human_participants || [],
+                    secondme_shades: data.secondme_shades || clientContext?.secondme_shades || [],
+                    ai_pack: data.ai_pack || clientContext?.ai_pack || null,
+                    collaboration_label: data.collaboration_label || clientContext?.collaboration_label || null
+                };
                 
-                document.getElementById('roundtableTitle').textContent = data.title || '未命名圆桌';
-                const preferredExpert = getPreferredExpert(data);
+                document.getElementById('roundtableTitle').textContent = currentRoundtable.title || '未命名圆桌';
+                const preferredExpert = getPreferredExpert(currentRoundtable);
                 document.getElementById('roundtableStatus').textContent = preferredExpert
                     ? `由 ${preferredExpert.name} 先介入`
-                    : (data.status === 'active' ? '进行中' : data.status);
-                renderParticipantAvatars(getRoundtableParticipants(data));
-                renderCollaborationContext(data);
+                    : (currentRoundtable.status === 'active' ? '进行中' : currentRoundtable.status);
+                renderParticipantAvatars(getRoundtableParticipants(currentRoundtable));
+                renderCollaborationContext(currentRoundtable);
             } catch (err) {
                 console.error('加载圆桌信息失败:', err);
                 document.getElementById('roundtableTitle').textContent = '圆桌 #' + roundtableId;
@@ -372,9 +425,7 @@
                     // 从本地存储加载消息
                     messages = JSON.parse(localStorage.getItem(`mockMessages_${roundtableId}`) || '[]');
                 } else {
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`);
-                    if (!response.ok) return;
-                    messages = await response.json();
+                    messages = await api.fetchJson(`/api/v1/roundtables/${roundtableId}/messages`);
                 }
                 
                 const container = document.getElementById('chatContainer');
@@ -382,11 +433,9 @@
                 
                 // 添加欢迎消息
                 if (messages.length === 0) {
-                    const sessions = JSON.parse(localStorage.getItem('mockSessions') || '[]');
-                    const currentSession = sessions.find(s => s.id == roundtableId);
-                    const preferredExpert = getPreferredExpert(currentSession);
-                    const collaborationNote = currentSession && currentSession.collaboration_label
-                        ? `当前已加载 ${currentSession.collaboration_label}。`
+                    const preferredExpert = getPreferredExpert(currentRoundtable);
+                    const collaborationNote = currentRoundtable && currentRoundtable.collaboration_label
+                        ? `当前已加载 ${currentRoundtable.collaboration_label}。`
                         : '';
                     renderMessage({
                         from_role: preferredExpert ? preferredExpert.role : 'clinical_director',
@@ -407,6 +456,9 @@
         function renderMessage(msg) {
             const container = document.getElementById('chatContainer');
             const isUser = msg.from_role === 'user';
+            if (!isUser) {
+                hideTypingIndicator();
+            }
             
             const div = document.createElement('div');
             div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
@@ -431,18 +483,24 @@
                 'epidemiologist': '流行病学家',
                 'statistician': '统计专家',
                 'research_nurse': '研究护士',
+                'pharmacogenomics_expert': '药物基因组学专家',
+                'gwas_expert': 'GWAS专家',
+                'single_cell_analyst': '单细胞测序分析师',
+                'galaxy_bridge': 'Galaxy桥接器',
                 'clawbio_pharmgx': '药物基因组学专家',
                 'clawbio_gwas': 'GWAS专家',
                 'clawbio_sc_rna': '单细胞测序分析师',
                 'clawbio_galaxy': 'Galaxy桥接器',
                 'ux_researcher': 'UX研究员',
+                'data_engineer': 'AI数据工程师',
                 'ai_data_engineer': 'AI数据工程师',
                 'trend_researcher': '趋势研究员',
                 'experiment_tracker': '实验追踪员',
+                'qa_expert': '模型QA专家',
                 'model_qa': '模型QA专家',
                 'user': '我'
             };
-            return names[role] || role;
+            return names[normalizeExpertRole(role)] || role;
         }
         
         // 格式化时间
@@ -541,21 +599,33 @@
             } else {
                 // 真实 API 模式
                 try {
-                    const response = await fetch(`${API_BASE}/api/v1/roundtables/${roundtableId}/messages`, {
+                    await api.fetchJson(`/api/v1/roundtables/${roundtableId}/messages`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ content, to_role: 'all' })
                     });
-                    
-                    if (!response.ok) throw new Error('发送失败');
-                    
-                    hideTypingIndicator();
-                    setTimeout(loadMessages, 1000);
                 } catch (err) {
                     hideTypingIndicator();
                     alert('发送失败: ' + err.message);
                 }
             }
+        }
+
+        function connectEventSource() {
+            if (MOCK_MODE || !roundtableId) return;
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource(`${API_BASE}/api/v1/roundtables/${roundtableId}/stream`);
+            eventSource.onmessage = (event) => {
+                const payload = JSON.parse(event.data);
+                if (payload.type === 'ping') return;
+                renderMessage(payload);
+            };
+            eventSource.onerror = () => {
+                console.warn('详情页 SSE 连接中断');
+            };
         }
         
         // 显示输入中
@@ -588,13 +658,15 @@
         });
         
         // 页面加载
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeBackendMode();
             if (secondMeIdentityStore) {
                 secondMeIdentity = secondMeIdentityStore.consumeIdentityFromLocation() || secondMeIdentityStore.loadIdentity();
             }
             renderIdentityContext();
-            loadRoundtableInfo();
-            loadMessages();
+            await loadRoundtableInfo();
+            await loadMessages();
+            connectEventSource();
         });
     </script>
 </body>

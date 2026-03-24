@@ -163,6 +163,7 @@
         </div>
     </footer>
 
+    <script src="./api-config.js"></script>
     <script>
         // DOM Elements
         const dropZone = document.getElementById('dropZone');
@@ -177,6 +178,7 @@
         const uploadForm = document.getElementById('uploadForm');
         const submitBtn = document.getElementById('submitBtn');
         const resultMessage = document.getElementById('resultMessage');
+        const api = window.MRTApiConfig;
 
         let selectedFile = null;
 
@@ -287,33 +289,40 @@
                 }, 200);
 
                 // API Call
-                const response = await fetch('/api/protocols/upload', {
+                clearInterval(progressInterval);
+                const result = await api.fetchJson('/api/protocols/upload', {
                     method: 'POST',
                     body: formData
                 });
 
-                clearInterval(progressInterval);
                 progressBar.style.width = '100%';
                 progressText.textContent = '100%';
-
-                if (response.ok) {
-                    const result = await response.json();
-                    showResult('success', `上传成功！方案ID: ${result.id}`);
-                    setTimeout(() => {
-                        window.location.href = './data-dashboard.html';
-                    }, 2000);
-                } else {
-                    const error = await response.json();
-                    showResult('error', '上传失败: ' + (error.detail || '未知错误'));
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>重新上传';
-                }
+                showResult('success', `上传成功！方案ID: ${result.id}`);
+                setTimeout(() => {
+                    window.location.href = './data-dashboard.html';
+                }, 2000);
             } catch (error) {
-                showResult('error', '网络错误: ' + error.message);
+                showResult('error', '上传失败: ' + error.message);
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-upload mr-2"></i>重新上传';
             }
         });
+
+        async function loadRoundtables() {
+            try {
+                const roundtables = await api.fetchJson('/api/v1/roundtables');
+                const select = document.getElementById('roundtableId');
+                select.innerHTML = '<option value="">-- 选择圆桌会（可选）--</option>';
+                roundtables.forEach((roundtable) => {
+                    const option = document.createElement('option');
+                    option.value = roundtable.id;
+                    option.textContent = roundtable.title;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.warn('圆桌会列表加载失败:', error.message);
+            }
+        }
 
         // Show Result Message
         function showResult(type, message) {
@@ -326,6 +335,8 @@
                 resultMessage.innerHTML = '<i class="fas fa-exclamation-circle mr-2"></i>' + message;
             }
         }
+
+        loadRoundtables();
     </script>
 </body>
 </html>

@@ -190,6 +190,7 @@
         </div>
     </footer>
 
+    <script src="./api-config.js"></script>
     <script>
         // DOM Elements
         const dropZone = document.getElementById('dropZone');
@@ -211,6 +212,7 @@
         const schemaTableBody = document.getElementById('schemaTableBody');
         const previewHead = document.getElementById('previewHead');
         const previewBody = document.getElementById('previewBody');
+        const api = window.MRTApiConfig;
 
         let selectedFile = null;
 
@@ -360,26 +362,18 @@
             }, 200);
 
             try {
-                const response = await fetch('/api/databases/upload', {
+                const result = await api.fetchJson('/api/databases/upload', {
                     method: 'POST',
                     body: formData
                 });
                 clearInterval(interval);
                 progressBar.style.width = '100%';
                 progressText.textContent = '100%';
-
-                if (response.ok) {
-                    const result = await response.json();
-                    showResult('success', `上传成功！数据库ID: ${result.id}`);
-                    setTimeout(() => window.location.href = './data-dashboard.html', 2000);
-                } else {
-                    const error = await response.json();
-                    showResult('error', error.detail || '上传失败');
-                    submitBtn.disabled = false;
-                }
+                showResult('success', `上传成功！数据库ID: ${result.id}`);
+                setTimeout(() => window.location.href = './data-dashboard.html', 2000);
             } catch (err) {
                 clearInterval(interval);
-                showResult('error', '网络错误: ' + err.message);
+                showResult('error', '上传失败: ' + err.message);
                 submitBtn.disabled = false;
             }
         });
@@ -392,21 +386,31 @@
 
         // Load dropdowns
         async function loadDropdowns() {
-            // Load protocols
             try {
-                const protocolsRes = await fetch('/api/protocols?limit=100');
-                if (protocolsRes.ok) {
-                    const protocols = await protocolsRes.json();
-                    const select = document.getElementById('protocolId');
-                    protocols.forEach(p => {
-                        const option = document.createElement('option');
-                        option.value = p.id;
-                        option.textContent = p.title;
-                        select.appendChild(option);
-                    });
-                }
+                const [protocols, roundtables] = await Promise.all([
+                    api.fetchJson('/api/protocols?limit=100'),
+                    api.fetchJson('/api/v1/roundtables')
+                ]);
+
+                const protocolSelect = document.getElementById('protocolId');
+                protocolSelect.innerHTML = '<option value="">-- 选择方案 --</option>';
+                protocols.forEach((protocol) => {
+                    const option = document.createElement('option');
+                    option.value = protocol.id;
+                    option.textContent = protocol.title;
+                    protocolSelect.appendChild(option);
+                });
+
+                const roundtableSelect = document.getElementById('roundtableId');
+                roundtableSelect.innerHTML = '<option value="">-- 选择圆桌会 --</option>';
+                roundtables.forEach((roundtable) => {
+                    const option = document.createElement('option');
+                    option.value = roundtable.id;
+                    option.textContent = roundtable.title;
+                    roundtableSelect.appendChild(option);
+                });
             } catch (e) {
-                console.log('Protocols not loaded yet');
+                console.warn('下拉数据加载失败:', e.message);
             }
         }
         loadDropdowns();
