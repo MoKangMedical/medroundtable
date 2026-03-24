@@ -4,7 +4,7 @@
     "openclaw_wrapped_skills": 869,
     "experts_total": 14,
     "stella_meta_roles": 3,
-    "featured_integrations_total": 5,
+    "featured_integrations_total": 2,
     "frontier_models_total": 2
   },
   "source_packages": [
@@ -59,39 +59,6 @@
       "owner_roles": ["单细胞测序", "GWAS 专家", "Galaxy 桥接器"],
       "scenarios": ["单细胞分析接力", "GWAS 结果解读", "多组学工作流编排", "本地共享 Kernel 分析"],
       "deliverables": ["QC 与聚类脚本", "注释报告", "多组学分析会话", "可复现实验记录"]
-    },
-    {
-      "id": "autoresearchclaw",
-      "name": "AutoResearchClaw",
-      "tone": "sky",
-      "headline": "从一句研究方向一路推进到文献、实验、论文与交付包。",
-      "summary": "把 AutoResearchClaw 的 8 大阶段、23 个子阶段自动研究流水线纳入平台能力层，补齐研究定界、文献验证、实验执行、自愈迭代、论文撰写和交付打包这条闭环。",
-      "highlights": ["8 大阶段 / 23 个子阶段", "真实文献抓取与四层引用校验", "实验代码自动执行与自愈修复"],
-      "owner_roles": ["博士生", "统计学家", "模型 QA 专家"],
-      "scenarios": ["从一句 idea 出研究计划", "真实引用验证", "自动实验与结果决策", "论文与交付包生成"],
-      "deliverables": ["paper.tex 草稿", "references.bib", "实验结果 JSON", "同行评审与引用验证记录"]
-    },
-    {
-      "id": "medagent-pro",
-      "name": "MedAgent-Pro",
-      "tone": "teal",
-      "headline": "把疾病层面诊断计划与患者层面定量分析接进同一个循证诊断工作流。",
-      "summary": "通过层次化推理代理工作流，把医学指南检索、标准化诊断计划、多模态病例编排、视觉工具定量分析和风险加权决策纳入 MedRoundTable，用于更像真实临床会诊的诊断与方案判断。",
-      "highlights": ["疾病层面规划 + 患者层面推理", "RAG 医学指南检索", "专业视觉工具 + 定量分析 + 风险评分"],
-      "owner_roles": ["临床主任", "流行病学家", "统计学家", "AI 数据工程师"],
-      "scenarios": ["多模态病例会诊", "影像 + 病历联合判断", "关键指标量化复核", "循证诊断路径验证"],
-      "deliverables": ["诊断计划 JSON", "关键指标量化表", "风险评分结论", "病例会诊纪要"]
-    },
-    {
-      "id": "neuragraph",
-      "name": "NeuraGraph",
-      "tone": "fuchsia",
-      "headline": "把生物医学文本挖掘工作流变成可视化 DAG，让文本到结构化知识的提取真正自动化。",
-      "summary": "通过 NeuraGraph 的 LLM + 规则 + 专用 NLP 工具混编工作流，把生物医学文本中的实体识别、关系抽取、共指消解、MeSH 层次分析和依存句法三元组提取接进平台，用于把文献与病历文本快速变成可分析知识。",
-      "highlights": ["可视化 DAG 工作流", "LLM / PGM / SUB 混合智能体", "SSE 流式实验与自动报告"],
-      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师", "临床主任"],
-      "scenarios": ["文献自动结构化", "病历 / 摘要关系抽取", "实体与 MeSH 编码整理", "知识图谱前置构建"],
-      "deliverables": ["实体关系表", "知识三元组", "实验指标报告", "结构化语义图谱"]
     }
   ],
   "frontier_models": [
@@ -230,34 +197,14 @@
       "deliverables": ["可解释推理链", "前沿模型摘要", "变异优先级线索"]
     },
     {
-      "id": "autonomous-research-loop",
-      "name": "自动研究闭环引擎",
-      "count": 23,
-      "tone": "sky",
-      "description": "把 AutoResearchClaw 的多智能体研究流水线引入平台，用于自动推进文献发现、实验执行、结果分析、论文写作与交付打包。",
-      "owner_roles": ["博士生", "统计学家", "模型 QA 专家"],
-      "coverage": ["研究定界", "真实文献验证", "代码执行与自愈", "论文与交付包输出"],
-      "deliverables": ["研究提案", "实验记录", "论文草稿", "引用验证报告"]
-    },
-    {
-      "id": "evidence-based-diagnosis",
-      "name": "循证多模态诊断引擎",
-      "count": 18,
-      "tone": "teal",
-      "description": "把 MedAgent-Pro 的层次化推理诊断工作流接进平台，用医学指南驱动疾病层面规划，再用工具支持患者层面的定量分析与风险评分。",
-      "owner_roles": ["临床主任", "流行病学家", "统计学家", "AI 数据工程师"],
-      "coverage": ["指南检索与诊断计划", "多模态病例编排", "定量指标提取", "风险加权诊断决策"],
-      "deliverables": ["诊断计划 JSON", "指标证据表", "风险评分结论", "病例讨论纪要"]
-    },
-    {
-      "id": "biomedical-text-mining",
-      "name": "生物医学文本挖掘引擎",
-      "count": 16,
-      "tone": "fuchsia",
-      "description": "通过 NeuraGraph 把 LLM、规则和专用 NLP 工具编成可视化文本挖掘工作流，用于从文献、摘要和病例文本中自动抽取结构化知识。",
-      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师", "临床主任"],
-      "coverage": ["命名实体识别", "关系抽取", "共指消解与 MeSH 层次化", "依存句法转知识三元组"],
-      "deliverables": ["实体关系表", "知识图谱草案", "文本挖掘实验报告", "结构化证据清单"]
+      "id": "research-automation",
+      "name": "自动科研工厂引擎",
+      "count": 52,
+      "tone": "indigo",
+      "description": "承接 FARS 这类端到端自动研究系统，覆盖假设生成、实验调度、代码执行、失败结果记录和短论文输出。",
+      "owner_roles": ["趋势研究员", "AI 数据工程师", "模型 QA 专家"],
+      "coverage": ["文献调研", "假设生成", "实验执行", "短论文草稿"],
+      "deliverables": ["研究议程", "实验清单", "短论文草稿"]
     }
   ],
   "databases": [
