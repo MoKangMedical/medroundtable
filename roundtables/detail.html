@@ -473,6 +473,46 @@
             padding: 0.95rem;
         }
 
+        .fars-panel {
+            border-bottom: 1px solid #dbeafe;
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.08), transparent 36%),
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96));
+            padding: 0.95rem 1rem 1rem;
+        }
+
+        .fars-card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+
+        .fars-card {
+            border-radius: 22px;
+            border: 1px solid #dbeafe;
+            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(239,246,255,0.88));
+            padding: 1rem;
+            min-height: 190px;
+        }
+
+        .fars-card ul {
+            margin-top: 0.75rem;
+            display: grid;
+            gap: 0.55rem;
+            color: #334155;
+            font-size: 0.84rem;
+            line-height: 1.55;
+            padding-left: 1rem;
+            list-style: disc;
+        }
+
+        .fars-card p {
+            margin-top: 0.65rem;
+            color: #475569;
+            font-size: 0.84rem;
+            line-height: 1.55;
+        }
+
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -547,7 +587,8 @@
             }
 
             .stage-card-grid,
-            .workbench-grid {
+            .workbench-grid,
+            .fars-card-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -737,6 +778,33 @@
         </div>
     </section>
 
+    <section id="farsArtifactsSection" class="fars-panel hidden shrink-0">
+        <div class="mb-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-indigo-700">FARS Auto Research Output</p>
+                <h3 class="mt-1 text-base font-bold text-slate-950">把讨论继续推进为研究议程、实验清单和短论文草稿</h3>
+                <p class="mt-1 text-sm leading-6 text-slate-600">这里会随着圆桌讨论持续刷新，方便你直接向评委展示“自动科研执行”当前产出了什么。</p>
+            </div>
+            <button type="button" onclick="downloadFarsArtifacts()" class="light-action">
+                <i class="fas fa-file-arrow-down"></i>导出 FARS 草稿
+            </button>
+        </div>
+        <div class="fars-card-grid">
+            <article class="fars-card">
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">研究议程</p>
+                <div id="farsAgendaBody"></div>
+            </article>
+            <article class="fars-card">
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">实验清单</p>
+                <div id="farsChecklistBody"></div>
+            </article>
+            <article class="fars-card">
+                <p class="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">短论文草稿</p>
+                <div id="farsPaperBody"></div>
+            </article>
+        </div>
+    </section>
+
     <!-- 聊天区域 -->
     <div id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
         <!-- 欢迎消息 -->
@@ -888,6 +956,8 @@
             nextStage: '',
             stageIndex: -1
         };
+        let farsArtifacts = null;
+        let farsRefreshTimer = null;
         const expertRoleAliases = {
             pharmacogenomics_expert: 'clawbio_pharmgx',
             gwas_expert: 'clawbio_gwas',
@@ -1119,6 +1189,117 @@
             mockReplyTimers = [];
             autoPilotTimers.forEach((timerId) => clearTimeout(timerId));
             autoPilotTimers = [];
+        }
+
+        function getRecentExpertSnippets(limit = 4) {
+            return mockMessages
+                .filter((msg) => normalizeExpertRole(msg.from_role) !== 'user')
+                .slice(-limit)
+                .map((msg) => `${getAgentName(msg.from_role)}：${String(msg.content || '').replace(/\s+/g, ' ').slice(0, 72)}${String(msg.content || '').length > 72 ? '...' : ''}`);
+        }
+
+        function buildLocalFarsArtifacts() {
+            const title = currentRoundtable?.title || '未命名圆桌';
+            const question = currentRoundtable?.clinical_question || title;
+            return {
+                research_agenda: {
+                    summary: '围绕当前研究问题，自动形成从问题收口到短论文草稿的执行议程。',
+                    steps: [
+                        { stage: '问题界定', owner: '临床主任 + 流行病学家', goal: '写死研究对象、主终点和时间窗。' },
+                        { stage: '证据清单', owner: '博士生 + 趋势研究员', goal: '拉出核心文献、证据缺口和投稿窗口。' },
+                        { stage: '实验执行', owner: 'AI 数据工程师 + 模型 QA 专家', goal: '形成实验任务单、代码执行和质控闸门。' },
+                        { stage: '短论文沉淀', owner: '全体专家', goal: '把关键发现沉淀成短论文草稿。' }
+                    ]
+                },
+                experiment_checklist: [
+                    { task: '形成研究假设', owner: '临床主任 / 博士生', tool: 'MedRoundTable + FARS', done_when: '研究价值、创新点和停止条件写清。' },
+                    { task: '补齐证据表', owner: '博士生 / 趋势研究员', tool: 'PubMed / FARS', done_when: '核心参考和证据缺口明确。' },
+                    { task: '生成实验任务单', owner: '统计专家 / AI 数据工程师', tool: 'FARS 自动科研执行', done_when: '参数、样本量前提和质控规则明确。' },
+                    { task: '沉淀短论文草稿', owner: '全体专家', tool: '导出引擎', done_when: '摘要、方法、主要发现和下一步行动成文。' }
+                ],
+                short_paper_draft: {
+                    title: `${title}：自动科研短论文草稿`,
+                    abstract: `围绕“${question}”，系统已把当前圆桌会诊推进为研究议程、实验清单和短论文结构，适合作为组会或申报前的快速底稿。`,
+                    core_sections: ['研究背景与临床价值', '核心假设与研究贡献', '实验/分析设计', '主要发现与失败结果记录', '局限性与下一步计划'],
+                    evidence_notes: getRecentExpertSnippets()
+                }
+            };
+        }
+
+        function renderFarsArtifacts() {
+            const section = document.getElementById('farsArtifactsSection');
+            const agendaBody = document.getElementById('farsAgendaBody');
+            const checklistBody = document.getElementById('farsChecklistBody');
+            const paperBody = document.getElementById('farsPaperBody');
+            if (!section || !agendaBody || !checklistBody || !paperBody || !farsArtifacts) return;
+
+            const agenda = farsArtifacts.research_agenda || {};
+            const checklist = farsArtifacts.experiment_checklist || [];
+            const paper = farsArtifacts.short_paper_draft || {};
+            section.classList.remove('hidden');
+
+            agendaBody.innerHTML = `
+                <p>${escapeHtml(agenda.summary || '')}</p>
+                <ul>${(agenda.steps || []).slice(0, 4).map((item) => `<li><strong>${escapeHtml(item.stage || '')}</strong>｜${escapeHtml(item.goal || '')}</li>`).join('')}</ul>
+            `;
+            checklistBody.innerHTML = `
+                <ul>${checklist.slice(0, 4).map((item) => `<li><strong>${escapeHtml(item.task || '')}</strong>｜${escapeHtml(item.owner || '')}</li>`).join('')}</ul>
+            `;
+            paperBody.innerHTML = `
+                <p><strong>${escapeHtml(paper.title || '')}</strong></p>
+                <p>${escapeHtml(paper.abstract || '')}</p>
+                <ul>${(paper.evidence_notes || []).slice(0, 4).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>
+            `;
+        }
+
+        async function refreshFarsArtifacts() {
+            try {
+                if (MOCK_MODE || !api) {
+                    farsArtifacts = buildLocalFarsArtifacts();
+                } else {
+                    const output = await api.fetchJson(`/api/v1/roundtables/${roundtableId}/output`);
+                    farsArtifacts = output?.fars_artifacts || null;
+                }
+                renderFarsArtifacts();
+            } catch (error) {
+                console.warn('刷新 FARS 产物失败:', error.message);
+            }
+        }
+
+        function scheduleFarsArtifactsRefresh() {
+            if (farsRefreshTimer) {
+                window.clearTimeout(farsRefreshTimer);
+            }
+            farsRefreshTimer = window.setTimeout(() => {
+                refreshFarsArtifacts();
+            }, 240);
+        }
+
+        function buildFarsMarkdown() {
+            if (!farsArtifacts) return '';
+            const agenda = farsArtifacts.research_agenda || {};
+            const checklist = farsArtifacts.experiment_checklist || [];
+            const paper = farsArtifacts.short_paper_draft || {};
+            return `# FARS 自动科研产物\n\n## 研究标题\n${currentRoundtable?.title || ''}\n\n## 研究问题\n${currentRoundtable?.clinical_question || ''}\n\n## 一、研究议程\n${agenda.summary || ''}\n\n${(agenda.steps || []).map((item, idx) => `${idx + 1}. ${item.stage}｜${item.owner}｜${item.goal}`).join('\n')}\n\n## 二、实验清单\n${checklist.map((item) => `- ${item.task}\n  - 负责人：${item.owner}\n  - 工具：${item.tool}\n  - 完成标准：${item.done_when}`).join('\n')}\n\n## 三、短论文草稿\n### 标题\n${paper.title || ''}\n\n### 摘要\n${paper.abstract || ''}\n\n### 会诊证据摘录\n${(paper.evidence_notes || []).map((item) => `- ${item}`).join('\n')}`;
+        }
+
+        async function downloadFarsArtifacts() {
+            if (!farsArtifacts) {
+                await refreshFarsArtifacts();
+            }
+
+            if (MOCK_MODE || !api) {
+                const blob = new Blob([buildFarsMarkdown()], { type: 'text/markdown;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `FARS自动科研产物_${currentRoundtable?.title || roundtableId}.md`;
+                link.click();
+                URL.revokeObjectURL(url);
+                return;
+            }
+
+            window.open(`${API_BASE}/api/v1/export/fars/${roundtableId}`, '_blank');
         }
 
         function showToast(message) {
@@ -2170,6 +2351,7 @@
                 renderParticipantAvatars(participants);
                 renderParticipantRoster(participants);
                 renderCollaborationContext(currentRoundtable);
+                await refreshFarsArtifacts();
                 if (!stageWorkbenchState.selectedStageKey && currentRoundtable?.status) {
                     selectedStageKey = mapDetailedStageToTopLevel(currentRoundtable.status);
                 }
@@ -2222,6 +2404,7 @@
                 if (!stageWorkbenchState.selectedStageKey) {
                     selectedStageKey = mapDetailedStageToTopLevel(getLatestMessageStage(messages));
                 }
+                await refreshFarsArtifacts();
                 renderStageWorkbench();
                 renderConversationControls();
                 updateComposerAffordance();
@@ -2272,6 +2455,7 @@
                 renderConversationControls();
                 updateComposerAffordance();
             }
+            scheduleFarsArtifactsRefresh();
             container.scrollTop = container.scrollHeight;
             return true;
         }
