@@ -79,6 +79,22 @@ roundtables: Dict[str, RoundTable] = orchestrator.sessions
 SYSTEM_USER_EMAIL = "system@medroundtable.local"
 SYSTEM_USER_NAME = "MedRoundTable System"
 PERSISTENCE_CALLBACK_REGISTERED = False
+ROLE_DISPLAY_NAMES = {
+    "clinical_director": "临床主任",
+    "phd_student": "博士生",
+    "epidemiologist": "流行病学家",
+    "statistician": "统计专家",
+    "research_nurse": "研究护士",
+    "pharmacogenomics_expert": "药物基因组学专家",
+    "gwas_expert": "GWAS 专家",
+    "single_cell_analyst": "单细胞测序分析师",
+    "galaxy_bridge": "Galaxy 桥接器",
+    "ux_researcher": "UX 研究员",
+    "data_engineer": "AI 数据工程师",
+    "trend_researcher": "趋势研究员",
+    "experiment_tracker": "实验追踪员",
+    "qa_expert": "模型 QA 专家",
+}
 
 
 def _ensure_system_user(db) -> User:
@@ -173,6 +189,107 @@ def _dump_model(model: Any) -> Dict[str, Any]:
     if hasattr(model, "model_dump"):
         return model.model_dump()
     return model.dict()
+
+
+def _display_role_name(value: Any) -> str:
+    role = value.value if hasattr(value, "value") else str(value)
+    return ROLE_DISPLAY_NAMES.get(role, role)
+
+
+def _iter_expert_messages(roundtable: RoundTable):
+    for message in roundtable.messages:
+        from_role = message.from_role.value if hasattr(message.from_role, "value") else str(message.from_role)
+        if from_role == "user":
+            continue
+        yield message
+
+
+def _recent_expert_takeaways(roundtable: RoundTable, limit: int = 4) -> List[str]:
+    takeaways: List[str] = []
+    for message in list(_iter_expert_messages(roundtable))[-limit:]:
+        role_name = _display_role_name(message.from_role)
+        content = " ".join((message.content or "").split())
+        snippet = content[:88] + ("..." if len(content) > 88 else "")
+        takeaways.append(f"{role_name}：{snippet}")
+    return takeaways
+
+
+def generate_fars_artifacts(rt: RoundTable) -> Dict[str, Any]:
+    recent_takeaways = _recent_expert_takeaways(rt)
+    question = rt.clinical_question or rt.title
+    research_agenda = {
+        "title": "FARS 研究议程",
+        "summary": "把一句研究想法推进为清晰研究贡献、实验设计与可交付短论文草稿。",
+        "steps": [
+            {
+                "stage": "问题界定",
+                "owner": "临床主任 + 流行病学家",
+                "goal": "固定研究对象、主要终点与时间窗，形成可执行问题定义。",
+            },
+            {
+                "stage": "证据清单",
+                "owner": "博士生 + 趋势研究员",
+                "goal": "梳理核心文献、证据缺口与可投稿窗口，明确创新边界。",
+            },
+            {
+                "stage": "实验执行",
+                "owner": "AI 数据工程师 + 实验追踪员 + 模型 QA 专家",
+                "goal": "拆出实验清单、代码执行与质控闸门，支持失败结果保留。",
+            },
+            {
+                "stage": "短论文沉淀",
+                "owner": "全体专家",
+                "goal": "把关键发现整理为短论文结构，并回流至圆桌继续修订。",
+            },
+        ],
+    }
+    experiment_checklist = [
+        {
+            "task": "形成一页式研究假设",
+            "owner": "临床主任 / 博士生",
+            "tool": "MedRoundTable + FARS",
+            "done_when": "研究对象、主要终点、创新点和 go/no-go 条件已经写死。",
+        },
+        {
+            "task": "生成证据表与失败路径清单",
+            "owner": "博士生 / 趋势研究员",
+            "tool": "PubMed / CNKI / FARS",
+            "done_when": "核心参考、证据缺口、负向结果和投稿窗口已整理。",
+        },
+        {
+            "task": "产出实验与分析任务单",
+            "owner": "AI 数据工程师 / 统计专家",
+            "tool": "FARS 自动科研执行",
+            "done_when": "代码、参数、样本量前提和质控规则明确可执行。",
+        },
+        {
+            "task": "完成短论文草稿",
+            "owner": "全体专家",
+            "tool": "FARS + MedRoundTable 导出",
+            "done_when": "摘要、方法、主要发现、局限性和下一步均已成文。",
+        },
+    ]
+    short_paper_draft = {
+        "title": f"{rt.title}：基于自动科研工厂的短论文草稿",
+        "abstract": (
+            f"围绕“{question}”，系统先由 MedRoundTable 组织 14 位专家形成研究边界，"
+            "再由 FARS 自动科研能力补齐研究议程、实验任务单和短论文结构。"
+            "当前草稿适合作为组会、申报或预投稿前的快速成稿底稿。"
+        ),
+        "core_sections": [
+            "研究背景与临床价值",
+            "核心假设与研究贡献",
+            "实验/分析设计",
+            "主要发现与失败结果记录",
+            "局限性与下一步计划",
+        ],
+        "evidence_notes": recent_takeaways,
+    }
+    return {
+        "research_agenda": research_agenda,
+        "experiment_checklist": experiment_checklist,
+        "short_paper_draft": short_paper_draft,
+    }
 
 
 def _persist_roundtable(roundtable: RoundTable):
@@ -542,6 +659,7 @@ async def get_output(session_id: str):
         "crf_template": generate_crf_template(rt),
         "analysis_plan": generate_analysis_plan(rt),
         "operation_manual": generate_operation_manual(rt),
+        "fars_artifacts": generate_fars_artifacts(rt),
         "generated_at": datetime.utcnow().isoformat()
     }
     

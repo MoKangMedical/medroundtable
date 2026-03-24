@@ -18,6 +18,59 @@ def _get_roundtable_or_404(session_id: str):
         raise HTTPException(status_code=404, detail="RoundTable not found")
     return rt
 
+
+def _render_fars_markdown(rt) -> str:
+    from backend.main import generate_fars_artifacts
+
+    artifacts = generate_fars_artifacts(rt)
+    agenda = artifacts["research_agenda"]
+    checklist = artifacts["experiment_checklist"]
+    draft = artifacts["short_paper_draft"]
+
+    agenda_lines = "\n".join(
+        f"{idx}. **{item['stage']}**｜负责人：{item['owner']}｜目标：{item['goal']}"
+        for idx, item in enumerate(agenda.get("steps", []), 1)
+    )
+    checklist_lines = "\n".join(
+        f"- **{item['task']}**\n  - 负责人：{item['owner']}\n  - 工具：{item['tool']}\n  - 完成标准：{item['done_when']}"
+        for item in checklist
+    )
+    evidence_lines = "\n".join(f"- {item}" for item in draft.get("evidence_notes", [])) or "- 暂无已沉淀会诊摘要"
+    section_lines = "\n".join(f"- {item}" for item in draft.get("core_sections", []))
+
+    return f"""# FARS 自动科研产物
+
+## 研究标题
+{rt.title}
+
+## 研究问题
+{rt.clinical_question}
+
+## 一、研究议程
+{agenda.get('summary', '')}
+
+{agenda_lines}
+
+## 二、实验清单
+{checklist_lines}
+
+## 三、短论文草稿
+### 标题
+{draft.get('title', '')}
+
+### 摘要
+{draft.get('abstract', '')}
+
+### 建议章节
+{section_lines}
+
+### 当前会诊证据摘录
+{evidence_lines}
+
+---
+生成时间：{datetime.now().isoformat()}
+"""
+
 @router.post("/protocol/{session_id}")
 async def export_protocol(session_id: str):
     """导出研究方案Word文档"""
@@ -127,6 +180,9 @@ async def export_all(session_id: str):
             study_title=rt.title,
             messages=messages
         )
+        fars_path = f"/tmp/fars_artifacts_{session_id}.md"
+        with open(fars_path, "w", encoding="utf-8") as handle:
+            handle.write(_render_fars_markdown(rt))
         
         # 打包成zip
         zip_path = f"/tmp/medroundtable_export_{session_id}.zip"
@@ -134,6 +190,7 @@ async def export_all(session_id: str):
             zipf.write(protocol_path, f"1-研究方案_{rt.title}.docx")
             zipf.write(crf_path, f"2-CRF表格_{rt.title}.docx")
             zipf.write(analysis_path, f"3-统计分析计划_{rt.title}.docx")
+            zipf.write(fars_path, f"4-FARS自动科研产物_{rt.title}.md")
         
         return FileResponse(
             zip_path,
@@ -141,6 +198,24 @@ async def export_all(session_id: str):
             filename=f"MedRoundTable_{rt.title}_完整资料.zip"
         )
         
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/fars/{session_id}")
+async def export_fars_artifacts(session_id: str):
+    """导出 FARS 自动科研产物 Markdown"""
+    try:
+        rt = _get_roundtable_or_404(session_id)
+        output_path = f"/tmp/fars_artifacts_{session_id}.md"
+        with open(output_path, "w", encoding="utf-8") as handle:
+            handle.write(_render_fars_markdown(rt))
+
+        return FileResponse(
+            output_path,
+            media_type="text/markdown; charset=utf-8",
+            filename=f"FARS自动科研产物_{rt.title}.md"
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
