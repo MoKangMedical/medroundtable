@@ -153,6 +153,61 @@
             background: linear-gradient(180deg, rgba(8, 20, 39, 0.95), rgba(7, 16, 31, 0.95));
             box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.22);
         }
+        .patient-drawer {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            bottom: 16px;
+            width: min(460px, calc(100vw - 24px));
+            border-radius: 2rem;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: linear-gradient(180deg, rgba(7, 18, 34, 0.98), rgba(6, 15, 29, 0.98));
+            box-shadow: 0 26px 100px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            z-index: 60;
+            display: flex;
+            flex-direction: column;
+            transform: translateX(calc(100% + 24px));
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 220ms ease, opacity 220ms ease;
+        }
+        .patient-drawer.is-open {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .patient-drawer-frame {
+            flex: 1;
+            width: 100%;
+            min-height: 460px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            border-radius: 1.4rem;
+            background: rgba(255,255,255,0.03);
+        }
+        .patient-chip {
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255,255,255,0.05);
+            padding: 0.42rem 0.72rem;
+            font-size: 12px;
+            font-weight: 700;
+            color: #dbeafe;
+        }
+        .patient-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 8, 23, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 55;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 200ms ease;
+        }
+        .patient-backdrop.is-open {
+            opacity: 1;
+            pointer-events: auto;
+        }
         .stage-control {
             cursor: pointer;
             transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
@@ -393,81 +448,6 @@
             flex-wrap: wrap;
             gap: 0.55rem;
         }
-        .portal-backdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(2, 6, 23, 0.72);
-            backdrop-filter: blur(10px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 220ms ease;
-            z-index: 60;
-        }
-        .portal-backdrop.is-open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .patient-drawer {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: min(48vw, 720px);
-            height: 100vh;
-            transform: translateX(104%);
-            transition: transform 260ms ease;
-            z-index: 70;
-            padding: 1rem;
-        }
-        .patient-drawer.is-open {
-            transform: translateX(0);
-        }
-        .patient-drawer-shell {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            border-radius: 2rem;
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            background:
-                radial-gradient(circle at top right, rgba(110, 231, 249, 0.12), transparent 34%),
-                linear-gradient(180deg, rgba(8, 18, 38, 0.96), rgba(5, 14, 30, 0.96));
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
-            overflow: hidden;
-        }
-        .patient-toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.55rem;
-        }
-        .patient-frame-wrap {
-            position: relative;
-            min-height: 0;
-            flex: 1;
-            border-radius: 1.6rem;
-            border: 1px solid rgba(148, 163, 184, 0.14);
-            background: rgba(255,255,255,0.04);
-            overflow: hidden;
-        }
-        .patient-frame {
-            width: 100%;
-            height: 100%;
-            border: 0;
-            background: #ffffff;
-        }
-        .patient-frame-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.25rem;
-            background: linear-gradient(180deg, rgba(8, 18, 38, 0.88), rgba(8, 18, 38, 0.78));
-            text-align: left;
-            transition: opacity 180ms ease;
-        }
-        .patient-frame-overlay.is-hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
         .compact-info-card {
             border-radius: 1.05rem;
             border: 1px solid rgba(148, 163, 184, 0.14);
@@ -672,78 +652,64 @@
                 max-height: none;
             }
             .patient-drawer {
-                width: 100vw;
-                padding: 0;
-            }
-            .patient-drawer-shell {
-                border-radius: 0;
+                top: 8px;
+                right: 8px;
+                bottom: 8px;
+                width: calc(100vw - 16px);
+                border-radius: 1.4rem;
             }
         }
     </style>
 </head>
 <body class="grain">
     <div id="speakerSyncLine" class="speaker-sync-line"></div>
-    <div id="patientPortalBackdrop" class="portal-backdrop"></div>
-    <div id="patientPortalDrawer" class="patient-drawer" aria-hidden="true">
-        <div class="patient-drawer-shell">
-            <div class="border-b border-white/10 px-5 py-4">
-                <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div class="max-w-xl">
-                        <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Patient Workspace</div>
-                        <h2 class="mt-2 text-[1.6rem] font-bold text-white">飞书患者端协同工作台</h2>
-                        <p class="mt-2 text-sm leading-7 text-slate-300">把患者主诉、随访反馈和问卷输入先收进患者端，再回到主屏继续 14 Agent 讨论。</p>
-                    </div>
-                    <button id="closePatientPortalBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
-                        <i class="fas fa-xmark mr-2"></i>关闭患者端
-                    </button>
-                </div>
-                <div class="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
-                    <div class="compact-card rounded-2xl p-4">
-                        <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">当前带入上下文</div>
-                        <div id="patientPortalContext" class="mt-3 text-sm leading-7 text-slate-200"></div>
-                    </div>
-                    <div class="compact-card rounded-2xl p-4">
-                        <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">患者端操作</div>
-                        <div class="patient-toolbar mt-3">
-                            <button id="openPatientPortalNewTabBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
-                                <i class="fas fa-up-right-from-square mr-2"></i>外部打开
-                            </button>
-                            <button id="copyPatientPortalTopicBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
-                                <i class="fas fa-copy mr-2"></i>复制当前议题
-                            </button>
-                            <button id="reloadPatientPortalBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
-                                <i class="fas fa-rotate-right mr-2"></i>重新加载
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    <div id="patientBackdrop" class="patient-backdrop"></div>
+    <aside id="patientDrawer" class="patient-drawer">
+        <div class="flex items-start justify-between gap-3 border-b border-white/10 px-5 py-4">
+            <div>
+                <div class="text-[11px] uppercase tracking-[0.22em] text-cyan-200">Patient Workspace</div>
+                <h2 class="mt-2 text-xl font-bold text-white">患者端协同工作台</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-300">把患者侧问卷、随访与症状录入放到同一场研究讨论旁边。主屏继续看 14 位专家，右侧随时联动患者端。</p>
             </div>
-            <div class="min-h-0 flex-1 px-5 py-4">
-                <div class="patient-frame-wrap">
-                    <iframe
-                        id="patientPortalFrame"
-                        class="patient-frame"
-                        title="飞书患者端"
-                        loading="lazy"
-                        referrerpolicy="strict-origin-when-cross-origin"
-                        allow="clipboard-read; clipboard-write"
-                    ></iframe>
-                    <div id="patientPortalOverlay" class="patient-frame-overlay">
-                        <div class="max-w-lg">
-                            <div class="text-[11px] uppercase tracking-[0.18em] text-cyan-200">载入说明</div>
-                            <h3 class="mt-2 text-xl font-bold text-white">正在接入飞书患者端</h3>
-                            <p class="mt-3 text-sm leading-7 text-slate-300">
-                                如果你看到飞书登录页，可以直接在这个内嵌窗口里完成登录；如果浏览器拦截了嵌入，请点上方“外部打开”继续。
-                            </p>
-                            <div class="mt-4 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-7 text-slate-200">
-                                建议先把患者端里最关键的主诉、随访变化和补充问题录入，再回到左侧主屏让 14 位专家围绕新信息继续讨论。
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <button id="closePatientDrawerBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
+                <i class="fas fa-xmark mr-2"></i>关闭
+            </button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 px-5 py-4">
+            <span class="patient-chip">飞书患者端</span>
+            <span class="patient-chip">同步研究上下文</span>
+            <span class="patient-chip">可外部打开</span>
+        </div>
+        <div class="px-5 pb-5 pt-1 min-h-0 flex flex-1 flex-col gap-4">
+            <div class="rounded-[1.2rem] border border-white/10 bg-white/[0.03] px-4 py-3 text-sm leading-7 text-slate-300">
+                适合在现场演示时同步说明：患者端负责真实世界症状、量表、问卷或随访输入；14 位专家围桌负责把这些输入快速转成研究方案、数据来源和分析方法。
+            </div>
+            <iframe
+                id="patientWorkspaceFrame"
+                class="patient-drawer-frame"
+                src="https://miaoda.feishu.cn/app/app_4jt125d9v4t11"
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                title="患者端工作台"
+            ></iframe>
+            <div class="rounded-[1.2rem] border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm leading-7 text-amber-100">
+                如果飞书登录页限制当前浏览器内嵌，请直接点击下方按钮外部打开，不会影响主屏上的 14 位专家讨论。
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <a
+                    href="https://miaoda.feishu.cn/app/app_4jt125d9v4t11"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
+                >
+                    <i class="fas fa-up-right-from-square mr-2"></i>外部打开患者端
+                </a>
+                <button id="pinPatientQuestionBtn" class="command-chip rounded-2xl px-4 py-3 text-sm font-semibold text-white">
+                    <i class="fas fa-notes-medical mr-2"></i>把患者输入转成讨论指令
+                </button>
             </div>
         </div>
-    </div>
+    </aside>
     <main class="h-screen overflow-hidden px-3 py-3 lg:px-4 lg:py-4">
         <div class="grid h-full grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.68fr)_400px]">
             <section class="glass flex min-h-0 flex-col overflow-hidden rounded-[2rem] p-4 lg:p-5">
@@ -816,8 +782,8 @@
                         <button id="downloadPptBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
                             <i class="fas fa-file-powerpoint mr-2"></i>下载 PPT
                         </button>
-                        <button id="patientPortalBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
-                            <i class="fas fa-user-injured mr-2"></i>患者端协同
+                        <button id="patientWorkspaceBtn" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
+                            <i class="fas fa-heart-pulse mr-2"></i>患者端
                         </button>
                         <a id="formalExportBtn" href="../roundtables/detail.html?mrt_backend_mode=static&sessionId=12&auto=1" class="command-chip rounded-full px-4 py-2 text-sm font-semibold text-white">
                             <i class="fas fa-file-export mr-2"></i>正式报告
@@ -933,7 +899,6 @@
         const expertApi = window.MedRoundTableExperts;
         const secondMeIdentityStore = window.MedRoundTableSecondMeIdentity || null;
         const urlParams = new URLSearchParams(window.location.search);
-        const PATIENT_PORTAL_URL = 'https://miaoda.feishu.cn/app/app_4jt125d9v4t11';
         const stageBlueprint = [
             { key: 'research_direction', label: '研究思路确认', summary: '先确认题目值不值得做、主问题是不是唯一。', roles: ['clinical_director', 'phd_student', 'epidemiologist', 'trend_researcher'], outputs: ['立项判断', '核心研究问题', '主要终点', '创新切口'] },
             { key: 'protocol_confirmation', label: '研究方案确认', summary: '把纳排标准、终点、CRF 与执行路径真正落下去。', roles: ['research_nurse', 'experiment_tracker', 'ux_researcher', 'clinical_director'], outputs: ['方案骨架', '访视路径', 'CRF 字段', '执行风险'] },
@@ -983,6 +948,7 @@
                 { name: 'Evo 2 / QwQ-Med-3', tone: 'text-indigo-200', summary: '遇到变异、基因组和复杂医学推理问题时，用前沿模型层做高阶核对。' }
             ]
         };
+        const PATIENT_APP_URL = 'https://miaoda.feishu.cn/app/app_4jt125d9v4t11';
 
         const state = {
             activeStage: 'research_direction',
@@ -996,12 +962,11 @@
             activeRole: '',
             running: false,
             paused: false,
+            patientDrawerOpen: false,
             topic: '',
             title: '',
             agendaPlan: [],
-            identity: secondMeIdentityStore ? secondMeIdentityStore.consumeIdentityFromLocation(window) : null,
-            patientPortalLoaded: false,
-            patientPortalFallbackTimer: null
+            identity: secondMeIdentityStore ? secondMeIdentityStore.consumeIdentityFromLocation(window) : null
         };
 
         function escapeHtml(value) {
@@ -1157,73 +1122,6 @@
             badge.textContent = `SecondMe 真人：${state.identity.name}`;
         }
 
-        function patientPortalContextText() {
-            const topic = document.getElementById('topicQuestion').value.trim();
-            const title = document.getElementById('topicTitle').value.trim() || 'MedRoundTable 项目';
-            const stage = getStageMeta(state.activeStage);
-            const lastAgent = state.messages.find((message) => message.role !== 'human');
-            return `
-                <div class="text-sm font-semibold text-white">${escapeHtml(title)}</div>
-                <div class="mt-2 text-sm leading-7 text-slate-300">${escapeHtml(summarizeIntent(topic || defaultTopic()))}</div>
-                <div class="mt-3 text-xs text-slate-400">当前阶段：<span class="text-cyan-100">${escapeHtml(stage.label)}</span></div>
-                <div class="mt-1 text-xs text-slate-400">最近发言：<span class="text-cyan-100">${escapeHtml(lastAgent ? roleLabel(lastAgent.role) : '等待第一位专家')}</span></div>
-            `;
-        }
-
-        function syncPatientPortalContext() {
-            const context = document.getElementById('patientPortalContext');
-            if (!context) return;
-            context.innerHTML = patientPortalContextText();
-        }
-
-        function openPatientPortal() {
-            const drawer = document.getElementById('patientPortalDrawer');
-            const backdrop = document.getElementById('patientPortalBackdrop');
-            const frame = document.getElementById('patientPortalFrame');
-            const overlay = document.getElementById('patientPortalOverlay');
-            syncPatientPortalContext();
-            drawer.classList.add('is-open');
-            backdrop.classList.add('is-open');
-            drawer.setAttribute('aria-hidden', 'false');
-            overlay.classList.remove('is-hidden');
-            if (!frame.src) {
-                frame.src = PATIENT_PORTAL_URL;
-            }
-            if (state.patientPortalFallbackTimer) {
-                window.clearTimeout(state.patientPortalFallbackTimer);
-            }
-            state.patientPortalFallbackTimer = window.setTimeout(() => {
-                if (!state.patientPortalLoaded) {
-                    overlay.classList.remove('is-hidden');
-                }
-            }, 2200);
-        }
-
-        function closePatientPortal() {
-            const drawer = document.getElementById('patientPortalDrawer');
-            const backdrop = document.getElementById('patientPortalBackdrop');
-            drawer.classList.remove('is-open');
-            backdrop.classList.remove('is-open');
-            drawer.setAttribute('aria-hidden', 'true');
-        }
-
-        function copyPatientPortalTopic() {
-            const title = document.getElementById('topicTitle').value.trim() || 'MedRoundTable 项目';
-            const topic = document.getElementById('topicQuestion').value.trim() || defaultTopic();
-            const stage = getStageMeta(state.activeStage);
-            const payload = `${title}\n当前阶段：${stage.label}\n需要患者端协同的内容：${topic}`;
-            navigator.clipboard.writeText(payload).then(() => {
-                const btn = document.getElementById('copyPatientPortalTopicBtn');
-                const original = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check mr-2"></i>已复制';
-                window.setTimeout(() => {
-                    btn.innerHTML = original;
-                }, 1200);
-            }).catch(() => {
-                alert('复制失败，请直接手动复制当前议题。');
-            });
-        }
-
         function renderStageRail() {
             const rail = document.getElementById('stageRail');
             const activeIndex = stageBlueprint.findIndex((item) => item.key === state.activeStage);
@@ -1343,6 +1241,21 @@
             updateSpeakerSyncLine();
         }
 
+        function setPatientDrawerOpen(open) {
+            state.patientDrawerOpen = open;
+            const drawer = document.getElementById('patientDrawer');
+            const backdrop = document.getElementById('patientBackdrop');
+            if (!drawer || !backdrop) return;
+            drawer.classList.toggle('is-open', open);
+            backdrop.classList.toggle('is-open', open);
+            document.body.style.overflow = open ? 'hidden' : '';
+        }
+
+        function buildPatientPrompt() {
+            const stage = getStageMeta(state.activeStage);
+            return `请把患者端当前录入的信息直接转成本轮会诊任务：围绕「${stage.label}」先补最关键的患者变量、量表、随访节点和数据结构，再告诉 14 位专家应该先收哪 3 个证据缺口。`;
+        }
+
         function renderRoundtableSeats() {
             const layer = document.getElementById('roundtableSeats');
             if (!layer) return;
@@ -1419,7 +1332,6 @@
                 `).join('')
                 : '<div class="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-sm text-slate-400">当前阶段没有额外能力加持，系统将继续由基础专家阵容推进。</div>';
 
-            syncPatientPortalContext();
             updateRoundtableBeam();
         }
 
@@ -2025,33 +1937,19 @@
             });
             document.getElementById('downloadBtn').addEventListener('click', downloadDiscussionWord);
             document.getElementById('downloadPptBtn').addEventListener('click', downloadDiscussionDeck);
-            document.getElementById('patientPortalBtn').addEventListener('click', openPatientPortal);
-            document.getElementById('openPatientPortalNewTabBtn').addEventListener('click', () => {
-                window.open(PATIENT_PORTAL_URL, '_blank', 'noopener');
-            });
-            document.getElementById('copyPatientPortalTopicBtn').addEventListener('click', copyPatientPortalTopic);
-            document.getElementById('reloadPatientPortalBtn').addEventListener('click', () => {
-                const frame = document.getElementById('patientPortalFrame');
-                const overlay = document.getElementById('patientPortalOverlay');
-                state.patientPortalLoaded = false;
-                overlay.classList.remove('is-hidden');
-                frame.src = PATIENT_PORTAL_URL;
-            });
-            document.getElementById('closePatientPortalBtn').addEventListener('click', closePatientPortal);
-            document.getElementById('patientPortalBackdrop').addEventListener('click', closePatientPortal);
-            document.getElementById('patientPortalFrame').addEventListener('load', () => {
-                state.patientPortalLoaded = true;
-                document.getElementById('patientPortalOverlay').classList.add('is-hidden');
+            document.getElementById('patientWorkspaceBtn').addEventListener('click', () => setPatientDrawerOpen(true));
+            document.getElementById('closePatientDrawerBtn').addEventListener('click', () => setPatientDrawerOpen(false));
+            document.getElementById('patientBackdrop').addEventListener('click', () => setPatientDrawerOpen(false));
+            document.getElementById('pinPatientQuestionBtn').addEventListener('click', () => {
+                setPatientDrawerOpen(false);
+                injectQuickQuestion(buildPatientPrompt());
+                document.getElementById('sendHumanBtn').click();
             });
             document.getElementById('topicQuestion').addEventListener('input', () => {
                 state.agendaPlan = buildAgendaPlan(document.getElementById('topicQuestion').value.trim());
                 renderAgendaPlan();
-                syncPatientPortalContext();
             });
-            document.getElementById('topicTitle').addEventListener('input', () => {
-                renderProjectBriefSummary();
-                syncPatientPortalContext();
-            });
+            document.getElementById('topicTitle').addEventListener('input', renderProjectBriefSummary);
             document.getElementById('transcript').addEventListener('click', (event) => {
                 const button = event.target.closest('[data-message-toggle]');
                 if (!button) return;
@@ -2059,14 +1957,12 @@
                 state.expandedMessages[id] = !state.expandedMessages[id];
                 renderTranscript();
             });
-            window.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') {
-                    closePatientPortal();
-                }
-            });
 
             if (urlParams.get('autostart') === '1' || (urlParams.get('autostart') !== '0' && urlParams.get('topic'))) {
                 window.setTimeout(startDiscussion, 420);
+            }
+            if (urlParams.get('patient') === '1') {
+                window.setTimeout(() => setPatientDrawerOpen(true), 600);
             }
         }
 
