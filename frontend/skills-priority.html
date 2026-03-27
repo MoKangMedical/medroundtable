@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skills 接入优先级 - MedRoundTable</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #10213c;
+            background:
+                radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 24%),
+                radial-gradient(circle at 100% 0, rgba(59, 130, 246, 0.12), transparent 28%),
+                linear-gradient(180deg, #f7fbff 0%, #eef3fb 100%);
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Noto Serif SC', serif;
+        }
+        .soft-panel {
+            background: rgba(255,255,255,0.86);
+            backdrop-filter: blur(18px);
+        }
+        .repo-card {
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+        .repo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 24px 48px rgba(31, 78, 170, 0.12);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="mx-auto max-w-7xl px-4 py-8 md:py-12">
+        <div class="soft-panel overflow-hidden rounded-[2rem] border border-white/70 shadow-[0_30px_80px_rgba(15,35,80,0.12)]">
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10 md:py-10">
+                <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+                    <div class="max-w-4xl">
+                        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                            <a href="../index.html#agent-skill-command" class="inline-flex items-center gap-2 transition hover:text-slate-900">
+                                <i class="fas fa-arrow-left"></i> 返回首页
+                            </a>
+                            <span class="text-slate-300">/</span>
+                            <a href="./skills-distribution.html" class="inline-flex items-center gap-2 transition hover:text-slate-900">
+                                <i class="fas fa-chart-network"></i> 997 skills 分布页
+                            </a>
+                        </div>
+                        <div class="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
+                            <i class="fas fa-diagram-project"></i> Integration Priority Board
+                        </div>
+                        <h1 class="mt-5 text-4xl font-bold leading-tight md:text-5xl">哪些 GitHub skills / workflow 仓库最适合继续接入 MedRoundTable</h1>
+                        <p class="mt-4 max-w-3xl text-lg leading-8 text-slate-600">
+                            这页不看“名字是不是热门”，只看三件事：能不能真正落到医学科研流程里、能不能产出结构化结果、能不能被 14 位专家在工作流里稳定调用。
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:w-[34rem]">
+                        <div class="rounded-3xl bg-slate-950 px-4 py-5 text-white">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">已接入</p>
+                            <p class="mt-3 text-3xl font-bold">5</p>
+                            <p class="mt-1 text-sm text-slate-300">已在平台形成能力口径</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">建议下一步</p>
+                            <p class="mt-3 text-3xl font-bold text-blue-700">4</p>
+                            <p class="mt-1 text-sm text-slate-500">适合继续做实</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">仅做参考</p>
+                            <p class="mt-3 text-3xl font-bold text-slate-700">4</p>
+                            <p class="mt-1 text-sm text-slate-500">更适合情报层</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 bg-emerald-50/60 px-6 py-8 md:px-10">
+                <p class="text-sm font-semibold uppercase tracking-[0.28em] text-emerald-700">已接入</p>
+                <h2 class="mt-2 text-3xl font-bold">已经在平台形成能力口径，适合继续做深</h2>
+                <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    <article class="repo-card rounded-[1.5rem] border border-emerald-200 bg-white p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">OpenClaw Medical Skills</h3>
+                                <p class="mt-1 text-xs font-semibold text-slate-500">FreedomIntelligence/OpenClaw-Medical-Skills</p>
+                            </div>
+                            <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">底座</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">当前平台 `997` skills 的最大来源层，适合继续保持为底层包装库，而不是前台逐条暴露。</p>
+                        <p class="mt-3 text-sm font-semibold text-slate-900">为什么重要：决定平台的技能广度和覆盖率。</p>
+                        <a href="https://github.com/FreedomIntelligence/OpenClaw-Medical-Skills" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-emerald-200 bg-white p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">CNKI Skills</h3>
+                                <p class="mt-1 text-xs font-semibold text-slate-500">cookjohn/cnki-skills</p>
+                            </div>
+                            <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">文献</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">已经在平台以 `QuantClaw × CNKI` 的形式表达，最适合继续强化到中文文献回顾和期刊证据链路。</p>
+                        <p class="mt-3 text-sm font-semibold text-slate-900">关键结果：检索、目录、下载、导出。</p>
+                        <a href="https://github.com/cookjohn/cnki-skills" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-emerald-200 bg-white p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">OmicClaw</h3>
+                                <p class="mt-1 text-xs font-semibold text-slate-500">Starlitnightly/omicclaw</p>
+                            </div>
+                            <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">组学</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">已经在平台形成 `OmicClaw × OmicVerse` 能力层，适合继续往多组学分析工作台和 GWAS / 单细胞路径深入。</p>
+                        <p class="mt-3 text-sm font-semibold text-slate-900">关键结果：组学 workflow、共享 Kernel、本地分析入口。</p>
+                        <a href="https://github.com/Starlitnightly/omicclaw" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-emerald-200 bg-white p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">NeuraGraph</h3>
+                                <p class="mt-1 text-xs font-semibold text-slate-500">tyrone1979/neuragraph</p>
+                            </div>
+                            <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">文本挖掘</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">已经在平台以生物医学文本挖掘能力呈现，适合继续做成“实体关系表 / 三元组 / 证据清单”的前台输出。</p>
+                        <p class="mt-3 text-sm font-semibold text-slate-900">关键结果：NER / RE / 三元组 / 实验报告。</p>
+                        <a href="https://github.com/tyrone1979/neuragraph" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-emerald-200 bg-white p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">AutoResearchClaw</h3>
+                                <p class="mt-1 text-xs font-semibold text-slate-500">aiming-lab/AutoResearchClaw</p>
+                            </div>
+                            <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">自动交付</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">已经在平台以自动科研闭环能力表达，最适合继续做强到 `研究纪要 / PPT / 提案 / 论文草稿` 输出层。</p>
+                        <p class="mt-3 text-sm font-semibold text-slate-900">关键结果：idea-to-paper pipeline、交付物打包。</p>
+                        <a href="https://github.com/aiming-lab/AutoResearchClaw" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 bg-blue-50/60 px-6 py-8 md:px-10">
+                <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-700">建议下一步接入</p>
+                <h2 class="mt-2 text-3xl font-bold">更适合做“发现层、编排层、研究导航层”的仓库</h2>
+                <div class="mt-6 grid gap-4 md:grid-cols-2">
+                    <article class="repo-card rounded-[1.5rem] border border-blue-200 bg-white p-5">
+                        <h3 class="text-xl font-bold text-slate-950">VoltAgent / awesome-openclaw-skills</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">适合接成一个“新 skills 发现池”，帮助 MedRoundTable 持续发现可新增的 OpenClaw skills，而不是直接暴露给用户。</p>
+                        <a href="https://github.com/VoltAgent/awesome-openclaw-skills" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-blue-200 bg-white p-5">
+                        <h3 class="text-xl font-bold text-slate-950">yixin-1024 / cnki-search</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">更轻量，适合做公开检索或快速 fallback，但能力深度不如完整 CNKI skills，不建议替代主链路。</p>
+                        <a href="https://github.com/yixin-1024/cnki-search" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-blue-200 bg-white p-5">
+                        <h3 class="text-xl font-bold text-slate-950">PigeonDan1 / paper_claw</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">适合做“论文追踪 / 每日文献摘要”副能力，补你的科研动态监控层。</p>
+                        <a href="https://github.com/PigeonDan1/paper_claw" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-blue-200 bg-white p-5">
+                        <h3 class="text-xl font-bold text-slate-950">MinhaoXiong / awesome-automated-research</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">适合做自动科研工具雷达，不适合直接作为前台产品能力，但适合你持续筛选新的研究自动化模块。</p>
+                        <a href="https://github.com/MinhaoXiong/awesome-automated-research" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
+                <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-500">仅做参考展示</p>
+                <h2 class="mt-2 text-3xl font-bold">这些仓库适合做研究情报，不适合直接宣称“已接入”</h2>
+                <div class="mt-6 grid gap-4 md:grid-cols-2">
+                    <article class="repo-card rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                        <h3 class="text-xl font-bold text-slate-950">AgenticHealthAI / Awesome-AI-Agents-for-Healthcare</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">更像医疗 Agent 综述导航，适合做团队内部研究和路线图，不适合直接做成产品能力。</p>
+                        <a href="https://github.com/AgenticHealthAI/Awesome-AI-Agents-for-Healthcare" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                        <h3 class="text-xl font-bold text-slate-950">alvinunreal / awesome-autoresearch</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">适合看自动科研赛道有什么新变化，但不应当直接进你的能力口径。</p>
+                        <a href="https://github.com/alvinunreal/awesome-autoresearch" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                        <h3 class="text-xl font-bold text-slate-950">AIM-Research-Lab / Awesome-AI-Agents-Medicine</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">更像资源聚合目录，不适合直接在前台被用户当成“具体能调用的能力”。</p>
+                        <a href="https://github.com/AIM-Research-Lab/Awesome-AI-Agents-Medicine" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                    <article class="repo-card rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                        <h3 class="text-xl font-bold text-slate-950">xqz614 / Awesome-Agentic-Clinical-Dialogue</h3>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">适合参考临床对话赛道产品，但不适合直接包装为你平台的 skills 层。</p>
+                        <a href="https://github.com/xqz614/Awesome-Agentic-Clinical-Dialogue" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-700">查看仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i></a>
+                    </article>
+                </div>
+            </section>
+
+            <section class="px-6 py-8 md:px-10 md:py-10">
+                <div class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">一句话结论</p>
+                        <h2 class="mt-2 text-3xl font-bold">最值得做实的，不是更多模型名，而是更多能产出结构化结果的 workflow</h2>
+                        <div class="mt-5 rounded-[1.5rem] bg-slate-950 px-6 py-6 text-white">
+                            <p class="text-lg leading-9">
+                                对 MedRoundTable 来说，真正提升产品价值的不是再堆一个“很强的模型名”，而是把中文文献、文本挖掘、多组学分析和自动科研交付这些 workflow 接得更深，让 14 位专家不只是会讨论，而是能真正把研究推进到结果。
+                            </p>
+                        </div>
+                    </article>
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">下一步入口</p>
+                        <h2 class="mt-2 text-3xl font-bold">接着看哪里最合适</h2>
+                        <div class="mt-6 space-y-3">
+                            <a href="./skills-distribution.html" class="flex items-start gap-3 rounded-3xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                                <i class="fas fa-chart-network mt-1 text-blue-600"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-900">回到 997 skills 分布页</p>
+                                    <p class="mt-1 text-sm leading-7 text-slate-600">看 4 个来源包、14 条能力链路和 OpenClaw 8 大类全景。</p>
+                                </div>
+                            </a>
+                            <a href="./skills-market.html" class="flex items-start gap-3 rounded-3xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                                <i class="fas fa-store mt-1 text-violet-600"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-900">按 Agent 看技能市场</p>
+                                    <p class="mt-1 text-sm leading-7 text-slate-600">继续看 14 位专家会把哪些能力链路真正拉进工作台。</p>
+                                </div>
+                            </a>
+                            <a href="./immersive-roundtable.html?autostart=1" class="flex items-start gap-3 rounded-3xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                                <i class="fas fa-users-rays mt-1 text-emerald-600"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-900">直接看 14 位专家讨论</p>
+                                    <p class="mt-1 text-sm leading-7 text-slate-600">沉浸式页面最能体现这些 skills 是怎么被调用和接力的。</p>
+                                </div>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
