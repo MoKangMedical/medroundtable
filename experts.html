@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>H2A 专家网络 - MedRoundTable</title>
+    <title>14 位 AI 专家 - MedRoundTable</title>
     <link rel="icon" href="./assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./frontend/platform-catalog.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
 
@@ -128,37 +129,31 @@
             <div class="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
                 <div class="min-w-0">
                     <div class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700">
-                        <i class="fas fa-users-gear"></i> H2A Expert Network
+                        <i class="fas fa-users-gear"></i> 14 位 AI 专家真实路径页
                     </div>
                     <h1 class="mt-5 text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                        14 位 Agent 现在是运行时前台，
-                        <span class="text-slate-500">后续会逐步接成 human-backed twins。</span>
+                        14 位 AI 专家已经按三层协作结构展开，
+                        <span class="text-slate-500">你可以直接判断谁该先介入当前任务。</span>
                     </h1>
                     <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-                        这里不只是在列 14 位 AI 专家，而是在定义 MedRoundTable 的专家供给侧。你可以先看哪些角色适合成为首批 H2A 样板，再进入单专家详情页，看方法资产、工具资产、可交付物以及何时需要升级真人。
+                        这里把 MedRoundTable 的 14 位 AI 专家按三层架构重新组织。你可以先总览分工，再进入单专家详情页，看职责、典型交付、合作路径和推荐提问方式。
                     </p>
-                    <div class="mt-5 flex flex-wrap gap-2 text-xs font-semibold">
-                        <span class="rounded-full border border-blue-200 bg-white px-3 py-1.5 text-blue-700">Shadow</span>
-                        <span class="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700">Copilot</span>
-                        <span class="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-700">Delegation</span>
-                        <span class="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-rose-700">Twin</span>
-                    </div>
 
                     <div class="mt-8 grid gap-4 md:grid-cols-3">
                         <div class="stat-card rounded-[1.75rem] p-5">
-                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Runtime Agents</div>
+                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Experts</div>
                             <div class="mt-3 text-4xl font-bold text-slate-900">14</div>
-                            <p class="mt-2 text-sm leading-6 text-slate-500">当前前台运行时入口，负责即时会诊与技能调用。</p>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">三层团队，覆盖临床、生信与研究支持。</p>
                         </div>
                         <div class="stat-card rounded-[1.75rem] p-5">
-                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Pilot Human Roles</div>
-                            <div class="mt-3 text-4xl font-bold text-slate-900">5</div>
-                            <p class="mt-2 text-sm leading-6 text-slate-500">建议优先沉淀临床、流病、统计、生信和执行样板角色。</p>
+                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Skill Layers</div>
+                            <div class="mt-3 text-4xl font-bold text-slate-900">3</div>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">核心临床团队、ClawBio 套件、专业研究支持团队。</p>
                         </div>
                         <div class="stat-card rounded-[1.75rem] p-5">
-                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Runtime Skills</div>
+                            <div class="text-sm uppercase tracking-[0.16em] text-slate-400">Tooling</div>
                             <div class="mt-3 text-4xl font-bold text-slate-900">997</div>
-                            <p class="mt-2 text-sm leading-6 text-slate-500">用于运行时调度的武器库，不是给用户手动背目录。</p>
+                            <p class="mt-2 text-sm leading-6 text-slate-500">已接入技能与工具生态，可继续引导到功能页。</p>
                         </div>
                     </div>
                 </div>
@@ -167,20 +162,36 @@
                     <img src="./assets/diagram.png" alt="MedRoundTable 专家协作结构图" class="w-full rounded-[1.5rem] border border-slate-200 object-cover">
                     <div class="mt-4 grid gap-3 md:grid-cols-3">
                         <div class="rounded-2xl bg-rose-50 p-4">
-                            <div class="text-sm font-semibold text-rose-700">专家供给侧</div>
-                            <div class="mt-2 text-sm leading-6 text-slate-600">先把真人专家怎么判断、怎么拆问题、怎么改方案记录下来，而不是先模仿一段聊天语气。</div>
+                            <div class="text-sm font-semibold text-rose-700">研究定位</div>
+                            <div class="mt-2 text-sm leading-6 text-slate-600">由临床主任、博士生、流行病学家、统计学家和研究护士把题目做实。</div>
                         </div>
                         <div class="rounded-2xl bg-cyan-50 p-4">
-                            <div class="text-sm font-semibold text-cyan-700">分身资产层</div>
-                            <div class="mt-2 text-sm leading-6 text-slate-600">每位专家未来沉淀成方法资产、工具资产和交付资产，再提供给运行时调用。</div>
+                            <div class="text-sm font-semibold text-cyan-700">生信突破</div>
+                            <div class="mt-2 text-sm leading-6 text-slate-600">ClawBio 四位专家负责多组学、GWAS、单细胞与 Galaxy 流程。</div>
                         </div>
                         <div class="rounded-2xl bg-blue-50 p-4">
-                            <div class="text-sm font-semibold text-blue-700">真人升级</div>
-                            <div class="mt-2 text-sm leading-6 text-slate-600">高风险、高价值或争议大的任务不强行自动化，而是升级到真人审核或接管。</div>
+                            <div class="text-sm font-semibold text-blue-700">质量兜底</div>
+                            <div class="mt-2 text-sm leading-6 text-slate-600">研究支持团队把体验、数据、趋势、追踪和 QA 接住。</div>
                         </div>
                     </div>
                 </aside>
             </div>
+        </section>
+
+        <section class="glass mt-8 rounded-[2rem] p-5 md:p-7 lg:p-8">
+            <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div class="max-w-3xl">
+                    <div class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+                        <i class="fas fa-layer-group"></i> 能力加持层
+                    </div>
+                    <h2 class="mt-4 text-3xl font-bold">选专家之前，先看当前平台已经挂上的四类关键能力</h2>
+                    <p class="mt-3 text-base leading-8 text-slate-600">这里把中文文献自动化、多组学分析系统，以及当前最值得展示的医学与基因组模型直接放到专家入口后面，避免用户先选人、再猜能力。</p>
+                </div>
+                <a href="./frontend/skills-market.html" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                    查看按 Agent 划分的能力入口 <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div id="capabilitySpotlightGrid" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4"></div>
         </section>
 
         <section id="groupsContainer" class="mt-8 space-y-8"></section>
@@ -190,6 +201,7 @@
     <script>
         const dataApi = window.MedRoundTableExperts;
         const container = document.getElementById('groupsContainer');
+        const capabilitySpotlightGrid = document.getElementById('capabilitySpotlightGrid');
 
         function escapeHtml(value) {
             return String(value)
@@ -257,7 +269,7 @@
                                 <p class="mt-3 text-base md:text-lg leading-8 text-slate-600">${escapeHtml(group.summary)}</p>
                             </div>
                             <div class="rounded-[1.5rem] border border-white/70 bg-white/70 px-5 py-4 text-sm leading-7 text-slate-600 shadow-sm">
-                                点击任一专家卡片，即可查看这位角色未来如何从运行时 Agent 逐步过渡成 human-backed twin。
+                                点击任一专家卡片，直接看职责、交付物和推荐进入方式。
                             </div>
                         </div>
                         <div class="mt-6 grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
@@ -268,7 +280,41 @@
             `;
         }
 
+        function renderCapabilitySpotlights(catalog) {
+            if (!capabilitySpotlightGrid) return;
+            const cards = [
+                ...(catalog.featured_integrations || []).map((item) => ({
+                    type: 'Integration',
+                    accent: item.tone === 'orange' ? '#ea580c' : '#059669',
+                    name: item.name,
+                    summary: item.headline || item.summary,
+                    detail: (item.owner_roles || []).join(' / ')
+                })),
+                ...(catalog.frontier_models || []).map((item) => ({
+                    type: 'Frontier Model',
+                    accent: item.tone === 'violet' ? '#7c3aed' : '#4f46e5',
+                    name: item.name,
+                    summary: item.summary,
+                    detail: (item.use_cases || []).slice(0, 2).join(' / ')
+                }))
+            ];
+
+            capabilitySpotlightGrid.innerHTML = cards.map((card) => `
+                <article class="expert-card rounded-[1.75rem] p-5" style="--accent:${card.accent};">
+                    <div class="text-xs font-semibold uppercase tracking-[0.18em]" style="color:${card.accent}">${escapeHtml(card.type)}</div>
+                    <h3 class="mt-3 text-2xl font-bold text-slate-900">${escapeHtml(card.name)}</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(card.summary)}</p>
+                    <div class="mt-4 rounded-[1.25rem] bg-slate-50 px-4 py-4 text-sm leading-7 text-slate-600">${escapeHtml(card.detail)}</div>
+                </article>
+            `).join('');
+        }
+
         container.innerHTML = dataApi.groups.map(groupMarkup).join('');
+        MRTPlatformCatalog.loadCatalog('.')
+            .then(renderCapabilitySpotlights)
+            .catch(() => {
+                if (capabilitySpotlightGrid) capabilitySpotlightGrid.innerHTML = '';
+            });
     </script>
 </body>
 </html>
