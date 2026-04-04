@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>997 Skills 分布 - MedRoundTable</title>
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="./platform-catalog.js"></script>
+    <script src="./expert-data.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+        :root {
+            color-scheme: light;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: #11203e;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.14), transparent 22%),
+                radial-gradient(circle at 100% 0, rgba(14, 165, 233, 0.12), transparent 30%),
+                linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .glass-shell {
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(18px);
+        }
+
+        .progress-track {
+            position: relative;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.16);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: inherit;
+        }
+
+        .node-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+            transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+        }
+
+        .node-chip:hover,
+        .node-chip.active {
+            transform: translateY(-2px);
+            border-color: rgba(59, 130, 246, 0.35);
+            box-shadow: 0 18px 36px rgba(37, 99, 235, 0.12);
+        }
+
+        .source-card,
+        .lane-card,
+        .group-card,
+        .reason-card {
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+        }
+
+        .source-card:hover,
+        .lane-card:hover,
+        .group-card:hover,
+        .reason-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 28px 56px rgba(30, 64, 175, 0.12);
+        }
+
+        .mesh-node {
+            position: relative;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 18px 20px;
+            min-height: 136px;
+        }
+
+        .mesh-column::before {
+            content: "";
+            position: absolute;
+            top: 28px;
+            bottom: 28px;
+            right: -14px;
+            width: 28px;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.12), rgba(14, 165, 233, 0.02));
+            filter: blur(10px);
+            pointer-events: none;
+        }
+
+        .mesh-column:last-child::before {
+            display: none;
+        }
+
+        .mesh-link {
+            position: absolute;
+            top: 50%;
+            right: -18px;
+            width: 36px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.45), rgba(14, 165, 233, 0.12));
+            transform: translateY(-50%);
+        }
+
+        .mesh-link::after {
+            content: "";
+            position: absolute;
+            right: -3px;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #2563eb;
+            transform: translateY(-50%);
+            box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.14);
+        }
+
+        @media (max-width: 1024px) {
+            .mesh-column::before,
+            .mesh-link {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <main class="mx-auto max-w-7xl px-4 py-8 md:py-12">
+        <div class="glass-shell overflow-hidden rounded-[2rem] border border-white/70 shadow-[0_30px_80px_rgba(15,35,80,0.12)]">
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10 md:py-10">
+                <div class="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+                    <div class="max-w-4xl">
+                        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                            <a href="../index.html#agent-skill-command" class="inline-flex items-center gap-2 transition hover:text-slate-900">
+                                <i class="fas fa-arrow-left"></i> 返回首页技能入口
+                            </a>
+                            <span class="text-slate-300">/</span>
+                            <a href="./skills-market.html" class="inline-flex items-center gap-2 transition hover:text-slate-900">
+                                <i class="fas fa-store"></i> 技能市场
+                            </a>
+                        </div>
+                        <div class="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
+                            <i class="fas fa-chart-network"></i> Skills Distribution Atlas
+                        </div>
+                        <h1 class="mt-5 text-4xl font-bold leading-tight md:text-5xl">997 个 skills 是怎么分布的，为什么平台必须要有这么多</h1>
+                        <p class="mt-4 max-w-3xl text-lg leading-8 text-slate-600">
+                            MedRoundTable 不是把一个模型包成聊天框，而是把医学科研从问题识别、文献回顾、研究设计、数据准备、分析执行到最终交付拆成可调用的最小能力单元。这个页面先给你看真实分布，再解释为什么少了这些原子能力，14 位专家就只能“会说”，无法“把事情做完”。
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-[40rem]">
+                        <div class="rounded-3xl bg-slate-950 px-4 py-5 text-white">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Skills</p>
+                            <p id="skillsTotal" class="mt-3 text-3xl font-bold">997</p>
+                            <p class="mt-1 text-sm text-slate-300">真实技能总量</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Agents</p>
+                            <p id="expertsTotal" class="mt-3 text-3xl font-bold text-blue-700">14</p>
+                            <p class="mt-1 text-sm text-slate-500">专家协作入口</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Integrations</p>
+                            <p id="integrationsTotal" class="mt-3 text-3xl font-bold text-emerald-700">5</p>
+                            <p class="mt-1 text-sm text-slate-500">外部整合层</p>
+                        </div>
+                        <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Lanes</p>
+                            <p id="lanesTotal" class="mt-3 text-3xl font-bold text-violet-700">14</p>
+                            <p class="mt-1 text-sm text-slate-500">执行链路</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex flex-wrap gap-3">
+                    <a href="./immersive-roundtable.html?autostart=1" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                        <i class="fas fa-users-rays"></i> 直接看 14 位专家怎么调用这些 skills
+                    </a>
+                    <a href="./skills-market.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <i class="fas fa-layer-group"></i> 从 Agent 视角看技能入口
+                    </a>
+                    <a href="./skills-priority.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <i class="fas fa-diagram-project"></i> 看接入优先级
+                    </a>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
+                <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">真实分布口径</p>
+                        <h2 class="mt-2 text-3xl font-bold">先看 997 skills 的一级来源分布</h2>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">
+                            这部分是唯一按 <strong>不重复加总</strong> 统计的口径。也就是说，下面四组的数量相加，刚好等于 997。它回答的是“这些 skills 从哪里来”。
+                        </p>
+                        <div id="sourcePackageGrid" class="mt-6 space-y-4"></div>
+                    </article>
+
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-6 text-white">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-200">一句话解释</p>
+                        <h2 class="mt-2 text-3xl font-bold">为什么不是 20 个大功能，而是 997 个 skills</h2>
+                        <div class="mt-5 space-y-4 text-sm leading-7 text-slate-200">
+                            <p>因为医学科研不是一句“帮我做个方案”就能完成。它背后至少要拆成：证据检索、纳排标准、终点定义、样本量、CRF 字段、数据库路由、质控、图表表达、导出、审查等大量可执行动作。</p>
+                            <p>如果这些动作不被拆成 skill，14 位专家只能发表意见；一旦拆成 skill，他们就能按角色调用具体能力，把讨论推进成真实交付。</p>
+                        </div>
+                        <div id="sourceSummaryNote" class="mt-6 grid gap-3"></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 bg-slate-50 px-6 py-8 md:px-10">
+                <div class="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">OpenClaw 官方口径</p>
+                        <h2 class="mt-2 text-3xl font-bold">869 个 OpenClaw Medical Skills 的官方 8 大类分布</h2>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">
+                            这部分单独回答 OpenClaw 包装层的真实结构。MedRoundTable 里最大的 skill 来源就是 <strong>OpenClaw Medical Skills Wrapper</strong>，这里按 OpenClaw 官方当前公开 README 的 8 大类口径展示。
+                        </p>
+                        <div id="openclawOfficialGrid" class="mt-6 grid gap-4 md:grid-cols-2"></div>
+                    </article>
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-6 text-white">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-200">口径说明</p>
+                        <h2 class="mt-2 text-3xl font-bold">我们平台和 OpenClaw 的关系</h2>
+                        <div class="mt-5 space-y-4 text-sm leading-7 text-slate-200">
+                            <p><strong>第一层：</strong>平台总量是 <strong>997</strong>，这是 MedRoundTable 完整口径。</p>
+                            <p><strong>第二层：</strong>其中最大的一层是 <strong>869 个 OpenClaw Medical Skills</strong>，我们把它们包装成 MedRoundTable 可调用的技能表面。</p>
+                            <p><strong>第三层：</strong>前台不会把 869 个技能逐条堆给用户，而是继续按 <strong>14 位专家、14 条能力链路、数据库入口和交付物</strong> 重排成真正能用的工作台。</p>
+                        </div>
+                        <div id="openclawSummaryBoard" class="mt-6 grid gap-3"></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 bg-slate-50 px-6 py-8 md:px-10">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">执行工作流</p>
+                        <h2 class="mt-2 text-3xl font-bold">这些 skills 被如何动员到科研流程里</h2>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+                            这里不是再把 997 做一次加总，而是展示平台如何把这些能力映射进真实工作流。一个 skill 可能服务多个阶段，所以这部分是 <strong>执行映射口径</strong>，不是新的总数。
+                        </p>
+                    </div>
+                    <div id="stageFilters" class="flex flex-wrap gap-2"></div>
+                </div>
+                <div class="mt-6 grid gap-4 xl:grid-cols-4">
+                    <div class="mesh-column relative">
+                        <div class="mesh-node">
+                            <div class="mesh-link hidden xl:block"></div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">入口</p>
+                            <h3 class="mt-2 text-xl font-bold text-slate-950">研究问题</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600">从一句临床问题进入，系统先判断需要证据扫描、方案设计还是多组学 / 数据分析支撑。</p>
+                        </div>
+                    </div>
+                    <div class="mesh-column relative">
+                        <div class="mesh-node">
+                            <div class="mesh-link hidden xl:block"></div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">编排</p>
+                            <h3 class="mt-2 text-xl font-bold text-slate-950">14 位专家</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600">临床、文献、流调、统计、生信、数据工程和质量门禁分别调度各自的能力面。</p>
+                        </div>
+                    </div>
+                    <div class="mesh-column relative">
+                        <div class="mesh-node">
+                            <div class="mesh-link hidden xl:block"></div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">执行</p>
+                            <h3 class="mt-2 text-xl font-bold text-slate-950">14 条能力链路</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600">证据合成、试验设计、数据库织网、AI 建模、多组学、诊断推理、自动研究闭环等在此接力。</p>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="mesh-node">
+                            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">交付</p>
+                            <h3 class="mt-2 text-xl font-bold text-slate-950">方案与报告</h3>
+                            <p class="mt-3 text-sm leading-7 text-slate-600">最终收敛为研究方案、证据清单、统计计划、图表、Word 纪要和 PPT 汇报材料。</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="laneSummaryBoard" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4"></div>
+                <div id="laneGrid" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+            </section>
+
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
+                <div class="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">专家调度</p>
+                        <h2 class="mt-2 text-3xl font-bold">14 位专家如何分摊这 997 个 skills</h2>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">
+                            平台不是让每位专家都“会一点点”，而是给每个角色分配稳定的主责能力面。下面按三层团队展示每组常调用的 skill 面和典型交付物。
+                        </p>
+                        <div id="groupGrid" class="mt-6 grid gap-4"></div>
+                    </article>
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">为什么必须很多</p>
+                        <h2 class="mt-2 text-3xl font-bold">如果 skill 数量太少，平台会在哪些地方失效</h2>
+                        <div id="reasonGrid" class="mt-6 grid gap-4 md:grid-cols-2"></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
+                <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">前台可见性对照</p>
+                        <h2 class="mt-2 text-3xl font-bold">这些公开数据库和工具，现在在平台前台处于什么状态</h2>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+                            这里专门避免混淆“底层已接入”和“用户已经能在前台明确看到”。我把它拆成三类：已接入且已展示、已接入但未单独展示、尚未单独包装展示。
+                        </p>
+                    </div>
+                </div>
+                <div class="mt-6 grid gap-6 xl:grid-cols-3">
+                    <article class="rounded-[1.75rem] border border-emerald-200 bg-emerald-50/70 p-6">
+                        <span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">已接入且已展示</span>
+                        <div id="visibleNowTable" class="mt-5 space-y-3"></div>
+                    </article>
+                    <article class="rounded-[1.75rem] border border-blue-200 bg-blue-50/70 p-6">
+                        <span class="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">已接入但未单独展示</span>
+                        <div id="integratedNotVisibleTable" class="mt-5 space-y-3"></div>
+                    </article>
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6">
+                        <span class="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-white">尚未单独包装展示</span>
+                        <div id="notPackagedTable" class="mt-5 space-y-3"></div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 bg-slate-50 px-6 py-8 md:px-10">
+                <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">优先接入仓库</p>
+                        <h2 class="mt-2 text-3xl font-bold">这 4 个仓库最适合继续把平台做实</h2>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+                            这 4 个仓库不是“看起来相关”，而是分别落在中文文献回顾、生物医学文本挖掘、多组学分析和自动科研交付这 4 条最关键的执行链路上。
+                        </p>
+                    </div>
+                    <a href="./skills-priority.html" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                        <i class="fas fa-arrow-right"></i> 打开完整接入优先级页
+                    </a>
+                </div>
+                <div id="curatedRepoGrid" class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4"></div>
+            </section>
+
+            <section class="px-6 py-8 md:px-10 md:py-10">
+                <div class="grid gap-6 xl:grid-cols-[1fr_0.9fr]">
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">平台回答</p>
+                        <h2 class="mt-2 text-3xl font-bold">一句话说清楚为什么平台要有 997 个 skills</h2>
+                        <div class="mt-5 rounded-[1.5rem] bg-slate-950 px-6 py-6 text-white">
+                            <p class="text-lg leading-9">
+                                因为 MedRoundTable 想做的不是“回答一个医学问题”，而是把一个医学研究项目从想法推进到交付。要做到这件事，就必须把文献、设计、数据库、分析、合规、导出这些动作拆成大量可复用、可调度、可审查的 skill，14 位专家才能真正接力完成工作，而不是只给概念性建议。
+                            </p>
+                        </div>
+                    </article>
+                    <article class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">下一步入口</p>
+                        <h2 class="mt-2 text-3xl font-bold">看完分布后，最适合从这里继续</h2>
+                        <div class="mt-6 space-y-3">
+                            <a href="./skills-market.html" class="flex items-start gap-3 rounded-3xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                                <i class="fas fa-store mt-1 text-blue-600"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-900">按 Agent 进入技能市场</p>
+                                    <p class="mt-1 text-sm leading-7 text-slate-600">先选一位专家，再看 TA 实际会调哪些能力链路与外部整合。</p>
+                                </div>
+                            </a>
+                            <a href="./immersive-roundtable.html?autostart=1" class="flex items-start gap-3 rounded-3xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                                <i class="fas fa-users-rays mt-1 text-violet-600"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-900">直接看 14 位专家如何调用这些 skills</p>
+                                    <p class="mt-1 text-sm leading-7 text-slate-600">沉浸式会诊页会把专家接力、能力加持和导出交付串成完整演示链。</p>
+                                </div>
+                            </a>
+                            <a href="../index.html#capability-atlas" class="flex items-start gap-3 rounded-3xl border border-slate-200 bg-white px-5 py-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+                                <i class="fas fa-chart-line mt-1 text-emerald-600"></i>
+                                <div>
+                                    <p class="font-semibold text-slate-900">回首页看数据库与工具生态联动</p>
+                                    <p class="mt-1 text-sm leading-7 text-slate-600">首页工作台会把数据库、工具和讨论入口放在同一条研究执行链上。</p>
+                                </div>
+                            </a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const STAGE_DEFINITIONS = [
+            { id: 'all', name: '全部链路', icon: 'fa-grid-2', summary: '看平台完整能力图谱' },
+            { id: 'scoping', name: '问题识别', icon: 'fa-lightbulb', summary: '先把问题界定、证据线索和诊断假设立起来' },
+            { id: 'evidence', name: '文献回顾', icon: 'fa-book-open-reader', summary: '把中英文文献、实体关系和真实引用证据收上来' },
+            { id: 'design', name: '研究设计', icon: 'fa-sitemap', summary: '把终点、纳排、偏倚、诊断计划和试验框架落下来' },
+            { id: 'data', name: '数据准备', icon: 'fa-database', summary: '把数据库、队列、结构化字段和组学工作台接进来' },
+            { id: 'analysis', name: '数据分析', icon: 'fa-wave-square', summary: '把统计、生信、AI 建模和前沿模型推理跑起来' },
+            { id: 'delivery', name: '报告输出', icon: 'fa-file-export', summary: '把 Word、PPT、方案、纪要和研究提案导出来' },
+        ];
+
+        const LANE_STAGE_MAP = {
+            'evidence-synthesis': ['scoping', 'evidence'],
+            'trial-design': ['design'],
+            'bioinformatics': ['data', 'analysis'],
+            'data-fabric': ['data'],
+            'ai-modeling': ['analysis'],
+            'translational-drug': ['design', 'analysis'],
+            'quality-compliance': ['design', 'delivery'],
+            'workflow-export': ['delivery'],
+            'cnki-automation': ['evidence'],
+            'omics-orchestration': ['data', 'analysis'],
+            'frontier-biomedical-models': ['analysis'],
+            'autonomous-research-loop': ['analysis', 'delivery'],
+            'evidence-based-diagnosis': ['scoping', 'design', 'analysis'],
+            'biomedical-text-mining': ['scoping', 'evidence'],
+        };
+
+        const STAGE_TONE = {
+            all: 'slate',
+            scoping: 'amber',
+            evidence: 'blue',
+            design: 'emerald',
+            data: 'cyan',
+            analysis: 'violet',
+            delivery: 'rose',
+        };
+
+        const ROLE_ALIAS = {
+            '临床主任': '临床主任',
+            '博士生': '博士生',
+            '流行病学家': '流行病学家',
+            '统计学家': '统计学家',
+            '研究护士': '研究护士',
+            '药物基因组学专家': '药物基因组学',
+            '药物基因组学': '药物基因组学',
+            'GWAS 专家': 'GWAS 专家',
+            '单细胞测序专家': '单细胞测序',
+            '单细胞测序': '单细胞测序',
+            'Galaxy 桥接器': 'Galaxy 桥接器',
+            'UX 研究员': 'UX 研究员',
+            'AI 数据工程师': 'AI 数据工程师',
+            '趋势研究员': '趋势研究员',
+            '实验追踪员': '实验追踪员',
+            '模型 QA 专家': '模型 QA 专家',
+        };
+
+        const REASON_ITEMS = [
+            {
+                title: '科研任务天然是细颗粒度的',
+                body: '“设计研究方案”本身就要拆成终点、纳排、偏倚、样本量、CRF、访视、导出等十几个动作。skill 越细，越能让专家在正确节点接管。'
+            },
+            {
+                title: '循证与可审查要求不能靠一句大话完成',
+                body: '平台要给出检索式、证据表、诊断计划、风险评分和报告导出，就必须把引用验证、实体抽取、数据库路由和合规审查拆成专门能力。'
+            },
+            {
+                title: '14 位专家需要稳定分工，不是轮流说空话',
+                body: '临床主任、统计学家、GWAS 专家、研究护士和 AI 数据工程师调用的能力完全不同。skill 体系越清晰，专家之间的接力越像真实项目组。'
+            },
+            {
+                title: '平台追求的是交付，而不只是回答',
+                body: 'MedRoundTable 最终要沉淀成 Word、PPT、方案、分析计划和知识清单。要做到“讨论结束即交付”，导出、模板、质量门禁也必须是 skill。'
+            }
+        ];
+
+        const OPENCLAW_OFFICIAL_CATEGORIES = [
+            { name: 'General & Core', count: 10, tone: 'slate', highlights: ['浏览与检索', '表格/文档', 'PPT/PDF/DOCX', '基础工作流'] },
+            { name: 'Medical & Clinical', count: 119, tone: 'blue', highlights: ['临床报告', '临床决策支持', '影像/病理', '医疗器械与法规'] },
+            { name: 'Scientific Databases', count: 43, tone: 'emerald', highlights: ['PubMed', 'ClinicalTrials.gov', 'DrugBank / ChEMBL', '数据库检索'] },
+            { name: 'Bioinformatics (gptomics)', count: 239, tone: 'violet', highlights: ['测序质控', '差异表达', '变异分析', '单细胞 / 表观'] },
+            { name: 'Omics & Computational Biology', count: 59, tone: 'lime', highlights: ['单细胞与空间组学', '蛋白质组', '化学信息学', '蛋白设计'] },
+            { name: 'ClawBio Pipelines', count: 21, tone: 'cyan', highlights: ['scRNA', 'GWAS', '祖源分析', '结构生物学编排'] },
+            { name: 'BioOS Extended Suite', count: 285, tone: 'rose', highlights: ['肿瘤', '免疫', '临床 AI', '研究基础设施'] },
+            { name: 'Data Science & Tools', count: 93, tone: 'orange', highlights: ['统计分析', '科学可视化', '模拟/本体', '科研写作自动化'] },
+        ];
+
+        const VISIBILITY_ROWS = {
+            visible: [
+                { name: 'PubMed / PMC / Europe PMC', type: '公开数据库', note: '已在数据库浏览器和首页研究流程中显式出现。' },
+                { name: 'ClinicalTrials.gov', type: '公开数据库', note: '已作为临床试验核心数据库在前台展示。' },
+                { name: 'FDA Orange Book', type: '公开数据库', note: '已在数据库目录中以独立数据库卡形式出现。' },
+                { name: 'ChEMBL / DrugBank', type: '公开数据库', note: '已进入数据库浏览器与能力路径展示。' },
+                { name: 'NHANES / SEER / CHARLS', type: '研究数据源', note: '已在首页作为代表性分析工作台展示。' },
+                { name: 'TCGA / GEO / KEGG / Reactome / UniProt', type: '组学与通路数据库', note: '已在数据库浏览器中可见。' },
+                { name: 'QuantClaw × CNKI / OmicClaw × OmicVerse / MedAgent-Pro / NeuraGraph / AutoResearchClaw', type: '工具与整合能力', note: '已在首页、能力页或沉浸式讨论页显式展示。' }
+            ],
+            integrated: [
+                { name: 'BioOS Extended Suite（285）', type: '包装层能力簇', note: '已计入 OpenClaw 包装层，但当前前台没有逐个子能力做独立卡片。' },
+                { name: 'Medical Device & Regulatory 子能力', type: '法规与器械能力', note: '已在底层包装口径覆盖，但当前未拆成单独前台入口。' },
+                { name: 'Healthcare ML & Clinical AI 子能力', type: '临床 AI 能力', note: '已在包装层中，但前台更多以能力链路而不是单技能列出。' },
+                { name: 'Lab Automation / Scientific Writing / Analyst Personas', type: '科研支持工具', note: '已在 skills 体系中，但尚未单独前台化。' }
+            ],
+            notPackaged: [
+                { name: 'OpenTargets', type: '公开数据库', note: '当前站点尚未做成独立数据库入口或工具卡。' },
+                { name: 'OMIM', type: '公开数据库', note: '尚未在站点前台形成单独包装展示。' },
+                { name: 'OpenFDA', type: '公开数据库', note: '与 FDA 相关能力尚未细化到单独前台入口。' },
+                { name: 'PDB / GTEx', type: '公开数据库', note: '当前站点未做成独立数据库卡或流程入口。' },
+                { name: 'MedSAM / Cellpose / Maira-2 等专用视觉工具', type: '专用分析工具', note: '能力口径已借由 MedAgent-Pro 提及，但站点未单独包装展示。' }
+            ]
+        };
+
+        const CURATED_REPO_ROWS = [
+            {
+                name: 'cookjohn/cnki-skills',
+                title: 'CNKI Skills',
+                tone: 'orange',
+                url: 'https://github.com/cookjohn/cnki-skills',
+                lane: '文献回顾 / 中文证据补齐',
+                status: '已接入',
+                note: '最适合把中文文献、期刊级别、PDF 下载和 Zotero 导出接进 MedRoundTable 的文献回顾链路。',
+                outputs: ['中文文献检索', '期刊目录浏览', 'PDF 下载', '引用导出']
+            },
+            {
+                name: 'tyrone1979/neuragraph',
+                title: 'NeuraGraph',
+                tone: 'fuchsia',
+                url: 'https://github.com/tyrone1979/neuragraph',
+                lane: '问题识别 / 文献回顾',
+                status: '已接入',
+                note: '最适合把摘要、病历和全文先抽成实体、关系和三元组，让前期讨论不再停留在长文本。',
+                outputs: ['实体关系表', '知识三元组', '结构化证据清单', '文本挖掘工作流']
+            },
+            {
+                name: 'Starlitnightly/omicclaw',
+                title: 'OmicClaw',
+                tone: 'lime',
+                url: 'https://github.com/Starlitnightly/omicclaw',
+                lane: '数据准备 / 组学分析',
+                status: '已接入',
+                note: '最适合挂到 GWAS、单细胞、多组学数据准备和 MCP 调度链路后面，补真实分析工作台。',
+                outputs: ['组学工作流', '共享 Kernel', '本地生信分析', '网页/终端/IM 协同']
+            },
+            {
+                name: 'aiming-lab/AutoResearchClaw',
+                title: 'AutoResearchClaw',
+                tone: 'sky',
+                url: 'https://github.com/aiming-lab/AutoResearchClaw',
+                lane: '数据分析 / 报告输出',
+                status: '已接入',
+                note: '最适合把“从 idea 到 paper deliverables”的自动化研究闭环补到平台后段，强调最终交付。',
+                outputs: ['研究计划推进', '实验与结果循环', '论文草稿', '交付物打包']
+            }
+        ];
+
+        let activeStage = 'all';
+
+        function formatPercent(value, total) {
+            if (!total) return '0%';
+            return `${((value / total) * 100).toFixed(value / total > 0.3 ? 1 : 2)}%`;
+        }
+
+        function safeArray(value) {
+            return Array.isArray(value) ? value : [];
+        }
+
+        function getStageList(laneId) {
+            return LANE_STAGE_MAP[laneId] || ['analysis'];
+        }
+
+        function buildStageRollups(lanes) {
+            return STAGE_DEFINITIONS.filter((stage) => stage.id !== 'all').map((stage) => {
+                const linked = lanes.filter((lane) => getStageList(lane.id).includes(stage.id));
+                return {
+                    ...stage,
+                    linked,
+                    mappedCount: linked.reduce((sum, lane) => sum + Number(lane.count || 0), 0),
+                };
+            });
+        }
+
+        function buildRoleLaneIndex(lanes) {
+            const index = new Map();
+            lanes.forEach((lane) => {
+                safeArray(lane.owner_roles).forEach((role) => {
+                    const normalized = ROLE_ALIAS[role] || role;
+                    if (!index.has(normalized)) index.set(normalized, []);
+                    index.get(normalized).push(lane);
+                });
+            });
+            return index;
+        }
+
+        function renderSourcePackages(catalog) {
+            const total = Number(catalog.stats.skills_total) || 0;
+            const grid = document.getElementById('sourcePackageGrid');
+            const note = document.getElementById('sourceSummaryNote');
+            const packages = safeArray(catalog.source_packages);
+
+            grid.innerHTML = packages.map((pkg) => {
+                const tone = pkg.id === 'openclaw-medical-wrapper'
+                    ? 'violet'
+                    : pkg.id === 'ai-research-suite'
+                        ? 'blue'
+                        : pkg.id === 'medrt-enhanced-suite'
+                            ? 'emerald'
+                            : 'slate';
+                const style = window.MRTPlatformCatalog.getToneStyle(tone);
+                const count = Number(pkg.count || 0);
+                const pct = total ? (count / total) * 100 : 0;
+
+                return `
+                    <article class="source-card rounded-[1.5rem] border ${style.soft} p-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">${pkg.packaging}</p>
+                                <h3 class="mt-2 text-xl font-bold text-slate-950">${pkg.name}</h3>
+                            </div>
+                            <span class="rounded-full ${style.badge} px-3 py-1 text-sm font-semibold">${count} 项</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${pkg.summary}</p>
+                        <div class="mt-5">
+                            <div class="flex items-center justify-between text-sm font-semibold">
+                                <span class="text-slate-600">占全部 skills</span>
+                                <span class="${style.accent}">${formatPercent(count, total)}</span>
+                            </div>
+                            <div class="progress-track mt-2 h-3">
+                                <div class="progress-fill ${style.button}" style="width:${pct.toFixed(2)}%"></div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            note.innerHTML = [
+                `最大头是 <strong>OpenClaw Medical Skills Wrapper</strong>，负责把大量已有医学能力包装成可被平台调度的 skill 表面。`,
+                `真正把这些 skill 串起来变成产品的是 <strong>MedRoundTable Local Core + Enhanced Skills</strong>，负责会话编排、导出、门禁和研究模板。`,
+                `<strong>AI Research Skills</strong> 则承担研究推理、RAG、实验与跨数据库路由，把“能调用”进一步推成“能推进项目”。`
+            ].map((item) => `
+                <div class="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-100">${item}</div>
+            `).join('');
+        }
+
+        function renderOpenClawOfficialSection(catalog) {
+            const total = Number(catalog.stats.openclaw_wrapped_skills) || 869;
+            const grid = document.getElementById('openclawOfficialGrid');
+            const summary = document.getElementById('openclawSummaryBoard');
+
+            grid.innerHTML = OPENCLAW_OFFICIAL_CATEGORIES.map((item) => {
+                const style = window.MRTPlatformCatalog.getToneStyle(item.tone);
+                const pct = total ? (Number(item.count) / total) * 100 : 0;
+                return `
+                    <article class="rounded-[1.5rem] border ${style.soft} p-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">OpenClaw official category</p>
+                                <h3 class="mt-2 text-xl font-bold text-slate-950">${item.name}</h3>
+                            </div>
+                            <span class="rounded-full ${style.badge} px-3 py-1 text-sm font-semibold">${item.count}</span>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${item.highlights.map((tag) => `<span class="rounded-full border border-white/70 bg-white/75 px-3 py-1 text-xs font-semibold text-slate-600">${tag}</span>`).join('')}
+                        </div>
+                        <div class="mt-5">
+                            <div class="flex items-center justify-between text-sm font-semibold">
+                                <span class="text-slate-600">占 OpenClaw 包装层</span>
+                                <span class="${style.accent}">${formatPercent(item.count, total)}</span>
+                            </div>
+                            <div class="progress-track mt-2 h-3">
+                                <div class="progress-fill ${style.button}" style="width:${pct.toFixed(2)}%"></div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            summary.innerHTML = [
+                `<div class="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-100">当前我们平台引用的 <strong>OpenClaw 官方公开口径是 869</strong>。页面按官方 README 当前分类同步展示。</div>`,
+                `<div class="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-100"><strong>BioOS Extended Suite（285）</strong> 和 <strong>Bioinformatics（239）</strong> 是最大的两层，它们解释了为什么平台能覆盖肿瘤、免疫、组学、临床 AI 和研究基础设施。</div>`,
+                `<div class="rounded-3xl border border-white/10 bg-white/5 px-4 py-4 text-sm leading-7 text-slate-100">这些分类不会直接原封不动暴露给用户，而是继续被平台重排成专家入口、数据库目录、研究工作台和交付页面。</div>`
+            ].join('');
+        }
+
+        function renderVisibilityTables() {
+            [
+                ['visibleNowTable', VISIBILITY_ROWS.visible],
+                ['integratedNotVisibleTable', VISIBILITY_ROWS.integrated],
+                ['notPackagedTable', VISIBILITY_ROWS.notPackaged],
+            ].forEach(([id, rows]) => {
+                const root = document.getElementById(id);
+                root.innerHTML = rows.map((row) => `
+                    <article class="rounded-[1.35rem] border border-white/70 bg-white/80 px-4 py-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <h3 class="text-base font-bold text-slate-950">${row.name}</h3>
+                            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">${row.type}</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${row.note}</p>
+                    </article>
+                `).join('');
+            });
+        }
+
+        function renderCuratedRepos() {
+            const root = document.getElementById('curatedRepoGrid');
+            root.innerHTML = CURATED_REPO_ROWS.map((repo) => {
+                const style = window.MRTPlatformCatalog.getToneStyle(repo.tone);
+                return `
+                    <article class="rounded-[1.5rem] border ${style.soft} bg-white p-5">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">${repo.status} · ${repo.lane}</p>
+                                <h3 class="mt-2 text-xl font-bold text-slate-950">${repo.title}</h3>
+                                <p class="mt-1 text-xs font-semibold text-slate-500">${repo.name}</p>
+                            </div>
+                            <span class="rounded-full ${style.badge} px-3 py-1 text-xs font-semibold">${repo.status}</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${repo.note}</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${repo.outputs.map((tag) => `<span class="rounded-full border border-white/70 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">${tag}</span>`).join('')}
+                        </div>
+                        <a href="${repo.url}" target="_blank" rel="noopener noreferrer" class="mt-5 inline-flex items-center gap-2 text-sm font-semibold ${style.accent}">
+                            查看 GitHub 仓库 <i class="fas fa-arrow-up-right-from-square text-xs"></i>
+                        </a>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderStageFilters(stageRollups) {
+            const root = document.getElementById('stageFilters');
+            root.innerHTML = STAGE_DEFINITIONS.map((stage) => `
+                <button type="button" data-stage="${stage.id}" class="node-chip ${stage.id === activeStage ? 'active' : ''}">
+                    <i class="fas ${stage.icon}"></i>${stage.name}
+                </button>
+            `).join('');
+
+            root.querySelectorAll('[data-stage]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    activeStage = button.dataset.stage;
+                    renderStageFilters(stageRollups);
+                    renderLaneStageBoard(stageRollups);
+                    renderLaneGrid(window.__skillsCatalog.capability_lanes || []);
+                });
+            });
+        }
+
+        function renderLaneStageBoard(stageRollups) {
+            const board = document.getElementById('laneSummaryBoard');
+            const selected = activeStage === 'all'
+                ? stageRollups
+                : stageRollups.filter((stage) => stage.id === activeStage);
+
+            board.innerHTML = selected.map((stage) => {
+                const style = window.MRTPlatformCatalog.getToneStyle(STAGE_TONE[stage.id] || 'slate');
+                return `
+                    <article class="rounded-[1.4rem] border ${style.soft} p-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">${stage.name}</p>
+                                <h3 class="mt-2 text-xl font-bold text-slate-950">${stage.summary}</h3>
+                            </div>
+                            <span class="rounded-full ${style.badge} px-3 py-1 text-sm font-semibold">${stage.linked.length} 条链路</span>
+                        </div>
+                        <p class="mt-3 text-sm text-slate-500">执行映射口径共关联 <strong>${stage.mappedCount}</strong> 项能力，用来支撑这一阶段的推进。</p>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderLaneGrid(lanes) {
+            const root = document.getElementById('laneGrid');
+            const selectedLanes = activeStage === 'all'
+                ? lanes
+                : lanes.filter((lane) => getStageList(lane.id).includes(activeStage));
+
+            root.innerHTML = selectedLanes.map((lane) => {
+                const style = window.MRTPlatformCatalog.getToneStyle(lane.tone);
+                const stages = getStageList(lane.id)
+                    .map((stageId) => STAGE_DEFINITIONS.find((item) => item.id === stageId)?.name || stageId)
+                    .join(' / ');
+                return `
+                    <article class="lane-card rounded-[1.5rem] border ${style.soft} p-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">映射阶段 · ${stages}</p>
+                                <h3 class="mt-2 text-xl font-bold text-slate-950">${lane.name}</h3>
+                            </div>
+                            <span class="rounded-full ${style.badge} px-3 py-1 text-sm font-semibold">${lane.count} 项</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${lane.description}</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${safeArray(lane.coverage).slice(0, 4).map((item) => `<span class="rounded-full border border-white/70 bg-white/70 px-3 py-1 text-xs font-semibold text-slate-600">${item}</span>`).join('')}
+                        </div>
+                        <div class="mt-4 rounded-3xl bg-white/80 px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">典型交付</p>
+                            <p class="mt-2 text-sm leading-7 text-slate-600">${safeArray(lane.deliverables).join(' / ')}</p>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderGroups(catalog) {
+            const root = document.getElementById('groupGrid');
+            const expertsApi = window.MedRoundTableExperts;
+            const roleLaneIndex = buildRoleLaneIndex(catalog.capability_lanes || []);
+
+            root.innerHTML = safeArray(expertsApi.groups).map((group) => {
+                const members = expertsApi.getExpertsByGroup(group.id);
+                const normalizedNames = members.map((expert) => expert.name);
+                const linked = [];
+                normalizedNames.forEach((name) => {
+                    safeArray(roleLaneIndex.get(name)).forEach((lane) => {
+                        if (!linked.some((existing) => existing.id === lane.id)) linked.push(lane);
+                    });
+                });
+                const mappedCount = linked.reduce((sum, lane) => sum + Number(lane.count || 0), 0);
+
+                return `
+                    <article class="group-card rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">${group.countLabel}</p>
+                                <h3 class="mt-2 text-2xl font-bold text-slate-950">${group.name}</h3>
+                            </div>
+                            <span class="rounded-full px-3 py-1 text-sm font-semibold" style="background:${group.surface};color:${group.accent};">${mappedCount} 项映射能力</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">${group.summary}</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${members.map((expert) => `<span class="rounded-full border border-white bg-white px-3 py-1 text-xs font-semibold text-slate-600">${expert.name}</span>`).join('')}
+                        </div>
+                        <div class="mt-4 rounded-3xl bg-white px-4 py-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">这组专家最常动用的能力面</p>
+                            <p class="mt-2 text-sm leading-7 text-slate-600">${linked.slice(0, 4).map((lane) => lane.name).join(' / ')}</p>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderReasons() {
+            const root = document.getElementById('reasonGrid');
+            root.innerHTML = REASON_ITEMS.map((item) => `
+                <article class="reason-card rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
+                    <h3 class="text-xl font-bold text-slate-950">${item.title}</h3>
+                    <p class="mt-3 text-sm leading-7 text-slate-600">${item.body}</p>
+                </article>
+            `).join('');
+        }
+
+        async function init() {
+            const catalog = await window.MRTPlatformCatalog.loadCatalog('..');
+            window.__skillsCatalog = catalog;
+
+            document.getElementById('skillsTotal').textContent = catalog.stats.skills_total;
+            document.getElementById('expertsTotal').textContent = catalog.stats.experts_total;
+            document.getElementById('integrationsTotal').textContent = catalog.stats.featured_integrations_total;
+            document.getElementById('lanesTotal').textContent = safeArray(catalog.capability_lanes).length;
+
+            renderSourcePackages(catalog);
+            renderOpenClawOfficialSection(catalog);
+
+            const stageRollups = buildStageRollups(safeArray(catalog.capability_lanes));
+            renderStageFilters(stageRollups);
+            renderLaneStageBoard(stageRollups);
+            renderLaneGrid(safeArray(catalog.capability_lanes));
+            renderGroups(catalog);
+            renderReasons();
+            renderVisibilityTables();
+            renderCuratedRepos();
+        }
+
+        init().catch((error) => {
+            console.error(error);
+            document.body.insertAdjacentHTML('beforeend', `
+                <div class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-full bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg">
+                    997 skills 分布页加载失败，请稍后重试
+                </div>
+            `);
+        });
+    </script>
+</body>
+</html>
