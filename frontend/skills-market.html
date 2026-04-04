@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>技能市场 - MedRoundTable</title>
+    <title>H2A 技能调度中心 - MedRoundTable</title>
     <link rel="icon" href="../favicon.svg" type="image/svg+xml">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -106,19 +106,19 @@
                             <i class="fas fa-arrow-left"></i> 返回首页 Agent 技能入口
                         </a>
                         <div class="mt-5 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
-                            <i class="fas fa-hexagon-nodes"></i> Agent-Native Skill Market
+                            <i class="fas fa-hexagon-nodes"></i> H2A Runtime Market
                         </div>
-                        <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">技能市场</h1>
+                        <h1 class="mt-5 text-4xl md:text-5xl font-bold leading-tight">H2A 技能调度中心</h1>
                         <p class="mt-4 text-lg leading-8 text-slate-600">
-                            现在这页不再只是“997 项技能”的统计墙，而是改成按 14 位 Agent 查看技能入口。你可以先选专家，再看到与 TA 相关的能力链路、来源包和交付物。
+                            这页不再只解释“997 项技能有多少”，而是明确说明 H2A 模式下，真人专家沉淀了什么能力资产、14 位运行时 Agent 如何调度这些 skills，以及何时应该升级真人。
                         </p>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 xl:w-[38rem]">
                         <div class="rounded-3xl bg-slate-950 px-4 py-5 text-white">
-                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Skills</p>
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Runtime Skills</p>
                             <p id="skillTotal" class="mt-3 text-3xl font-bold">997</p>
-                            <p class="mt-1 text-sm text-slate-300">总技能数</p>
+                            <p class="mt-1 text-sm text-slate-300">运行时武器库</p>
                         </div>
                         <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
                             <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Wrapper</p>
@@ -126,9 +126,9 @@
                             <p class="mt-1 text-sm text-slate-500">OpenClaw 包装层</p>
                         </div>
                         <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
-                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Lanes</p>
-                            <p id="laneTotal" class="mt-3 text-3xl font-bold text-emerald-700">8</p>
-                            <p class="mt-1 text-sm text-slate-500">算法能力链路</p>
+                            <p class="text-xs uppercase tracking-[0.28em] text-slate-400">H2A Modes</p>
+                            <p id="modeTotal" class="mt-3 text-3xl font-bold text-emerald-700">4</p>
+                            <p class="mt-1 text-sm text-slate-500">Shadow 到 Twin</p>
                         </div>
                         <div class="rounded-3xl border border-slate-200 bg-white px-4 py-5">
                             <p class="text-xs uppercase tracking-[0.28em] text-slate-400">Databases</p>
@@ -141,31 +141,50 @@
             </section>
 
             <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
+                <div class="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">H2A Blueprint</p>
+                        <h2 class="mt-2 text-3xl font-bold">先把人的科研方法做成资产，再由运行时 Agent 调用 skills</h2>
+                        <p class="mt-3 text-sm leading-7 text-slate-600">
+                            MedRoundTable 的技能市场不只是在罗列来源包，而是在交代专家供给侧如何沉淀成方法资产、工具资产和交付资产。前台的 14 位 Agent 负责把这些资产和数据库、workflow 串起来，复杂任务再升级真人。
+                        </p>
+                        <div id="h2aMarketSummaryGrid" class="mt-5 grid gap-4 md:grid-cols-3"></div>
+                    </div>
+
+                    <div class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-slate-950 to-blue-950 p-6 text-white">
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-200/80">Runtime Rule</p>
+                        <h2 class="mt-2 text-2xl font-bold">这页要回答的不是“技能有多少”，而是“运行时怎么调用”</h2>
+                        <div id="h2aModeGrid" class="mt-5 grid gap-3 md:grid-cols-2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
                 <div class="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
                     <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">STELLA</p>
-                        <h2 class="mt-2 text-3xl font-bold">先选 Agent，再让 Manager-Dev-Critic 编排技能</h2>
+                        <h2 class="mt-2 text-3xl font-bold">STELLA 不是工程彩蛋，而是 H2A 运行时的调度器</h2>
                         <div class="mt-5 grid gap-4 md:grid-cols-3">
                             <div class="rounded-3xl bg-blue-50 p-4">
                                 <p class="text-sm font-semibold text-blue-700">Manager</p>
-                                <p class="mt-2 text-sm leading-7 text-slate-600">定义研究目标、挑出首位专家，并把技能入口对齐到当前任务。</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">定义研究目标、挑出首位专家，并决定当前任务是否应该先自动执行还是先升级真人。</p>
                             </div>
                             <div class="rounded-3xl bg-violet-50 p-4">
                                 <p class="text-sm font-semibold text-violet-700">Dev</p>
-                                <p class="mt-2 text-sm leading-7 text-slate-600">拉起数据库、能力链路和输出模板，让研究工作流真正跑起来。</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">拉起数据库、能力链路和输出模板，把真人沉淀下来的方法资产变成可执行 workflow。</p>
                             </div>
                             <div class="rounded-3xl bg-rose-50 p-4">
                                 <p class="text-sm font-semibold text-rose-700">Critic</p>
-                                <p class="mt-2 text-sm leading-7 text-slate-600">在偏差、合规和发表级质量上做最后一道门禁。</p>
+                                <p class="mt-2 text-sm leading-7 text-slate-600">在偏差、合规和发表级质量上做最后一道门禁，并判断何时把任务交回真人。</p>
                             </div>
                         </div>
                     </div>
 
                     <div id="selectedAgentPanel" class="rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-slate-950 to-blue-950 p-6 text-white">
-                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-200/80">Selected Agent</p>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-blue-200/80">Selected Runtime Agent</p>
                         <h2 id="selectedAgentTitle" class="mt-2 text-2xl font-bold">先从 14 位 Agent 里选一位</h2>
                         <p id="selectedAgentDescription" class="mt-4 text-sm leading-7 text-slate-300">
-                            选中某位专家后，这一页会把技能来源包和算法链路切到 TA 的主责视角。
+                            选中某位专家后，这一页会把技能来源包和运行时能力链路切到 TA 的主责视角。
                         </p>
                         <div id="selectedAgentMeta" class="mt-5 flex flex-wrap gap-2"></div>
                         <div class="mt-6 flex flex-wrap gap-3">
@@ -180,29 +199,12 @@
                 </div>
             </section>
 
-            <section class="border-b border-slate-200/80 bg-slate-50 px-6 py-8 md:px-10">
-                <div class="grid gap-6 lg:grid-cols-2">
-                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
-                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">External Integrations</p>
-                        <h2 id="integrationSectionTitle" class="mt-2 text-3xl font-bold">当前 Agent 会调用哪些外部整合能力</h2>
-                        <p id="integrationSectionDescription" class="mt-3 text-slate-600">先看中文文献自动化和多组学系统层，这能帮助你判断当前任务会不会真正落到外部能力上。</p>
-                        <div id="integrationGrid" class="mt-6 grid gap-4"></div>
-                    </div>
-                    <div class="rounded-[1.75rem] border border-slate-200 bg-white p-6">
-                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Frontier Models</p>
-                        <h2 id="modelSectionTitle" class="mt-2 text-3xl font-bold">当前 Agent 适合接哪类前沿模型</h2>
-                        <p id="modelSectionDescription" class="mt-3 text-slate-600">这里不展示抽象模型名词，而是直接告诉你这些模型适合解决什么问题、应该由谁先碰。</p>
-                        <div id="frontierModelGrid" class="mt-6 grid gap-4"></div>
-                    </div>
-                </div>
-            </section>
-
             <section class="border-b border-slate-200/80 px-6 py-8 md:px-10">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
-                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Agent Router</p>
-                        <h2 class="mt-2 text-3xl font-bold">按 14 位 Agent 过滤技能入口</h2>
-                        <p class="mt-3 text-slate-600">先按团队分组，再点具体专家。页面会把来源包、能力链路和 CTA 一起切换到该 Agent 的工作面。</p>
+                        <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Runtime Router</p>
+                        <h2 class="mt-2 text-3xl font-bold">按 14 位运行时 Agent 过滤技能入口</h2>
+                        <p class="mt-3 text-slate-600">先按团队分组，再点具体 Agent。页面会把来源包、运行时能力链路和 CTA 一起切换到该角色的工作面，并帮助你理解它背后未来会接哪类 human-backed twin。</p>
                     </div>
                 </div>
                 <div id="agentGroupFilters" class="mt-6 flex flex-wrap gap-2"></div>
@@ -213,8 +215,8 @@
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Source Packages</p>
-                        <h2 id="packageSectionTitle" class="mt-2 text-3xl font-bold">四层来源包</h2>
-                        <p id="packageSectionDescription" class="mt-3 text-slate-600">从本地核心到 OpenClaw 包装层，来源越清楚，用户越能理解平台为什么能做这些事。</p>
+                        <h2 id="packageSectionTitle" class="mt-2 text-3xl font-bold">四层能力来源包</h2>
+                        <p id="packageSectionDescription" class="mt-3 text-slate-600">从本地核心到 OpenClaw 包装层，来源越清楚，用户越能理解 H2A 运行时为什么能调用这些能力。</p>
                     </div>
                 </div>
                 <div id="packageGrid" class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4"></div>
@@ -224,8 +226,8 @@
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Capability Lanes</p>
-                        <h2 id="laneSectionTitle" class="mt-2 text-3xl font-bold">12 条算法能力链路</h2>
-                        <p id="laneSectionDescription" class="mt-3 text-slate-600">每条链路都对应技能数量、主责角色、典型产出和用户应该看到的结果。</p>
+                        <h2 id="laneSectionTitle" class="mt-2 text-3xl font-bold">九条运行时能力链路</h2>
+                        <p id="laneSectionDescription" class="mt-3 text-slate-600">每条链路都对应技能数量、主责角色、典型产出，以及什么时候应该升级真人。</p>
                     </div>
                 </div>
                 <div id="laneGrid" class="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2"></div>
@@ -236,14 +238,14 @@
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div class="max-w-2xl">
                             <p class="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">Next Step</p>
-                            <h2 class="mt-2 text-3xl font-bold">从技能页回到创建流，减少二次判断</h2>
+                            <h2 class="mt-2 text-3xl font-bold">从技能页回到创建流，继续把任务交给运行时或升级真人</h2>
                             <p class="mt-3 text-sm leading-7 text-slate-300">
-                                选定 Agent 后，直接把 TA 带回圆桌会。用户不需要再回首页重新猜一次应该谁先介入。
+                                选定 Agent 后，直接把 TA 带回圆桌会。当前任务如果适合自动推进，就让 runtime 跑；如果风险高，就引导回到 human-backed 协作。
                             </p>
                         </div>
                         <div class="flex flex-wrap gap-3">
                             <a id="footerSessionCta" href="./session-launchpad.html" class="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-slate-100 transition">带上当前 Agent 创建圆桌会</a>
-                            <a href="../experts.html" class="rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">先看 14 位专家</a>
+                            <a href="./experts.html" class="rounded-2xl border border-white/15 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10 transition">先看 14 位专家</a>
                         </div>
                     </div>
                 </div>
@@ -289,20 +291,44 @@
         function renderMarketSummary(catalog) {
             const note = document.getElementById('marketSummaryNote');
             if (!note) return;
+            const h2aModes = Number(catalog?.stats?.h2a_modes) || (Array.isArray(catalog?.h2a?.modes) ? catalog.h2a.modes.length : 4);
             note.innerHTML = [
                 `997 项能力来自 ${catalog.source_packages.length} 个来源包`,
-                `${catalog.capability_lanes.length} 条算法链路贯穿平台`,
-                `${catalog.databases.length} 个数据库已和技能市场打通`,
-                `${(catalog.featured_integrations || []).length || 0} 组外部整合 + ${(catalog.frontier_models || []).length || 0} 个前沿模型`,
-                '支持通过 URL 直接落到某位 Agent 的技能入口'
+                `${catalog.capability_lanes.length} 条运行时链路贯穿平台`,
+                `${h2aModes} 种 H2A 上线模式定义自动执行与真人升级`,
+                `${catalog.databases.length} 个数据库已和技能市场打通`
             ].map((item) => `<span class="mini-chip">${escapeHtml(item)}</span>`).join('');
         }
 
         function renderStats(catalog) {
             document.getElementById('skillTotal').textContent = catalog.stats.skills_total;
             document.getElementById('openclawTotal').textContent = catalog.stats.openclaw_wrapped_skills;
-            document.getElementById('laneTotal').textContent = catalog.capability_lanes.length;
+            document.getElementById('modeTotal').textContent = catalog.stats.h2a_modes || (catalog.h2a?.modes?.length || 4);
             document.getElementById('databaseTotal').textContent = catalog.databases.length;
+        }
+
+        function renderH2AMarketSummary(catalog) {
+            const layerGrid = document.getElementById('h2aMarketSummaryGrid');
+            const modeGrid = document.getElementById('h2aModeGrid');
+            if (!layerGrid || !modeGrid) return;
+
+            const h2a = catalog.h2a || {};
+            const layers = Array.isArray(h2a.platform_layers) ? h2a.platform_layers : [];
+            const modes = Array.isArray(h2a.modes) ? h2a.modes : [];
+
+            layerGrid.innerHTML = layers.slice(0, 3).map((layer) => `
+                <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p class="text-sm font-semibold text-slate-900">${escapeHtml(layer.name)}</p>
+                    <p class="mt-2 text-sm leading-7 text-slate-600">${escapeHtml(layer.summary)}</p>
+                </div>
+            `).join('');
+
+            modeGrid.innerHTML = modes.map((mode) => `
+                <div class="rounded-3xl border border-white/12 bg-white/8 p-4">
+                    <p class="text-sm font-semibold text-white">${escapeHtml(mode.name)}</p>
+                    <p class="mt-2 text-sm leading-7 text-slate-300">${escapeHtml(mode.summary)}</p>
+                </div>
+            `).join('');
         }
 
         function renderGroupFilters() {
@@ -372,9 +398,9 @@
 
             if (!deck) {
                 title.textContent = '先从 14 位 Agent 里选一位';
-                description.textContent = '选中某位专家后，这一页会把技能来源包和能力链路切到 TA 的主责视角。';
+                description.textContent = '选中某位运行时 Agent 后，这一页会把技能来源包和能力链路切到 TA 的主责视角，并说明平台为什么先从这里自动调用。';
                 meta.innerHTML = [
-                    '点击 Agent 卡后，这里会显示技能覆盖面和交付结果',
+                    '点击 Agent 卡后，这里会显示技能覆盖面、交付结果和升级路径',
                     '也可以直接访问带 expert 参数的技能页链接'
                 ].map((item) => `<span class="mini-chip bg-white/8 !text-slate-100 !border-white/12">${escapeHtml(item)}</span>`).join('');
                 sessionCta.href = './session-launchpad.html';
@@ -384,7 +410,7 @@
 
             const { expert, group, lanes, packages, laneCoverageCount, deliverables } = deck;
             title.textContent = `${expert.name} 的技能入口`;
-            description.textContent = `${group.name} · ${expert.subtitle}。当前过滤后展示 ${laneCoverageCount} 项非去重主责技能面、${lanes.length} 条能力链路和 ${packages.length} 个来源包。`;
+            description.textContent = `${group.name} · ${expert.subtitle}。当前过滤后展示 ${laneCoverageCount} 项非去重主责技能面、${lanes.length} 条运行时能力链路和 ${packages.length} 个来源包。后续这类角色会进一步接成 human-backed twin。`;
             meta.innerHTML = [
                 `${expert.stage}`,
                 `${lanes.length} 条主责引擎`,
@@ -393,86 +419,6 @@
             const launchpadUrl = `./session-launchpad.html?expert=${encodeURIComponent(expert.role)}`;
             sessionCta.href = launchpadUrl;
             footerCta.href = launchpadUrl;
-        }
-
-        function getRelevantIntegrations(catalog, deck) {
-            const items = Array.isArray(catalog.featured_integrations) ? catalog.featured_integrations : [];
-            if (!deck) return items;
-            return items.filter((item) => (item.owner_roles || []).includes(deck.expert.name));
-        }
-
-        function getRelevantFrontierModels(catalog, deck) {
-            const items = Array.isArray(catalog.frontier_models) ? catalog.frontier_models : [];
-            if (!deck) return items;
-            return items.filter((item) => (item.owner_roles || []).includes(deck.expert.name));
-        }
-
-        function renderIntegrationAndModelPanels(catalog) {
-            const deck = getSelectedDeck();
-            const integrationTitle = document.getElementById('integrationSectionTitle');
-            const integrationDescription = document.getElementById('integrationSectionDescription');
-            const integrationGrid = document.getElementById('integrationGrid');
-            const modelTitle = document.getElementById('modelSectionTitle');
-            const modelDescription = document.getElementById('modelSectionDescription');
-            const modelGrid = document.getElementById('frontierModelGrid');
-            if (!integrationTitle || !integrationDescription || !integrationGrid || !modelTitle || !modelDescription || !modelGrid) return;
-
-            const integrations = getRelevantIntegrations(catalog, deck);
-            const models = getRelevantFrontierModels(catalog, deck);
-
-            integrationTitle.textContent = deck ? `${deck.expert.name} 会带入哪些整合能力` : '当前平台已接入哪些外部整合能力';
-            integrationDescription.textContent = deck
-                ? `优先列出 ${deck.expert.name} 主责视角下最相关的整合层，让用户知道这位专家不只是说概念，还能把哪些外部能力接进来。`
-                : '先看中文文献自动化和多组学系统层，这能帮助你判断当前任务会不会真正落到外部能力上。';
-
-            integrationGrid.innerHTML = integrations.map((item) => `
-                <article class="package-card rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <div class="inline-flex items-center gap-2 rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
-                                <i class="fas fa-plug-circle-bolt"></i> Integration
-                            </div>
-                            <h3 class="mt-4 text-2xl font-bold">${escapeHtml(item.name)}</h3>
-                        </div>
-                        <a href="./capability-matrix.html#${escapeHtml(item.id)}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition">查看详情</a>
-                    </div>
-                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.headline || item.summary)}</p>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        ${(item.highlights || []).map((value) => `<span class="mini-chip">${escapeHtml(value)}</span>`).join('')}
-                    </div>
-                </article>
-            `).join('') || `
-                <div class="rounded-[1.75rem] border border-dashed border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-500">
-                    当前这位 Agent 暂时没有单独挂载外部整合能力，仍可通过通用能力链路进入平台分析。
-                </div>
-            `;
-
-            modelTitle.textContent = deck ? `${deck.expert.name} 关联的前沿模型` : '当前平台展示的前沿模型层';
-            modelDescription.textContent = deck
-                ? `这些前沿模型更适合由 ${deck.expert.name} 或其协作角色在特定任务里调用。`
-                : '这里不展示抽象模型名词，而是直接告诉你这些模型适合解决什么问题、应该由谁先碰。';
-
-            modelGrid.innerHTML = models.map((item) => `
-                <article class="lane-card rounded-[1.75rem] border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-5 shadow-sm">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <div class="inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
-                                <i class="fas fa-microchip"></i> ${escapeHtml(item.family || 'Model')}
-                            </div>
-                            <h3 class="mt-4 text-2xl font-bold">${escapeHtml(item.name)}</h3>
-                        </div>
-                        <a href="./capability-matrix.html#${escapeHtml(item.id)}" class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:text-slate-900 transition">${escapeHtml(item.parameter_scale || '模型')}</a>
-                    </div>
-                    <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
-                    <div class="mt-4 flex flex-wrap gap-2">
-                        ${(item.use_cases || []).slice(0, 4).map((value) => `<span class="mini-chip">${escapeHtml(value)}</span>`).join('')}
-                    </div>
-                </article>
-            `).join('') || `
-                <div class="rounded-[1.75rem] border border-dashed border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-500">
-                    当前这位 Agent 没有被直接标注到前沿模型层，但仍可以通过多专家协作间接调用这些能力。
-                </div>
-            `;
         }
 
         function renderPackages(catalog) {
@@ -484,8 +430,8 @@
 
             title.textContent = deck ? `${deck.expert.name} 背后的来源包` : '四层来源包';
             description.textContent = deck
-                ? `当前只展示 ${deck.expert.name} 这位 Agent 主要依赖的来源包。用户从 Agent 进入后，不需要再自己推断这些技能是从哪里来的。`
-                : '从本地核心到 OpenClaw 包装层，来源越清楚，用户越能理解平台为什么能做这些事。';
+                ? `当前只展示 ${deck.expert.name} 这位运行时 Agent 主要依赖的来源包。用户从 Agent 进入后，不需要再自己推断这些技能是从哪里来的。`
+                : '从本地核心到 OpenClaw 包装层，来源越清楚，用户越能理解平台为什么能做这些事，以及这些能力是如何服务 H2A 运行时的。';
 
             grid.innerHTML = packages
                 .map((pkg) => {
@@ -517,9 +463,9 @@
             const deck = getSelectedDeck();
             const lanes = deck ? deck.lanes : catalog.capability_lanes;
 
-            title.textContent = deck ? `${deck.expert.name} 主责的能力链路` : '12 条算法能力链路';
+            title.textContent = deck ? `${deck.expert.name} 主责的能力链路` : '九条运行时能力链路';
             description.textContent = deck
-                ? `下面只展示 ${deck.expert.name} 当前主责的引擎。每条卡片都说明覆盖动作、主责角色和用户最终能拿到的结果。`
+                ? `下面只展示 ${deck.expert.name} 当前主责的引擎。每条卡片都说明覆盖动作、主责角色、用户最终能拿到的结果，以及何时应该升级真人。`
                 : '每条链路都对应技能数量、主责角色、典型产出和用户应该看到的结果。';
 
             grid.innerHTML = lanes
@@ -567,7 +513,6 @@
             renderGroupFilters();
             renderAgentGrid();
             renderSelectedAgentPanel();
-            renderIntegrationAndModelPanels(currentCatalog);
             renderPackages(currentCatalog);
             renderLanes(currentCatalog);
             if (updateUrlState) {
@@ -611,6 +556,7 @@
                 }
                 renderStats(catalog);
                 renderMarketSummary(catalog);
+                renderH2AMarketSummary(catalog);
                 applyFilters(false);
             })
             .catch((error) => {

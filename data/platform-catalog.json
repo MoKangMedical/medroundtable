@@ -4,8 +4,85 @@
     "openclaw_wrapped_skills": 869,
     "experts_total": 14,
     "stella_meta_roles": 3,
-    "featured_integrations_total": 2,
-    "frontier_models_total": 2
+    "h2a_modes": 4,
+    "h2a_asset_types": 3,
+    "pilot_human_roles": 5,
+    "platform_layers": 4
+  },
+  "h2a": {
+    "thesis": "MedRoundTable 的顶层设计不是把 14 位 AI 专家摆在前台，而是把真人专家的方法、工具和交付习惯沉淀成可调用的数字分身资产，再由 14 位运行时 Agent 在具体科研项目里编排调用。",
+    "platform_layers": [
+      {
+        "id": "expert-console",
+        "name": "专家端 / Expert Console",
+        "summary": "真人专家在平台里完成真实科研任务，留下判断顺序、工具调用轨迹和修改意见。",
+        "output": "方法记录、审阅意见、操作轨迹"
+      },
+      {
+        "id": "asset-layer",
+        "name": "分身资产层 / Twin Asset Layer",
+        "summary": "把专家的科研思考方式拆成方法层、工具层和交付层，形成可审计、可定价、可复用的资产包。",
+        "output": "数字分身、模板、可计费能力包"
+      },
+      {
+        "id": "runtime-layer",
+        "name": "14 Agent 运行时 / Runtime Layer",
+        "summary": "14 位 Agent 按项目阶段自动调用 997 项 skills、数据库与 workflow，在会诊现场推进讨论与执行。",
+        "output": "多角色讨论、自动路由、阶段推进"
+      },
+      {
+        "id": "settlement-layer",
+        "name": "结算与交付层 / Settlement Layer",
+        "summary": "把每次调用沉淀成 Word、PPT、方案、审计日志和分账记录，支持平台收费与专家收益分配。",
+        "output": "研究纪要、PPT、分账记录、升级工单"
+      }
+    ],
+    "modes": [
+      {
+        "id": "shadow",
+        "name": "Shadow",
+        "summary": "真人先做，Agent 在旁记录方法和轨迹。"
+      },
+      {
+        "id": "copilot",
+        "name": "Copilot",
+        "summary": "Agent 先出草稿，真人审核并修正。"
+      },
+      {
+        "id": "delegation",
+        "name": "Delegation",
+        "summary": "Agent 自动完成常规子任务，关键节点回真人确认。"
+      },
+      {
+        "id": "twin",
+        "name": "Twin",
+        "summary": "数字分身独立承接高频任务，复杂问题再升级真人。"
+      }
+    ],
+    "asset_types": [
+      {
+        "id": "method-asset",
+        "name": "方法资产",
+        "summary": "研究问题拆解、终点定义、统计口径与判断规则。"
+      },
+      {
+        "id": "tool-asset",
+        "name": "工具资产",
+        "summary": "数据库入口、skills 组合、workflow 与可复用流程。"
+      },
+      {
+        "id": "deliverable-asset",
+        "name": "交付资产",
+        "summary": "Word、PPT、研究设计、SAP、CRF 与审计模板。"
+      }
+    ],
+    "pilot_roles": [
+      "临床主任",
+      "流行病学家",
+      "统计学家",
+      "单细胞测序专家",
+      "研究护士"
+    ]
   },
   "source_packages": [
     {
@@ -35,54 +112,6 @@
       "count": 50,
       "packaging": "platform-extension",
       "summary": "把专家工作流、质量门禁、导出物和细分研究模板串成平台级扩展能力。"
-    }
-  ],
-  "featured_integrations": [
-    {
-      "id": "quantclaw-cnki",
-      "name": "QuantClaw × CNKI Skills",
-      "tone": "orange",
-      "headline": "把中文文献检索、下载、导出与周期追踪并进 MedRoundTable。",
-      "summary": "通过 QuantClaw 的 CNKI Skills，把知网检索、期刊级别判断、批量下载、Zotero/GB/T 导出和 IM 远程触发能力纳入平台演示链路。",
-      "highlights": ["10 个 CNKI 核心技能", "支持飞书/钉钉/Telegram 远程触发", "适合 CSSCI、北大核心与中文综述任务"],
-      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师"],
-      "scenarios": ["中文证据补检", "导师临时要文献", "定时文献监控", "期刊级别核查"],
-      "deliverables": ["中文检索式", "文献证据表", "Zotero 导出包", "下载任务清单"]
-    },
-    {
-      "id": "omicclaw-omicverse",
-      "name": "OmicClaw × OmicVerse 2.0",
-      "tone": "emerald",
-      "headline": "把多组学分析、共享 Kernel 和 J.A.R.V.I.S. 大脑接进圆桌会。",
-      "summary": "围绕 OmicVerse-web、Notebook、Skills、Core 和 OmicClaw 的 J.A.R.V.I.S. 控制层，把单细胞、GWAS、多组学与本地生信工作台能力融入 MedRoundTable 的研究协作流。",
-      "highlights": ["150+ 组学算法生态", "32 个 OmicVerse skills", "网页 / 终端 / MCP / openclaw 多入口"],
-      "owner_roles": ["单细胞测序", "GWAS 专家", "Galaxy 桥接器"],
-      "scenarios": ["单细胞分析接力", "GWAS 结果解读", "多组学工作流编排", "本地共享 Kernel 分析"],
-      "deliverables": ["QC 与聚类脚本", "注释报告", "多组学分析会话", "可复现实验记录"]
-    }
-  ],
-  "frontier_models": [
-    {
-      "id": "qwq-med-3",
-      "name": "QwQ-Med-3",
-      "tone": "violet",
-      "family": "KG-Driven Medical LLM",
-      "parameter_scale": "32B",
-      "summary": "基于 UMLS 医学知识图谱构建的 32B 模型，强调从原子知识到组合推理的可验证 thinking traces，适合把医学推理过程做得更清楚。",
-      "strengths": ["知识图谱课程学习", "显式推理链", "ICD-Bench 等任务表现强", "跨任务医学泛化"],
-      "owner_roles": ["临床主任", "博士生", "药物基因组学"],
-      "use_cases": ["疾病编码与诊疗推理辅助", "可解释医学问答", "复杂知识链核对", "临床证据链梳理"]
-    },
-    {
-      "id": "evo-2",
-      "name": "Evo 2",
-      "tone": "indigo",
-      "family": "Genome Foundation Model",
-      "parameter_scale": "OpenGenome2 / 9T bp pretraining",
-      "summary": "Arc Institute 推出的跨生命域基因组基础模型，支持超长上下文、零样本突变效应预测和大片段序列生成，适合作为基因组级前沿能力展示。",
-      "strengths": ["跨原核与真核建模", "零样本变异效应预测", "百万 token 上下文", "大规模序列生成与设计"],
-      "owner_roles": ["药物基因组学", "GWAS 专家", "AI 数据工程师"],
-      "use_cases": ["致病变异优先级线索", "基因组功能区段分析", "序列设计前瞻评估", "跨物种基因组建模"]
     }
   ],
   "capability_lanes": [
@@ -167,43 +196,13 @@
       "deliverables": ["任务蓝图", "导出稿", "协作状态"]
     },
     {
-      "id": "cnki-automation",
-      "name": "中文文献自动化引擎",
-      "count": 10,
-      "tone": "orange",
-      "description": "引入 QuantClaw 的 CNKI Skills，把中文文献检索、期刊级别判断、批量下载和导出任务接进平台。",
-      "owner_roles": ["博士生", "趋势研究员", "AI 数据工程师"],
-      "coverage": ["CNKI 检索", "CSSCI / 北大核心筛选", "PDF / CAJ 下载", "Zotero / GB/T 导出"],
-      "deliverables": ["中文证据表", "下载任务包", "引用导出结果"]
-    },
-    {
-      "id": "omics-orchestration",
-      "name": "多组学分析系统引擎",
-      "count": 32,
-      "tone": "lime",
-      "description": "通过 OmicClaw 与 OmicVerse 2.0，把多组学分析、共享 Kernel、MCP 调用和本地生信工作台纳入平台。",
-      "owner_roles": ["单细胞测序", "GWAS 专家", "Galaxy 桥接器"],
-      "coverage": ["J.A.R.V.I.S 调度", "OmicVerse skills", "共享 Kernel", "网页 / 终端 / openclaw 接力"],
-      "deliverables": ["组学分析脚本", "共享变量上下文", "多组学结果摘要"]
-    },
-    {
-      "id": "frontier-biomedical-models",
-      "name": "前沿医学与基因组模型引擎",
-      "count": 2,
-      "tone": "indigo",
-      "description": "将 QwQ-Med-3 的知识图谱医学推理与 Evo 2 的基因组基础模型能力纳入平台的前沿模型层，用于高阶医学推理与组学前瞻分析展示。",
-      "owner_roles": ["临床主任", "药物基因组学", "AI 数据工程师"],
-      "coverage": ["UMLS 组合推理", "ICD / 临床问题推理", "变异效应线索", "序列设计前瞻评估"],
-      "deliverables": ["可解释推理链", "前沿模型摘要", "变异优先级线索"]
-    },
-    {
       "id": "research-automation",
       "name": "自动科研工厂引擎",
       "count": 52,
       "tone": "indigo",
       "description": "承接 FARS 这类端到端自动研究系统，覆盖假设生成、实验调度、代码执行、失败结果记录和短论文输出。",
       "owner_roles": ["趋势研究员", "AI 数据工程师", "模型 QA 专家"],
-      "coverage": ["文献调研", "假设生成", "实验执行", "短论文草稿"],
+      "coverage": ["文献调研", "假设生成", "实验执行", "论文草稿"],
       "deliverables": ["研究议程", "实验清单", "短论文草稿"]
     }
   ],
