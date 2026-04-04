@@ -5,7 +5,86 @@
     "experts_total": 14,
     "stella_meta_roles": 3,
     "featured_integrations_total": 2,
-    "frontier_models_total": 2
+    "frontier_models_total": 2,
+    "h2a_modes": 4,
+    "h2a_asset_types": 3,
+    "pilot_human_roles": 5,
+    "platform_layers": 4
+  },
+  "h2a": {
+    "thesis": "MedRoundTable 的顶层设计不是把 14 位 AI 专家摆在前台，而是把真人专家的方法、工具和交付习惯沉淀成可调用的数字分身资产，再由 14 位运行时 Agent 在具体科研项目里编排调用。",
+    "platform_layers": [
+      {
+        "id": "expert-console",
+        "name": "专家端 / Expert Console",
+        "summary": "真人专家在平台里完成真实科研任务，留下判断顺序、工具调用轨迹和修改意见。",
+        "output": "方法记录、审阅意见、操作轨迹"
+      },
+      {
+        "id": "asset-layer",
+        "name": "分身资产层 / Twin Asset Layer",
+        "summary": "把专家的科研思考方式拆成方法层、工具层和交付层，形成可审计、可定价、可复用的资产包。",
+        "output": "数字分身、模板、可计费能力包"
+      },
+      {
+        "id": "runtime-layer",
+        "name": "14 Agent 运行时 / Runtime Layer",
+        "summary": "14 位 Agent 按项目阶段自动调用 997 项 skills、数据库与 workflow，在会诊现场推进讨论与执行。",
+        "output": "多角色讨论、自动路由、阶段推进"
+      },
+      {
+        "id": "settlement-layer",
+        "name": "结算与交付层 / Settlement Layer",
+        "summary": "把每次调用沉淀成 Word、PPT、方案、审计日志和分账记录，支持平台收费与专家收益分配。",
+        "output": "研究纪要、PPT、分账记录、升级工单"
+      }
+    ],
+    "modes": [
+      {
+        "id": "shadow",
+        "name": "Shadow",
+        "summary": "真人先做，Agent 在旁记录方法和轨迹。"
+      },
+      {
+        "id": "copilot",
+        "name": "Copilot",
+        "summary": "Agent 先出草稿，真人审核并修正。"
+      },
+      {
+        "id": "delegation",
+        "name": "Delegation",
+        "summary": "Agent 自动完成常规子任务，关键节点回真人确认。"
+      },
+      {
+        "id": "twin",
+        "name": "Twin",
+        "summary": "数字分身独立承接高频任务，复杂问题再升级真人。"
+      }
+    ],
+    "asset_types": [
+      {
+        "id": "method-asset",
+        "name": "方法资产",
+        "summary": "研究问题拆解、终点定义、统计口径与判断规则。"
+      },
+      {
+        "id": "tool-asset",
+        "name": "工具资产",
+        "summary": "数据库入口、skills 组合、workflow 与可复用流程。"
+      },
+      {
+        "id": "deliverable-asset",
+        "name": "交付资产",
+        "summary": "Word、PPT、研究设计、SAP、CRF 与审计模板。"
+      }
+    ],
+    "pilot_roles": [
+      "临床主任",
+      "流行病学家",
+      "统计学家",
+      "单细胞测序专家",
+      "研究护士"
+    ]
   },
   "source_packages": [
     {

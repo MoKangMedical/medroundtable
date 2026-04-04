@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MedRoundTable - 14位AI专家医学科研协作平台</title>
+    <title>MedRoundTable - H2A 医学科研协作平台</title>
     <link rel="icon" href="./assets/doctor1.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -92,12 +92,29 @@
             40% { transform: scale(1); }
         }
         
-        /* 侧边栏动画 */
+        /* 顶部指挥台 */
         .sidebar {
-            transition: transform 0.3s ease;
-            transform: translateX(-100%);
+            position: relative;
+            width: 100%;
+            transform: none;
+            transition: none;
         }
-        .sidebar.open { transform: translateX(0); }
+
+        .top-command-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .top-command-panel {
+            border: 1px solid rgba(51, 65, 85, 0.78);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.94));
+            box-shadow: 0 28px 56px rgba(2, 6, 23, 0.24);
+        }
+
+        .top-command-stack {
+            display: grid;
+            gap: 16px;
+        }
 
         .modal-scrollable {
             scrollbar-width: thin;
@@ -145,31 +162,19 @@
             .mobile-full { width: 100vw; height: 100vh; }
             .chat-bubble { max-width: 92%; font-size: 16px; line-height: 1.7; }
             .agent-avatar { width: 44px; height: 44px; font-size: 20px; }
-            #sidebar { width: 300px; }
             .sidebar-md-show { display: none; }
         }
         
         /* 响应式适配 - 平板 */
         @media (min-width: 769px) and (max-width: 1024px) {
             body { font-size: 17px; }
-            #sidebar { width: 320px; }
-            main { margin-left: 320px; }
             .chat-bubble { max-width: 80%; font-size: 17px; }
         }
         
         /* 响应式适配 - 桌面端 */
         @media (min-width: 1025px) {
             body { font-size: 18px; }
-            #sidebar { 
-                width: 340px; 
-                transform: translateX(0) !important;
-                position: fixed;
-            }
-            main { margin-left: 340px; }
             .chat-bubble { max-width: 75%; font-size: 18px; }
-            #sidebarOverlay { display: none !important; }
-            .mobile-menu-btn { display: none; }
-            .sidebar-close-btn { display: none; }
         }
         
         /* 超小屏幕优化 */
@@ -177,16 +182,20 @@
             body { font-size: 15px; }
             .chat-bubble { max-width: 95%; font-size: 15px; }
             .agent-avatar { width: 40px; height: 40px; font-size: 18px; }
-            #sidebar { width: 280px; }
         }
         
         /* 大屏幕优化 */
         @media (min-width: 1440px) {
             body { font-size: 19px; }
-            #sidebar { width: 360px; }
-            main { margin-left: 360px; }
             .max-w-content { max-width: 1000px; margin: 0 auto; }
             .chat-bubble { max-width: 70%; font-size: 19px; }
+        }
+
+        @media (min-width: 1280px) {
+            .top-command-grid {
+                grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.05fr) minmax(320px, 0.8fr);
+                align-items: start;
+            }
         }
         
         /* Toast 动画 */
@@ -636,118 +645,121 @@
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
-    <!-- 移动端侧边栏遮罩 -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
-    
-    <!-- 侧边栏 - 会话列表 -->
-    <aside id="sidebar" class="sidebar lg:translate-x-0 fixed left-0 top-0 h-full w-72 bg-slate-900 shadow-2xl z-50 flex flex-col border-r border-slate-800">
-        <!-- 侧边栏头部 - 专业深蓝配色 -->
-        <div class="p-6 bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white border-b border-slate-700">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <i class="fas fa-users text-lg"></i>
+    <aside id="sidebar" class="sidebar border-b border-slate-800 bg-slate-950 text-white">
+        <div class="mx-auto max-w-[1680px] px-4 py-4 md:px-6 md:py-5">
+            <div class="top-command-grid">
+                <section class="top-command-panel rounded-[2rem] p-5 md:p-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-2xl bg-blue-500 flex items-center justify-center shadow-lg shadow-blue-900/40">
+                                <i class="fas fa-users text-lg"></i>
+                            </div>
+                            <div>
+                                <span class="font-bold text-xl tracking-tight text-white">MedRoundTable</span>
+                                <p class="text-sm text-blue-200">临床科研圆桌会</p>
+                            </div>
+                        </div>
+                        <button onclick="createNewSession()" class="inline-flex items-center justify-center gap-3 rounded-2xl bg-blue-600 px-5 py-3 text-base font-semibold text-white shadow-lg shadow-blue-900/40 transition-all hover:bg-blue-500 btn-press">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>新建圆桌会</span>
+                        </button>
                     </div>
-                    <div>
-                        <span class="font-bold text-lg tracking-tight">MedRoundTable</span>
-                        <p class="text-xs text-blue-300">临床科研圆桌会</p>
+
+                    <div class="mt-5">
+                        <div class="flex items-center justify-between gap-3 mb-3">
+                            <p class="text-xs uppercase tracking-[0.24em] font-semibold text-slate-400">最近圆桌会</p>
+                            <span class="text-xs text-slate-500">从这里继续上次讨论</span>
+                        </div>
+                        <div id="sessionList" class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            <!-- 动态生成 -->
+                        </div>
                     </div>
+                </section>
+
+                <section class="top-command-panel rounded-[2rem] p-5 md:p-6">
+                    <div class="flex items-end justify-between gap-3 mb-4">
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.24em] font-semibold text-slate-400">功能工具</p>
+                            <p class="mt-1 text-sm text-slate-500">把常用动作提前到页面顶部</p>
+                        </div>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <button onclick="showUploadModal()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-emerald-600/20 rounded-xl flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
+                                <i class="fas fa-cloud-upload-alt text-emerald-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">上传研究方案</p>
+                                <p class="text-sm text-slate-500">导入现有文档</p>
+                            </div>
+                        </button>
+
+                        <button onclick="showMindMapFromSidebar()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-purple-600/20 rounded-xl flex items-center justify-center group-hover:bg-purple-600 transition-colors">
+                                <i class="fas fa-project-diagram text-purple-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">讨论思维导图</p>
+                                <p class="text-sm text-slate-500">可视化讨论脉络</p>
+                            </div>
+                        </button>
+
+                        <button onclick="quickDownloadDraft()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-blue-600/20 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-file-download text-blue-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">方案草稿下载</p>
+                                <p class="text-sm text-slate-500">一键导出 Word</p>
+                            </div>
+                        </button>
+
+                        <button onclick="showDataAnalysis()" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-800">
+                            <div class="w-12 h-12 bg-orange-600/20 rounded-xl flex items-center justify-center group-hover:bg-orange-600 transition-colors">
+                                <i class="fas fa-chart-line text-orange-400 group-hover:text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-slate-100 text-base">自动化数据分析</p>
+                                <p class="text-sm text-slate-500">智能统计建议</p>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+
+                <div class="top-command-stack">
+                    <section class="top-command-panel rounded-[2rem] p-5">
+                        <a href="./frontend/tools.html" class="w-full flex items-center gap-3 rounded-2xl border border-slate-700 p-4 text-left transition hover:bg-slate-800 hover:border-blue-600">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-toolbox text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-slate-100 text-lg">扩展工具生态</p>
+                                <p class="text-sm text-slate-500">CTR + MediVisual</p>
+                            </div>
+                            <i class="fas fa-external-link-alt text-slate-600"></i>
+                        </a>
+                    </section>
+
+                    <section class="top-command-panel rounded-[2rem] p-5 space-y-3">
+                        <a href="#h2a-topology" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
+                            <i class="fas fa-arrows-to-circle text-blue-400 group-hover:scale-110 transition"></i>
+                            <span class="flex-1 font-medium text-slate-100">H2A 顶层设计</span>
+                            <span class="px-3 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full">Human-backed</span>
+                        </a>
+
+                        <a href="./login.html" id="userBtn" class="w-full p-4 flex items-center gap-3 rounded-2xl hover:bg-slate-800 transition border border-slate-700">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-user text-white text-lg"></i>
+                            </div>
+                            <div class="text-left flex-1">
+                                <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
+                                <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-600"></i>
+                        </a>
+                    </section>
                 </div>
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 text-slate-400 hover:text-white transition">
-                    <i class="fas fa-times text-lg"></i>
-                </button>
             </div>
-        </div>
-        
-        <!-- 新建按钮 -->
-        <button onclick="createNewSession()" class="mx-4 mt-4 mb-2 p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center justify-center gap-3 btn-press shadow-lg shadow-blue-900/50 transition-all font-medium text-base">
-            <i class="fas fa-plus-circle"></i>
-            <span>新建圆桌会</span>
-        </button>
-        
-        <!-- 会话列表 -->
-        <div id="sessionList" class="flex-1 overflow-y-auto no-scrollbar px-3 py-2 space-y-2">
-            <!-- 动态生成 -->
-        </div>
-        
-        <!-- 功能菜单区 -->
-        <div class="p-4 border-t border-slate-800 bg-slate-800/30">
-            <p class="text-xs text-slate-500 uppercase font-semibold mb-3 px-2">功能工具</p>
-            <div class="space-y-2">
-                <button onclick="showUploadModal()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-emerald-600/20 rounded-lg flex items-center justify-center group-hover:bg-emerald-600 transition-colors">
-                        <i class="fas fa-cloud-upload-alt text-emerald-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">上传研究方案</p>
-                        <p class="text-xs text-slate-500">导入现有文档</p>
-                    </div>
-                </button>
-                
-                <button onclick="showMindMapFromSidebar()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center group-hover:bg-purple-600 transition-colors">
-                        <i class="fas fa-project-diagram text-purple-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">讨论思维导图</p>
-                        <p class="text-xs text-slate-500">可视化讨论脉络</p>
-                    </div>
-                </button>
-                
-                <button onclick="quickDownloadDraft()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center group-hover:bg-blue-600 transition-colors">
-                        <i class="fas fa-file-download text-blue-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">方案草稿下载</p>
-                        <p class="text-xs text-slate-500">一键导出Word</p>
-                    </div>
-                </button>
-                
-                <button onclick="showDataAnalysis()" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group">
-                    <div class="w-10 h-10 bg-orange-600/20 rounded-lg flex items-center justify-center group-hover:bg-orange-600 transition-colors">
-                        <i class="fas fa-chart-line text-orange-400 group-hover:text-white text-lg"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-slate-200 text-sm">自动化数据分析</p>
-                        <p class="text-xs text-slate-500">智能统计建议</p>
-                    </div>
-                </button>
-            </div>
-        </div>
-        
-        <!-- 工具生态入口 -->
-        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-            <a href="./frontend/tools.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                    <i class="fas fa-toolbox text-white text-lg"></i>
-                </div>
-                <div class="flex-1">
-                    <p class="font-medium text-slate-200 text-sm">扩展工具生态</p>
-                    <p class="text-xs text-slate-500">CTR + MediVisual</p>
-                </div>
-                <i class="fas fa-external-link-alt text-slate-600 group-hover:text-blue-400"></i>
-            </a>
-        </div>
-        
-        <!-- 用户信息区 -->
-        <div class="p-4 border-t border-slate-800 bg-slate-900/50">
-            <a href="./v2-features.html" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition text-left group border border-slate-700 hover:border-blue-600">
-                    <i class="fas fa-rocket text-blue-400 group-hover:scale-110 transition"></i>
-                    <span class="flex-1">V2.0 新功能</span>
-                    <span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 text-xs rounded-full">997技能</span>
-                </a>
-                
-                <a href="./login.html" id="userBtn" class="w-full p-3 flex items-center gap-3 rounded-xl hover:bg-slate-800 transition border border-slate-700">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
-                    <i class="fas fa-user text-white text-lg"></i>
-                </div>
-                <div class="text-left flex-1">
-                    <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
-                    <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
-                </div>
-                <i class="fas fa-chevron-right text-slate-600"></i>
-            </a>
         </div>
     </aside>
 
@@ -756,9 +768,6 @@
         <!-- 顶部导航 - 专业样式 -->
         <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm">
             <div class="flex items-center gap-4">
-                <button onclick="toggleSidebar()" class="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl transition mobile-menu-btn">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
                 <div>
                     <h1 id="pageTitle" class="font-bold text-xl text-slate-900 tracking-tight">临床科研圆桌会</h1>
                     <p class="text-sm text-slate-500 hidden sm:block">AI 医学科研协作平台</p>
@@ -782,10 +791,6 @@
                     <i class="fas fa-project-diagram text-lg"></i>
                     <span class="hidden sm:inline text-sm font-medium">思维导图</span>
                 </button>
-                <a href="./frontend/pricing.html" class="p-3 text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-xl btn-press transition flex items-center gap-2">
-                    <i class="fas fa-credit-card text-lg"></i>
-                    <span class="hidden sm:inline text-sm font-medium">收费方案</span>
-                </a>
             </div>
         </header>
 
@@ -830,28 +835,22 @@
                         <div class="rounded-[2rem] border border-white/15 bg-slate-950/20 px-5 py-5 backdrop-blur-xl shadow-2xl">
                             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                                 <div class="text-left">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-100/90">开始入口</p>
-                                    <h3 class="mt-2 text-2xl font-bold text-white">一句临床问题即可开始，或者先选 1 位 Agent</h3>
-                                    <p class="mt-2 text-sm leading-7 text-blue-100/90">直接开会可以，先挑首位介入专家也可以。平台会按你的入口继续展开后续协作。</p>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-100/90">Primary CTA</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-white">一句临床问题即可开始，但平台顶层已经升级成 H2A</h3>
+                                    <p class="mt-2 text-sm leading-7 text-blue-100/90">前台看到的是 14 位运行时 Agent，后台沉淀的是真人专家的方法、工具和交付能力。常规任务自动推进，复杂任务可以升级真人。</p>
                                 </div>
                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                    <a href="./frontend/immersive-roundtable.html?autostart=1" class="rounded-2xl bg-cyan-400 px-6 py-4 text-base font-semibold text-slate-950 shadow-lg transition hover:bg-cyan-300">
-                                        <i class="fas fa-users-rays mr-2"></i>一键进入 14 位专家讨论
-                                    </a>
                                     <button onclick="openNewSessionModal({ forceRefill: false })" class="rounded-2xl bg-white px-6 py-4 text-base font-semibold text-blue-900 shadow-lg transition hover:bg-blue-50">
                                         <i class="fas fa-rocket mr-2"></i>立即创建圆桌会
                                     </button>
-                                    <a href="#secondme-live-entry" class="rounded-2xl border border-cyan-200 bg-cyan-500/10 px-5 py-4 text-center text-sm font-semibold text-cyan-50 transition hover:bg-cyan-500/20">
-                                        <i class="fas fa-id-card mr-2"></i>先登录真人身份
-                                    </a>
-                                    <a href="#expert-command-center" class="rounded-2xl border border-white/25 px-5 py-4 text-center text-sm font-semibold text-white/90 transition hover:bg-white/10">
-                                        不确定先找谁？先看 14 位 Agent
+                                    <a href="#h2a-topology" class="rounded-2xl border border-white/25 px-5 py-4 text-center text-sm font-semibold text-white/90 transition hover:bg-white/10">
+                                        先看 H2A 顶层架构
                                     </a>
                                 </div>
                             </div>
                             <div class="mt-4 flex flex-wrap items-center gap-3 text-sm text-blue-100/90">
-                                <a href="./frontend/immersive-roundtable.html?autostart=1" class="inline-flex items-center gap-2 rounded-full border border-cyan-200/70 bg-cyan-400/15 px-4 py-2 font-semibold text-cyan-50 hover:bg-cyan-400/25 transition">
-                                    <i class="fas fa-bolt"></i>最快入口：一键开 14 人会
+                                <a href="#h2a-topology" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
+                                    <i class="fas fa-users-gear"></i>先看专家端 / 分身资产层 / 运行时
                                 </a>
                                 <a href="#capability-atlas" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
                                     <i class="fas fa-layer-group"></i>先看数据库与分析路径
@@ -862,9 +861,6 @@
                                 <a href="./frontend/capability-matrix.html" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
                                     <i class="fas fa-wave-square"></i>查看算法能力矩阵
                                 </a>
-                                <a href="./frontend/pricing.html" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
-                                    <i class="fas fa-credit-card"></i>查看收费与开通
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -873,60 +869,60 @@
 
             <div class="px-4 -mt-6 pb-10 relative z-10">
                 <div class="max-w-6xl mx-auto space-y-8">
-                    <section id="secondme-live-entry" class="rounded-[2rem] border border-slate-200 bg-white/96 px-5 py-6 shadow-2xl shadow-blue-100/60 md:px-8 md:py-8">
-                        <div class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
-                            <div class="rounded-[1.8rem] bg-gradient-to-br from-cyan-50 via-white to-blue-50 px-5 py-5 ring-1 ring-blue-100">
-                                <div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-blue-800 shadow-sm ring-1 ring-blue-100">
-                                    <i class="fas fa-id-card"></i> 真人身份入口
-                                </div>
-                                <h3 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">3 步把真人、分身和 AI 一起带进这场圆桌</h3>
-                                <p id="secondMeLiveEntrySummary" class="mt-4 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-                                    第 1 步登录真人身份，第 2 步选分身与 AI 阵容，第 3 步把整套协作阵容回填到主页，直接开始圆桌讨论。
+                    <section id="h2a-topology" class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-5 py-6 text-white shadow-2xl shadow-slate-900/30 md:px-8 md:py-8">
+                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">H2A Top-Level Design</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">MedRoundTable 不只是 14 个 AI Agent，而是一个 Human-to-Agent 医学科研协作平台</h3>
+                                <p class="mt-3 max-w-4xl text-base leading-8 text-slate-200">
+                                    顶层设计先把真人专家的科研方法、工具调用和交付习惯沉淀成数字分身资产，再由 14 位运行时 Agent 在具体项目中自动编排和调用。复杂任务不强行自动化，而是升级到真人审阅或接管。
                                 </p>
-                                <div id="secondMeLiveEntryActions" class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap"></div>
                             </div>
-                            <div class="rounded-[1.8rem] bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-slate-900/20">
+                            <a href="#secondme-command-center" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
+                                查看 Human x SecondMe 协作层 <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div id="h2aLayerGrid" class="mt-6 grid gap-4 xl:grid-cols-4"></div>
+                        <div class="mt-6 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+                            <article class="rounded-[1.75rem] bg-white/8 p-5 ring-1 ring-white/10 backdrop-blur">
                                 <div class="flex items-center justify-between gap-3">
                                     <div>
-                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">真人协作说明</p>
-                                        <h3 class="mt-2 text-2xl font-bold">登录后会发生什么</h3>
+                                        <p class="text-sm font-semibold text-white">四种上线模式</p>
+                                        <p class="text-xs text-slate-300">先旁观、再辅助、再委托，最后才是 Twin 独立承接。</p>
                                     </div>
-                                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">登录后生效</span>
+                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">Modes</span>
                                 </div>
-                                <div id="secondMeHeroIdentityPanel" class="mt-5 rounded-[1.4rem] bg-white/8 p-4 ring-1 ring-white/10"></div>
-                                <div class="mt-5 grid gap-3 md:grid-cols-3">
-                                    <div class="rounded-3xl bg-white/6 p-4 ring-1 ring-white/10">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">第一步</p>
-                                        <h4 class="mt-2 text-lg font-bold text-white">真人进入</h4>
-                                        <p class="mt-2 text-sm leading-6 text-slate-300">不再是匿名游客，而是明确的研究发起人、共同作者或证据整合员。</p>
+                                <div id="h2aModeGrid" class="mt-4 grid gap-3 md:grid-cols-2"></div>
+                            </article>
+                            <article class="rounded-[1.75rem] bg-white/8 p-5 ring-1 ring-white/10 backdrop-blur">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">三类可计费资产与首批样板角色</p>
+                                        <p class="text-xs text-slate-300">平台未来真正收费的，不只是聊天，而是专家分身资产、workflow 和交付能力。</p>
                                     </div>
-                                    <div class="rounded-3xl bg-white/6 p-4 ring-1 ring-white/10">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">第二步</p>
-                                        <h4 class="mt-2 text-lg font-bold text-white">分身装载</h4>
-                                        <p class="mt-2 text-sm leading-6 text-slate-300">把临床判断、文献记忆或多组学上下文一起带回这次任务。</p>
-                                    </div>
-                                    <div class="rounded-3xl bg-white/6 p-4 ring-1 ring-white/10">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">第三步</p>
-                                        <h4 class="mt-2 text-lg font-bold text-white">AI 接管</h4>
-                                        <p class="mt-2 text-sm leading-6 text-slate-300">登录后的身份、分身和 AI pack 会一起写进首页创建流程和圆桌详情页。</p>
-                                    </div>
+                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">Assets</span>
                                 </div>
-                            </div>
+                                <div id="h2aAssetGrid" class="mt-4 grid gap-3 md:grid-cols-3"></div>
+                                <div class="mt-5">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">首批适合做 H2A 样板的角色</p>
+                                    <div id="h2aPilotRoleList" class="mt-3 flex flex-wrap gap-2"></div>
+                                </div>
+                            </article>
                         </div>
                     </section>
 
                     <section id="expert-command-center" class="rounded-[2rem] border border-slate-200 bg-gradient-to-br from-white via-blue-50 to-slate-50 px-5 py-6 shadow-2xl shadow-blue-100/60 md:px-8 md:py-8">
                         <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">首位专家入口</p>
-                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">14 位 Agent 放到首页前排，先帮你判断这一步该找谁</h3>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">Runtime Agent Entry</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">14 位 Agent 先作为运行时前台，后续逐步接成 human-backed twins</h3>
                                 <p class="mt-3 max-w-3xl text-base leading-8 text-slate-600">
-                                    如果你现在卡在选题、方案、统计、生信或执行落地，先点一位最接近当前问题的 Agent。每张卡都会说明 TA 适合先介入的时机，并允许直接进入圆桌会。
+                                    使用者当前仍然先从 Agent 进入最顺手，因为运行时需要足够快。每张卡说明 TA 在当前项目里最适合先介入的时机；长期看，这些角色会逐步接上真人专家与数字分身资产。
                                 </p>
                                 <div class="mt-5 flex flex-wrap gap-2 text-xs font-semibold">
-                                    <span class="rounded-full border border-blue-200 bg-white px-3 py-1.5 text-blue-700">核心临床团队 · 5 位</span>
-                                    <span class="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700">ClawBio 生物信息学套件 · 4 位</span>
-                                    <span class="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-700">专业研究支持团队 · 5 位</span>
+                                    <span class="rounded-full border border-blue-200 bg-white px-3 py-1.5 text-blue-700">运行时前台 · 14 位 Agent</span>
+                                    <span class="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-emerald-700">首批 H2A 样板角色 · 5 位</span>
+                                    <span class="rounded-full border border-violet-200 bg-white px-3 py-1.5 text-violet-700">复杂任务可升级真人</span>
                                 </div>
                             </div>
                             <a href="./experts.html" class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
@@ -941,9 +937,9 @@
                         <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Agent Skill Decks</p>
-                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">选中 Agent 后，立刻看到 TA 能帮你完成什么</h3>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">997 项 skills 不是给用户背目录，而是给运行时 Agent 调用</h3>
                                 <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
-                                    不用先理解整个平台的能力结构。你只需要先选人，后面的技能面、分析路径、来源包和常见交付会自动对齐到这位 Agent。
+                                    H2A 模式下，真人专家沉淀的是方法和交付，运行时 Agent 负责调度 skills、数据库和 workflow。用户只需要先选当前问题最合适的入口，后面的能力调用会自动对齐。
                                 </p>
                             </div>
                             <a href="./frontend/skills-market.html" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100">
@@ -957,9 +953,9 @@
                             </a>
                         </div>
                         <div class="mt-5 flex flex-wrap gap-2 text-xs text-slate-200">
-                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">展示口径：按 Agent 主责技能面重排</span>
-                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">技能数为非去重覆盖口径</span>
-                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">对应 14 条分析路径与 4 组能力来源</span>
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">展示口径：按运行时 Agent 的主责技能面重排</span>
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">供给侧沉淀的是方法、工具和交付资产</span>
+                            <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 font-semibold">运行时自动调用多条分析路径与 4 组能力来源</span>
                         </div>
                         <div id="agentSkillDeckGrid" class="mt-6 grid gap-4 lg:grid-cols-2"></div>
                     </section>
@@ -972,7 +968,7 @@
                         <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
                             <div>
                                 <p class="atlas-mini-label">Research Overview</p>
-                                <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">如果你想先判断平台是否适合当前课题，这里先看真实数据、分析路径和交付方向</h2>
+                                <h2 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">如果你想先判断 H2A 平台能不能接住当前课题，这里先看数据、分析路径和可调用资产</h2>
                                 <p class="mt-4 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
                                     这一段不是宣传页，而是给你快速判断用的。首页直接列出数据库清单、常用分析路径、能力来源和推荐入口，方便你确认这套平台能不能接住当前研究任务。
                                 </p>
@@ -1019,8 +1015,8 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div>
                                         <p class="atlas-mini-label">Skill Source Packages</p>
-                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">常用能力分成 4 组，方便你判断这套平台是不是你要的那种支持</h3>
-                                        <p class="mt-2 text-sm leading-7 text-slate-600">这里直接交代能力来源，让你知道哪些是平台原生能力、哪些来自 OpenClaw 包装层，以及哪些是研究增强与交付扩展。</p>
+                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">H2A 运行时常用能力分成 4 组，方便你判断平台到底拿什么去执行</h3>
+                                        <p class="mt-2 text-sm leading-7 text-slate-600">这里直接交代能力来源，让你知道哪些是平台原生能力、哪些来自 OpenClaw 包装层，以及哪些是研究增强、分身资产和交付扩展。</p>
                                     </div>
                                     <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-right">
                                         <div class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">STELLA</div>
@@ -1032,40 +1028,12 @@
                             </article>
                         </div>
 
-                        <div class="mt-6 grid gap-4 xl:grid-cols-2">
-                            <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
-                                <div class="flex items-start justify-between gap-4">
-                                    <div>
-                                        <p class="atlas-mini-label">External Integrations</p>
-                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">外部整合能力层</h3>
-                                        <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">把中文文献自动化与多组学生态直接接进平台，让首页就能看出哪些能力来自外部系统整合，而不是空泛口号。</p>
-                                    </div>
-                                    <span class="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-semibold text-slate-700">新接入</span>
-                                </div>
-                                <div id="atlasIntegrationSpotlights" class="mt-5 grid gap-4"></div>
-                            </article>
-
-                            <article class="atlas-panel rounded-[1.75rem] p-5 md:p-6">
-                                <div class="flex items-start justify-between gap-4">
-                                    <div>
-                                        <p class="atlas-mini-label">Frontier Models</p>
-                                        <h3 class="mt-2 text-2xl font-bold text-slate-950">前沿医学与基因组模型层</h3>
-                                        <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">把医学知识图谱推理和跨生命域基因组基础模型放到平台能力图里，明确它们适合解决什么问题、应该由谁调用。</p>
-                                    </div>
-                                    <a href="./frontend/capability-matrix.html#frontier-model-layer" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                                        模型层详情 <i class="fas fa-arrow-right text-xs"></i>
-                                    </a>
-                                </div>
-                                <div id="atlasFrontierModelGrid" class="mt-5 grid gap-4"></div>
-                            </article>
-                        </div>
-
                         <div id="atlas-algorithm-board" class="mt-6">
                             <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                                 <div>
                                     <p class="atlas-mini-label">Algorithm Lanes</p>
-                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">12 条分析路径分别适合什么问题、通常由谁先接手</h3>
-                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">首页先把适用场景、常见交付和推荐 Agent 写清楚，避免你一开始就陷进抽象能力名词。</p>
+                                    <h3 class="mt-2 text-2xl font-bold text-slate-950">9 条分析路径分别适合什么问题、由哪些 Agent 调用、何时升级真人</h3>
+                                    <p class="mt-2 max-w-3xl text-sm leading-7 text-slate-600">首页先把适用场景、常见交付和推荐 Agent 写清楚，再把 H2A 的升级节点交代出来，避免用户误以为所有任务都应该全自动。</p>
                                 </div>
                                 <a href="./frontend/capability-matrix.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                                     查看完整能力矩阵 <i class="fas fa-arrow-right"></i>
@@ -1098,80 +1066,271 @@
                     <div class="text-center mb-10">
                         <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-3">
                             <i class="fas fa-puzzle-piece text-blue-600 mr-2"></i>
-                            完整研究工具生态
+                            数据与工具武器库
                         </h2>
                         <p class="text-slate-600 max-w-2xl mx-auto">
-                            MedRoundTable 与全球顶尖医学研究工具深度整合，为您提供从<span class="text-blue-600 font-semibold">试验追踪</span>到<span class="text-purple-600 font-semibold">数据可视化</span>再到<span class="text-indigo-600 font-semibold">自动科研执行</span>的全流程支持
+                            这些工具不是独立摆设，而是 H2A 运行时的武器库。MedRoundTable 把<span class="text-blue-600 font-semibold">试验追踪</span>、<span class="text-purple-600 font-semibold">数据可视化</span>和<span class="text-indigo-600 font-semibold">自动科研执行</span>接进同一条研究推进链路
                         </p>
-                        <div class="mt-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-                            <i class="fas fa-grid-2 text-blue-600"></i> 当前已展示 <span id="homeResearchToolCount">21</span> 个研究工具入口
-                        </div>
-                    </div>
-
-                    <div class="mb-8 rounded-[2rem] border border-slate-200 bg-white/90 p-6 shadow-xl shadow-slate-200/60 backdrop-blur">
-                        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">Research Execution Workbench</p>
-                                <h3 class="mt-2 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">先选研究推进阶段，再看该用哪些数据库、工具和专家把方案做下去</h3>
-                                <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
-                                    这里不只是展示平台里有什么，而是把数据库来源、研究工具和 14 位专家按“问题识别 → 文献回顾 → 研究设计 → 数据准备 → 数据分析 → 报告输出”的执行顺序串起来。
-                                </p>
-                            </div>
-                            <a href="./frontend/database-browser.html" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
-                                查看全部数据库来源 <i class="fas fa-arrow-right"></i>
-                            </a>
-                        </div>
-                        <div id="researchExecutionStageTabs" class="mt-6 flex flex-wrap gap-3"></div>
-                        <div class="mt-6 grid gap-5 xl:grid-cols-[1.2fr_1fr]">
-                            <div class="rounded-[1.6rem] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-cyan-50 p-5">
-                                <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                                    <div>
-                                        <p id="researchExecutionMiniLabel" class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">当前阶段</p>
-                                        <h4 id="researchExecutionStageTitle" class="mt-2 text-2xl font-bold text-slate-950">问题识别</h4>
-                                        <p id="researchExecutionStageSummary" class="mt-3 max-w-2xl text-sm leading-7 text-slate-600"></p>
-                                    </div>
-                                    <div id="researchExecutionExpertBadges" class="flex flex-wrap gap-2 md:max-w-sm md:justify-end"></div>
-                                </div>
-                                <div class="mt-5 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-                                    <div class="rounded-[1.35rem] border border-white/70 bg-white/80 p-4">
-                                        <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">这一步具体怎么协助执行</div>
-                                        <div id="researchExecutionChecklist" class="mt-3 space-y-3"></div>
-                                    </div>
-                                    <div class="rounded-[1.35rem] border border-white/70 bg-white/80 p-4">
-                                        <div class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">下一步会直接产出什么</div>
-                                        <div id="researchExecutionOutputs" class="mt-3 flex flex-wrap gap-2"></div>
-                                        <div class="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">推荐数据库类别</div>
-                                        <div id="researchExecutionCategoryPills" class="mt-3 flex flex-wrap gap-2"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="grid gap-5">
-                                <div class="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5">
-                                    <div class="flex items-center justify-between gap-3">
-                                        <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">优先数据库来源</p>
-                                            <h4 class="mt-2 text-lg font-bold text-slate-950">这一步先看哪些公开数据</h4>
-                                        </div>
-                                        <span id="researchExecutionDatabaseCount" class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">0 个来源</span>
-                                    </div>
-                                    <div id="researchExecutionDatabaseList" class="mt-4 grid gap-3"></div>
-                                </div>
-                                <div class="rounded-[1.6rem] border border-slate-200 bg-slate-50 p-5">
-                                    <div class="flex items-center justify-between gap-3">
-                                        <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">推荐工具生态</p>
-                                            <h4 class="mt-2 text-lg font-bold text-slate-950">进到这一步，先调哪些工具</h4>
-                                        </div>
-                                        <span id="researchExecutionToolCount" class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">0 个入口</span>
-                                    </div>
-                                    <div id="researchExecutionToolList" class="mt-4 grid gap-3"></div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- 工具卡片网格 -->
-                    <div id="homeResearchToolGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        
+                        <!-- NHANES智能分析平台 -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-teal-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-chart-line text-teal-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">NHANES智能分析</h3>
+                                    <p class="text-sm text-slate-500">Lancet论文生成平台</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>NHANES数据智能分析</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>Lancet标准论文生成</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>流行病学研究支持</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-teal-50 rounded-xl mb-4">
+                                <p class="text-sm text-teal-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>利用NHANES公开数据库，快速生成符合Lancet发表标准的研究论文
+                                </p>
+                            </div>
+                            <a href="https://nhanesanalyz-8bn77uby.manus.space/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-teal-600 text-white rounded-xl text-center font-semibold hover:bg-teal-700 transition">
+                                访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                            </a>
+                        </div>
+                        
+                        <!-- SEER-BMJ肿瘤研究平台 -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-rose-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-rose-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-ribbon text-rose-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">SEER-BMJ肿瘤研究</h3>
+                                    <p class="text-sm text-slate-500">肿瘤流行病学数据库</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>SEER肿瘤数据库访问</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>生存分析与预后研究</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>BMJ发表标准支持</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-rose-50 rounded-xl mb-4">
+                                <p class="text-sm text-rose-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>基于SEER数据库开展肿瘤流行病学研究，生成BMJ标准学术论文
+                                </p>
+                            </div>
+                            <a href="https://seertotoponcology.vip/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-rose-600 text-white rounded-xl text-center font-semibold hover:bg-rose-700 transition">
+                                访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                            </a>
+                        </div>
+                        
+                        <!-- Clinical Trials Reviewer -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-blue-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-flask text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">Clinical Trials Reviewer</h3>
+                                    <p class="text-sm text-slate-500">全球临床试验追踪</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>实时追踪全球临床试验</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>专业同行评论分析</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>试验设计方案参考</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-xl mb-4">
+                                <p class="text-sm text-blue-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>在研究设计阶段引用 CTR 数据，让我们的 AI 专家基于全球最新试验为您提供建议
+                                </p>
+                            </div>
+                            <a href="https://clinicaltrialsreviewer.vip/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-blue-600 text-white rounded-xl text-center font-semibold hover:bg-blue-700 transition">
+                                访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                            </a>
+                        </div>
+
+                        <!-- MediVisual -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-purple-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-chart-pie text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">MediVisual Artist</h3>
+                                    <p class="text-sm text-slate-500">医学数据可视化</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>专业医学图表生成</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>期刊发表标准图表</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>交互式数据探索</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-purple-50 rounded-xl mb-4">
+                                <p class="text-sm text-purple-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>数据分析阶段使用 MediVisual 生成图表，与我们的统计专家一起优化可视化效果
+                                </p>
+                            </div>
+                            <a href="https://medivisual.org/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-purple-600 text-white rounded-xl text-center font-semibold hover:bg-purple-700 transition">
+                                访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                            </a>
+                        </div>
+
+                        <!-- CHARLS Research Platform -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-red-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-red-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-database text-red-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">Lancet CHARLS</h3>
+                                    <p class="text-sm text-slate-500">中国健康与养老追踪调查</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>大规模纵向队列数据</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>老龄化与健康研究支持</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>Lancet合作顶级数据平台</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-red-50 rounded-xl mb-4">
+                                <p class="text-sm text-red-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>结合 CHARLS 数据资源，我们的 AI 专家协助您开展中国老龄化与健康领域的深度研究
+                                </p>
+                            </div>
+                            <a href="https://charlstolancet.club/" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-red-600 text-white rounded-xl text-center font-semibold hover:bg-red-700 transition">
+                                访问平台 <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                            </a>
+                        </div>
+
+                        <!-- FARS Research Automation -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-indigo-100 hover:shadow-xl transition-all hover:-translate-y-1">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-robot text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">FARS 自动科研</h3>
+                                    <p class="text-sm text-slate-500">Fully Automated Research System</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>自动文献调研与假设生成</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>代码执行与实验调度</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>短论文与失败结果沉淀</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-indigo-50 rounded-xl mb-4">
+                                <p class="text-sm text-indigo-800">
+                                    <i class="fas fa-link mr-1"></i>
+                                    <strong>整合方式：</strong>把一句研究方向推进为研究议程、实验清单和短论文草稿，为 MedRoundTable 的 14 位专家提供自动科研执行底盘
+                                </p>
+                            </div>
+                            <a href="https://analemma.ai/fars" target="_blank" rel="noopener noreferrer" class="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-center font-semibold hover:bg-indigo-700 transition">
+                                查看 FARS <i class="fas fa-external-link-alt ml-1 text-sm"></i>
+                            </a>
+                        </div>
+
+                        <!-- MedRoundTable AI -->
+                        <div class="bg-white rounded-2xl p-6 shadow-lg border border-indigo-100 hover:shadow-xl transition-all hover:-translate-y-1 ring-2 ring-indigo-500 ring-offset-2">
+                            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                                <span class="bg-indigo-600 text-white text-xs px-3 py-1 rounded-full font-semibold">核心平台</span>
+                            </div>
+                            <div class="flex items-center gap-4 mb-4 mt-2">
+                                <div class="w-14 h-14 bg-indigo-100 rounded-2xl flex items-center justify-center text-2xl">
+                                    <i class="fas fa-brain text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-lg text-slate-900">MedRoundTable</h3>
+                                    <p class="text-sm text-slate-500">AI 科研协作平台</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>14位 AI 专家协作</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>研究设计与方案生成</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-slate-600">
+                                    <i class="fas fa-check text-green-500 text-xs"></i>
+                                    <span>全流程科研支持</span>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-indigo-50 rounded-xl mb-4">
+                                <p class="text-sm text-indigo-800">
+                                    <i class="fas fa-star mr-1"></i>
+                                    <strong>核心枢纽：</strong>连接所有工具，协调 AI 专家团队，是您医学科研的中心平台
+                                </p>
+                            </div>
+                            <button onclick="openNewSessionModal({ forceRefill: false })" class="block w-full py-2.5 bg-indigo-600 text-white rounded-xl text-center font-semibold hover:bg-indigo-700 transition">
+                                开始圆桌会 <i class="fas fa-plus-circle ml-1 text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <!-- 整合流程图 -->
                     <div class="mt-12 bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
@@ -1183,7 +1342,7 @@
                             <div class="text-center p-4 bg-blue-50 rounded-xl">
                                 <div class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">1</div>
                                 <h4 class="font-semibold text-slate-900 mb-2">文献回顾</h4>
-                                <p class="text-sm text-slate-600">用 QuantClaw × CNKI 和 CTR 同步补中文与国际证据线索</p>
+                                <p class="text-sm text-slate-600">在 CTR 查找相关试验，了解研究现状</p>
                                 <div class="mt-3 text-xs text-blue-600 font-medium">
                                     <i class="fas fa-arrow-down"></i> 导入 MedRoundTable
                                 </div>
@@ -1199,7 +1358,7 @@
                             <div class="text-center p-4 bg-purple-50 rounded-xl">
                                 <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">3</div>
                                 <h4 class="font-semibold text-slate-900 mb-2">数据可视化</h4>
-                                <p class="text-sm text-slate-600">用 OmicClaw × OmicVerse 和 MediVisual 继续推进组学分析与结果展示</p>
+                                <p class="text-sm text-slate-600">使用 MediVisual 生成专业图表</p>
                                 <div class="mt-3 text-xs text-purple-600 font-medium">
                                     <i class="fas fa-arrow-down"></i> 专家审核优化
                                 </div>
@@ -1233,9 +1392,9 @@
                                 <div class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-800">
                                     <i class="fas fa-command"></i> Start Here
                                 </div>
-                                <h2 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">先做一个选择，然后开始第一场圆桌会</h2>
+                                <h2 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 md:text-4xl">先决定谁主导、谁自动执行，然后开始第一场 H2A 圆桌会</h2>
                                 <p class="mt-4 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">
-                                    如果你已经看过上面的 Agent 入口，这里就是正式开始的地方。你可以直接新建、导入已有方案，或者回到 Agent 区先定首位介入者。
+                                    如果你已经看过上面的 H2A 架构和 Agent 入口，这里就是正式开始的地方。你可以直接新建、导入已有方案，或者先回到 Agent 区确定首位运行时入口与是否带上真人 / 分身。
                                 </p>
                                 <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
                                     <button onclick="openNewSessionModal({ forceRefill: false })" class="rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-xl shadow-blue-900/20 transition hover:bg-blue-800">
@@ -1250,7 +1409,7 @@
                             <div class="rounded-[1.75rem] bg-slate-950 px-5 py-5 text-white shadow-2xl shadow-slate-900/20">
                                 <div class="flex items-center justify-between gap-3">
                                     <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-200">当前参与快照</p>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-200">Your Command Post</p>
                                         <h3 class="mt-2 text-2xl font-bold">当前参与快照</h3>
                                     </div>
                                     <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-blue-100">实时由本地进度生成</span>
@@ -1261,7 +1420,7 @@
                                         <div class="min-w-0 flex-1">
                                             <div class="flex items-center justify-between gap-3">
                                                 <div>
-                                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">真人身份</p>
+                                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">SecondMe Identity</p>
                                                     <h4 id="secondMeIdentityName" class="mt-1 text-lg font-bold text-white">SecondMe 用户</h4>
                                                 </div>
                                                 <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold text-cyan-100">已登录</span>
@@ -1288,14 +1447,14 @@
                     <section id="secondme-command-center" class="rounded-[2rem] bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 px-5 py-6 text-white shadow-2xl shadow-slate-900/30 md:px-8 md:py-8">
                         <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">真人协作入口</p>
-                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">把真人研究者、SecondMe 分身和 AI agent 以 3 步流真正带进同一个圆桌</h3>
+                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">Human Identity & SecondMe Layer</p>
+                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-white">把真人研究者、SecondMe 分身和 14 位运行时 Agent 串成一条 H2A 协作链</h3>
                                 <p class="mt-3 max-w-3xl text-base leading-8 text-slate-200">
-                                    第 1 步登录真人身份，第 2 步决定带不带分身以及哪组 AI 先接手，第 3 步直接把结果回填到首页创建流程。
+                                    先决定谁作为真人主导者进入、是否带上你的 SecondMe 分身，再选择一组运行时 Agent 作为执行底盘。这样平台前台是快速可用的，后台又保留 Human-to-Agent 的升级路径和收益分层。
                                 </p>
                             </div>
                             <a href="./frontend/secondme-hub.html" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
-                                第 2 步：配置 SecondMe 阵容 <i class="fas fa-arrow-right"></i>
+                                配置 SecondMe 阵容 <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
                         <div id="secondMeScenarioGrid" class="mt-6 grid gap-4 xl:grid-cols-3"></div>
@@ -1306,7 +1465,7 @@
                                         <p class="text-sm font-semibold text-white">推荐 AI 阵容</p>
                                         <p class="text-xs text-slate-300">把 SecondMe 的参与方式和 MedRoundTable 的专家分诊台合并成一个可执行入口。</p>
                                     </div>
-                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">AI 阵容</span>
+                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">AI Packs</span>
                                 </div>
                                 <div id="secondMeAiPackGrid" class="mt-4 grid gap-3 md:grid-cols-3"></div>
                             </div>
@@ -1316,7 +1475,7 @@
                                         <p class="text-sm font-semibold text-white">真人加入方式</p>
                                         <p class="text-xs text-slate-300">给使用者明确角色，不再只有“游客”一种模糊状态。</p>
                                     </div>
-                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">真人角色</span>
+                                    <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-cyan-100">Human Roles</span>
                                 </div>
                                 <div id="secondMeHumanRoleGrid" class="mt-4 space-y-3"></div>
                             </div>
@@ -1688,16 +1847,9 @@
         // 测试JavaScript是否正常工作
         console.log('✅ JavaScript 加载成功');
         
-        // API 配置 - GitHub Pages 静态工作台优先，增强模式可切回共享后端
+        // API 配置 - 使用 Render 后端
+        const API_BASE = window.MRTApiConfig ? window.MRTApiConfig.API_BASE : 'https://medroundtable-api.onrender.com';
         const api = window.MRTApiConfig || null;
-        const siteBasePath = window.location.pathname.split('/').filter(Boolean)[0] === 'medroundtable' ? '/medroundtable' : '';
-        const API_BASE = api
-            ? api.API_BASE
-            : (window.location.hostname === 'localhost'
-                ? 'http://localhost:8000'
-                : `${window.location.origin}${siteBasePath}`);
-        const SECONDME_PORTAL_BASE = 'https://medroundtable-secondme.vercel.app';
-        const SECONDME_LOGIN_URL = `${SECONDME_PORTAL_BASE}/api/auth/login`;
         
         // 模拟数据模式（当后端不可用时使用）
         let MOCK_MODE = false;
@@ -1960,609 +2112,8 @@
             }
         }
 
-        const researchToolShowcase = [
-            {
-                name: 'MedRoundTable',
-                subtitle: '14 位 AI 专家中枢',
-                icon: 'fas fa-brain',
-                iconBg: 'bg-indigo-100',
-                iconText: 'text-indigo-600',
-                border: 'border-indigo-100 ring-2 ring-indigo-500 ring-offset-2',
-                badge: '核心平台',
-                badgeClass: 'bg-indigo-600 text-white',
-                features: ['14 位 AI 专家协作', '研究设计与方案生成', '全流程科研支持'],
-                integration: '核心枢纽：连接数据库、分析工具、SecondMe 和报告导出。',
-                integrationClass: 'bg-indigo-50 text-indigo-800',
-                href: '#',
-                cta: '开始圆桌会',
-                action: "openNewSessionModal({ forceRefill: false })"
-            },
-            {
-                name: 'NHANES 智能分析',
-                subtitle: 'Lancet 风格队列研究',
-                icon: 'fas fa-chart-line',
-                iconBg: 'bg-teal-100',
-                iconText: 'text-teal-600',
-                border: 'border-teal-100',
-                features: ['NHANES 数据智能分析', 'Lancet 标准结果输出', '流行病学研究支持'],
-                integration: '用 NHANES 公开数据库快速形成人群研究问题、结果表和论文骨架。',
-                integrationClass: 'bg-teal-50 text-teal-800',
-                href: 'https://nhanesanalyz-8bn77uby.manus.space/',
-                cta: '访问平台'
-            },
-            {
-                name: 'SEER-BMJ 肿瘤研究',
-                subtitle: '肿瘤流行病学研究台',
-                icon: 'fas fa-ribbon',
-                iconBg: 'bg-rose-100',
-                iconText: 'text-rose-600',
-                border: 'border-rose-100',
-                features: ['SEER 肿瘤数据库访问', '生存分析与预后研究', 'BMJ 发表标准支持'],
-                integration: '把肿瘤流行病学分析与 BMJ 风格结果表达接进平台。',
-                integrationClass: 'bg-rose-50 text-rose-800',
-                href: 'https://seertotoponcology.vip/',
-                cta: '访问平台'
-            },
-            {
-                name: 'Clinical Trials Reviewer',
-                subtitle: '全球临床试验追踪',
-                icon: 'fas fa-flask',
-                iconBg: 'bg-blue-100',
-                iconText: 'text-blue-600',
-                border: 'border-blue-100',
-                features: ['实时追踪全球试验', '同行评论与竞品观察', '方案设计参考'],
-                integration: '在研究设计阶段同步引入 CTR 数据，让圆桌会先看外部试验态势。',
-                integrationClass: 'bg-blue-50 text-blue-800',
-                href: 'https://clinicaltrialsreviewer.vip/',
-                cta: '访问平台'
-            },
-            {
-                name: 'MediVisual Artist',
-                subtitle: '医学数据可视化',
-                icon: 'fas fa-chart-pie',
-                iconBg: 'bg-purple-100',
-                iconText: 'text-purple-600',
-                border: 'border-purple-100',
-                features: ['专业医学图表生成', '期刊发表标准图表', '交互式数据探索'],
-                integration: '把数据图表与统计专家建议合并，直接产出更像发表级的可视化。',
-                integrationClass: 'bg-purple-50 text-purple-800',
-                href: 'https://medivisual.org/',
-                cta: '访问平台'
-            },
-            {
-                name: 'Lancet CHARLS',
-                subtitle: '中国老龄化与健康队列',
-                icon: 'fas fa-database',
-                iconBg: 'bg-red-100',
-                iconText: 'text-red-600',
-                border: 'border-red-100',
-                features: ['纵向队列数据', '老龄化与健康研究', '中国人群场景'],
-                integration: '结合 CHARLS 资源，快速形成中国老龄化与健康方向的问题、分析和叙事。',
-                integrationClass: 'bg-red-50 text-red-800',
-                href: 'https://charlstolancet.club/',
-                cta: '访问平台'
-            },
-            {
-                name: 'QuantClaw × CNKI',
-                subtitle: '中文文献自动化助手',
-                icon: 'fas fa-book-open-reader',
-                iconBg: 'bg-orange-100',
-                iconText: 'text-orange-600',
-                border: 'border-orange-100',
-                features: ['知网检索与高级筛选', 'PDF / CAJ 下载与导出', '飞书/钉钉远程触发'],
-                integration: '把 CNKI 检索、批量下载、Zotero 导出和期刊级别核查接入证据链路。',
-                integrationClass: 'bg-orange-50 text-orange-800',
-                href: './frontend/capability-matrix.html#cnki-automation',
-                cta: '查看能力'
-            },
-            {
-                name: 'OmicClaw × OmicVerse',
-                subtitle: '多组学分析系统',
-                icon: 'fas fa-dna',
-                iconBg: 'bg-lime-100',
-                iconText: 'text-lime-600',
-                border: 'border-lime-100',
-                features: ['单细胞、GWAS 与多组学接力', '共享 Kernel 上下文', '网页 / MCP / openclaw 多入口'],
-                integration: '把 OmicVerse 2.0 与 OmicClaw 的多组学分析工作台接进圆桌会。',
-                integrationClass: 'bg-lime-50 text-lime-800',
-                href: './frontend/capability-matrix.html#omics-orchestration',
-                cta: '查看能力'
-            },
-            {
-                name: 'FARS 自动科研',
-                subtitle: 'Fully Automated Research System',
-                icon: 'fas fa-robot',
-                iconBg: 'bg-indigo-100',
-                iconText: 'text-indigo-600',
-                border: 'border-indigo-100',
-                features: ['自动文献调研与假设生成', '代码执行与实验调度', '短论文与失败结果沉淀'],
-                integration: '把一句研究方向推进为研究议程、实验清单和短论文草稿，为 MedRoundTable 的 14 位专家提供自动科研执行底盘。',
-                integrationClass: 'bg-indigo-50 text-indigo-800',
-                href: 'https://analemma.ai/fars',
-                cta: '查看 FARS'
-            },
-            {
-                name: 'QwQ-Med-3',
-                subtitle: '知识图谱医学推理模型',
-                icon: 'fas fa-stethoscope',
-                iconBg: 'bg-cyan-100',
-                iconText: 'text-cyan-700',
-                border: 'border-cyan-100',
-                features: ['UMLS 图谱课程学习', '显式推理链', '医学问答与跨任务泛化'],
-                integration: '适合补医学知识链路和可解释推理，帮助临床与证据位更快对齐。',
-                integrationClass: 'bg-cyan-50 text-cyan-800',
-                href: './frontend/capability-matrix.html#frontier-model-layer',
-                cta: '查看模型'
-            },
-            {
-                name: 'Evo 2',
-                subtitle: '跨生命域基因组基础模型',
-                icon: 'fas fa-wave-square',
-                iconBg: 'bg-emerald-100',
-                iconText: 'text-emerald-700',
-                border: 'border-emerald-100',
-                features: ['零样本突变效应预测', '超长上下文基因组建模', '序列生成与设计'],
-                integration: '适合基因组与变异问题，补足前沿模型层的序列理解与设计能力。',
-                integrationClass: 'bg-emerald-50 text-emerald-800',
-                href: './frontend/capability-matrix.html#frontier-model-layer',
-                cta: '查看模型'
-            },
-            {
-                name: 'SecondMe 协作层',
-                subtitle: '真人身份 + AI 阵容',
-                icon: 'fas fa-user-group',
-                iconBg: 'bg-sky-100',
-                iconText: 'text-sky-700',
-                border: 'border-sky-100',
-                features: ['真人研究者登录', '分身与 AI 阵容共桌', '回填主页与圆桌详情'],
-                integration: '把真人研究者、SecondMe 分身和 AI agent 以统一协作流接进平台。',
-                integrationClass: 'bg-sky-50 text-sky-800',
-                href: './frontend/secondme-hub.html',
-                cta: '进入协作'
-            },
-            {
-                name: '数据库浏览器',
-                subtitle: '46 个数据库目录',
-                icon: 'fas fa-server',
-                iconBg: 'bg-amber-100',
-                iconText: 'text-amber-700',
-                border: 'border-amber-100',
-                features: ['10 类研究场景分组', '真实数据库名称', '保留直达链接'],
-                integration: '先看有什么数据，再决定该走哪条分析路径和哪位专家先介入。',
-                integrationClass: 'bg-amber-50 text-amber-800',
-                href: './frontend/database-browser.html',
-                cta: '查看目录'
-            },
-            {
-                name: '技能市场',
-                subtitle: '按 Agent 过滤能力',
-                icon: 'fas fa-table-cells-large',
-                iconBg: 'bg-fuchsia-100',
-                iconText: 'text-fuchsia-700',
-                border: 'border-fuchsia-100',
-                features: ['按 Agent 看能力', '按来源包过滤', '从能力直达圆桌会'],
-                integration: '把平台能力按使用入口重排，而不是只堆统计数字。',
-                integrationClass: 'bg-fuchsia-50 text-fuchsia-800',
-                href: './frontend/skills-market.html',
-                cta: '查看技能'
-            },
-            {
-                name: '能力矩阵',
-                subtitle: '11 条分析路径',
-                icon: 'fas fa-diagram-project',
-                iconBg: 'bg-violet-100',
-                iconText: 'text-violet-700',
-                border: 'border-violet-100',
-                features: ['适用场景清晰', '推荐专家明确', '交付物直观'],
-                integration: '让用户先看明白什么能力适合什么问题，再决定要不要进入讨论。',
-                integrationClass: 'bg-violet-50 text-violet-800',
-                href: './frontend/capability-matrix.html',
-                cta: '查看矩阵'
-            },
-            {
-                name: '研究方案上传',
-                subtitle: '已有草稿直接导入',
-                icon: 'fas fa-file-arrow-up',
-                iconBg: 'bg-green-100',
-                iconText: 'text-green-700',
-                border: 'border-green-100',
-                features: ['导入 protocol / 课题书', '本地暂存回退', '与圆桌上下文对齐'],
-                integration: '已有材料不用重头再说，直接把文档带进平台继续做实。',
-                integrationClass: 'bg-green-50 text-green-800',
-                href: './frontend/protocol-upload.html',
-                cta: '上传方案'
-            },
-            {
-                name: '数据上传工作台',
-                subtitle: 'CSV / Excel 预览',
-                icon: 'fas fa-file-import',
-                iconBg: 'bg-lime-100',
-                iconText: 'text-lime-700',
-                border: 'border-lime-100',
-                features: ['本地真实预览', '解析状态明确', '避免假成功反馈'],
-                integration: '把原始数据先变成可追踪的数据集，再接到统计与可视化链路。',
-                integrationClass: 'bg-lime-50 text-lime-800',
-                href: './frontend/database-upload.html',
-                cta: '上传数据'
-            },
-            {
-                name: '数据管理台',
-                subtitle: '分析任务与结果',
-                icon: 'fas fa-gauge-high',
-                iconBg: 'bg-rose-100',
-                iconText: 'text-rose-700',
-                border: 'border-rose-100',
-                features: ['分析任务状态', '下载 / 删除 / 清理', '可视化前置状态'],
-                integration: '把上传、分析和导出状态统一展示，不让用户丢在半路。',
-                integrationClass: 'bg-rose-50 text-rose-800',
-                href: './frontend/data-dashboard.html',
-                cta: '进入管理'
-            },
-            {
-                name: '专家总览',
-                subtitle: '14 位角色入口',
-                icon: 'fas fa-user-doctor',
-                iconBg: 'bg-blue-100',
-                iconText: 'text-blue-700',
-                border: 'border-blue-100',
-                features: ['按角色找入口', '按任务找专家', '直达专家详情页'],
-                integration: '让用户先知道该找谁，而不是一开始就被能力名词淹没。',
-                integrationClass: 'bg-blue-50 text-blue-800',
-                href: './experts.html',
-                cta: '查看专家'
-            },
-            {
-                name: '圆桌启动页',
-                subtitle: '最快进入讨论',
-                icon: 'fas fa-rocket',
-                iconBg: 'bg-indigo-100',
-                iconText: 'text-indigo-700',
-                border: 'border-indigo-100',
-                features: ['一键开 14 人会', '自动预填标题与问题', '可直接进详情页'],
-                integration: '把“开始讨论”压到最短路径，降低第一次试用门槛。',
-                integrationClass: 'bg-indigo-50 text-indigo-800',
-                href: './frontend/immersive-roundtable.html?autostart=1',
-                cta: '立即进入'
-            },
-            {
-                name: '最终报告导出',
-                subtitle: '研究结果带走',
-                icon: 'fas fa-file-arrow-down',
-                iconBg: 'bg-slate-100',
-                iconText: 'text-slate-700',
-                border: 'border-slate-200',
-                features: ['执行摘要', '分角色纪要', '参考文献附录'],
-                integration: '把对话沉淀成更像研究方案的正式输出，而不是只留聊天记录。',
-                integrationClass: 'bg-slate-50 text-slate-700',
-                href: './roundtables/detail.html?sessionId=12',
-                cta: '查看导出'
-            }
-        ];
-
-        const researchExecutionStages = {
-            problem_identification: {
-                label: '问题识别',
-                miniLabel: 'Stage 01 · Problem Framing',
-                summary: '先把一句临床观察拆成可研究的问题：明确人群、暴露、结局、主要风险点，再决定这题值不值得继续做。',
-                experts: ['临床主任', '博士生', '流行病学家'],
-                outputs: ['核心研究问题', 'PICO 草稿', '3 个关键风险', '继续 / 暂停判断'],
-                checklist: [
-                    '用临床主任把问题改写成可执行的临床研究命题，先判断是否值得立项。',
-                    '让博士生快速补证据空白，先确认这个方向有没有明显重复或已被做透。',
-                    '让流行病学家同步校正研究对象、时间窗和结局定义，避免题目一开始就发散。'
-                ],
-                databaseCategories: ['文献', '疾病/表型', '法规/指南'],
-                toolNames: ['MedRoundTable', 'SecondMe 协作层', '数据库浏览器', '专家总览', 'QwQ-Med-3']
-            },
-            evidence_review: {
-                label: '文献回顾',
-                miniLabel: 'Stage 02 · Evidence Review',
-                summary: '把中文与国际证据线索同时拉齐，优先补足近 3 年系统综述、关键队列和正在进行的临床试验。',
-                experts: ['博士生', '趋势研究员', '临床主任'],
-                outputs: ['证据缺口列表', '核心参考文献', '在研试验清单', '中文综述素材'],
-                checklist: [
-                    '用 QuantClaw × CNKI 先抓中文期刊、综述和政策口径，避免只看英文证据。',
-                    '用 Clinical Trials Reviewer 同步查在研试验与竞品方案，确认研究问题有没有窗口期。',
-                    '把关键综述、指南和最新高影响力论文回填到圆桌会，作为下一阶段设计依据。',
-                    '需要快速验证研究方向时，调用 FARS 先生成研究议程、实验清单和短论文草稿，再回流给 14 位专家审阅。'
-                ],
-                databaseCategories: ['文献', '临床试验', '法规/指南'],
-                toolNames: ['QuantClaw × CNKI', 'Clinical Trials Reviewer', 'QwQ-Med-3', 'FARS 自动科研', '数据库浏览器', '技能市场']
-            },
-            study_design: {
-                label: '研究设计',
-                miniLabel: 'Stage 03 · Study Design',
-                summary: '在证据基础上收紧设计口径，明确纳排标准、主要终点、样本量前提、CRF 关键字段和偏倚控制方案。',
-                experts: ['流行病学家', '统计学家', '研究护士'],
-                outputs: ['设计框架', '主要终点定义', '样本量前提', 'CRF 字段草案'],
-                checklist: [
-                    '用流行病学家把研究设计从“想做什么”收紧成“怎么做、为何这样做”。',
-                    '让统计学家先给出分析主线和样本量前提，避免后期为了分析反改设计。',
-                    '让研究护士同步把访视、数据采集和执行节点列出来，方案才真正能落地。'
-                ],
-                databaseCategories: ['临床试验', '流行病学/队列', '法规/指南'],
-                toolNames: ['MedRoundTable', 'Clinical Trials Reviewer', '研究方案上传', '能力矩阵', '圆桌启动页', 'FARS 自动科研']
-            },
-            data_preparation: {
-                label: '数据准备',
-                miniLabel: 'Stage 04 · Data Preparation',
-                summary: '把公开数据库、已有 Excel / CSV 或本地组学数据整理成可分析的任务对象，保证字段、批次和质控路径先清楚。',
-                experts: ['AI 数据工程师', '实验追踪员', '研究护士'],
-                outputs: ['可分析数据集', '字段映射', '质控检查点', '任务状态面板'],
-                checklist: [
-                    '先把原始数据导入数据上传工作台，确认能真实预览，而不是停留在“上传成功”的假反馈。',
-                    '让 AI 数据工程师把字段、批次和数据结构整理清楚，避免分析阶段再返工。',
-                    '需要长期追踪的数据集，交给数据管理台统一记录上传、解析和分析状态。'
-                ],
-                databaseCategories: ['流行病学/队列', '肿瘤', '基因组', '蛋白质'],
-                toolNames: ['数据上传工作台', '数据管理台', '数据库浏览器', 'OmicClaw × OmicVerse', 'SecondMe 协作层']
-            },
-            data_analysis: {
-                label: '数据分析',
-                miniLabel: 'Stage 05 · Data Analysis',
-                summary: '根据数据类型切进对应分析链路：临床统计、队列研究、肿瘤生存、多组学整合或前沿模型验证，保证每条链都有对应专家压阵。',
-                experts: ['统计学家', 'GWAS 专家', '单细胞测序', '药物基因组学'],
-                outputs: ['统计主结果', '可视化图表', '组学解释线索', '敏感性分析框架'],
-                checklist: [
-                    '临床与队列问题优先走 NHANES、SEER、CHARLS 这类成熟分析台，尽快拿到第一版主结果。',
-                    '组学和变异问题直接调用 OmicClaw × OmicVerse，再按需要叠加 Evo 2 或 QwQ-Med-3 做前沿核对。',
-                    '把结果同步交给 MediVisual Artist 做发表级图表，让讨论从“想法”转成“图和表”。'
-                ],
-                databaseCategories: ['流行病学/队列', '肿瘤', '基因组', '蛋白质', '通路'],
-                toolNames: ['NHANES 智能分析', 'SEER-BMJ 肿瘤研究', 'Lancet CHARLS', 'MediVisual Artist', 'OmicClaw × OmicVerse', 'Evo 2', 'QwQ-Med-3', 'FARS 自动科研']
-            },
-            output_delivery: {
-                label: '报告输出',
-                miniLabel: 'Stage 06 · Deliverables',
-                summary: '把讨论、图表和结果收束成真正可带走的研究交付：执行摘要、方案草稿、参考文献、图表和下一轮待办。',
-                experts: ['临床主任', '博士生', '统计学家', '模型 QA 专家'],
-                outputs: ['执行摘要', 'Word 报告', '参考文献附录', '下一轮行动清单'],
-                checklist: [
-                    '回到圆桌详情页把关键结论收束成最终报告，而不是停留在聊天记录。',
-                    '让博士生和统计学家共同压文稿逻辑，确保结论、图表和方法口径一致。',
-                    '把最终摘要、图表和参考文献打包导出，方便继续写方案、论文或给导师汇报。'
-                ],
-                databaseCategories: ['文献', '法规/指南'],
-                toolNames: ['最终报告导出', '研究方案上传', 'MediVisual Artist', 'MedRoundTable', 'SecondMe 协作层']
-            }
-        };
-
-        const researchToolStageLookup = {
-            'MedRoundTable': ['problem_identification', 'study_design', 'output_delivery'],
-            'NHANES 智能分析': ['data_analysis'],
-            'SEER-BMJ 肿瘤研究': ['data_analysis'],
-            'Clinical Trials Reviewer': ['evidence_review', 'study_design'],
-            'MediVisual Artist': ['data_analysis', 'output_delivery'],
-            'Lancet CHARLS': ['data_analysis'],
-            'QuantClaw × CNKI': ['evidence_review'],
-            'OmicClaw × OmicVerse': ['data_preparation', 'data_analysis'],
-            'FARS 自动科研': ['evidence_review', 'study_design', 'data_analysis'],
-            'QwQ-Med-3': ['problem_identification', 'evidence_review', 'data_analysis'],
-            'Evo 2': ['data_analysis'],
-            'SecondMe 协作层': ['problem_identification', 'data_preparation', 'output_delivery'],
-            '数据库浏览器': ['problem_identification', 'evidence_review', 'data_preparation'],
-            '技能市场': ['evidence_review'],
-            '能力矩阵': ['study_design'],
-            '研究方案上传': ['study_design', 'output_delivery'],
-            '数据上传工作台': ['data_preparation'],
-            '数据管理台': ['data_preparation'],
-            '专家总览': ['problem_identification'],
-            '圆桌启动页': ['study_design'],
-            '最终报告导出': ['output_delivery']
-        };
-
-        let activeResearchExecutionStage = 'problem_identification';
-
-        function renderHomeResearchToolGrid() {
-            const container = document.getElementById('homeResearchToolGrid');
-            const countEl = document.getElementById('homeResearchToolCount');
-            if (!container) return;
-            if (countEl) {
-                countEl.textContent = String(researchToolShowcase.length);
-            }
-
-            container.innerHTML = researchToolShowcase.map((tool) => {
-                const stageLabels = (researchToolStageLookup[tool.name] || [])
-                    .map((stageKey) => researchExecutionStages[stageKey]?.label)
-                    .filter(Boolean)
-                    .slice(0, 3);
-                const featureList = (tool.features || []).map((item) => `
-                    <div class="flex items-center gap-2 text-sm text-slate-600">
-                        <i class="fas fa-check text-green-500 text-xs"></i>
-                        <span>${escapeHtml(item)}</span>
-                    </div>
-                `).join('');
-
-                const cta = tool.action
-                    ? `<button onclick="${escapeHtml(tool.action)}" class="block w-full py-2.5 bg-slate-950 text-white rounded-xl text-center font-semibold hover:bg-slate-800 transition">${escapeHtml(tool.cta)} <i class="fas fa-arrow-right ml-1 text-sm"></i></button>`
-                    : `<a href="${escapeHtml(tool.href)}" ${/^https?:\/\//.test(tool.href || '') ? 'target="_blank" rel="noopener noreferrer"' : ''} class="block w-full py-2.5 bg-slate-950 text-white rounded-xl text-center font-semibold hover:bg-slate-800 transition">${escapeHtml(tool.cta)} <i class="fas ${/^https?:\/\//.test(tool.href || '') ? 'fa-external-link-alt' : 'fa-arrow-right'} ml-1 text-sm"></i></a>`;
-
-                return `
-                    <article data-tool-name="${escapeHtml(tool.name)}" class="research-tool-card bg-white rounded-2xl p-6 shadow-lg border ${tool.border} hover:shadow-xl transition-all hover:-translate-y-1 relative overflow-hidden">
-                        ${tool.badge ? `<div class="absolute top-4 right-4 rounded-full px-3 py-1 text-[11px] font-semibold ${tool.badgeClass}">${escapeHtml(tool.badge)}</div>` : ''}
-                        <div class="flex items-center gap-4 mb-4">
-                            <div class="w-14 h-14 ${tool.iconBg} rounded-2xl flex items-center justify-center text-2xl">
-                                <i class="${tool.icon} ${tool.iconText}"></i>
-                            </div>
-                            <div class="pr-4">
-                                <h3 class="font-bold text-lg text-slate-900">${escapeHtml(tool.name)}</h3>
-                                <p class="text-sm text-slate-500">${escapeHtml(tool.subtitle)}</p>
-                            </div>
-                        </div>
-                        <div class="space-y-2 mb-4">${featureList}</div>
-                        ${stageLabels.length ? `
-                            <div class="mb-4 flex flex-wrap gap-2">
-                                ${stageLabels.map((label) => `<span class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">${escapeHtml(label)}</span>`).join('')}
-                            </div>
-                        ` : ''}
-                        <div class="p-3 rounded-xl mb-4 ${tool.integrationClass}">
-                            <p class="text-sm">
-                                <i class="fas fa-link mr-1"></i>
-                                <strong>整合方式：</strong>${escapeHtml(tool.integration)}
-                            </p>
-                        </div>
-                        ${cta}
-                    </article>
-                `;
-            }).join('');
-        }
-
-        function renderResearchExecutionWorkbench() {
-            const stageTabs = document.getElementById('researchExecutionStageTabs');
-            if (!stageTabs) return;
-
-            stageTabs.innerHTML = Object.entries(researchExecutionStages).map(([stageKey, stage]) => `
-                <button
-                    type="button"
-                    data-stage-key="${stageKey}"
-                    onclick="setResearchExecutionStage('${stageKey}')"
-                    class="research-stage-tab inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition"
-                >
-                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/80 text-xs font-bold text-slate-700 ring-1 ring-slate-200">${Object.keys(researchExecutionStages).indexOf(stageKey) + 1}</span>
-                    ${escapeHtml(stage.label)}
-                </button>
-            `).join('');
-
-            setResearchExecutionStage(activeResearchExecutionStage);
-        }
-
-        function setResearchExecutionStage(stageKey) {
-            const stage = researchExecutionStages[stageKey];
-            if (!stage) return;
-            activeResearchExecutionStage = stageKey;
-
-            const titleEl = document.getElementById('researchExecutionStageTitle');
-            const miniLabelEl = document.getElementById('researchExecutionMiniLabel');
-            const summaryEl = document.getElementById('researchExecutionStageSummary');
-            const expertEl = document.getElementById('researchExecutionExpertBadges');
-            const checklistEl = document.getElementById('researchExecutionChecklist');
-            const outputsEl = document.getElementById('researchExecutionOutputs');
-            const categoryPillsEl = document.getElementById('researchExecutionCategoryPills');
-            const dbListEl = document.getElementById('researchExecutionDatabaseList');
-            const dbCountEl = document.getElementById('researchExecutionDatabaseCount');
-            const toolListEl = document.getElementById('researchExecutionToolList');
-            const toolCountEl = document.getElementById('researchExecutionToolCount');
-            const stageTabs = document.querySelectorAll('.research-stage-tab');
-
-            if (titleEl) titleEl.textContent = stage.label;
-            if (miniLabelEl) miniLabelEl.textContent = stage.miniLabel;
-            if (summaryEl) summaryEl.textContent = stage.summary;
-            if (expertEl) {
-                expertEl.innerHTML = (stage.experts || []).map((expert) => `
-                    <span class="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800">${escapeHtml(expert)}</span>
-                `).join('');
-            }
-            if (checklistEl) {
-                checklistEl.innerHTML = (stage.checklist || []).map((item, index) => `
-                    <div class="flex gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
-                        <div class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">${index + 1}</div>
-                        <p class="text-sm leading-7 text-slate-700">${escapeHtml(item)}</p>
-                    </div>
-                `).join('');
-            }
-            if (outputsEl) {
-                outputsEl.innerHTML = (stage.outputs || []).map((item) => `
-                    <span class="rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-800">${escapeHtml(item)}</span>
-                `).join('');
-            }
-            if (categoryPillsEl) {
-                categoryPillsEl.innerHTML = (stage.databaseCategories || []).map((category) => `
-                    <span class="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700">${escapeHtml(category)}</span>
-                `).join('');
-            }
-
-            const databases = Array.isArray(platformCatalog?.databases) ? platformCatalog.databases : [];
-            const matchedDatabases = databases
-                .filter((item) => (stage.databaseCategories || []).includes(item.category))
-                .slice(0, 6);
-            if (dbCountEl) {
-                dbCountEl.textContent = `${matchedDatabases.length} 个来源`;
-            }
-            if (dbListEl) {
-                dbListEl.innerHTML = matchedDatabases.length ? matchedDatabases.map((item) => `
-                    <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="rounded-[1.25rem] border border-slate-200 bg-white p-4 transition hover:border-blue-300 hover:shadow-md">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p class="text-sm font-bold text-slate-950">${escapeHtml(item.name)}</p>
-                                <p class="mt-1 text-xs font-semibold text-blue-700">${escapeHtml(item.category)} · ${escapeHtml(item.access_mode || '访问')}</p>
-                            </div>
-                            <i class="fas fa-external-link-alt text-xs text-slate-400"></i>
-                        </div>
-                        <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(item.description || item.integration || '')}</p>
-                    </a>
-                `).join('') : `
-                    <div class="rounded-[1.25rem] border border-dashed border-slate-300 bg-white/80 p-4 text-sm leading-7 text-slate-500">
-                        目录暂未加载完成。你仍然可以先切换阶段、查看推荐工具入口，再从数据库浏览器进入完整目录。
-                    </div>
-                `;
-            }
-
-            const toolMap = new Map(researchToolShowcase.map((tool) => [tool.name, tool]));
-            const matchedTools = (stage.toolNames || []).map((name) => toolMap.get(name)).filter(Boolean);
-            if (toolCountEl) {
-                toolCountEl.textContent = `${matchedTools.length} 个入口`;
-            }
-            if (toolListEl) {
-                toolListEl.innerHTML = matchedTools.map((tool) => {
-                    const external = /^https?:\/\//.test(tool.href || '');
-                    const content = `
-                        <div class="flex items-start gap-3">
-                            <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${tool.iconBg}">
-                                <i class="${tool.icon} ${tool.iconText}"></i>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center justify-between gap-3">
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-950">${escapeHtml(tool.name)}</p>
-                                        <p class="text-xs text-slate-500">${escapeHtml(tool.subtitle)}</p>
-                                    </div>
-                                    <span class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">${escapeHtml(tool.cta)}</span>
-                                </div>
-                                <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(tool.integration)}</p>
-                            </div>
-                        </div>
-                    `;
-                    if (tool.action) {
-                        return `<button type="button" onclick="${escapeHtml(tool.action)}" class="w-full rounded-[1.25rem] border border-slate-200 bg-white p-4 text-left transition hover:border-blue-300 hover:shadow-md">${content}</button>`;
-                    }
-                    return `<a href="${escapeHtml(tool.href)}" ${external ? 'target="_blank" rel="noopener noreferrer"' : ''} class="block rounded-[1.25rem] border border-slate-200 bg-white p-4 transition hover:border-blue-300 hover:shadow-md">${content}</a>`;
-                }).join('');
-            }
-
-            stageTabs.forEach((tab) => {
-                const active = tab.dataset.stageKey === stageKey;
-                tab.classList.toggle('bg-slate-950', active);
-                tab.classList.toggle('text-white', active);
-                tab.classList.toggle('border-slate-950', active);
-                tab.classList.toggle('shadow-lg', active);
-                tab.classList.toggle('bg-white', !active);
-                tab.classList.toggle('text-slate-700', !active);
-                tab.classList.toggle('border-slate-200', !active);
-            });
-
-            highlightResearchToolCards(stageKey);
-        }
-
-        function highlightResearchToolCards(stageKey) {
-            const cards = document.querySelectorAll('.research-tool-card');
-            const activeToolNames = new Set(researchExecutionStages[stageKey]?.toolNames || []);
-
-            cards.forEach((card) => {
-                const toolName = card.dataset.toolName;
-                const isActive = activeToolNames.has(toolName);
-                card.classList.toggle('opacity-55', !isActive);
-                card.classList.toggle('scale-[0.985]', !isActive);
-                card.classList.toggle('ring-2', isActive);
-                card.classList.toggle('ring-blue-500', isActive);
-                card.classList.toggle('ring-offset-2', isActive);
-                card.classList.toggle('shadow-2xl', isActive);
-            });
-        }
-
         async function loadHomepagePlatformAtlas() {
             if (!platformCatalogStore || typeof platformCatalogStore.loadCatalog !== 'function') {
-                renderHomeResearchToolGrid();
-                renderResearchExecutionWorkbench();
                 return;
             }
 
@@ -2570,12 +2121,8 @@
                 platformCatalog = await platformCatalogStore.loadCatalog('.');
                 updateHomepageHeroStats();
                 renderHomepagePlatformAtlas();
-                renderHomeResearchToolGrid();
-                renderResearchExecutionWorkbench();
             } catch (err) {
                 console.error('平台目录加载失败:', err);
-                renderHomeResearchToolGrid();
-                renderResearchExecutionWorkbench();
             }
         }
 
@@ -2585,22 +2132,27 @@
             const metricsContainer = document.getElementById('atlasTopMetrics');
             const pipelineContainer = document.getElementById('atlasPipelineNodes');
             const sourceContainer = document.getElementById('atlasSourcePackageList');
-            const integrationContainer = document.getElementById('atlasIntegrationSpotlights');
-            const frontierContainer = document.getElementById('atlasFrontierModelGrid');
             const laneContainer = document.getElementById('atlasCapabilityLaneGrid');
             const categorySummaryContainer = document.getElementById('atlasDatabaseCategorySummary');
             const categoryGrid = document.getElementById('atlasDatabaseCategoryGrid');
+            const h2aLayerGrid = document.getElementById('h2aLayerGrid');
+            const h2aModeGrid = document.getElementById('h2aModeGrid');
+            const h2aAssetGrid = document.getElementById('h2aAssetGrid');
+            const h2aPilotRoleList = document.getElementById('h2aPilotRoleList');
 
-            if (!metricsContainer || !pipelineContainer || !sourceContainer || !integrationContainer || !frontierContainer || !laneContainer || !categorySummaryContainer || !categoryGrid) {
+            if (!metricsContainer || !pipelineContainer || !sourceContainer || !laneContainer || !categorySummaryContainer || !categoryGrid) {
                 return;
             }
 
             const stats = platformCatalog.stats || {};
+            const h2a = platformCatalog.h2a || {};
             const databases = Array.isArray(platformCatalog.databases) ? platformCatalog.databases : [];
             const sourcePackages = Array.isArray(platformCatalog.source_packages) ? platformCatalog.source_packages : [];
-            const featuredIntegrations = Array.isArray(platformCatalog.featured_integrations) ? platformCatalog.featured_integrations : [];
-            const frontierModels = Array.isArray(platformCatalog.frontier_models) ? platformCatalog.frontier_models : [];
             const capabilityLanes = Array.isArray(platformCatalog.capability_lanes) ? platformCatalog.capability_lanes : [];
+            const h2aLayers = Array.isArray(h2a.platform_layers) ? h2a.platform_layers : [];
+            const h2aModes = Array.isArray(h2a.modes) ? h2a.modes : [];
+            const h2aAssets = Array.isArray(h2a.asset_types) ? h2a.asset_types : [];
+            const h2aPilotRoles = Array.isArray(h2a.pilot_roles) ? h2a.pilot_roles : [];
             const categorySummary = buildDatabaseCategorySummary(databases);
             const groupedDatabases = categorySummary.map((category, index) => ({
                 ...category,
@@ -2608,26 +2160,30 @@
                 items: databases.filter((database) => database.category === category.name)
             }));
             const totalSkills = Number(stats.skills_total) || sourcePackages.reduce((sum, item) => sum + Number(item.count || 0), 0);
+            const h2aModeCount = Number(stats.h2a_modes) || h2aModes.length || 4;
+            const h2aAssetCount = Number(stats.h2a_asset_types) || h2aAssets.length || 3;
+            const pilotHumanRoles = Number(stats.pilot_human_roles) || h2aPilotRoles.length || 5;
+            const platformLayers = Number(stats.platform_layers) || h2aLayers.length || 4;
             const metricItems = [
                 {
-                    label: '能力来源',
-                    value: sourcePackages.length || 4,
-                    note: `${totalSkills || 997} 项内建能力 + ${featuredIntegrations.length || 0} 组外部整合`
+                    label: 'H2A 层级',
+                    value: platformLayers,
+                    note: '专家端、资产层、运行时、结算层'
                 },
                 {
-                    label: '数据库分组',
-                    value: categorySummary.length || 10,
-                    note: `${databases.length || 46} 个数据库已编目`
+                    label: '首批样板角色',
+                    value: pilotHumanRoles,
+                    note: '建议优先做人类专家能力蒸馏'
                 },
                 {
                     label: '分析路径',
-                    value: capabilityLanes.length || 8,
-                    note: '每条都写明适用场景与交付'
+                    value: capabilityLanes.length || 9,
+                    note: '每条都写明适用场景、调用与升级节点'
                 },
                 {
                     label: '协作角色',
                     value: `${stats.experts_total || 14}+${stats.stella_meta_roles || 3}`,
-                    note: `${frontierModels.length || 0} 个前沿模型已接入展示层`
+                    note: '14 位运行时 Agent + STELLA'
                 }
             ];
 
@@ -2641,24 +2197,24 @@
 
             const pipelineItems = [
                 {
-                    label: '数据库',
-                    value: `${databases.length || 46}`,
-                    note: `${categorySummary.length || 10} 类数据库`
+                    label: '专家端',
+                    value: `${pilotHumanRoles}`,
+                    note: '首批适合沉淀成 H2A 分身的角色'
                 },
                 {
-                    label: '分析路径',
-                    value: `${capabilityLanes.length || 8}`,
-                    note: `${totalSkills || 997} 项能力可调用`
+                    label: '资产层',
+                    value: `${h2aAssetCount}`,
+                    note: '方法资产、工具资产、交付资产'
                 },
                 {
-                    label: '专家协作',
-                    value: `${stats.experts_total || 14}`,
-                    note: `STELLA ${stats.stella_meta_roles || 3} 角协作`
+                    label: '运行时',
+                    value: `${totalSkills || 997}`,
+                    note: `${capabilityLanes.length || 9} 条路径自动调用`
                 },
                 {
-                    label: '交付结果',
-                    value: '可导出',
-                    note: '方案、SAP、图表与导出'
+                    label: '交付层',
+                    value: 'Word / PPT',
+                    note: 'Word、PPT、方案与分账记录'
                 }
             ];
 
@@ -2669,6 +2225,48 @@
                     <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(item.note)}</p>
                 </div>
             `).join('');
+
+            if (h2aLayerGrid) {
+                h2aLayerGrid.innerHTML = h2aLayers.map((layer, index) => `
+                    <article class="rounded-[1.6rem] border border-white/10 bg-white/8 p-5 ring-1 ring-white/8 backdrop-blur" style="animation-delay:${index * 80}ms">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <div class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Layer ${index + 1}</div>
+                                <h4 class="mt-2 text-xl font-bold text-white">${escapeHtml(layer.name)}</h4>
+                            </div>
+                            <span class="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-blue-100">${escapeHtml(layer.id)}</span>
+                        </div>
+                        <p class="mt-3 text-sm leading-7 text-slate-200">${escapeHtml(layer.summary)}</p>
+                        <div class="mt-4 rounded-[1.15rem] bg-white/8 px-4 py-3 text-sm text-cyan-100 ring-1 ring-white/8">
+                            <span class="font-semibold text-white">本层输出：</span>${escapeHtml(layer.output)}
+                        </div>
+                    </article>
+                `).join('');
+            }
+
+            if (h2aModeGrid) {
+                h2aModeGrid.innerHTML = h2aModes.map((mode) => `
+                    <div class="rounded-[1.35rem] border border-white/10 bg-white/7 px-4 py-4">
+                        <div class="text-sm font-bold text-white">${escapeHtml(mode.name)}</div>
+                        <p class="mt-2 text-sm leading-7 text-slate-200">${escapeHtml(mode.summary)}</p>
+                    </div>
+                `).join('');
+            }
+
+            if (h2aAssetGrid) {
+                h2aAssetGrid.innerHTML = h2aAssets.map((asset) => `
+                    <div class="rounded-[1.35rem] border border-white/10 bg-white/7 px-4 py-4">
+                        <div class="text-sm font-bold text-white">${escapeHtml(asset.name)}</div>
+                        <p class="mt-2 text-sm leading-7 text-slate-200">${escapeHtml(asset.summary)}</p>
+                    </div>
+                `).join('');
+            }
+
+            if (h2aPilotRoleList) {
+                h2aPilotRoleList.innerHTML = h2aPilotRoles.map((role) => `
+                    <span class="rounded-full border border-white/12 bg-white/8 px-3 py-1.5 text-sm font-semibold text-cyan-100">${escapeHtml(role)}</span>
+                `).join('');
+            }
 
             sourceContainer.innerHTML = sourcePackages.map((item) => {
                 const share = totalSkills ? Math.max(6, Math.round((Number(item.count || 0) / totalSkills) * 100)) : 0;
@@ -2688,59 +2286,6 @@
                         </div>
                         <div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
                             <div class="h-full rounded-full bg-gradient-to-r from-slate-900 via-blue-700 to-cyan-500" style="width:${share}%"></div>
-                        </div>
-                    </article>
-                `;
-            }).join('');
-
-            integrationContainer.innerHTML = featuredIntegrations.map((item) => {
-                const palette = getAtlasPalette(item.tone);
-                return `
-                    <article class="atlas-source-card" style="border-color:${palette.border}; background:${palette.surface};">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p class="atlas-mini-label" style="color:${palette.text}">Integration Spotlight</p>
-                                <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
-                            </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">已整合</span>
-                        </div>
-                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.headline)}</p>
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            ${(item.highlights || []).map((value) => `<span class="atlas-tag" style="border-color:${palette.border}; color:${palette.text}; background:${palette.chip};">${escapeHtml(value)}</span>`).join('')}
-                        </div>
-                        <div class="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">典型交付</div>
-                        <div class="mt-2 flex flex-wrap gap-2">
-                            ${(item.deliverables || []).map((value) => `<span class="atlas-tag">${escapeHtml(value)}</span>`).join('')}
-                        </div>
-                    </article>
-                `;
-            }).join('');
-
-            frontierContainer.innerHTML = frontierModels.map((item) => {
-                const palette = getAtlasPalette(item.tone);
-                return `
-                    <article class="atlas-source-card" style="border-color:${palette.border}; background:${palette.surface};">
-                        <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <p class="atlas-mini-label" style="color:${palette.text}">${escapeHtml(item.family || 'Frontier Model')}</p>
-                                <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(item.name)}</h4>
-                            </div>
-                            <span class="rounded-full px-3 py-1 text-xs font-bold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">${escapeHtml(item.parameter_scale || 'Model')}</span>
-                        </div>
-                        <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
-                        <div class="mt-4 grid gap-4 md:grid-cols-2">
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">适合解决</div>
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    ${(item.use_cases || []).map((value) => `<span class="atlas-tag">${escapeHtml(value)}</span>`).join('')}
-                                </div>
-                            </div>
-                            <div>
-                                <div class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">建议由谁调用</div>
-                                <div class="mt-2 flex flex-wrap gap-2">
-                                    ${(item.owner_roles || []).map((value) => `<span class="atlas-tag">${escapeHtml(value)}</span>`).join('')}
-                                </div>
-                            </div>
                         </div>
                     </article>
                 `;
@@ -3057,9 +2602,7 @@
             const contexts = loadSessionClientContexts();
             contexts[String(sessionId)] = {
                 ...context,
-                preferred_expert: normalizeExpertRole(context.preferred_expert || preferredExpertRole || ''),
-                auto_discussion: context.auto_discussion !== false,
-                human_can_interrupt: context.human_can_interrupt !== false
+                preferred_expert: normalizeExpertRole(context.preferred_expert || preferredExpertRole || '')
             };
             localStorage.setItem('mrt_session_client_contexts', JSON.stringify(contexts));
         }
@@ -3407,7 +2950,6 @@
 
         function renderHomepageLanding(sessions) {
             renderPrimaryDecisionDeck();
-            renderSecondMeLiveEntry();
             renderSecondMeCommandCenter();
             renderQuickStartTemplates();
             renderEngagementSnapshot(sessions);
@@ -3463,14 +3005,14 @@
                     <article class="rounded-[1.75rem] border border-white/10 bg-white/6 p-5 backdrop-blur">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">快速场景</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Quick Path</p>
                                 <h4 class="mt-2 text-xl font-bold text-white">${escapeHtml(scenario.title)}</h4>
                             </div>
                             <i class="fas fa-satellite-dish text-cyan-200 text-lg"></i>
                         </div>
                         <p class="mt-3 text-sm leading-7 text-slate-200">${escapeHtml(scenario.description)}</p>
                         <button type="button" onclick="launchSecondMeScenario('${scenario.id}')" class="mt-5 w-full rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
-                            ${secondMeIdentity ? '一键带回首页' : '先登录再带回首页'}
+                            一键带回首页
                         </button>
                     </article>
                 `).join('');
@@ -3481,7 +3023,7 @@
                     <button type="button" onclick="openSecondMeHubWithPack('${pack.id}')" class="decision-card rounded-3xl p-4 text-left !bg-white/95">
                         <div class="flex items-start justify-between gap-3">
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color:${pack.accent}">AI 阵容</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.16em]" style="color:${pack.accent}">AI Pack</p>
                                 <h4 class="mt-2 text-lg font-bold text-slate-950">${escapeHtml(pack.name)}</h4>
                                 <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(pack.subtitle)}</p>
                             </div>
@@ -3548,64 +3090,6 @@
                 : '<span class="text-sm text-slate-500">暂无 AI 阵容</span>';
         }
 
-        function renderSecondMeLiveEntry() {
-            const summary = document.getElementById('secondMeLiveEntrySummary');
-            const actions = document.getElementById('secondMeLiveEntryActions');
-            const identityPanel = document.getElementById('secondMeHeroIdentityPanel');
-
-            if (!summary || !actions || !identityPanel) {
-                return;
-            }
-
-            if (secondMeIdentity && secondMeIdentity.name) {
-                summary.textContent = `${secondMeIdentity.name} 已通过 SecondMe 登录。现在只剩两步：选一个分身模板和 AI 阵容，然后把整套配置带回主页开始圆桌。`;
-                actions.innerHTML = `
-                    <a href="./frontend/secondme-hub.html" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:bg-blue-800">
-                        <i class="fas fa-user-check"></i>第 2 步：选分身和 AI 阵容
-                    </a>
-                    <button type="button" onclick="launchSecondMeScenario('clinical_cocreation')" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-slate-800 ring-1 ring-slate-200 transition hover:bg-slate-50">
-                        <i class="fas fa-rocket"></i>第 3 步：用默认临床协作直接开始
-                    </button>
-                `;
-                identityPanel.innerHTML = `
-                    <div class="flex items-start gap-4">
-                        <img src="${escapeHtml(secondMeIdentity.avatar || './assets/secondme/director.png')}" alt="${escapeHtml(secondMeIdentity.name)}" class="h-16 w-16 rounded-3xl object-cover ring-2 ring-white/10">
-                        <div class="min-w-0 flex-1">
-                            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">SecondMe 真人身份</p>
-                            <h4 class="mt-2 text-2xl font-bold text-white">${escapeHtml(secondMeIdentity.name)}</h4>
-                            <p class="mt-2 text-sm leading-7 text-slate-300">${escapeHtml(secondMeIdentity.email || '身份已回填到主页，下一步将作为真人成员进入圆桌。')}</p>
-                            <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
-                                <span class="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-emerald-200">第 1 步已完成</span>
-                                <span class="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-cyan-100">第 2 步待选分身与 AI</span>
-                                <span class="rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-blue-100">第 3 步回到主页开始</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            summary.textContent = '三步完成：先登录真人身份，再选分身和 AI 阵容，最后把整套配置带回主页开始圆桌。';
-            actions.innerHTML = `
-                <a href="${SECONDME_LOGIN_URL}" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:bg-blue-800">
-                    <i class="fas fa-right-to-bracket"></i>第 1 步：登录 SecondMe 真人身份
-                </a>
-            `;
-            identityPanel.innerHTML = `
-                <div class="space-y-4">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">未登录状态</p>
-                        <h4 class="mt-2 text-2xl font-bold text-white">先把真人研究者接进来，再用 3 步流完成协作配置</h4>
-                    </div>
-                    <div class="grid gap-3">
-                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">第 1 步：登录后会把你的姓名、头像和邮箱带回首页，用作真人成员卡片。</div>
-                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">第 2 步：角色选择页会让你决定本轮是否带入分身，以及由哪组 AI 先接手。</div>
-                        <div class="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-7 text-slate-200">第 3 步：回到主页后，真人、分身和 AI pack 会一起写进创建流程和圆桌详情页。</div>
-                    </div>
-                </div>
-            `;
-        }
-
         function clearPendingCollaboration() {
             persistPendingCollaborationSetup(null);
             showToast('已清除 SecondMe 协作阵容', 'info');
@@ -3638,12 +3122,6 @@
 
         function launchSecondMeScenario(scenarioId) {
             if (!secondMeCollaboration) return;
-            if (!secondMeIdentity || !secondMeIdentity.name) {
-                const url = new URL('./frontend/secondme-hub.html', window.location.href);
-                url.searchParams.set('scenario', scenarioId);
-                window.location.href = url.toString();
-                return;
-            }
             const payload = secondMeCollaboration.buildScenarioPayload(scenarioId);
             if (!payload) return;
             persistPendingCollaborationSetup(payload.collaborationSetup);
@@ -3725,42 +3203,24 @@
         }
 
         function buildSessionParticipants(role) {
-            const allExpertRoles = expertCatalog && Array.isArray(expertCatalog.experts)
-                ? expertCatalog.experts.map((item) => item.role)
-                : [
-                    'clinical_director',
-                    'phd_student',
-                    'epidemiologist',
-                    'statistician',
-                    'research_nurse',
-                    'clawbio_pharmgx',
-                    'clawbio_gwas',
-                    'clawbio_sc_rna',
-                    'clawbio_galaxy',
-                    'ux_researcher',
-                    'ai_data_engineer',
-                    'trend_researcher',
-                    'experiment_tracker',
-                    'model_qa'
-                ];
             const aiPackRoles = pendingCollaborationSetup && pendingCollaborationSetup.aiPack && Array.isArray(pendingCollaborationSetup.aiPack.expertRoles)
                 ? pendingCollaborationSetup.aiPack.expertRoles
                 : [];
 
             if (!role || !expertCatalog) {
-                return [...new Set([...aiPackRoles, ...allExpertRoles])];
+                return [...new Set([...aiPackRoles, ...coreClinicalRoles])];
             }
 
             const expert = expertCatalog.getExpert(role);
             if (!expert) {
-                return [...new Set([role, ...aiPackRoles, ...allExpertRoles])];
+                return [...new Set([role, ...aiPackRoles, ...coreClinicalRoles])];
             }
 
             const relatedRoles = expertCatalog
                 .getExpertsByGroup(expert.groupId)
                 .map((item) => item.role);
 
-            return [...new Set([role, ...aiPackRoles, ...relatedRoles, ...allExpertRoles])];
+            return [...new Set([role, ...aiPackRoles, ...relatedRoles, ...coreClinicalRoles])];
         }
 
         function loadSessionPreferences() {
@@ -3863,9 +3323,7 @@
                     human_participants: collaborationSetup ? collaborationSetup.humans || [] : [],
                     secondme_shades: collaborationSetup ? collaborationSetup.shades || [] : [],
                     ai_pack: collaborationSetup ? collaborationSetup.aiPack || null : null,
-                    collaboration_label: collaborationSetup ? collaborationSetup.label || null : null,
-                    auto_discussion: true,
-                    human_can_interrupt: true
+                    collaboration_label: collaborationSetup ? collaborationSetup.label || null : null
                 };
                 
                 if (MOCK_MODE) {
@@ -3895,17 +3353,7 @@
                     session = await api.fetchJson('/api/v1/roundtables', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            title,
-                            clinical_question: question,
-                            preferred_expert: preferredExpertRole,
-                            human_participants: clientContext.human_participants,
-                            secondme_shades: clientContext.secondme_shades,
-                            ai_pack: clientContext.ai_pack,
-                            collaboration_label: clientContext.collaboration_label,
-                            auto_discussion: true,
-                            human_can_interrupt: true
-                        })
+                        body: JSON.stringify({ title, clinical_question: question })
                     });
                     console.log('步骤5: 解析响应', session);
                 }
@@ -4816,14 +4264,14 @@
                 return;
             }
 
-            btn.href = SECONDME_LOGIN_URL;
+            btn.href = './login.html';
             btn.innerHTML = `
-                <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
-                    <i class="fas fa-fingerprint text-white text-lg"></i>
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
+                    <i class="fas fa-user text-white text-lg"></i>
                 </div>
                 <div class="text-left flex-1">
-                    <p class="font-semibold text-slate-200 text-base">登录真人身份</p>
-                    <p class="text-sm text-slate-500">先登录 SecondMe，再把分身和 AI 阵容带回主页</p>
+                    <p class="font-semibold text-slate-200 text-base">登录 / 注册</p>
+                    <p class="text-sm text-slate-500">国内直连版，无需科学上网</p>
                 </div>
                 <i class="fas fa-chevron-right text-slate-600"></i>
             `;
