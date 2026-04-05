@@ -983,9 +983,6 @@
                                 <a href="./frontend/pricing.html" class="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 hover:bg-white/10 transition">
                                     <i class="fas fa-credit-card"></i>查看收费与开通
                                 </a>
-                                <a href="#scientific-skills-architecture" class="inline-flex items-center gap-2 rounded-full border border-cyan-200/70 bg-cyan-400/15 px-4 py-2 font-semibold text-cyan-50 hover:bg-cyan-400/25 transition">
-                                    <i class="fas fa-diagram-project"></i>先看 Scientific Skills 架构
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -994,75 +991,6 @@
 
             <div class="px-4 -mt-6 pb-10 relative z-10">
                 <div class="max-w-6xl mx-auto space-y-8">
-                    <section id="scientific-skills-architecture" class="scientific-topology rounded-[2rem] px-5 py-6 shadow-2xl shadow-blue-100/60 md:px-8 md:py-8">
-                        <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                            <div>
-                                <p class="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">Scientific Skills Runtime Architecture</p>
-                                <h3 class="mt-3 text-3xl font-bold tracking-tight text-slate-950">我们把 Claude Scientific Skills 的组织方式，重构成了 MedRoundTable 首页可见的科研运行时架构</h3>
-                                <p class="mt-3 max-w-4xl text-base leading-8 text-slate-600">
-                                    使用者只需要输入研究问题。平台会先发现并加载相关 skills，再决定调用科学数据库、Python 包、实验平台、学术交流工具还是临床研究工具，最后把结果沉淀成 Word、PPT 和研究方案。
-                                </p>
-                            </div>
-                            <a href="https://github.com/K-Dense-AI/claude-scientific-skills" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                                查看参考仓库 <i class="fab fa-github"></i>
-                            </a>
-                        </div>
-
-                        <div class="scientific-board mt-6 rounded-[2rem] px-5 py-6 md:px-7 md:py-7">
-                            <div class="grid gap-4 xl:grid-cols-[1.05fr_0.48fr_0.9fr]">
-                                <article class="scientific-panel rounded-[1.7rem] p-5">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Natural Language Entry</p>
-                                    <h4 class="mt-2 text-2xl font-bold text-slate-950">研究者先说问题，不先选工具</h4>
-                                    <p class="mt-2 text-sm leading-7 text-slate-600">这一步只收任务目标。运行时会根据问题类型反推需要哪些 scientific skills，而不是要求用户先懂所有软件和数据库。</p>
-                                    <div id="scientificPromptChips" class="mt-4 flex flex-wrap gap-2"></div>
-                                </article>
-
-                                <article class="scientific-agent-hub rounded-[1.7rem] px-5 py-5 text-white">
-                                    <p class="relative z-10 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">Discovery Hub</p>
-                                    <h4 class="relative z-10 mt-2 text-2xl font-bold">14 Agent + STELLA</h4>
-                                    <p class="relative z-10 mt-2 text-sm leading-7 text-slate-200">先发现并加载技能，再决定本轮该调哪一层工具、哪一位 Agent、何时升级真人。</p>
-                                    <div class="relative z-10 mt-4 flex flex-wrap gap-2">
-                                        <span class="scientific-chip !border-white/12 !bg-white/10 !text-cyan-100">Discover</span>
-                                        <span class="scientific-chip !border-white/12 !bg-white/10 !text-cyan-100">Load</span>
-                                        <span class="scientific-chip !border-white/12 !bg-white/10 !text-cyan-100">Route</span>
-                                    </div>
-                                </article>
-
-                                <article class="scientific-panel rounded-[1.7rem] p-5">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">Skill Folder Anatomy</p>
-                                    <h4 class="mt-2 text-2xl font-bold text-slate-950">每项 scientific skill 本质上教会 Agent 怎么用工具</h4>
-                                    <p class="mt-2 text-sm leading-7 text-slate-600">不是再造工具，而是把使用某个工具、数据库或平台的最佳实践收进统一结构，便于运行时稳定调用。</p>
-                                    <div id="scientificFolderList" class="mt-4 grid gap-3"></div>
-                                </article>
-                            </div>
-
-                            <div class="scientific-ribbon mt-5 px-5 py-3 text-center text-sm font-semibold uppercase tracking-[0.18em] text-white">
-                                Discover &amp; Load Skills → Route to Scientific Tools → Generate Deliverables
-                            </div>
-
-                            <div id="scientificCategoryGrid" class="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-5"></div>
-
-                            <div class="mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-                                <article class="scientific-panel rounded-[1.7rem] p-5">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">How MedRoundTable Uses This</p>
-                                    <h4 class="mt-2 text-2xl font-bold text-slate-950">这套架构在我们的平台里被重写成运行时调度规则</h4>
-                                    <div id="scientificRuntimeMapping" class="mt-4 space-y-3"></div>
-                                </article>
-
-                                <article class="scientific-panel rounded-[1.7rem] p-5">
-                                    <div class="flex items-center justify-between gap-3">
-                                        <div>
-                                            <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">External Scientific Ecosystem</p>
-                                            <h4 class="mt-2 text-2xl font-bold text-slate-950">最终仍然会调用真实科研生态，而不是停在聊天界面</h4>
-                                        </div>
-                                        <span class="scientific-chip bg-blue-50 !text-blue-700">Call External Tools</span>
-                                    </div>
-                                    <div id="scientificEcosystemGrid" class="mt-4 grid gap-3 md:grid-cols-2"></div>
-                                </article>
-                            </div>
-                        </div>
-                    </section>
-
                     <section id="secondme-live-entry" class="rounded-[2rem] border border-slate-200 bg-white/96 px-5 py-6 shadow-2xl shadow-blue-100/60 md:px-8 md:py-8">
                         <div class="grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
                             <div class="rounded-[1.8rem] bg-gradient-to-br from-cyan-50 via-white to-blue-50 px-5 py-5 ring-1 ring-blue-100">
@@ -2780,11 +2708,6 @@
             const laneContainer = document.getElementById('atlasCapabilityLaneGrid');
             const categorySummaryContainer = document.getElementById('atlasDatabaseCategorySummary');
             const categoryGrid = document.getElementById('atlasDatabaseCategoryGrid');
-            const scientificPromptChips = document.getElementById('scientificPromptChips');
-            const scientificFolderList = document.getElementById('scientificFolderList');
-            const scientificCategoryGrid = document.getElementById('scientificCategoryGrid');
-            const scientificRuntimeMapping = document.getElementById('scientificRuntimeMapping');
-            const scientificEcosystemGrid = document.getElementById('scientificEcosystemGrid');
 
             if (!metricsContainer || !pipelineContainer || !sourceContainer || !integrationContainer || !frontierContainer || !laneContainer || !categorySummaryContainer || !categoryGrid) {
                 return;
@@ -2796,12 +2719,6 @@
             const featuredIntegrations = Array.isArray(platformCatalog.featured_integrations) ? platformCatalog.featured_integrations : [];
             const frontierModels = Array.isArray(platformCatalog.frontier_models) ? platformCatalog.frontier_models : [];
             const capabilityLanes = Array.isArray(platformCatalog.capability_lanes) ? platformCatalog.capability_lanes : [];
-            const scientificSkills = platformCatalog.scientific_skills_architecture || {};
-            const scientificPrompts = Array.isArray(scientificSkills.input_examples) ? scientificSkills.input_examples : [];
-            const scientificFolders = Array.isArray(scientificSkills.folder_anatomy) ? scientificSkills.folder_anatomy : [];
-            const scientificCategories = Array.isArray(scientificSkills.categories) ? scientificSkills.categories : [];
-            const scientificEcosystem = Array.isArray(scientificSkills.external_ecosystem) ? scientificSkills.external_ecosystem : [];
-            const scientificMappings = Array.isArray(scientificSkills.medroundtable_runtime_mapping) ? scientificSkills.medroundtable_runtime_mapping : [];
             const categorySummary = buildDatabaseCategorySummary(databases);
             const groupedDatabases = categorySummary.map((category, index) => ({
                 ...category,
@@ -2870,87 +2787,6 @@
                     <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(item.note)}</p>
                 </div>
             `).join('');
-
-            if (scientificPromptChips) {
-                scientificPromptChips.innerHTML = scientificPrompts.map((prompt) => `
-                    <div class="scientific-prompt-bubble rounded-[1.35rem] px-4 py-3 text-sm font-semibold text-slate-700">
-                        “${escapeHtml(prompt)}”
-                    </div>
-                `).join('');
-            }
-
-            if (scientificFolderList) {
-                scientificFolderList.innerHTML = scientificFolders.map((item) => `
-                    <div class="scientific-folder-item rounded-[1.1rem] px-4 py-3">
-                        <div class="flex items-start gap-3">
-                            <div class="mt-1 flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
-                                <i class="fas ${item.name.includes('/') ? 'fa-folder-tree' : 'fa-file-lines'}"></i>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-950">${escapeHtml(item.name)}</p>
-                                <p class="mt-1 text-sm leading-7 text-slate-600">${escapeHtml(item.summary)}</p>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            if (scientificCategoryGrid) {
-                scientificCategoryGrid.innerHTML = scientificCategories.map((category) => {
-                    const palette = getAtlasPalette(category.tone || 'blue');
-                    return `
-                        <article class="scientific-category-card" style="--science-glow:${palette.glow}; border-color:${palette.border}; background:${palette.surface};">
-                            <div class="relative z-10">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div>
-                                        <p class="atlas-mini-label" style="color:${palette.text}">${escapeHtml(category.name)}</p>
-                                        <h4 class="mt-2 text-2xl font-bold text-slate-950">${escapeHtml(category.count_label)}</h4>
-                                        <p class="mt-1 text-xs font-semibold uppercase tracking-[0.16em]" style="color:${palette.text}">${escapeHtml(category.coverage_label)}</p>
-                                    </div>
-                                    <span class="rounded-full px-3 py-1 text-xs font-semibold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">Layer</span>
-                                </div>
-                                <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(category.summary)}</p>
-                                <div class="mt-4 flex flex-wrap gap-2">
-                                    ${(category.examples || []).map((item) => `<span class="scientific-chip" style="border-color:${palette.border}; color:${palette.text}; background:${palette.chip};">${escapeHtml(item)}</span>`).join('')}
-                                </div>
-                            </div>
-                        </article>
-                    `;
-                }).join('');
-            }
-
-            if (scientificRuntimeMapping) {
-                scientificRuntimeMapping.innerHTML = scientificMappings.map((item, index) => `
-                    <div class="rounded-[1.2rem] border border-slate-200 bg-slate-50 px-4 py-4">
-                        <div class="flex items-start gap-3">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">${index + 1}</span>
-                            <p class="text-sm leading-7 text-slate-700">${escapeHtml(item)}</p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            if (scientificEcosystemGrid) {
-                scientificEcosystemGrid.innerHTML = scientificEcosystem.map((group) => {
-                    const palette = getAtlasPalette(group.tone || 'blue');
-                    return `
-                        <article class="scientific-category-card" style="--science-glow:${palette.glow}; border-color:${palette.border}; background:${palette.surface};">
-                            <div class="relative z-10">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div>
-                                        <p class="atlas-mini-label" style="color:${palette.text}">External Ecosystem</p>
-                                        <h4 class="mt-2 text-xl font-bold text-slate-950">${escapeHtml(group.name)}</h4>
-                                    </div>
-                                    <span class="rounded-full px-3 py-1 text-xs font-semibold" style="background:${palette.chip}; color:${palette.text}; border:1px solid ${palette.border};">${escapeHtml(group.items.length)} 项</span>
-                                </div>
-                                <div class="mt-4 flex flex-wrap gap-2">
-                                    ${group.items.map((item) => `<span class="scientific-chip" style="border-color:${palette.border}; color:${palette.text}; background:${palette.chip};">${escapeHtml(item)}</span>`).join('')}
-                                </div>
-                            </div>
-                        </article>
-                    `;
-                }).join('');
-            }
 
             sourceContainer.innerHTML = sourcePackages.map((item) => {
                 const share = totalSkills ? Math.max(6, Math.round((Number(item.count || 0) / totalSkills) * 100)) : 0;
