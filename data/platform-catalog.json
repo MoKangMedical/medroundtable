@@ -2,6 +2,8 @@
   "stats": {
     "skills_total": 997,
     "openclaw_wrapped_skills": 869,
+    "scientific_skill_reference_total": 130,
+    "scientific_skill_categories": 5,
     "experts_total": 14,
     "stella_meta_roles": 3,
     "featured_integrations_total": 2,
@@ -85,6 +87,125 @@
       "use_cases": ["致病变异优先级线索", "基因组功能区段分析", "序列设计前瞻评估", "跨物种基因组建模"]
     }
   ],
+  "scientific_skills_architecture": {
+    "name": "Claude Scientific Skills",
+    "repo_url": "https://github.com/K-Dense-AI/claude-scientific-skills",
+    "summary": "以 open agent skills 规范组织的科学技能仓库，强调让 Agent 先发现并加载技能，再去调用数据库、Python 包、实验平台和学术交流工具。",
+    "medroundtable_positioning": "MedRoundTable 不直接照搬这 130+ 项技能，而是借用它的五层组织方式，把现有 997 项 skills、46 个数据库和 14 位 Agent 的调用逻辑重构成更清晰的科研运行时架构。",
+    "input_examples": [
+      "分析这组单细胞 RNA 测序数据",
+      "请为这个临床问题设计一个回顾性研究方案",
+      "帮我为这个分子设计一条合成路线",
+      "先确认可用数据库，再决定分析方法"
+    ],
+    "folder_anatomy": [
+      {
+        "id": "skill-core",
+        "name": "SKILL.md",
+        "summary": "技能的核心说明文件，包含元数据、典型工作流、调用规则和最佳实践。"
+      },
+      {
+        "id": "skill-references",
+        "name": "references/",
+        "summary": "深度参考资料层，存放 API 说明、查询语法、原理文档和常见问题。"
+      },
+      {
+        "id": "skill-scripts",
+        "name": "scripts/",
+        "summary": "可直接运行的示例脚本，让 Agent 不必从零编写每一个工具调用。"
+      },
+      {
+        "id": "skill-assets",
+        "name": "assets/",
+        "summary": "报告模板、LaTeX 样式、写作规范和演示素材等可交付模板层。"
+      }
+    ],
+    "categories": [
+      {
+        "id": "scientific-databases",
+        "name": "科学数据库",
+        "count_label": "37+",
+        "coverage_label": "250+ 个数据库",
+        "tone": "blue",
+        "summary": "面向特定命名数据库的直接优化访问，适合文献、基因组、化学、临床和癌症数据查询。",
+        "examples": ["PubMed", "ChEMBL", "UniProt", "ClinVar", "ClinicalTrials.gov", "COSMIC"]
+      },
+      {
+        "id": "python-package-skills",
+        "name": "Python 包技能",
+        "count_label": "60+",
+        "coverage_label": "主流科学计算栈",
+        "tone": "amber",
+        "summary": "为常用科学计算 Python 包提供经过优化的文档、范式和示例代码。",
+        "examples": ["RDKit", "Scanpy", "DeepChem", "PyTorch Lightning", "statsmodels", "Qiskit"]
+      },
+      {
+        "id": "scientific-platform-integrations",
+        "name": "科学平台集成",
+        "count_label": "15+",
+        "coverage_label": "实验室与云平台",
+        "tone": "emerald",
+        "summary": "连接实验自动化平台、实验数据平台和云端科研工作台，实现编程访问与数据管理。",
+        "examples": ["Benchling", "DNAnexus", "Opentrons", "LatchBio", "OMERO"]
+      },
+      {
+        "id": "analysis-communication",
+        "name": "分析与学术交流",
+        "count_label": "35+",
+        "coverage_label": "写作、海报、评审、演示",
+        "tone": "violet",
+        "summary": "覆盖论文写作、同行评审、科技海报、PPT、LaTeX、PDF 和文档模板等学术输出工具。",
+        "examples": ["Scientific Writing", "Peer Review", "Scientific Slides", "LaTeX Posters", "PDF", "DOCX"]
+      },
+      {
+        "id": "research-clinical-tools",
+        "name": "研究与临床工具",
+        "count_label": "10+",
+        "coverage_label": "临床决策与科研申请",
+        "tone": "rose",
+        "summary": "为临床研究、治疗计划、基金申请和法规合规等高价值任务提供专用技能层。",
+        "examples": ["Clinical Decision Support", "Treatment Plans", "Research Grants", "Regulatory Tools"]
+      }
+    ],
+    "external_ecosystem": [
+      {
+        "id": "ecosystem-databases",
+        "name": "数据库生态",
+        "tone": "blue",
+        "examples": ["PubMed", "ChEMBL", "UniProt", "ClinVar", "ClinicalTrials.gov"]
+      },
+      {
+        "id": "ecosystem-packages",
+        "name": "Python / 分析生态",
+        "tone": "amber",
+        "examples": ["RDKit", "DeepChem", "Scanpy", "scvi-tools", "PyTorch Lightning", "PennyLane"]
+      },
+      {
+        "id": "ecosystem-platforms",
+        "name": "实验与云平台",
+        "tone": "emerald",
+        "examples": ["Benchling", "DNAnexus", "Opentrons", "LatchBio", "OMERO"]
+      },
+      {
+        "id": "ecosystem-communication",
+        "name": "学术交流与文档",
+        "tone": "violet",
+        "examples": ["Scientific Writing", "LaTeX", "PPTX", "PDF", "DOCX"]
+      },
+      {
+        "id": "ecosystem-clinical",
+        "name": "临床与研究辅助",
+        "tone": "rose",
+        "examples": ["Clinical Decision Support", "Treatment Plans", "Research Grants", "Peer Review"]
+      }
+    ],
+    "medroundtable_runtime_mapping": [
+      "用户只输入研究问题，14 位 Agent 负责先判断当前阶段需要哪一类 scientific skills。",
+      "STELLA Manager 负责发现与加载技能，Dev 负责拼接 workflow，Critic 负责质量和升级真人判断。",
+      "数据库、Python 包、实验平台和学术输出都不直接暴露给用户，而是先被编排进 MedRoundTable 的运行时。",
+      "Word、PPT、研究方案和分析蓝图是最终交付层，不是单次对话的副产物。"
+    ]
+  },
   "capability_lanes": [
     {
       "id": "evidence-synthesis",
