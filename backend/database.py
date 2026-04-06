@@ -5,9 +5,12 @@ from datetime import datetime
 import uuid
 import hashlib
 import os
+from pathlib import Path
 
 # 使用SQLite作为数据库（轻量级，无需额外安装）
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/medroundtable.db")
+RUNTIME_DATA_ROOT = Path("/tmp/medroundtable/data")
+DEFAULT_SQLITE_URL = f"sqlite:///{RUNTIME_DATA_ROOT / 'medroundtable.db'}"
+DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_SQLITE_URL)
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
@@ -282,45 +285,6 @@ class DatabaseRecord(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-
-class AnalysisTaskRecord(Base):
-    """数据分析任务记录"""
-    __tablename__ = "analysis_tasks"
-
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name = Column(String(255), nullable=False)
-    description = Column(Text, nullable=True)
-    database_id = Column(String(36), nullable=False, index=True)
-    analysis_type = Column(String(50), nullable=False)
-    status = Column(String(50), default="pending", index=True)
-    config_payload = Column("config", JSON, default=dict)
-    result_payload = Column("result", JSON, nullable=True)
-    error_message = Column(Text, nullable=True)
-    created_by = Column(String(255), nullable=True)
-    extra_metadata = Column("metadata", JSON, default=dict)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    completed_at = Column(DateTime, nullable=True)
-
-
-class ExternalAPICallRecord(Base):
-    """外部分析 API 调用日志"""
-    __tablename__ = "analysis_api_logs"
-
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    task_id = Column(String(36), nullable=False, index=True)
-    database_id = Column(String(36), nullable=True, index=True)
-    api_name = Column(String(100), nullable=False)
-    endpoint = Column(String(255), nullable=False)
-    request_payload = Column("request_data", JSON, nullable=True)
-    response_payload = Column("response_data", JSON, nullable=True)
-    status = Column(String(50), default="running", index=True)
-    status_code = Column(Integer, nullable=True)
-    duration_ms = Column(Integer, nullable=True)
-    error_message = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    completed_at = Column(DateTime, nullable=True)
-
 class Feedback(Base):
     """用户反馈表"""
     __tablename__ = "feedbacks"
@@ -417,10 +381,11 @@ class DataBackup(Base):
 def init_db():
     """初始化数据库"""
     # 确保数据目录存在
-    db_path = os.path.dirname(DATABASE_URL.replace("sqlite:///", ""))
-    if db_path and not os.path.exists(db_path):
-        os.makedirs(db_path, exist_ok=True)
-        print(f"✅ 创建数据目录: {db_path}")
+    if DATABASE_URL.startswith("sqlite:///"):
+        db_path = os.path.dirname(DATABASE_URL.replace("sqlite:///", "", 1))
+        if db_path and not os.path.exists(db_path):
+            os.makedirs(db_path, exist_ok=True)
+            print(f"✅ 创建数据目录: {db_path}")
     
     Base.metadata.create_all(bind=engine)
     print("✅ 数据库初始化完成")

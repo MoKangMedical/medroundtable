@@ -51,7 +51,6 @@ class ProtocolResponse(BaseModel):
     roundtable_id: Optional[str]
     created_at: datetime
     updated_at: datetime
-    metadata: Optional[Dict[str, Any]] = None
 
 # ============== 数据库模型 ==============
 
@@ -114,7 +113,6 @@ class DatabaseResponse(BaseModel):
     protocol_id: Optional[str]
     created_at: datetime
     updated_at: datetime
-    metadata: Optional[Dict[str, Any]] = None
 
 class DatabasePreview(BaseModel):
     """数据库预览响应"""
@@ -128,11 +126,16 @@ class DatabasePreview(BaseModel):
 class AnalysisConfig(BaseModel):
     """分析配置"""
     variables: Optional[List[str]] = None
+    target_variable: Optional[str] = None
+    covariates: Optional[List[str]] = None
     group_by: Optional[str] = None
     filters: Optional[Dict[str, Any]] = None
     include_missing: bool = True
     generate_charts: bool = True
     confidence_level: float = 0.95
+    sample_rows: int = 1000
+    max_categories: int = 10
+    hypothesis: Optional[str] = None
 
 class AnalysisTask(BaseModel):
     """分析任务数据模型"""
@@ -167,6 +170,68 @@ class AnalysisResult(BaseModel):
     tables: Optional[List[Dict[str, Any]]] = None
     recommendations: Optional[List[str]] = None
     completed_at: Optional[datetime] = None
+
+
+class ColumnProfile(BaseModel):
+    """单列画像"""
+    name: str
+    data_type: str
+    inferred_role: str
+    non_null_count: int
+    missing_count: int
+    missing_rate: float
+    unique_count: int
+    sample_values: List[Any] = []
+    numeric_summary: Optional[Dict[str, Any]] = None
+    categorical_summary: Optional[Dict[str, Any]] = None
+
+
+class DatabaseProfile(BaseModel):
+    """数据库分析画像"""
+    database_id: str
+    database_name: str
+    total_rows: int
+    total_columns: int
+    numeric_columns: List[str]
+    categorical_columns: List[str]
+    datetime_columns: List[str]
+    recommended_group_by: List[str]
+    recommended_targets: List[str]
+    missingness_overview: List[Dict[str, Any]]
+    column_profiles: List[ColumnProfile]
+    generated_at: datetime
+
+
+class AnalysisSuggestion(BaseModel):
+    """建议的分析动作"""
+    analysis_type: str
+    title: str
+    rationale: str
+    recommended_variables: List[str] = []
+    target_variable: Optional[str] = None
+    group_by: Optional[str] = None
+    estimated_outputs: List[str] = []
+
+
+class AnalysisPlanRequest(BaseModel):
+    """自动分析规划请求"""
+    database_id: str
+    objective: str
+    clinical_question: str
+    research_stage: Optional[str] = None
+    preferred_analysis_types: List[str] = []
+    required_outputs: List[str] = []
+    constraints: List[str] = []
+
+
+class AnalysisPlanResponse(BaseModel):
+    """自动分析规划响应"""
+    database_profile: DatabaseProfile
+    stella_workflow: Dict[str, Any]
+    suggested_analyses: List[AnalysisSuggestion]
+    recommended_skills: List[Dict[str, Any]]
+    recommended_agents: List[str]
+    execution_notes: List[str]
 
 # ============== API调用日志模型 ==============
 
