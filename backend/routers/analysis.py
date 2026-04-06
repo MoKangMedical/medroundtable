@@ -5,12 +5,91 @@ from fastapi import APIRouter, HTTPException
 from typing import Optional, List
 
 from backend.upload_models import (
-    AnalysisCreate, AnalysisTask, AnalysisResult,
-    ExternalAPICall, ExternalAPIResponse
+    AnalysisCreate,
+    AnalysisPlanRequest,
+    AnalysisPlanResponse,
+    AnalysisResult,
+    AnalysisTask,
+    DatabaseProfile,
+    ExternalAPICall,
+    ExternalAPIResponse,
 )
 from backend.services.analysis_service import AnalysisService
 
 router = APIRouter(prefix="/api/analysis", tags=["数据分析"])
+
+
+@router.get("/types")
+async def list_supported_analysis_types():
+    """列出当前后台支持的分析类型和适用场景。"""
+    return {
+        "analysis_types": [
+            {
+                "type": "descriptive",
+                "title": "描述性统计",
+                "use_case": "上传数据后的首轮质量检查、变量画像、缺失概览",
+            },
+            {
+                "type": "comparative",
+                "title": "组间比较",
+                "use_case": "按暴露/队列/治疗组比较连续变量或比例差异",
+            },
+            {
+                "type": "correlation",
+                "title": "相关性分析",
+                "use_case": "先看变量之间的相关结构、共线性和潜在线索",
+            },
+            {
+                "type": "regression",
+                "title": "回归建模",
+                "use_case": "建立多因素模型，输出回归系数和显著性结果",
+            },
+            {
+                "type": "custom",
+                "title": "自定义分析",
+                "use_case": "走 STELLA 规划后进入人工审核或特殊工作流",
+            },
+        ],
+        "count": 5,
+    }
+
+
+@router.get("/databases/{database_id}/profile", response_model=DatabaseProfile)
+async def profile_database(
+    database_id: str,
+    sample_rows: int = 1000,
+    max_categories: int = 10,
+):
+    """为上传数据库生成结构化画像，给前台分析规划直接使用。"""
+    try:
+        return await AnalysisService.profile_database(
+            database_id=database_id,
+            sample_rows=sample_rows,
+            max_categories=max_categories,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"生成数据库画像失败: {str(e)}")
+
+
+@router.post("/plan", response_model=AnalysisPlanResponse)
+async def build_analysis_plan(request: AnalysisPlanRequest):
+    """结合数据库画像、STELLA 与 skills 自动生成分析规划。"""
+    try:
+        return await AnalysisService.build_analysis_plan(
+            database_id=request.database_id,
+            objective=request.objective,
+            clinical_question=request.clinical_question,
+            research_stage=request.research_stage,
+            preferred_analysis_types=request.preferred_analysis_types,
+            required_outputs=request.required_outputs,
+            constraints=request.constraints,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"生成分析规划失败: {str(e)}")
 
 
 @router.post("/tasks", response_model=AnalysisTask)
@@ -83,18 +162,14 @@ async def get_analysis_result(task_id: str):
         }
     
     # completed
-    payload = task.result or {}
     return AnalysisResult(
         task_id=task_id,
         status="completed",
-        summary=payload.get("summary") or {
-            "message": "任务已完成，但结果仍采用原始结构返回。",
-            "analysis_type": task.analysis_type,
-        },
-        statistics=payload.get("statistics") or payload,
-        charts=payload.get("charts"),
-        tables=payload.get("tables"),
-        recommendations=payload.get("recommendations") or ["请回到数据管理页继续查看原始任务结果。"],
+        summary=task.result.get("summary") if task.result else None,
+        statistics=task.result.get("statistics") if task.result else None,
+        charts=task.result.get("charts") if task.result else None,
+        tables=task.result.get("tables") if task.result else None,
+        recommendations=task.result.get("recommendations") if task.result else None,
         completed_at=task.completed_at
     )
 
@@ -168,7 +243,5 @@ async def list_external_api_providers():
 @router.delete("/tasks/{task_id}")
 async def delete_analysis_task(task_id: str):
     """删除分析任务"""
-    success = AnalysisService.delete_task(task_id)
-    if not success:
-        raise HTTPException(status_code=404, detail="分析任务不存在")
-    return {"message": "任务删除成功", "task_id": task_id}
+    # TODO: 实现删除逻辑
+    return {"message": "任务删除功能开发中", "task_id": task_id}

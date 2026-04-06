@@ -11,9 +11,9 @@ class DocumentExporter:
     """研究文档导出器"""
     
     def __init__(self):
-        project_root = Path(__file__).resolve().parent.parent
-        self.template_dir = str(project_root / "tmp" / "templates")
-        self.output_dir = str(project_root / "tmp" / "exports")
+        runtime_root = Path("/tmp/medroundtable")
+        self.template_dir = str(runtime_root / "templates")
+        self.output_dir = str(runtime_root / "exports")
         os.makedirs(self.template_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
     
@@ -208,7 +208,10 @@ class DocumentExporter:
         """生成统计分析计划文档"""
         
         if output_path is None:
-            output_path = f"/tmp/analysis_plan_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            output_path = os.path.join(
+                self.output_dir,
+                f"analysis_plan_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+            )
         
         doc = Document()
         doc.add_heading(f'{study_title} - 统计分析计划', 0)
