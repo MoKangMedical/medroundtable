@@ -199,3 +199,63 @@ async def pdb_to_splats(req: PDBVizRequest):
     viz_data = mol_viz.molecular_to_viz({"atoms": atoms, "bonds": []})
     viz_data["splat_data"] = mol_viz.atoms_to_splats(atoms, req.radius_scale, req.opacity).to_dict()
     return viz_data
+
+
+# ===== Top Open-Source Integration Endpoints =====
+
+@router.get("/integrations/status")
+async def integrations_status():
+    """Check availability of external integrations."""
+    try:
+        from backend.biomedical.integrations import deepchem_bridge, pubchem_bridge, biotite_bridge
+        return {
+            "deepchem": deepchem_bridge.available,
+            "pubchem": pubchem_bridge.available,
+            "biotite": biotite_bridge.available,
+            "rdkit": True,
+        }
+    except ImportError as e:
+        return {"error": str(e), "deepchem": False, "pubchem": False, "biotite": False}
+
+
+class CompoundLookupRequest(BaseModel):
+    identifier: str
+    identifier_type: str = "name"
+
+
+@router.post("/compound/lookup")
+async def compound_lookup(req: CompoundLookupRequest):
+    """Look up compound from PubChem."""
+    from backend.biomedical.integrations import pubchem_bridge
+    if not pubchem_bridge.available:
+        raise HTTPException(status_code=503, detail="PubChem bridge not available")
+    result = pubchem_bridge.get_compound(req.identifier, req.identifier_type)
+    if not result:
+        raise HTTPException(status_code=404, detail=f"Compound not found: {req.identifier}")
+    return result
+
+
+class SimilaritySearchRequest(BaseModel):
+    smiles: str
+    top_k: int = 10
+
+
+@router.post("/compound/similarity")
+async def compound_similarity(req: SimilaritySearchRequest):
+    """Find similar compounds via PubChem."""
+    from backend.biomedical.integrations import pubchem_bridge
+    if not pubchem_bridge.available:
+        raise HTTPException(status_code=503, detail="PubChem bridge not available")
+    results = pubchem_bridge.search_similar(req.smiles, max_results=req.top_k)
+    return {"query_smiles": req.smiles, "results": results, "count": len(results)}
+
+
+@router.post("/structure/parse")
+async def parse_structure(req: PDBVizRequest):
+    """Parse PDB structure using Biotite."""
+    from backend.biomedical.integrations import biotite_bridge
+    if not biotite_bridge.available:
+        raise HTTPException(status_code=503, detail="Biotite bridge not available")
+    structure = biotite_bridge.parse_pdb(req.pdb_text)
+    sequences = biotite_bridge.extract_sequence(req.pdb_text)
+    return {"structure": structure, "sequences": sequences}
