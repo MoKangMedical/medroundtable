@@ -15,7 +15,7 @@ from backend.database import SessionLocal, SessionHistory, User, init_db
 
 # 导入新的路由
 from backend.routers import protocols, databases, analysis
-from backend.routers import biomedical
+from backend.routers import biomedical, rare_disease, health_mgmt, clinical_trials, literature, prediction, drug_database, evo_agent
 
 app = FastAPI(
     title="MedRoundTable API",
@@ -877,6 +877,15 @@ app.include_router(protocols.router)
 app.include_router(databases.router)
 app.include_router(analysis.router)
 app.include_router(biomedical.router)
+
+# ============ 注册新路由 ============
+app.include_router(rare_disease.router)
+app.include_router(health_mgmt.router)
+app.include_router(clinical_trials.router)
+app.include_router(literature.router)
+app.include_router(prediction.router)
+app.include_router(drug_database.router)
+app.include_router(evo_agent.router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
