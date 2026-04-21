@@ -1,146 +1,277 @@
-# MedRoundTable - 临床科研圆桌会
+# medroundtable
 
-## 🎯 项目简介
+医疗AI项目
 
-MedRoundTable 是全球首个基于 A2A (Agent-to-Agent) 架构的医学科研协作平台。通过构建 **14位专业 AI Agent**，实现从临床问题到科研成果的全流程自动化协作。
+## 项目简介
 
-## 🤖 14位核心 Agent
+这是一个医疗AI项目，致力于通过人工智能技术解决医疗健康领域的挑战。
 
-### 🏥 核心临床团队 (5位)
-1. **👨‍⚕️ 资深临床主任 Agent** - 识别科研价值、提出研究假设
-2. **📚 临床博士生 Agent** - 文献检索、综述撰写、协调推进  
-3. **📊 临床流行病学专家 Agent** - 研究设计、纳入排除标准
-4. **📈 数据统计专家 Agent** - CRF设计、统计分析、图表生成
-5. **👩‍⚕️ 研究护士 Agent** - 数据采集、质量核查、问题反馈
+## 功能特性
 
-### 🧬 ClawBio 生物信息学套件 (4位)
-6. **💊 药物基因组学专家 Agent** - 个性化用药、基因型分析
-7. **🧬 GWAS 专家 Agent** - 全基因组关联分析、变异查询
-8. **🔬 单细胞测序分析师 Agent** - scRNA-seq分析、细胞聚类
-9. **🌌 Galaxy 桥接器 Agent** - 8000+生信工具编排
+### 核心功能
+- 🏥 医疗AI核心功能
+- 🔬 智能诊断与分析
+- 📊 数据可视化与报告
+- 🤖 多模态交互支持
+- 🔒 数据安全与隐私保护
 
-### 🔬 专业研究支持团队 (5位)
-10. **🔬 UX 研究员 Agent** - 用户体验研究、可用性测试
-11. **🧬 AI 数据工程师 Agent** - 数据管道修复、质量优化
-12. **🔭 趋势研究员 Agent** - 市场情报分析、竞争研究
-13. **🧪 实验追踪员 Agent** - A/B测试设计、假设验证
-14. **🔬 模型 QA 专家 Agent** - AI模型测试、偏差检测
+### 技术特性
+- 🚀 高性能计算
+- 📈 可扩展架构
+- 🔄 实时数据处理
+- 🌐 分布式部署
+- 📱 多平台支持
 
-## 🔄 A2A 协作流程
+## 技术栈
 
-```
-临床问题提出 
-    ↓
-圆桌讨论（5个Agent实时互动）
-    ↓
-研究方案设计 → 数据表格构建 → 数据采集执行 → 统计分析 → 成果产出
-```
+### 后端技术
+- **框架**: Python FastAPI, Django, Flask
+- **AI框架**: TensorFlow, PyTorch, Scikit-learn
+- **数据库**: PostgreSQL, MongoDB, Redis
+- **消息队列**: RabbitMQ, Kafka
+- **容器化**: Docker, Kubernetes
 
-## 💰 盈利模式
+### 前端技术
+- **框架**: React, Vue.js, Angular
+- **UI库**: Ant Design, Material-UI, Element UI
+- **可视化**: D3.js, ECharts, Plotly
+- **移动端**: React Native, Flutter
 
-### 1. SaaS 订阅模式
-- **免费版**: 5次/月基础分析
-- **专业版** ¥299/月: 无限次分析 + 优先响应
-- **团队版** ¥999/月: 多用户协作 + 定制Agent
+### 数据处理
+- **分析**: Pandas, NumPy, SciPy
+- **可视化**: Matplotlib, Seaborn, Plotly
+- **大数据**: Spark, Hadoop
+- **流处理**: Flink, Storm
 
-### 2. 按需付费
-- 单次完整研究设计: ¥99
-- 数据统计分析: ¥199
-- 完整论文辅助: ¥499
+## 快速开始
 
-### 3. 企业/机构服务
-- 医院科研部门定制: ¥50,000+/年
-- 医学院教学系统集成: ¥100,000+/年
-- 多中心研究平台: 按项目定价
+### 环境要求
 
-### 4. 增值服务
-- 专家人工审核: ¥200/次
-- 英文润色服务: ¥500/篇
-- 期刊投稿指导: ¥1,000/篇
+- Python 3.9+
+- Node.js 16+
+- Docker 20+
+- Git 2.30+
 
-## 🌉 Second Me 集成
+### 安装步骤
 
-MedRoundTable 已完整支持 [Second Me](https://secondme.io) A2A (Agent-to-Agent) 协议，可在 Second Me 平台直接运行：
-
-- ✅ **Agent Discovery** - 自动发现和连接
-- ✅ **A2A Messaging** - 标准消息通信协议
-- ✅ **Task Orchestration** - 任务委托与执行
-- ✅ **AI Space** - 参与 Second Me 网络协作
-- ✅ **Memory Sync** - 记忆和上下文共享
-
-**快速接入 Second Me:**
+1. **克隆仓库**
 ```bash
-# 验证并自动集成
-./secondme-integration.sh
+git clone https://github.com/MoKangMedical/medroundtable.git
+cd medroundtable
 ```
 
-**Hackathon 项目:** https://hackathon.second.me/projects/cmlg779kn000204kvr6jygh28
+2. **后端设置**
+```bash
+# 创建虚拟环境
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate  # Windows
 
-## 🛠 技术栈
+# 安装依赖
+pip install -r requirements.txt
 
-- **前端**: React + TypeScript + TailwindCSS
-- **后端**: FastAPI + Python
-- **AI**: OpenAI/Claude API + 自定义Agent框架
-- **A2A 协议**: Second Me 兼容
-- **数据库**: PostgreSQL + Redis
-- **部署**: Docker + Kubernetes
+# 配置环境变量
+cp .env.example .env
+# 编辑.env文件，配置数据库连接等
+```
 
-## 📁 项目结构
+3. **前端设置**
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+4. **数据库设置**
+```bash
+# 初始化数据库
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+5. **启动服务**
+```bash
+# 使用Docker Compose（推荐）
+docker-compose up -d
+
+# 或手动启动
+python manage.py runserver
+```
+
+## 项目结构
 
 ```
 medroundtable/
-├── frontend/          # React前端
-├── backend/           # FastAPI后端
-├── agents/            # Agent定义和逻辑
-├── docs/              # 文档
-└── assets/            # 静态资源
+├── backend/                 # 后端代码
+│   ├── api/                # API接口
+│   ├── models/             # 数据模型
+│   ├── services/           # 业务逻辑
+│   ├── utils/              # 工具函数
+│   └── tests/              # 测试用例
+├── frontend/               # 前端代码
+│   ├── src/               # 源代码
+│   ├── public/            # 静态资源
+│   └── package.json       # 依赖配置
+├── ai-engine/             # AI引擎
+│   ├── models/           # AI模型
+│   ├── training/         # 训练脚本
+│   └── inference/        # 推理服务
+├── data/                  # 数据存储
+│   ├── raw/              # 原始数据
+│   ├── processed/        # 处理后的数据
+│   └── models/           # 训练好的模型
+├── docs/                  # 项目文档
+│   ├── api/              # API文档
+│   ├── user/             # 用户手册
+│   └── dev/              # 开发文档
+├── scripts/               # 脚本工具
+│   ├── deploy/           # 部署脚本
+│   ├── data/             # 数据处理脚本
+│   └── utils/            # 工具脚本
+├── tests/                 # 测试代码
+├── docker-compose.yml     # Docker编排
+├── Dockerfile            # Docker配置
+├── requirements.txt      # Python依赖
+├── .env.example          # 环境变量示例
+├── .gitignore           # Git忽略文件
+└── README.md            # 项目说明
 ```
 
-## 🚀 快速访问
+## API文档
 
-### 🌐 在线访问
-- **主域名**: https://medroundtable.vip (配置中)
-- **Vercel**: https://medroundtable-v2.vercel.app
-- **GitHub Pages**: https://mokangmedical.github.io/medroundtable
+### 主要接口
 
-### 💻 本地启动
+#### 基础接口
+- `GET /` - 首页
+- `GET /health` - 健康检查
+- `GET /api/v1/status` - 系统状态
+
+#### 数据接口
+- `GET /api/v1/data` - 获取数据列表
+- `POST /api/v1/data` - 上传数据
+- `GET /api/v1/data/<built-in function id>` - 获取特定数据
+
+#### 分析接口
+- `POST /api/v1/analyze` - 数据分析
+- `GET /api/v1/analyze/<built-in function id>` - 获取分析结果
+- `GET /api/v1/reports` - 获取报告列表
+
+#### 用户接口
+- `POST /api/v1/auth/login` - 用户登录
+- `POST /api/v1/auth/register` - 用户注册
+- `GET /api/v1/users/me` - 获取当前用户信息
+
+### 详细文档
+
+启动服务后，访问以下地址查看完整API文档：
+
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **OpenAPI JSON**: http://localhost:8000/openapi.json
+
+## 配置说明
+
+### 环境变量
+
+创建 `.env` 文件并配置以下变量：
+
 ```bash
-# 1. 克隆项目
-git clone https://github.com/MoKangMedical/medroundtable.git
+# 基础配置
+DEBUG=True
+SECRET_KEY=your-secret-key
+ALLOWED_HOSTS=localhost,127.0.0.1
 
-# 2. 进入目录
-cd medroundtable/frontend
+# 数据库配置
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+REDIS_URL=redis://localhost:6379/0
 
-# 3. 启动本地服务器
-python3 -m http.server 8080
+# AI服务配置
+OPENAI_API_KEY=your-openai-key
+HUGGINGFACE_TOKEN=your-hf-token
 
-# 4. 访问 http://localhost:8080
+# 文件存储配置
+AWS_ACCESS_KEY_ID=your-aws-key
+AWS_SECRET_ACCESS_KEY=your-aws-secret
+AWS_STORAGE_BUCKET_NAME=your-bucket-name
+
+# 邮件配置
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-email-password
 ```
 
-### 🐳 Docker 部署
+## 部署指南
+
+### Docker部署（推荐）
+
+1. **构建镜像**
 ```bash
-cd medroundtable
+docker build -t medroundtable .
+```
+
+2. **运行容器**
+```bash
+docker run -d -p 8000:8000 --name medroundtable medroundtable
+```
+
+3. **使用Docker Compose**
+```bash
 docker-compose up -d
 ```
 
-## 📐 理论基础
+## 测试
 
-### Harness 理论
+### 运行测试
 
-在AI领域，Harness（环境设计）比模型本身更重要。优秀的Harness设计（工具链+信息格式+上下文管理+失败恢复+结果验证）能使性能提升64%。
+```bash
+# 运行所有测试
+python -m pytest tests/
 
-MedRoundTable 的 A2A 多Agent协作架构正是 Harness 理论的体现：14位专业 Agent 的价值不在于单个模型的强弱，而在于协作流程设计、上下文传递机制、结果交叉验证的整体 Harness 质量。
+# 运行特定测试
+python -m pytest tests/test_api.py
 
-### 红杉论点
+# 生成测试覆盖率报告
+python -m pytest --cov=app tests/
+```
 
-> 下一代万亿美元公司是伪装成服务公司的软件公司。从卖工具到卖结果。
+## 贡献指南
 
-MedRoundTable 从科研协作工具进化为科研结果交付平台——用户提出临床问题，平台直接产出研究方案、数据分析和论文初稿，实现"从卖工具到卖结果"的转变。
+我们欢迎任何形式的贡献！请遵循以下步骤：
 
-### 理论宪法
+1. **Fork本仓库**
+2. **创建特性分支**
+```bash
+git checkout -b feature/AmazingFeature
+```
 
-本项目遵循理论宪法四卷八章统一框架，将医学科研协作的全流程建立在可验证、可复现、可扩展的理论根基之上。
+3. **提交更改**
+```bash
+git commit -m 'Add some AmazingFeature'
+```
 
-## 📄 License
+4. **推送到分支**
+```bash
+git push origin feature/AmazingFeature
+```
 
-MIT License
+5. **创建Pull Request**
+
+## 许可证
+
+本项目采用 [MIT License](LICENSE) 许可证。
+
+## 联系方式
+
+- **项目维护者**: MoKangMedical
+- **邮箱**: contact@mokangmedical.com
+- **项目主页**: https://github.com/MoKangMedical/medroundtable
+- **问题反馈**: https://github.com/MoKangMedical/medroundtable/issues
+
+## 致谢
+
+感谢所有为这个项目做出贡献的开发者和医疗领域专家！
+
+---
+
+**注意**: 这是一个活跃开发中的项目，API和功能可能会发生变化。请定期查看更新日志获取最新信息。
