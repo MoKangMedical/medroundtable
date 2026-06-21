@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MedRoundTable - 临床科研圆桌会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght300;400;500;700&display=swap');
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans SC', sans-serif; touch-action: manipulation; }
+        
+        /* 移动端底部安全区域 */
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        
+        /* 聊天消息样式 */
+        .chat-bubble {
+            max-width: 85%;
+            animation: fadeIn 0.3s ease-in;
+            word-wrap: break-word;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 打字动画 */
+        .typing-indicator { display: flex; gap: 4px; padding: 4px 8px; }
+        .typing-indicator span {
+            width: 8px; height: 8px; background: #9ca3af; border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        /* 侧边栏动画 */
+        .sidebar {
+            transition: transform 0.3s ease;
+            transform: translateX(-100%);
+        }
+        .sidebar.open { transform: translateX(0); }
+        
+        /* 模态框动画 */
+        .modal-enter { animation: modalIn 0.2s ease-out; }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* 滚动条隐藏 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 按钮点击效果 */
+        .btn-press:active { transform: scale(0.95); }
+        
+        /* 输入框样式 */
+        .chat-input {
+            min-height: 44px;
+            max-height: 120px;
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 640px) {
+            .mobile-full { width: 100vw; height: 100vh; }
+            .chat-bubble { max-width: 90%; font-size: 15px; }
+            .agent-avatar { width: 36px; height: 36px; font-size: 18px; }
+        }
+        
+        /* Toast 动画 */
+        .toast-enter { animation: toastIn 0.3s ease-out; }
+        @keyframes toastIn {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <!-- 移动端侧边栏遮罩 -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleSidebar()"></div>
+    
+    <!-- 侧边栏 - 会话列表 -->
+    <aside id="sidebar" class="sidebar fixed left-0 top-0 h-full w-72 bg-white shadow-xl z-50 flex flex-col">
+        <!-- 侧边栏头部 -->
+        <div class="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-users text-xl"></i>
+                    <span class="font-bold">MedRoundTable</span>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden p-2">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 新建按钮 -->
+        <button onclick="createNewSession()" class="m-4 p-3 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 btn-press shadow-lg shadow-blue-200">
+            <i class="fas fa-plus"></i>
+            <span>新建圆桌会</span>
+        </button>
+        
+        <!-- 会话列表 -->
+        <div id="sessionList" class="flex-1 overflow-y-auto no-scrollbar px-2 space-y-1">
+            <!-- 动态生成 -->
+        </div>
+        
+        <!-- 用户信息区 -->
+        <div class="p-3 border-t bg-gray-50">
+            <button onclick="showLoginModal()" id="userBtn" class="w-full p-3 flex items-center gap-3 rounded-lg hover:bg-gray-100 transition">
+                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-gray-600"></i>
+                </div>
+                <div class="text-left flex-1">
+                    <p class="font-medium text-sm">点击登录</p>
+                    <p class="text-xs text-gray-500">保存历史记录</p>
+                </div>
+            </button>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="h-full flex flex-col md:ml-72">
+        <!-- 顶部导航 -->
+        <header class="bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-30">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleSidebar()" class="md:hidden p-2 -ml-2 text-gray-600">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h1 id="pageTitle" class="font-bold text-lg text-gray-800 truncate">临床科研圆桌会</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="showAgentInfo()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg btn-press">
+                    <i class="fas fa-info-circle text-xl"></i>
+                </button>
+                <button onclick="showFeedback()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg btn-press">
+                    <i class="fas fa-comment-dots text-xl"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 阶段指示器 -->
+        <div id="stageBar" class="bg-white border-b px-4 py-2 overflow-x-auto no-scrollbar hidden">
+            <div class="flex gap-2 min-w-max">
+                <span class="stage-pill px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600" data-stage="init">准备</span>
+                <span class="stage-pill px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600" data-stage="discussion">讨论</span>
+                <span class="stage-pill px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600" data-stage="design">设计</span>
+                <span class="stage-pill px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600" data-stage="completed">完成</span>
+            </div>
+        </div>
+
+        <!-- 聊天区域 -->
+        <div id="chatContainer" class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4 bg-gray-50">
+            <!-- 欢迎消息 -->
+            <div class="text-center py-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+                    <i class="fas fa-users text-white text-3xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800 mb-2">欢迎使用 MedRoundTable</h2>
+                <p class="text-gray-600 mb-6 px-4">AI 医学科研协作平台，多位专家共同为您的研究出谋划策</p>
+                <button onclick="createNewSession()" class="px-6 py-3 bg-blue-600 text-white rounded-xl shadow-lg btn-press">
+                    <i class="fas fa-plus mr-2"></i>开始新的圆桌会
+                </button>
+            </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div id="inputArea" class="bg-white border-t p-3 safe-bottom hidden">
+            <div class="flex items-end gap-2 max-w-4xl mx-auto">
+                <button onclick="showQuickActions()" class="p-3 text-gray-500 hover:bg-gray-100 rounded-xl btn-press">
+                    <i class="fas fa-plus-circle text-xl"></i>
+                </button>
+                <div class="flex-1 bg-gray-100 rounded-2xl px-4 py-2">
+                    <textarea id="messageInput" rows="1" placeholder="输入消息..." 
+                        class="w-full bg-transparent border-none outline-none resize-none chat-input text-base"
+                        onkeydown="handleKeyDown(event)"
+                        oninput="autoResize(this)"></textarea>
+                </div>
+                <button onclick="sendMessage()" id="sendBtn" class="p-3 bg-blue-600 text-white rounded-xl btn-press shadow-lg">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 新建会话模态框 -->
+    <div id="newSessionModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md modal-enter">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="font-bold text-lg">新建圆桌会</h3>
+                <button onclick="closeModal('newSessionModal')" class="p-2 text-gray-400">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">研究标题</label>
+                    <input type="text" id="sessionTitle" placeholder="例如：二甲双胍对2型糖尿病的疗效研究" 
+                        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">临床问题</label>
+                    <textarea id="sessionQuestion" rows="3" placeholder="请描述您的临床问题或研究需求..." 
+                        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"></textarea>
+                </div>
+                <button onclick="submitNewSession()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium btn-press">
+                    开始讨论
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm modal-enter">
+            <div class="p-4 text-center border-b">
+                <h3 class="font-bold text-lg">用户登录</h3>
+            </div>
+            <div class="p-4 space-y-3">
+                <input type="email" id="loginEmail" placeholder="邮箱" class="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="loginPassword" placeholder="密码" class="w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="login()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium btn-press">登录</button>
+                <p class="text-center text-sm text-gray-500">
+                    还没有账号？<a href="#" onclick="showRegister(); return false;" class="text-blue-600">立即注册</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent 信息弹窗 -->
+    <div id="agentModal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm modal-enter max-h-[80vh] overflow-y-auto">
+            <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white">
+                <h3 class="font-bold text-lg">AI 专家团队</h3>
+                <button onclick="closeModal('agentModal')" class="p-2 text-gray-400">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-4 space-y-3">
+                <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-xl">
+                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">临床主任</h4>
+                        <p class="text-sm text-gray-600">负责临床问题把关和诊疗方案审核</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-green-50 rounded-xl">
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">博士生</h4>
+                        <p class="text-sm text-gray-600">文献检索和最新研究进展整理</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-purple-50 rounded-xl">
+                    <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">流行病学家</h4>
+                        <p class="text-sm text-gray-600">研究设计和偏倚控制</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl">
+                    <div class="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">统计学家</h4>
+                        <p class="text-sm text-gray-600">样本量计算和统计分析方案</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        // API 配置
+        const API_BASE = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8000' 
+            : 'https://mia-rating-ownership-downloads.trycloudflare.com';
+
+        // 全局状态
+        let currentSessionId = null;
+        let eventSource = null;
+        let token = localStorage.getItem('mrt_token');
+        let user = JSON.parse(localStorage.getItem('mrt_user') || 'null');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSessions();
+            updateUserUI();
+        });
+
+        // ============ UI 控制 ============
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('hidden');
+        }
+
+        function showModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+        }
+
+        function createNewSession() {
+            closeModal('sidebarOverlay');
+            document.getElementById('sidebar').classList.remove('open');
+            showModal('newSessionModal');
+        }
+
+        function showAgentInfo() {
+            showModal('agentModal');
+        }
+
+        function showLoginModal() {
+            toggleSidebar();
+            showModal('loginModal');
+        }
+
+        function showFeedback() {
+            window.open('/feedback-v2.html', '_blank');
+        }
+
+        // ============ 会话管理 ============
+        
+        async function loadSessions() {
+            try {
+                const response = await fetch(`${API_BASE}/roundtables`);
+                const sessions = await response.json();
+                renderSessionList(sessions);
+            } catch (err) {
+                console.error('Failed to load sessions:', err);
+            }
+        }
+
+        function renderSessionList(sessions) {
+            const container = document.getElementById('sessionList');
+            if (!sessions || sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p class="text-sm">暂无会话</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = sessions.map(s => `
+                <div onclick="selectSession('${s.id}')" 
+                    class="p-3 rounded-xl cursor-pointer transition ${currentSessionId === s.id ? 'bg-blue-50 border-l-4 border-blue-500' : 'hover:bg-gray-100'}">
+                    <h4 class="font-medium text-sm truncate">${s.title}</h4>
+                    <p class="text-xs text-gray-500 mt-1 line-clamp-2">${s.clinical_question}</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="text-xs px-2 py-0.5 rounded-full ${getStatusColor(s.status)}">${getStatusText(s.status)}</span>
+                        <span class="text-xs text-gray-400">${formatTime(s.created_at)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'init': 'bg-gray-100 text-gray-600',
+                'discussion': 'bg-blue-100 text-blue-600',
+                'design': 'bg-purple-100 text-purple-600',
+                'completed': 'bg-green-100 text-green-600'
+            };
+            return colors[status] || 'bg-gray-100';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'init': '准备',
+                'discussion': '讨论中',
+                'design': '设计中',
+                'completed': '已完成'
+            };
+            return texts[status] || status;
+        }
+
+        function formatTime(time) {
+            const date = new Date(time);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前';
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        // ============ 聊天功能 ============
+        
+        async function submitNewSession() {
+            const title = document.getElementById('sessionTitle').value.trim();
+            const question = document.getElementById('sessionQuestion').value.trim();
+            
+            if (!title || !question) {
+                showToast('请填写完整信息', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/roundtables`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, clinical_question: question })
+                });
+                
+                const session = await response.json();
+                closeModal('newSessionModal');
+                document.getElementById('sessionTitle').value = '';
+                document.getElementById('sessionQuestion').value = '';
+                
+                // 开始讨论
+                await fetch(`${API_BASE}/roundtables/${session.id}/start`, { method: 'POST' });
+                
+                loadSessions();
+                selectSession(session.id);
+                showToast('圆桌会已开始', 'success');
+            } catch (err) {
+                showToast('创建失败', 'error');
+            }
+        }
+
+        async function selectSession(sessionId) {
+            currentSessionId = sessionId;
+            
+            // 移动端关闭侧边栏
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.add('hidden');
+            
+            // 显示聊天界面
+            document.getElementById('stageBar').classList.remove('hidden');
+            document.getElementById('inputArea').classList.remove('hidden');
+            document.getElementById('chatContainer').innerHTML = '';
+            
+            // 加载消息
+            await loadMessages(sessionId);
+            
+            // 连接 SSE
+            connectEventSource(sessionId);
+            
+            // 刷新列表高亮
+            loadSessions();
+        }
+
+        async function loadMessages(sessionId) {
+            try {
+                const response = await fetch(`${API_BASE}/roundtables/${sessionId}/messages`);
+                const messages = await response.json();
+                messages.forEach(msg => renderMessage(msg));
+            } catch (err) {
+                console.error('Failed to load messages:', err);
+            }
+        }
+
+        function connectEventSource(sessionId) {
+            if (eventSource) eventSource.close();
+            
+            eventSource = new EventSource(`${API_BASE}/roundtables/${sessionId}/stream`);
+            
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type !== 'ping') renderMessage(data);
+            };
+            
+            eventSource.onerror = () => {
+                console.log('SSE connection error');
+            };
+        }
+
+        function renderMessage(msg) {
+            const container = document.getElementById('chatContainer');
+            
+            const agentColors = {
+                'clinical_director': 'bg-blue-500',
+                'phd_student': 'bg-green-500',
+                'epidemiologist': 'bg-purple-500',
+                'statistician': 'bg-orange-500',
+                'research_nurse': 'bg-pink-500'
+            };
+            
+            const agentNames = {
+                'clinical_director': '临床主任',
+                'phd_student': '博士生',
+                'epidemiologist': '流行病学家',
+                'statistician': '统计学家',
+                'research_nurse': '研究护士'
+            };
+            
+            const agentIcons = {
+                'clinical_director': 'fa-user-md',
+                'phd_student': 'fa-graduation-cap',
+                'epidemiologist': 'fa-chart-line',
+                'statistician': 'fa-calculator',
+                'research_nurse': 'fa-user-nurse'
+            };
+            
+            const isUser = msg.from_role === 'user';
+            const color = agentColors[msg.from_role] || 'bg-gray-500';
+            const name = isUser ? '我' : (agentNames[msg.from_role] || msg.from_role);
+            const icon = agentIcons[msg.from_role] || 'fa-robot';
+            
+            const html = `
+                <div class="flex ${isUser ? 'justify-end' : 'justify-start'} mb-4">
+                    ${!isUser ? `
+                        <div class="agent-avatar ${color} text-white flex-shrink-0 mr-2">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                    ` : ''}
+                    <div class="chat-bubble ${isUser ? 'bg-blue-600 text-white' : 'bg-white border'} rounded-2xl px-4 py-3 shadow-sm">
+                        ${!isUser ? `<p class="text-xs font-medium ${color.replace('bg-', 'text-')} mb-1">${name}</p>` : ''}
+                        <p class="text-sm leading-relaxed">${formatContent(msg.content)}</p>
+                        <p class="text-xs ${isUser ? 'text-blue-200' : 'text-gray-400'} mt-1 text-right">${formatTime(msg.created_at)}</p>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatContent(content) {
+            return content.replace(/\n/g, '<br>');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            
+            if (!content || !currentSessionId) return;
+            
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // 显示用户消息
+            renderMessage({
+                from_role: 'user',
+                content: content,
+                created_at: new Date().toISOString()
+            });
+            
+            try {
+                await fetch(`${API_BASE}/roundtables/${currentSessionId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+            } catch (err) {
+                showToast('发送失败', 'error');
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        // ============ 用户认证 ============
+        
+        function updateUserUI() {
+            const btn = document.getElementById('userBtn');
+            if (user) {
+                btn.innerHTML = `
+                    <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="text-left flex-1">
+                        <p class="font-medium text-sm">${user.name}</p>
+                        <p class="text-xs text-gray-500">${user.email}</p>
+                    </div>
+                    <button onclick="logout(event)" class="p-2 text-gray-400 hover:text-red-500">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                `;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/v1/user/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    token = data.access_token;
+                    user = data.user;
+                    localStorage.setItem('mrt_token', token);
+                    localStorage.setItem('mrt_user', JSON.stringify(user));
+                    updateUserUI();
+                    closeModal('loginModal');
+                    showToast('登录成功', 'success');
+                } else {
+                    showToast('登录失败', 'error');
+                }
+            } catch (err) {
+                showToast('网络错误', 'error');
+            }
+        }
+
+        function logout(e) {
+            e.stopPropagation();
+            token = null;
+            user = null;
+            localStorage.removeItem('mrt_token');
+            localStorage.removeItem('mrt_user');
+            location.reload();
+        }
+
+        // ============ 工具函数 ============
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            toast.className = `toast-enter ${colors[type]} text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium`;
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function showQuickActions() {
+            // 快捷操作菜单
+            showToast('功能开发中', 'info');
+        }
+
+        // 防止双击缩放
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>

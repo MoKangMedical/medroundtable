@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRoundTable - 反馈收集</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-4xl mx-auto p-6">
+        <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-xl mb-6">
+            <h1 class="text-2xl font-bold">MedRoundTable 反馈收集</h1>
+            <p class="mt-2">帮助我们完善项目，让AI医学科研协作更好用！</p>
+        </header>
+
+        <div class="bg-white rounded-xl p-6 shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4">📋 功能需求投票</h2>
+            <div class="space-y-3">
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="mr-3 h-5 w-5 text-blue-600">
+                    <span>文献自动检索（PubMed/知网）</span>
+                </label>
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="mr-3 h-5 w-5 text-blue-600">
+                    <span>研究方案模板库</span>
+                </label>
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="mr-3 h-5 w-5 text-blue-600">
+                    <span>可视化CRF设计器</span>
+                </label>
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="mr-3 h-5 w-5 text-blue-600">
+                    <span>统计分析代码生成</span>
+                </label>
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="mr-3 h-5 w-5 text-blue-600">
+                    <span>论文草稿自动生成</span>
+                </label>
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100">
+                    <input type="checkbox" class="mr-3 h-5 w-5 text-blue-600">
+                    <span>Word/PDF导出功能</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4">💬 详细反馈</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">您从哪个渠道了解到我们？</label>
+                    <select class="w-full p-2 border rounded-lg">
+                        <option>Second Me Hackathon</option>
+                        <option>微信/公众号</option>
+                        <option>朋友推荐</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">您的使用场景是？</label>
+                    <textarea class="w-full p-2 border rounded-lg h-20" placeholder="例如：我是医学生，需要完成毕业论文..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">功能建议 / 问题反馈</label>
+                    <textarea class="w-full p-2 border rounded-lg h-32" placeholder="请详细描述您的建议或遇到的问题..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">联系方式（可选）</label>
+                    <input type="text" class="w-full p-2 border rounded-lg" placeholder="微信/邮箱，方便我们联系您">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-md mb-6">
+            <h2 class="text-xl font-bold mb-4">📊 评分</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span>整体体验</span>
+                    <div class="flex gap-2">
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>AI专家回答质量</span>
+                    <div class="flex gap-2">
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>界面易用性</span>
+                    <div class="flex gap-2">
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                        <span class="text-2xl cursor-pointer">⭐</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+            提交反馈
+        </button>
+
+        <div class="mt-8 text-center text-gray-500 text-sm">
+            <p>感谢您的支持！我们将根据反馈持续改进产品。</p>
+            <p class="mt-2">
+                <a href="https://github.com/MoKangMedical/medroundtable" class="text-blue-600 hover:underline">GitHub</a> | 
+                <a href="https://shall-wires-conceptual-appointment.trycloudflare.com" class="text-blue-600 hover:underline">访问应用</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

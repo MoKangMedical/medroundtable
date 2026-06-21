@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedRoundTable - 临床科研圆桌会</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        
+        .chat-bubble {
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .agent-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .stage-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .stage-indicator.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <div id="app" class="h-full flex flex-col">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-lg">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-users text-2xl"></i>
+                    <div>
+                        <h1 class="text-xl font-bold">MedRoundTable</h1>
+                        <p class="text-xs opacity-80">AI 医学科研协作平台</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="showAgentInfo()" class="px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition text-sm">
+                        <i class="fas fa-info-circle mr-2"></i>Agent 介绍
+                    </button>
+                    <button onclick="createNewRoundTable()" class="px-4 py-2 bg-white text-blue-600 rounded-lg hover:bg-gray-100 transition text-sm font-medium">
+                        <i class="fas fa-plus mr-2"></i>新建圆桌会
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex overflow-hidden">
+            <!-- Left Panel - RoundTable List -->
+            <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="font-semibold text-gray-700">我的圆桌会</h2>
+                </div>
+                <div id="roundtable-list" class="flex-1 overflow-y-auto p-2">
+                    <!-- RoundTable items will be inserted here -->
+                    <div class="text-center text-gray-400 py-8 text-sm">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p>暂无圆桌会</p>
+                        <p class="text-xs mt-1">点击右上角新建</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center Panel - Chat -->
+            <section class="flex-1 flex flex-col bg-gray-50">
+                <!-- Stage Progress -->
+                <div id="stage-bar" class="bg-white border-b border-gray-200 p-3 hidden">
+                    <div class="flex gap-2 overflow-x-auto scrollbar-hide">
+                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                            问题陈述
+                        </div>
+                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                            文献调研
+                        </div>
+                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                            方案设计
+                        </div>
+                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                            统计计划
+                        </div>
+                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                            CRF设计
+                        </div>
+                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                            执行计划
+                        </div>
+                        <div class="stage-indicator px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 whitespace-nowrap">
+                            共识达成
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages -->
+                <div id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Welcome message -->
+                    <div class="text-center py-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                            <i class="fas fa-users text-3xl text-white"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">欢迎使用 MedRoundTable</h2>
+                        <p class="text-gray-600 max-w-md mx-auto mb-6">
+                            全球首个基于 A2A 架构的医学科研协作平台<br>
+                            五位 AI 专家 24小时不间断协作
+                        </p>
+                        <div class="flex justify-center gap-3">
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-xl mb-1">👨‍⚕️</div>
+                                <span class="text-xs text-gray-600">临床主任</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-xl mb-1">📚</div>
+                                <span class="text-xs text-gray-600">博士生</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-xl mb-1">📊</div>
+                                <span class="text-xs text-gray-600">流行病学家</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-xl mb-1">📈</div>
+                                <span class="text-xs text-gray-600">统计专家</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-xl mb-1">👩‍⚕️</div>
+                                <span class="text-xs text-gray-600">研究护士</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div id="input-area" class="bg-white border-t border-gray-200 p-4 hidden">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="flex gap-2 mb-2">
+                            <select id="target-agent" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="all">@所有人</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2">
+                            <input 
+                                type="text" 
+                                id="message-input" 
+                                placeholder="输入消息..." 
+                                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                onkeypress="if(event.key==='Enter') sendMessage()"
+                            >
+                            <button onclick="sendMessage()" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel - Output -->
+            <aside id="output-panel" class="w-80 bg-white border-l border-gray-200 hidden flex-col">
+                <div class="p-4 border-b border-gray-200">
+                    <h2 class="font-semibold text-gray-700">研究成果</h2>
+                </div>
+                <div class="flex-1 overflow-y-auto p-4">
+                    <div class="space-y-4">
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <h3 class="font-medium text-blue-800 mb-2"><i class="fas fa-file-medical mr-2"></i>研究方案</h3>
+                            <p class="text-sm text-blue-600">讨论完成后自动生成</p>
+                        </div>
+                        <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+                            <h3 class="font-medium text-green-800 mb-2"><i class="fas fa-table mr-2"></i>CRF表格</h3>
+                            <p class="text-sm text-green-600">数据采集表格模板</p>
+                        </div>
+                        <div class="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                            <h3 class="font-medium text-purple-800 mb-2"><i class="fas fa-chart-bar mr-2"></i>分析计划</h3>
+                            <p class="text-sm text-purple-600">统计分析方案</p>
+                        </div>
+                        <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <h3 class="font-medium text-yellow-800 mb-2"><i class="fas fa-book mr-2"></i>操作手册</h3>
+                            <p class="text-sm text-yellow-600">研究执行SOP</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 border-t border-gray-200">
+                    <button onclick="downloadOutput()" class="w-full py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
+                        <i class="fas fa-download mr-2"></i>导出全部成果
+                    </button>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- New RoundTable Modal -->
+    <div id="new-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-lg">
+            <h2 class="text-xl font-bold mb-4">新建圆桌会</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">圆桌会标题</label>
+                    <input type="text" id="new-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="例如：新型降糖药心血管获益研究">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">临床问题</label>
+                    <textarea id="new-question" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请详细描述你发现的临床问题..."></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="closeModal()" class="px-4 py-2 text-gray-600 hover:text-gray-800">取消</button>
+                <button onclick="submitNewRoundTable()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">创建并启动</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Info Modal -->
+    <div id="agent-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">AI 专家团介绍</h2>
+                <button onclick="closeAgentModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div id="agent-list" class="space-y-4">
+                <!-- Agent cards will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration - 根据环境自动选择
+        const API_BASE = (() => {
+            const hostname = window.location.hostname;
+            // 本地开发
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:8000/api/v1';
+            }
+            // Cloudflare 隧道 - 使用当前域名对应的API
+            if (hostname.includes('trycloudflare.com')) {
+                // 临时方案：直接使用当前已知的API地址
+                return 'https://mia-rating-ownership-downloads.trycloudflare.com/api/v1';
+            }
+            // 生产环境
+            return 'https://medroundtable-api.up.railway.app/api/v1';
+        })();
+        
+        // State
+        let currentSessionId = null;
+        let agents = [];
+        let eventSource = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAgents();
+            loadRoundTables();
+        });
+
+        // Load Agents
+        async function loadAgents() {
+            try {
+                const response = await fetch(`${API_BASE}/agents`);
+                agents = await response.json();
+                updateAgentSelect();
+                renderAgentInfo();
+            } catch (error) {
+                console.error('Failed to load agents:', error);
+            }
+        }
+
+        // Update Agent Select Dropdown
+        function updateAgentSelect() {
+            const select = document.getElementById('target-agent');
+            select.innerHTML = '<option value="all">@所有人</option>';
+            agents.forEach(agent => {
+                select.innerHTML += `<option value="${agent.role}">${agent.avatar} ${agent.name}</option>`;
+            });
+        }
+
+        // Render Agent Info
+        function renderAgentInfo() {
+            const container = document.getElementById('agent-list');
+            container.innerHTML = agents.map(agent => `
+                <div class="p-4 bg-gray-50 rounded-lg">
+                    <div class="flex items-start gap-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">${agent.avatar}</div>
+                        <div class="flex-1">
+                            <h3 class="font-bold text-gray-800">${agent.name}</h3>
+                            <p class="text-sm text-gray-500 mb-2">${agent.expertise.join(' · ')}</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${agent.expertise.map(exp => `<span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">${exp}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load RoundTables
+        async function loadRoundTables() {
+            try {
+                const response = await fetch(`${API_BASE}/roundtables`);
+                const roundtables = await response.json();
+                renderRoundTableList(roundtables);
+            } catch (error) {
+                console.error('Failed to load roundtables:', error);
+            }
+        }
+
+        // Render RoundTable List
+        function renderRoundTableList(roundtables) {
+            const container = document.getElementById('roundtable-list');
+            if (roundtables.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-8 text-sm">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p>暂无圆桌会</p>
+                        <p class="text-xs mt-1">点击右上角新建</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = roundtables.map(rt => `
+                <div onclick="selectRoundTable('${rt.id}')" 
+                     class="p-3 rounded-lg cursor-pointer transition ${currentSessionId === rt.id ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-100 border border-transparent'}">
+                    <h3 class="font-medium text-gray-800 truncate">${rt.title}</h3>
+                    <p class="text-xs text-gray-500 truncate">${rt.clinical_question}</p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="px-2 py-0.5 text-xs rounded ${getStatusClass(rt.status)}">${getStatusText(rt.status)}</span>
+                        <span class="text-xs text-gray-400">${rt.participants.length} 位专家</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'init': 'bg-gray-100 text-gray-600',
+                'problem_presentation': 'bg-blue-100 text-blue-600',
+                'discussion_round_1': 'bg-yellow-100 text-yellow-600',
+                'scenario_design': 'bg-purple-100 text-purple-600',
+                'crf_design': 'bg-pink-100 text-pink-600',
+                'execution_plan': 'bg-indigo-100 text-indigo-600',
+                'consensus_reached': 'bg-green-100 text-green-600',
+                'output_generation': 'bg-orange-100 text-orange-600',
+                'completed': 'bg-green-100 text-green-600'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-600';
+        }
+
+        function getStatusText(status) {
+            const texts = {
+                'init': '待开始',
+                'problem_presentation': '问题陈述',
+                'discussion_round_1': '第一轮讨论',
+                'scenario_design': '方案设计',
+                'crf_design': 'CRF设计',
+                'execution_plan': '执行计划',
+                'consensus_reached': '达成共识',
+                'output_generation': '生成成果',
+                'completed': '已完成'
+            };
+            return texts[status] || status;
+        }
+
+        // Create New RoundTable
+        function createNewRoundTable() {
+            document.getElementById('new-modal').classList.remove('hidden');
+            document.getElementById('new-modal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('new-modal').classList.add('hidden');
+            document.getElementById('new-modal').classList.remove('flex');
+        }
+
+        async function submitNewRoundTable() {
+            const title = document.getElementById('new-title').value;
+            const question = document.getElementById('new-question').value;
+
+            if (!title || !question) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/roundtables`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, clinical_question: question })
+                });
+                
+                const rt = await response.json();
+                closeModal();
+                
+                // Start discussion
+                await fetch(`${API_BASE}/roundtables/${rt.id}/start`, { method: 'POST' });
+                
+                loadRoundTables();
+                selectRoundTable(rt.id);
+            } catch (error) {
+                console.error('Failed to create roundtable:', error);
+                alert('创建失败，请检查后端服务是否运行');
+            }
+        }
+
+        // Select RoundTable
+        async function selectRoundTable(sessionId) {
+            currentSessionId = sessionId;
+            
+            // Show UI elements
+            document.getElementById('stage-bar').classList.remove('hidden');
+            document.getElementById('input-area').classList.remove('hidden');
+            document.getElementById('output-panel').classList.remove('hidden');
+            document.getElementById('output-panel').classList.add('flex');
+            
+            // Clear chat
+            document.getElementById('chat-container').innerHTML = '';
+            
+            // Load messages
+            await loadMessages(sessionId);
+            
+            // Connect to SSE
+            connectEventSource(sessionId);
+            
+            // Refresh list
+            loadRoundTables();
+        }
+
+        // Load Messages
+        async function loadMessages(sessionId) {
+            try {
+                const response = await fetch(`${API_BASE}/roundtables/${sessionId}/messages`);
+                const messages = await response.json();
+                
+                messages.forEach(msg => renderMessage(msg));
+            } catch (error) {
+                console.error('Failed to load messages:', error);
+            }
+        }
+
+        // Connect EventSource
+        function connectEventSource(sessionId) {
+            if (eventSource) {
+                eventSource.close();
+            }
+            
+            eventSource = new EventSource(`${API_BASE}/roundtables/${sessionId}/stream`);
+            
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type !== 'ping') {
+                    renderMessage(data);
+                }
+            };
+            
+            eventSource.onerror = (error) => {
+                console.error('EventSource error:', error);
+            };
+        }
+
+        // Render Message
+        function renderMessage(message) {
+            const container = document.getElementById('chat-container');
+            const isUser = message.from_role === 'user';
+            const agent = agents.find(a => a.role === message.from_role);
+            
+            const avatar = isUser ? '👤' : (agent ? agent.avatar : '🤖');
+            const name = isUser ? '我' : (agent ? agent.name : message.from_role);
+            const bgClass = isUser ? 'bg-blue-600 text-white' : 'bg-white border border-gray-200';
+            const alignClass = isUser ? 'ml-auto' : '';
+            
+            const html = `
+                <div class="chat-bubble ${alignClass} flex gap-3 ${isUser ? 'flex-row-reverse' : ''}">
+                    <div class="agent-avatar bg-gray-100 flex-shrink-0">${avatar}</div>
+                    <div class="${bgClass} rounded-2xl px-4 py-3 shadow-sm max-w-[80%]">
+                        <div class="text-xs opacity-70 mb-1">${name}</div>
+                        <div class="text-sm whitespace-pre-wrap">${message.content}</div>
+                        <div class="text-xs opacity-50 mt-1 text-right">${new Date(message.created_at).toLocaleTimeString()}</div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Send Message
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const target = document.getElementById('target-agent');
+            const content = input.value.trim();
+            
+            if (!content || !currentSessionId) return;
+            
+            try {
+                await fetch(`${API_BASE}/roundtables/${currentSessionId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, to_role: target.value })
+                });
+                
+                input.value = '';
+            } catch (error) {
+                console.error('Failed to send message:', error);
+            }
+        }
+
+        // Show Agent Info
+        function showAgentInfo() {
+            document.getElementById('agent-modal').classList.remove('hidden');
+            document.getElementById('agent-modal').classList.add('flex');
+        }
+
+        function closeAgentModal() {
+            document.getElementById('agent-modal').classList.add('hidden');
+            document.getElementById('agent-modal').classList.remove('flex');
+        }
+
+        // Download Output
+        async function downloadOutput() {
+            if (!currentSessionId) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/roundtables/${currentSessionId}/output`);
+                const output = await response.json();
+                
+                // Create and download JSON
+                const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `medroundtable-output-${currentSessionId}.json`;
+                a.click();
+            } catch (error) {
+                console.error('Failed to download output:', error);
+                alert('导出失败');
+            }
+        }
+    </script>
+</body>
+</html>

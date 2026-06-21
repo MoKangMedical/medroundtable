@@ -1,0 +1,60 @@
+{
+  "name": "MedRoundTable",
+  "version": "1.0.0",
+  "description": "AI-powered clinical research roundtable platform with 5 specialized medical agents",
+  "main": "backend/main.py",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "frontend": "cd frontend && python3 -m http.server 3000",
+    "backend": "cd backend && python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
+    "start": "npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/medroundtable/medroundtable"
+  },
+  "keywords": [
+    "medical",
+    "clinical-research",
+    "AI",
+    "multi-agent",
+    "roundtable",
+    "kimi",
+    "healthcare"
+  ],
+  "author": "MedRoundTable Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.9"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "secondme": {
+    "appName": "MedRoundTable",
+    "description": "临床研究圆桌会 - 5位AI专家协作平台",
+    "category": "medical",
+    "icon": "🩺",
+    "features": [
+      "5位专业AI专家（临床主任、博士生、流行病学家、统计学家、研究护士）",
+      "真实Kimi API集成",
+      "实时多Agent讨论",
+      "研究方案导出",
+      "思维导图可视化"
+    ],
+    "env": {
+      "MOONSHOT_API_KEY": "sk-smniqSMmzNn4QjctQdtGAr77yr9rR4bsW3CameO4Zk3LckPA",
+      "MOONSHOT_BASE_URL": "https://api.moonshot.cn/v1",
+      "MOONSHOT_MODEL": "moonshot-v1-32k"
+    },
+    "ports": {
+      "frontend": 3000,
+      "backend": 8000
+    },
+    "startup": {
+      "command": "bash start.sh",
+      "healthCheck": "http://localhost:8000/health"
+    }
+  }
+}
