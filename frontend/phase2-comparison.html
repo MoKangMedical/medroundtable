@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedRoundTable · Phase 2 工作区对比</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --navy: #0f172a;
+      --navy-2: #17233a;
+      --blue: #1e40af;
+      --blue-2: #2563eb;
+      --cyan: #0891b2;
+      --ink: #182235;
+      --muted: #64748b;
+      --line: #dbe5f1;
+      --page: #edf4fb;
+      --card: #ffffff;
+      --success: #047857;
+      --warning: #b45309;
+      --radius: 14px;
+      font-family: Inter, "Noto Sans SC", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: var(--page); }
+    button { font: inherit; }
+    .app-shell { min-height: 100vh; display: grid; grid-template-columns: 244px minmax(0, 1fr); }
+    .rail { background: var(--navy); color: #d5deed; padding: 22px 14px; display: flex; flex-direction: column; gap: 20px; }
+    .brand { padding: 0 10px 17px; border-bottom: 1px solid #2d3b52; display: flex; align-items: center; gap: 10px; }
+    .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--blue-2); color: white; }
+    .brand strong { display: block; font-size: 14px; letter-spacing: -.02em; color: white; }
+    .brand span { display: block; color: #8ea2c1; font-size: 11px; margin-top: 2px; }
+    .back-link { border: 1px solid #33435e; color: #ced8e8; background: transparent; border-radius: 9px; text-align: left; padding: 10px 11px; cursor: pointer; }
+    .back-link:hover { background: #20304a; color: white; }
+    .rail-label { color: #8296b8; font-size: 11px; letter-spacing: .08em; font-weight: 700; padding: 0 10px; }
+    .mode-list { display: grid; gap: 7px; }
+    .mode-button { width: 100%; border: 0; color: #b9c7da; background: transparent; padding: 11px 10px; display: flex; text-align: left; gap: 10px; border-radius: 10px; cursor: pointer; align-items: flex-start; }
+    .mode-button i { width: 18px; margin-top: 2px; color: #91a4c2; }
+    .mode-button strong { display: block; color: inherit; font-size: 13px; }
+    .mode-button span { display: block; font-size: 11px; line-height: 1.45; color: #8194b2; margin-top: 3px; }
+    .mode-button.active { background: #244492; color: white; box-shadow: inset 3px 0 #65a7ff; }
+    .mode-button.active i { color: #bcd9ff; }
+    .mode-button.active span { color: #c3d7f6; }
+    .rail-footer { margin-top: auto; border-top: 1px solid #2d3b52; padding: 15px 10px 0; font-size: 11px; line-height: 1.65; color: #8093b1; }
+    .rail-footer b { color: #d8f7ed; font-weight: 600; }
+
+    .main { min-width: 0; }
+    .topbar { min-height: 72px; padding: 0 32px; background: #fff; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+    .eyebrow { color: var(--blue); font-size: 12px; font-weight: 700; letter-spacing: .08em; }
+    .topbar h1 { font-size: 18px; margin: 4px 0 0; letter-spacing: -.02em; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .preview-tag { border: 1px solid #b9d1f6; color: #1d4f91; background: #eff6ff; border-radius: 20px; padding: 7px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .subtle-button, .primary-button, .outline-button { min-height: 36px; padding: 0 13px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .subtle-button { border: 1px solid var(--line); background: white; color: #334155; }
+    .subtle-button:hover, .outline-button:hover { border-color: #91b6ea; background: #f7fbff; }
+    .primary-button { border: 1px solid var(--blue); background: var(--blue); color: #fff; }
+    .primary-button:hover { background: #17378f; }
+    .outline-button { border: 1px solid #8bb4ef; background: white; color: var(--blue); }
+    .workspace { padding: 28px 32px 34px; max-width: 1680px; margin: auto; }
+    .comparison-note { display: flex; align-items: center; gap: 10px; color: #5d708d; font-size: 13px; margin: 0 0 18px; }
+    .comparison-note i { color: var(--blue-2); }
+    .view { display: none; }
+    .view.active { display: block; animation: enter .22s ease-out; }
+    @keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .surface { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 8px 22px rgba(30, 64, 175, .06); }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+    .small-label { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+    .pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 20px; padding: 5px 9px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .pill.blue { color: #1d4f91; background: #eff6ff; border: 1px solid #bfdbfe; }
+    .pill.green { color: #06624b; background: #ecfdf5; border: 1px solid #bbf7d0; }
+    .pill.amber { color: #9a5106; background: #fff7ed; border: 1px solid #fed7aa; }
+    .pill.slate { color: #52647d; background: #f8fafc; border: 1px solid #dbe5f1; }
+    .avatar { width: 32px; height: 32px; object-fit: cover; border: 2px solid white; border-radius: 50%; background: #dbeafe; }
+    .avatar.large { width: 40px; height: 40px; }
+    .agent-name { font-size: 12px; font-weight: 700; }
+    .agent-role { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #10b981; }
+    .toast { position: fixed; z-index: 20; right: 24px; bottom: 24px; max-width: 360px; border-radius: 11px; padding: 12px 15px; background: #102449; color: #f8fbff; box-shadow: 0 16px 34px rgba(15, 23, 42, .28); display: none; font-size: 13px; }
+    .toast.show { display: block; animation: enter .2s ease-out; }
+
+    /* Direction one: a discussion that accumulates decisions. */
+    .guided-hero { padding: 23px 24px 17px; margin-bottom: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+    .guided-hero h2 { font-size: 20px; margin: 6px 0 7px; line-height: 1.38; max-width: 780px; }
+    .guided-hero p { color: var(--muted); margin: 0; font-size: 13px; line-height: 1.6; }
+    .stage-strip { padding: 14px 19px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; overflow: auto; }
+    .stage { position: relative; min-width: 132px; display: flex; align-items: center; gap: 9px; color: #7b8ba2; font-size: 12px; }
+    .stage:not(:last-child)::after { content: ""; position: absolute; left: 110px; right: -8px; top: 16px; height: 1px; background: #cbd8ea; }
+    .stage .stage-number { position: relative; z-index: 1; display: grid; place-items: center; height: 32px; width: 32px; flex: 0 0 32px; color: #66809e; background: #eff4fa; border: 1px solid #cbd8ea; border-radius: 50%; font-weight: 700; }
+    .stage.done .stage-number { color: #fff; background: var(--blue); border-color: var(--blue); }
+    .stage.current .stage-number { color: #fff; background: var(--cyan); border-color: var(--cyan); }
+    .stage.done, .stage.current { color: #1d365b; font-weight: 700; }
+    .guided-grid { display: grid; grid-template-columns: minmax(540px, 1fr) 305px; gap: 18px; }
+    .thread { padding: 20px; min-height: 640px; }
+    .thread-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .thread-top h3 { margin: 0; font-size: 14px; }
+    .thread-item { display: grid; grid-template-columns: 41px minmax(0,1fr); gap: 11px; margin: 0 0 17px; }
+    .thread-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin: 0 0 6px; }
+    .thread-time { color: #8392a8; font-size: 11px; }
+    .message { padding: 12px 14px; background: #f8fafc; border: 1px solid #e3eaf3; border-radius: 3px 11px 11px 11px; color: #39485e; font-size: 13px; line-height: 1.65; }
+    .message em { color: #1e4f95; background: #eaf3ff; border-radius: 3px; font-style: normal; padding: 1px 4px; }
+    .decision { margin: 4px 0 19px 51px; padding: 16px; border: 1px solid #acc7ec; border-left: 4px solid var(--blue-2); background: #f8fbff; border-radius: 0 11px 11px 0; }
+    .decision h4 { font-size: 13px; margin: 0 0 6px; color: #1e3f75; }
+    .decision p { color: #5c6d83; font-size: 12px; line-height: 1.55; margin: 0 0 13px; }
+    .decision-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .decision-actions button { min-height: 31px; padding: 0 10px; font-size: 11px; }
+    .local-card { padding: 17px; margin-bottom: 12px; }
+    .local-card h3, .roster h3 { margin: 0 0 10px; font-size: 13px; }
+    .node-row { display: flex; align-items: flex-start; gap: 11px; }
+    .node-icon { width: 37px; height: 37px; border-radius: 10px; background: #e5f2ff; color: #1d5f9e; display: grid; place-items: center; }
+    .node-row strong { font-size: 12px; display: block; }
+    .node-row p { color: #65758c; font-size: 11px; line-height: 1.55; margin: 3px 0 0; }
+    .node-spec { margin-top: 12px; padding-top: 11px; border-top: 1px solid #e7edf5; color: #59718e; font-size: 11px; display: flex; justify-content: space-between; }
+    .roster { padding: 17px; }
+    .roster-item { display: flex; align-items: center; gap: 9px; padding: 10px 0; border-bottom: 1px solid #e9eef5; }
+    .roster-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .roster-item .presence { margin-left: auto; color: #5e728e; font-size: 10px; }
+    .action-panel { padding: 16px; background: #eaf3ff; border: 1px solid #bcd7fa; border-radius: 12px; }
+    .action-panel h4 { margin: 0 0 5px; color: #1c4f93; font-size: 13px; }
+    .action-panel p { margin: 0 0 12px; color: #54719b; font-size: 11px; line-height: 1.5; }
+    .action-panel .primary-button { width: 100%; }
+
+    /* Direction two: evidence, causal plan, and local result stay visible together. */
+    .evidence-header { padding: 21px 23px; margin-bottom: 18px; display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; }
+    .evidence-header h2 { margin: 6px 0 5px; font-size: 19px; }
+    .evidence-header p { margin: 0; color: var(--muted); font-size: 13px; }
+    .split-layout { display: grid; grid-template-columns: 1.02fr 1.03fr 1fr; gap: 16px; align-items: start; }
+    .split-column { min-width: 0; display: grid; gap: 14px; }
+    .column-title { display: flex; align-items: center; gap: 8px; padding: 0 3px; color: #395470; font-size: 12px; font-weight: 700; }
+    .column-title i { color: var(--blue); }
+    .evidence-card, .plan-card, .results-card, .compact-card { padding: 17px; }
+    .source-row { padding: 12px 0; border-bottom: 1px solid #e6edf5; }
+    .source-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .source-row strong { display: block; font-size: 12px; line-height: 1.45; color: #243552; }
+    .source-row p { color: #65758c; font-size: 11px; line-height: 1.55; margin: 5px 0; }
+    .source-meta { display: flex; justify-content: space-between; align-items: center; color: #7a8aa1; font-size: 10px; }
+    .evidence-insight { border-radius: 9px; padding: 11px; background: #eff6ff; color: #335f9b; font-size: 11px; line-height: 1.55; }
+    .question-box { background: #eef5ff; border: 1px solid #c4d9f6; border-radius: 10px; padding: 13px; }
+    .question-box span { color: #49709e; font-size: 11px; font-weight: 700; }
+    .question-box p { margin: 5px 0 0; color: #1f416e; font-size: 13px; line-height: 1.55; font-weight: 600; }
+    .relation-matrix { margin: 15px 0; border: 1px solid #e0e8f2; border-radius: 10px; overflow: hidden; }
+    .relation-matrix header { padding: 10px 12px; color: #42617f; background: #f8fbff; border-bottom: 1px solid #e0e8f2; font-size: 11px; font-weight: 700; }
+    .relation-row { padding: 10px 12px; display: grid; grid-template-columns: minmax(82px, 1fr) 22px minmax(95px, 1.25fr); align-items: center; gap: 6px; color: #526a87; border-bottom: 1px solid #edf1f6; font-size: 11px; }
+    .relation-row:last-child { border-bottom: 0; }
+    .relation-row i { color: #5b83b5; text-align: center; }
+    .relation-row b { color: #2d537f; font-weight: 600; }
+    .variable-line { display: flex; justify-content: space-between; gap: 10px; color: #596d87; font-size: 11px; padding: 8px 0; border-top: 1px solid #edf1f6; }
+    .variable-line b { color: #2d4767; }
+    .result-banner { background: #effbf6; border: 1px solid #bcebd5; padding: 12px; border-radius: 10px; }
+    .result-banner strong { color: #096649; font-size: 13px; display: block; }
+    .result-banner p { color: #377565; font-size: 11px; line-height: 1.5; margin: 5px 0 0; }
+    .forest { margin: 15px 0 8px; }
+    .forest-row { display: grid; grid-template-columns: 80px minmax(120px, 1fr) 62px; align-items: center; gap: 8px; min-height: 30px; font-size: 11px; color: #4f6078; }
+    .forest-axis { height: 1px; background: #cdd9e7; }
+    .forest-effect { color: #2f5e9d; font-weight: 700; font-size: 10px; }
+    .decision-summary { padding: 14px; border-radius: 10px; background: #fffaf2; border: 1px solid #f5d7a5; }
+    .decision-summary h4 { margin: 0 0 5px; color: #925014; font-size: 12px; }
+    .decision-summary p { margin: 0 0 11px; color: #865f35; font-size: 11px; line-height: 1.5; }
+    .agent-strip { display: flex; align-items: center; padding: 13px 16px; gap: 8px; }
+    .agent-strip span { margin-left: 4px; color: #61728b; font-size: 11px; }
+    .agent-strip .avatar { margin-left: -8px; }
+    .agent-strip .avatar:first-of-type { margin-left: 0; }
+
+    /* Direction three: research work is organised as an explicit handoff graph. */
+    .mission-header { padding: 21px 24px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+    .mission-header h2 { margin: 6px 0 6px; font-size: 19px; }
+    .mission-header p { margin: 0; color: var(--muted); font-size: 13px; }
+    .mission-grid { display: grid; grid-template-columns: minmax(0, 1fr) 315px; gap: 18px; }
+    .mission-board { padding: 19px; }
+    .mission-board-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; gap: 15px; }
+    .mission-board-head h3 { font-size: 14px; margin: 0 0 4px; }
+    .mission-board-head p { font-size: 11px; color: var(--muted); margin: 0; }
+    .work-grid { display: grid; grid-template-columns: repeat(4, minmax(168px, 1fr)); gap: 11px; overflow-x: auto; padding-bottom: 4px; }
+    .work-card { min-height: 224px; padding: 15px; cursor: pointer; text-align: left; border: 1px solid var(--line); border-top: 4px solid #9db4d0; background: #fff; border-radius: 10px; transition: .16s ease; }
+    .work-card:hover, .work-card.selected { border-color: #79a6e1; transform: translateY(-2px); box-shadow: 0 8px 18px rgba(30,64,175,.08); }
+    .work-card.active { border-top-color: var(--blue-2); background: #f8fbff; }
+    .work-card.ready { border-top-color: #10a77d; }
+    .work-card.blocked { border-top-color: #df8a2d; }
+    .work-card .work-number { display: flex; justify-content: space-between; align-items: center; color: #7387a3; font-size: 11px; }
+    .work-card h4 { margin: 17px 0 9px; color: #253a58; font-size: 13px; line-height: 1.45; }
+    .work-card p { color: #667891; font-size: 11px; line-height: 1.55; margin: 0 0 17px; }
+    .owner { display: flex; gap: 8px; align-items: center; border-top: 1px solid #e7edf5; padding-top: 10px; }
+    .owner .avatar { width: 27px; height: 27px; }
+    .owner span { font-size: 11px; color: #4b607b; font-weight: 600; }
+    .handoff { margin-top: 17px; padding: 16px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px; background: #f9fbfd; border: 1px solid #e0e9f2; border-radius: 11px; }
+    .handoff-step { position: relative; padding: 8px 10px; }
+    .handoff-step:not(:last-child)::after { content: ""; position: absolute; right: -9px; top: 31px; width: 15px; border-top: 1px solid #9cb5d1; }
+    .handoff-step i { color: #4776af; margin-right: 5px; }
+    .handoff-step strong { color: #355579; font-size: 11px; }
+    .handoff-step p { color: #75869e; font-size: 10px; line-height: 1.45; margin: 5px 0 0; }
+    .artifact-list { margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .artifact { background: #fff; border: 1px solid #e2eaf3; border-radius: 9px; padding: 12px; color: #5f718a; font-size: 11px; }
+    .artifact i { color: #4e79ad; margin-right: 5px; }
+    .mission-side { display: grid; gap: 12px; align-content: start; }
+    .mission-side .card { padding: 17px; }
+    .side-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 13px; }
+    .side-heading h3 { margin: 0; font-size: 13px; }
+    .blocker { border-left: 3px solid #e58a27; background: #fffaf3; padding: 12px; border-radius: 0 8px 8px 0; }
+    .blocker strong { display: block; font-size: 12px; color: #8e591d; }
+    .blocker p { color: #7f6748; line-height: 1.5; font-size: 11px; margin: 5px 0 0; }
+    .selected-detail { color: #52667f; font-size: 12px; line-height: 1.65; }
+    .review-card { padding: 16px; border: 1px solid #b9d3f7; background: #edf5ff; border-radius: 11px; }
+    .review-card h4 { margin: 0 0 5px; color: #24528d; font-size: 13px; }
+    .review-card p { color: #58749a; margin: 0 0 12px; font-size: 11px; line-height: 1.55; }
+    .review-card .primary-button { width: 100%; }
+
+    @media (max-width: 1180px) {
+      .split-layout { grid-template-columns: 1fr 1fr; }
+      .split-layout .split-column:last-child { grid-column: span 2; }
+      .guided-grid, .mission-grid { grid-template-columns: 1fr; }
+      .work-grid { grid-template-columns: repeat(4, 210px); }
+    }
+    @media (max-width: 840px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .rail { display: none; }
+      .workspace { padding: 18px; }
+      .topbar { padding: 13px 18px; min-height: 64px; }
+      .top-actions .subtle-button { display: none; }
+      .guided-hero, .evidence-header, .mission-header { padding: 17px; flex-direction: column; }
+      .split-layout, .split-layout .split-column:last-child { grid-template-columns: 1fr; grid-column: auto; }
+      .handoff, .artifact-list { grid-template-columns: 1fr; }
+      .handoff-step:not(:last-child)::after { display: none; }
+      .stage { min-width: 116px; }
+      .stage:not(:last-child)::after { left: 100px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="rail" aria-label="Phase 2 对比导航">
+      <div class="brand">
+        <div class="brand-mark"><i class="fa-solid fa-users"></i></div>
+        <div><strong>MedRoundTable</strong><span>本地医学科研圆桌会</span></div>
+      </div>
+      <button class="back-link" type="button" onclick="window.location.href='index.html'"><i class="fa-solid fa-arrow-left"></i> 返回现有圆桌会</button>
+      <div class="rail-label">PHASE 2 · 对比工作区</div>
+      <nav class="mode-list">
+        <button class="mode-button active" data-view="guided" type="button"><i class="fa-solid fa-comments"></i><span><strong>方向一 · 引导式讨论</strong><span>讨论中持续形成可追溯决策</span></span></button>
+        <button class="mode-button" data-view="evidence" type="button"><i class="fa-solid fa-scale-balanced"></i><span><strong>方向二 · 证据—数据工作台</strong><span>研究证据、方案与本地结果同屏</span></span></button>
+        <button class="mode-button" data-view="mission" type="button"><i class="fa-solid fa-diagram-project"></i><span><strong>方向三 · 研究指挥台</strong><span>任务包、交接与专家复核</span></span></button>
+      </nav>
+      <div class="rail-footer"><b><span class="dot"></span> 本地分析节点已就绪</b><br>本页为交互式对比原型。所有数值均为演示数据，不会读取或上传任何科研数据。</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow">MEDROUNDTABLE LOCAL · PHASE 2</div><h1 id="viewTitle">方向一 · 引导式讨论工作区</h1></div>
+        <div class="top-actions"><span class="preview-tag"><i class="fa-solid fa-flask"></i> 可用性对比</span><button class="subtle-button" type="button" id="resetButton"><i class="fa-solid fa-arrow-rotate-left"></i> 重置当前演示</button><button class="primary-button" type="button" id="feedbackButton"><i class="fa-solid fa-clipboard-check"></i> 记录偏好</button></div>
+      </header>
+
+      <div class="workspace">
+        <p class="comparison-note"><i class="fa-solid fa-circle-info"></i> 同一研究问题、同一组模拟本地分析产物，用三种交互结构呈现；请实际点击关键动作后比较哪种更贴合圆桌讨论。</p>
+
+        <section class="view active" id="guided" aria-label="方向一 引导式讨论">
+          <div class="surface guided-hero">
+            <div><div class="small-label">连续讨论 · 可沉淀</div><h2>代谢综合征与心血管事件风险：应如何建立可解释的预测模型？</h2><p>讨论不是一次性问答：每一步都会留下一条可以复核、确认或退回的临床研究决策。</p></div>
+            <span class="pill blue"><i class="fa-solid fa-lock"></i> 本地节点 · 仅演示</span>
+          </div>
+          <div class="surface stage-strip" id="guidedStages">
+            <div class="stage done"><span class="stage-number"><i class="fa-solid fa-check"></i></span><span>研究问题</span></div>
+            <div class="stage done"><span class="stage-number"><i class="fa-solid fa-check"></i></span><span>数据核验</span></div>
+            <div class="stage current"><span class="stage-number">3</span><span>分析计划</span></div>
+            <div class="stage"><span class="stage-number">4</span><span>本地计算</span></div>
+            <div class="stage"><span class="stage-number">5</span><span>结果审阅</span></div>
+          </div>
+          <div class="guided-grid">
+            <section class="surface thread">
+              <div class="thread-top"><h3>圆桌讨论记录</h3><span class="pill slate"><i class="fa-solid fa-clock"></i> 12 分钟 · 3 项已确认</span></div>
+              <div class="thread-item"><img class="avatar large" src="assets/doctor1.png" alt="临床研究专家"><div><div class="thread-meta"><span class="agent-name">临床研究专家</span><span class="pill blue">研究设计</span><span class="thread-time">10:02</span></div><div class="message">建议以首次主要心血管不良事件为终点，预测窗口设为 5 年。模型目标应为<strong>风险分层</strong>，而非因果效应估计。</div></div></div>
+              <div class="thread-item"><img class="avatar large" src="assets/doctor3.png" alt="数据质量专家"><div><div class="thread-meta"><span class="agent-name">数据质量专家</span><span class="pill green">数据核验完成</span><span class="thread-time">10:04</span></div><div class="message">本地试点队列可用记录 <em>n = 8,420</em>；关键字段缺失率低于 6%。随访截止日期、事件编码与基线窗口已通过登记表核验。</div></div></div>
+              <article class="decision" id="guidedDecision"><h4><i class="fa-solid fa-gavel"></i> 待确认的圆桌决策</h4><p>先用临床预设变量建立可解释的 Cox 风险模型，并将年龄、性别、吸烟与基线用药作为核心调整项。</p><div class="decision-actions"><button class="primary-button" type="button" id="confirmPlan">确认并进入本地计算</button><button class="outline-button" type="button" id="reopenPlan">退回讨论</button></div></article>
+              <div class="thread-item" id="pendingThread"><img class="avatar large" src="assets/doctor2.png" alt="统计学专家"><div><div class="thread-meta"><span class="agent-name">统计学专家</span><span class="pill amber">等待方案确认</span><span class="thread-time">10:07</span></div><div class="message">收到确认后，我会调用已登记的数据表结构，生成模型规格、变量编码清单与本地运行请求。</div></div></div>
+            </section>
+            <aside>
+              <section class="card local-card"><h3>本地分析节点</h3><div class="node-row"><div class="node-icon"><i class="fa-solid fa-server"></i></div><div><strong>MedRoundTable Local</strong><p>DuckDB · Python 分析沙箱<br>仅允许已登记数据集读取</p></div></div><div class="node-spec"><span>队列：代谢风险试点</span><span><i class="fa-solid fa-shield-halved"></i> 本地</span></div></section>
+              <section class="card roster"><h3>本轮专家席位</h3><div class="roster-item"><img class="avatar" src="assets/doctor1.png" alt=""><div><div class="agent-name">临床研究专家</div><div class="agent-role">终点与临床可解释性</div></div><span class="presence"><span class="dot"></span> 在线</span></div><div class="roster-item"><img class="avatar" src="assets/doctor2.png" alt=""><div><div class="agent-name">统计学专家</div><div class="agent-role">模型规格与稳健性</div></div><span class="presence"><span class="dot"></span> 在线</span></div><div class="roster-item"><img class="avatar" src="assets/doctor3.png" alt=""><div><div class="agent-name">数据质量专家</div><div class="agent-role">变量与可用性核验</div></div><span class="presence"><span class="dot"></span> 在线</span></div></section>
+              <section class="action-panel" style="margin-top:12px"><h4>下一步</h4><p id="guidedActionText">需要研究负责人确认分析计划后，才会构造本地运行请求。</p><button type="button" class="primary-button" id="sideConfirmPlan">确认当前决策</button></section>
+            </aside>
+          </div>
+        </section>
+
+        <section class="view" id="evidence" aria-label="方向二 证据数据工作台">
+          <div class="surface evidence-header"><div><div class="small-label">同屏证据链 · 结果可解释</div><h2>用一张工作台把“为什么做、怎么做、得到什么”放在同一视线内</h2><p>适合研究者实时比较文献依据、目标试验/分析计划与本地实际结果，减少在页面之间来回切换。</p></div><button class="primary-button" type="button" id="runValidation"><i class="fa-solid fa-play"></i> 运行本地验证</button></div>
+          <div class="split-layout">
+            <section class="split-column"><div class="column-title"><i class="fa-solid fa-book-open"></i> 临床问题与证据</div><article class="surface evidence-card"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="font-size:14px;margin:0">外部证据卡片</h3><span class="pill slate">3 篇已纳入</span></div><div class="source-row"><strong>Metabolic risk score and incident CVD</strong><p>前瞻性队列显示代谢风险负担与首次 CVD 事件之间存在剂量反应关系。</p><div class="source-meta"><span>系统综述 · 2024</span><span class="pill green">高相关</span></div></div><div class="source-row"><strong>Clinical prediction model reporting</strong><p>建议预设临床变量、校准评估与内部验证策略，并报告风险分层的临床用途。</p><div class="source-meta"><span>方法学共识 · 2023</span><span class="pill blue">方法依据</span></div></div><div class="evidence-insight"><i class="fa-solid fa-lightbulb"></i> <b>证据提示：</b> 先评估临床可解释的基线模型，再决定是否引入复杂特征。</div></article><article class="surface compact-card"><div class="small-label">本轮问题</div><p style="font-size:13px;line-height:1.6;margin:7px 0 0;color:#304b6d;font-weight:600">代谢综合征人群中，预设临床变量能否稳定识别 5 年心血管事件高风险者？</p></article></section>
+            <section class="split-column"><div class="column-title"><i class="fa-solid fa-table-list"></i> 因果与分析计划</div><article class="surface plan-card"><div class="question-box"><span>预设分析问题</span><p>建立 5 年事件风险预测模型，并评估区分度与校准度。</p></div><div class="relation-matrix" aria-label="变量关系假设"><header><i class="fa-solid fa-link"></i> 变量关系假设 · 由圆桌会可复核地记录</header><div class="relation-row"><span>年龄 / 性别</span><i class="fa-solid fa-arrow-right"></i><b>代谢风险负担</b></div><div class="relation-row"><span>生活方式</span><i class="fa-solid fa-arrow-right"></i><b>代谢风险负担</b></div><div class="relation-row"><span>代谢风险负担</span><i class="fa-solid fa-arrow-right"></i><b>CVD 事件</b></div></div><div class="variable-line"><span><b>主要终点</b> · 首次 CVD 事件</span><span>5 年</span></div><div class="variable-line"><span><b>主模型</b> · Cox 回归</span><span>预设变量 8 项</span></div><div class="variable-line"><span><b>验证</b> · Bootstrap 校准</span><span>200 次</span></div></article><article class="surface compact-card"><div class="small-label">审计边界</div><p style="font-size:11px;color:#61748d;line-height:1.55;margin:7px 0 0"><i class="fa-solid fa-lock" style="color:#3472b9"></i> 运行请求仅引用数据登记表中的队列与字段；不展示、上传或转移原始记录。</p></article></section>
+            <section class="split-column"><div class="column-title"><i class="fa-solid fa-chart-column"></i> 本地结果与裁决</div><article class="surface results-card"><div id="resultStatus" class="result-banner"><strong><i class="fa-solid fa-circle-check"></i> 已有可复核的试点结果</strong><p>来自模拟运行产物，用于比较界面反馈方式。</p></div><div class="forest"><div class="forest-row"><span>年龄 ≥65</span><div class="forest-effect">CI 1.18–1.70</div><b>1.42</b></div><div class="forest-row"><span>吸烟</span><div class="forest-effect">CI 1.07–1.54</div><b>1.28</b></div><div class="forest-row"><span>高血压</span><div class="forest-effect">CI 1.17–1.65</div><b>1.39</b></div><div class="forest-axis"></div></div><div style="display:flex;justify-content:space-between;color:#7b8da4;font-size:10px;padding:0 65px 0 85px"><span>保护方向</span><span>风险方向</span></div><div class="decision-summary" id="evidenceDecision"><h4><i class="fa-solid fa-gavel"></i> 需要圆桌裁决</h4><p>初步结果具有临床方向一致性；建议继续检查校准曲线，并由临床专家确认风险阈值的使用场景。</p><div class="decision-actions"><button class="primary-button" type="button" id="acceptEvidence">接受并形成结论</button><button class="outline-button" type="button" id="requestSensitivity">要求敏感性分析</button></div></div></article><article class="surface agent-strip"><img class="avatar" src="assets/doctor1.png" alt=""><img class="avatar" src="assets/doctor2.png" alt=""><img class="avatar" src="assets/doctor3.png" alt=""><span>3 位专家正在依据同一证据与结果给出意见</span></article></section>
+          </div>
+        </section>
+
+        <section class="view" id="mission" aria-label="方向三 研究指挥台">
+          <div class="surface mission-header"><div><div class="small-label">多 Agent 协作 · 可交接</div><h2>把圆桌讨论拆成可见的研究任务包，而不是隐藏在聊天记录里</h2><p>适合复杂研究：每个 Agent 都有明确输入、可检查的输出，以及需要人类裁决的交接节点。</p></div><span class="pill amber"><i class="fa-solid fa-triangle-exclamation"></i> 1 项待复核</span></div>
+          <div class="mission-grid"><section class="surface mission-board"><div class="mission-board-head"><div><h3>研究任务流 · 代谢风险与 CVD</h3><p>点击任一任务包可查看其输入、输出与下一位接手者。</p></div><span class="pill green"><i class="fa-solid fa-circle"></i> 3/4 已可交接</span></div><div class="work-grid" id="workGrid"><button class="work-card ready" type="button" data-work="question"><div class="work-number"><span>WP-01</span><span class="pill green">已完成</span></div><h4>界定临床问题与终点</h4><p>PICO、风险窗口、主要终点定义已被圆桌确认。</p><div class="owner"><img class="avatar" src="assets/doctor1.png" alt=""><span>临床研究专家</span></div></button><button class="work-card ready" type="button" data-work="data"><div class="work-number"><span>WP-02</span><span class="pill green">已完成</span></div><h4>核验数据可用性与变量</h4><p>已生成字段清单、缺失概况与登记表引用。</p><div class="owner"><img class="avatar" src="assets/doctor3.png" alt=""><span>数据质量专家</span></div></button><button class="work-card active selected" type="button" data-work="analysis"><div class="work-number"><span>WP-03</span><span class="pill blue">进行中</span></div><h4>构造主模型与敏感性分析</h4><p>主模型可运行；校准评估等待统计规格确认。</p><div class="owner"><img class="avatar" src="assets/doctor2.png" alt=""><span>统计学专家</span></div></button><button class="work-card blocked" type="button" data-work="review"><div class="work-number"><span>WP-04</span><span class="pill amber">待复核</span></div><h4>解释结果并形成结论</h4><p>需要确认风险阈值用于筛查、随访还是临床决策。</p><div class="owner"><img class="avatar" src="assets/doctor4.png" alt=""><span>循证医学专家</span></div></button></div><div class="handoff"><div class="handoff-step"><strong><i class="fa-solid fa-file-circle-check"></i> 输入已冻结</strong><p>研究问题、数据字典和分析规格均有版本号。</p></div><div class="handoff-step"><strong><i class="fa-solid fa-arrow-right-arrow-left"></i> Agent 交接</strong><p>统计学专家收到已核验的字段与限制条件。</p></div><div class="handoff-step"><strong><i class="fa-solid fa-user-doctor"></i> 人类裁决</strong><p>研究负责人只在关键临床决策点介入确认。</p></div></div><div class="artifact-list"><div class="artifact"><i class="fa-solid fa-table-list"></i> 队列字段清单 · v0.3</div><div class="artifact"><i class="fa-solid fa-file-lines"></i> 分析规格 · v0.2</div><div class="artifact"><i class="fa-solid fa-chart-line"></i> 本地运行摘要 · demo</div></div></section><aside class="mission-side"><section class="card"><div class="side-heading"><h3>当前任务详情</h3><span class="pill blue" id="detailStatus">进行中</span></div><div class="selected-detail" id="workDetail"><b>WP-03 · 构造主模型与敏感性分析</b><br><br>输入：已核验的队列字段、预设终点与混杂因素。<br>输出：主模型规格、校准评估计划、可复核的本地运行请求。<br><br>下一位接手者：循证医学专家。</div></section><section class="card"><div class="side-heading"><h3>当前阻塞点</h3><span class="pill amber">需决策</span></div><div class="blocker"><strong>风险阈值的临床用途未确定</strong><p>这不是模型性能问题。需要圆桌会明确其用于筛查提醒、随访分层或仅作为研究性指标。</p></div></section><section class="review-card"><h4><i class="fa-solid fa-users"></i> 召开专家复核</h4><p id="reviewText">将 WP-03 的产物连同证据卡片推送给临床与循证专家，形成一次可审计的裁决记录。</p><button type="button" class="primary-button" id="startReview">发起复核</button></section></aside></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script>
+    const titles = { guided: '方向一 · 引导式讨论工作区', evidence: '方向二 · 证据—数据工作台', mission: '方向三 · 研究指挥台' };
+    const defaultView = 'guided';
+    let activeView = defaultView;
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 3400);
+    }
+
+    function switchView(view) {
+      activeView = view;
+      document.querySelectorAll('.view').forEach(el => el.classList.toggle('active', el.id === view));
+      document.querySelectorAll('.mode-button').forEach(el => el.classList.toggle('active', el.dataset.view === view));
+      document.getElementById('viewTitle').textContent = titles[view];
+      window.history.replaceState(null, '', '#' + view);
+    }
+
+    function setGuidedComplete() {
+      const decision = document.getElementById('guidedDecision');
+      const pending = document.getElementById('pendingThread');
+      decision.innerHTML = '<h4><i class="fa-solid fa-circle-check"></i> 已确认的圆桌决策</h4><p>分析计划已锁定为“预设临床变量 Cox 风险模型”。已生成一份仅引用登记字段的本地运行请求。</p><span class="pill green"><i class="fa-solid fa-check"></i> 已交给统计学专家</span>';
+      pending.innerHTML = '<img class="avatar large" src="assets/doctor2.png" alt="统计学专家"><div><div class="thread-meta"><span class="agent-name">统计学专家</span><span class="pill green">本地运行已排队</span><span class="thread-time">刚刚</span></div><div class="message">已接收分析规格。下一步将返回模型性能、校准摘要和敏感性分析建议，供圆桌会审阅。</div></div>';
+      const stages = document.querySelectorAll('#guidedStages .stage');
+      stages[2].classList.remove('current'); stages[2].classList.add('done');
+      stages[2].querySelector('.stage-number').innerHTML = '<i class="fa-solid fa-check"></i>';
+      stages[3].classList.add('current');
+      document.getElementById('guidedActionText').textContent = '本地运行请求已建立。统计学专家将回传可复核的运行摘要。';
+      document.getElementById('sideConfirmPlan').textContent = '查看本地运行请求';
+      showToast('已沉淀分析计划，并交接给本地计算流程。');
+    }
+
+    function setEvidenceDecision(type) {
+      const box = document.getElementById('evidenceDecision');
+      if (type === 'accept') {
+        box.innerHTML = '<h4><i class="fa-solid fa-circle-check"></i> 已形成暂定结论</h4><p>预设临床模型显示方向一致的风险关联；下一步将把校准评估与阈值定义写入圆桌记录。</p><span class="pill green"><i class="fa-solid fa-file-circle-check"></i> 已记录为决策草案</span>';
+        showToast('已把证据、分析计划和本地结果合并为可审阅结论。');
+      } else {
+        box.innerHTML = '<h4><i class="fa-solid fa-spinner fa-spin"></i> 已追加敏感性分析</h4><p>统计学专家将比较不同基线窗口与缺失值处理方案；当前结论保持“待复核”。</p><span class="pill blue"><i class="fa-solid fa-clock"></i> 等待本地结果</span>';
+        showToast('已把敏感性分析请求加入本地工作队列。');
+      }
+    }
+
+    const workDetails = {
+      question: { status: '已完成', copy: '<b>WP-01 · 界定临床问题与终点</b><br><br>输出：PICO、事件定义、风险窗口与临床使用场景的初版提案。<br><br>交接给：数据质量专家，用于确认队列能否满足研究问题。' },
+      data: { status: '已完成', copy: '<b>WP-02 · 核验数据可用性与变量</b><br><br>输出：字段映射、缺失概况、数据字典引用与数据登记表范围。<br><br>交接给：统计学专家，用于生成可运行的分析规格。' },
+      analysis: { status: '进行中', copy: '<b>WP-03 · 构造主模型与敏感性分析</b><br><br>输入：已核验的队列字段、预设终点与混杂因素。<br>输出：主模型规格、校准评估计划、可复核的本地运行请求。<br><br>下一位接手者：循证医学专家。' },
+      review: { status: '待复核', copy: '<b>WP-04 · 解释结果并形成结论</b><br><br>需要临床研究与循证医学专家共同确认风险阈值的实际用途；此决策不会由模型自动作出。<br><br>接收：圆桌研究负责人。' }
+    };
+
+    document.querySelectorAll('.mode-button').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
+    document.getElementById('confirmPlan').addEventListener('click', setGuidedComplete);
+    document.getElementById('sideConfirmPlan').addEventListener('click', setGuidedComplete);
+    document.getElementById('reopenPlan').addEventListener('click', () => { showToast('已把分析计划退回讨论，并通知统计学专家等待新的规格。'); });
+    document.getElementById('runValidation').addEventListener('click', function () {
+      this.disabled = true; this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 正在验证…';
+      document.getElementById('resultStatus').innerHTML = '<strong><i class="fa-solid fa-spinner fa-spin"></i> 正在运行模拟本地验证</strong><p>本原型不会读取任何真实科研数据。</p>';
+      window.setTimeout(() => {
+        this.disabled = false; this.innerHTML = '<i class="fa-solid fa-rotate-right"></i> 重新运行验证';
+        document.getElementById('resultStatus').innerHTML = '<strong><i class="fa-solid fa-circle-check"></i> 本地验证完成 · 可审阅</strong><p>已刷新模拟模型摘要，等待圆桌会决定下一步。</p>';
+        showToast('本地验证已回传模拟运行摘要。');
+      }, 900);
+    });
+    document.getElementById('acceptEvidence').addEventListener('click', () => setEvidenceDecision('accept'));
+    document.getElementById('requestSensitivity').addEventListener('click', () => setEvidenceDecision('sensitivity'));
+    document.querySelectorAll('.work-card').forEach(card => card.addEventListener('click', () => {
+      document.querySelectorAll('.work-card').forEach(item => item.classList.remove('selected'));
+      card.classList.add('selected');
+      const data = workDetails[card.dataset.work];
+      document.getElementById('detailStatus').textContent = data.status;
+      document.getElementById('workDetail').innerHTML = data.copy;
+    }));
+    document.getElementById('startReview').addEventListener('click', function () {
+      this.textContent = '复核已发起'; this.disabled = true;
+      document.getElementById('reviewText').textContent = '临床研究专家与循证医学专家已收到同一组模拟产物。圆桌会将把裁决记录在 WP-04 下。';
+      showToast('专家复核已发起：圆桌会将等待关键临床裁决。');
+    });
+    document.getElementById('feedbackButton').addEventListener('click', () => showToast('偏好记录入口已就绪：可在下一轮接入真实用户评价与会话审计。'));
+    document.getElementById('resetButton').addEventListener('click', () => { window.location.href = 'phase2-comparison.html#' + activeView; window.location.reload(); });
+    const requested = window.location.hash.slice(1);
+    switchView(titles[requested] ? requested : defaultView);
+  </script>
+</body>
+</html>

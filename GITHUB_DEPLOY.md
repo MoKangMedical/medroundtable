@@ -35,7 +35,7 @@ git push -u origin main
 6. 点击 **Settings** → **Variables**
 7. 添加环境变量：
    - `SECRET_KEY` = `your-random-secret-key-here` (随机字符串)
-   - `MOONSHOT_API_KEY` = `sk-JRT2t7Pnqq7Cm2wh6nw1G2QcK9OxNBAFujR3zhD2GzqkbFbz`
+   - `MOONSHOT_API_KEY` = 在 Railway/VPS Secret 管理器中设置，不要提交到 Git
 8. 点击 **Deploy** 重新部署
 9. 记录域名：`https://medroundtable-api.up.railway.app`
 

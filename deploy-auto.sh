@@ -83,7 +83,11 @@ railway init --name medroundtable-api
 
 # 添加环境变量
 railway variables set SECRET_KEY="medroundtable-secret-key-2024"
-railway variables set MOONSHOT_API_KEY="sk-JRT2t7Pnqq7Cm2wh6nw1G2QcK9OxNBAFujR3zhD2GzqkbFbz"
+if [ -z "${MOONSHOT_API_KEY:-}" ]; then
+    echo "MOONSHOT_API_KEY 未设置；请通过 Railway/VPS Secret 管理器注入。"
+    exit 1
+fi
+railway variables set MOONSHOT_API_KEY="$MOONSHOT_API_KEY"
 
 # 部署
 railway up
