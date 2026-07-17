@@ -10,12 +10,29 @@ import hashlib
 import hmac
 import json
 import os
+import sqlite3
+from pathlib import Path
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 router = APIRouter(prefix="/api/v1/local-jobs", tags=["local-jobs"])
-_jobs: Dict[str, Dict[str, Any]] = {}
+_db_path = Path(os.getenv("MRT_JOB_DB", "medroundtable_jobs.sqlite3"))
+_db_path.parent.mkdir(parents=True, exist_ok=True)
+_conn = sqlite3.connect(_db_path, check_same_thread=False)
+_conn.execute("CREATE TABLE IF NOT EXISTS local_jobs (job_id TEXT PRIMARY KEY, payload TEXT NOT NULL)")
+_conn.commit()
+_jobs: Dict[str, Dict[str, Any]] = {
+    row[0]: json.loads(row[1]) for row in _conn.execute("SELECT job_id, payload FROM local_jobs")
+}
+
+
+def _save_job(job: Dict[str, Any]) -> None:
+    _conn.execute(
+        "INSERT OR REPLACE INTO local_jobs(job_id, payload) VALUES (?, ?)",
+        (job["job_id"], json.dumps(job, ensure_ascii=False)),
+    )
+    _conn.commit()
 
 
 def _now() -> datetime:
@@ -79,6 +96,7 @@ def _create_job(request: CreateLocalJobRequest, research_plan: Optional[Dict[str
         "error": None,
     }
     _jobs[job_id] = job
+    _save_job(job)
     return job
 
 
@@ -121,6 +139,7 @@ async def complete_local_job(job_id: str, request: JobResultRequest):
     if not job:
         raise HTTPException(status_code=404, detail="local job not found")
     job.update(status="completed", result=request.result, paper_draft=request.paper_draft, audit_id=request.audit_id, updated_at=_now().isoformat())
+    _save_job(job)
     return job
 
 
@@ -130,4 +149,5 @@ async def fail_local_job(job_id: str, request: JobFailureRequest):
     if not job:
         raise HTTPException(status_code=404, detail="local job not found")
     job.update(status="failed", error=request.error, updated_at=_now().isoformat())
+    _save_job(job)
     return job
