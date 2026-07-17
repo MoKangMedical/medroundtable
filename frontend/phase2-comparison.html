@@ -207,11 +207,71 @@
     .review-card p { color: #58749a; margin: 0 0 12px; font-size: 11px; line-height: 1.55; }
     .review-card .primary-button { width: 100%; }
 
+    /* ScientistOne extension: evidence-chain research from question to audit. */
+    .scientist-header { padding: 22px 24px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+    .scientist-header h2 { margin: 6px 0 6px; font-size: 20px; line-height: 1.35; }
+    .scientist-header p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; max-width: 770px; }
+    .scientist-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+    .scientist-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .scientist-metric { padding: 15px 16px; }
+    .scientist-metric strong { display: block; color: #1f3f6e; font-size: 20px; letter-spacing: -.04em; }
+    .scientist-metric span { display: block; color: #6b7d95; font-size: 11px; line-height: 1.45; margin-top: 4px; }
+    .scientist-metric small { color: #8a99ad; font-size: 10px; }
+    .scientist-flow { display: grid; grid-template-columns: 1fr 1.18fr 1fr; gap: 14px; align-items: stretch; }
+    .scientist-lane { padding: 17px; min-width: 0; position: relative; }
+    .scientist-lane:not(:last-child)::after { content: ""; position: absolute; right: -14px; top: 50%; width: 14px; border-top: 1px solid #9eb8d8; z-index: 2; }
+    .scientist-lane:not(:last-child)::before { content: ""; position: absolute; right: -14px; top: calc(50% - 4px); border-left: 5px solid #6d8db5; border-top: 4px solid transparent; border-bottom: 4px solid transparent; z-index: 2; }
+    .lane-head { display: flex; align-items: flex-start; gap: 10px; padding-bottom: 13px; border-bottom: 1px solid #e4ecf5; }
+    .lane-step { width: 28px; height: 28px; display: grid; place-items: center; color: white; background: var(--blue); border-radius: 8px; font-size: 12px; font-weight: 700; flex: 0 0 28px; }
+    .lane-step.amber { background: #c27a1d; }
+    .lane-step.green { background: #07805e; }
+    .lane-head h3 { margin: 0; color: #243c5e; font-size: 14px; }
+    .lane-head p { color: #72839a; margin: 4px 0 0; font-size: 11px; line-height: 1.45; }
+    .lane-tag { margin-left: auto; }
+    .flow-list { display: grid; gap: 9px; margin: 15px 0; }
+    .flow-item { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; align-items: start; padding: 9px 10px; background: #f8fbff; border: 1px solid #e0eaf5; border-radius: 8px; color: #4d6581; font-size: 11px; line-height: 1.5; }
+    .flow-item i { color: #4f7fb7; margin-top: 2px; }
+    .flow-item b { color: #294c76; }
+    .output-card { margin-top: 13px; padding: 12px; background: #f5fbf8; border: 1px solid #c6eadb; border-radius: 9px; }
+    .output-card strong { display: block; color: #096649; font-size: 12px; }
+    .output-card p { color: #4f776a; font-size: 11px; line-height: 1.5; margin: 5px 0 0; }
+    .lane-action { width: 100%; margin-top: 3px; }
+    .branch-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin: 14px 0; }
+    .branch-card { padding: 11px; border: 1px solid #e5d4ae; background: #fffaf2; border-radius: 8px; min-height: 94px; }
+    .branch-card strong { display: block; color: #7c541d; font-size: 11px; }
+    .branch-card span { display: block; color: #95744a; font-size: 10px; line-height: 1.45; margin-top: 5px; }
+    .branch-card .branch-status { color: #b76b15; margin-top: 8px; font-weight: 700; }
+    .selection-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 11px 12px; margin-top: 12px; color: #6b5637; background: #fff5df; border: 1px solid #f1d49b; border-radius: 8px; font-size: 11px; }
+    .writing-list { display: grid; gap: 7px; margin: 15px 0; }
+    .writing-step { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border: 1px solid #d7ebe5; background: #f5fbf8; border-radius: 8px; color: #406d62; font-size: 11px; }
+    .writing-step i { color: #07805e; }
+    .claim-ledger { margin-top: 14px; border: 1px solid #e0e8f2; border-radius: 9px; overflow: hidden; }
+    .claim-ledger header { padding: 10px 12px; color: #3e5e7c; background: #f8fbff; border-bottom: 1px solid #e0e8f2; font-size: 11px; font-weight: 700; }
+    .claim-row { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 9px 11px; border-bottom: 1px solid #edf1f6; color: #5d718a; font-size: 10px; line-height: 1.45; }
+    .claim-row:last-child { border-bottom: 0; }
+    .claim-row b { color: #335b84; font-weight: 600; }
+    .scientist-audit { margin-top: 16px; padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr) 305px; gap: 18px; align-items: center; }
+    .scientist-audit h3 { margin: 0 0 6px; font-size: 14px; color: #263f61; }
+    .scientist-audit p { margin: 0; color: #65778f; font-size: 11px; line-height: 1.55; }
+    .audit-checks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 13px; }
+    .audit-check { padding: 9px 8px; background: #f8fafc; border: 1px solid #e2eaf3; border-radius: 8px; color: #657891; text-align: center; font-size: 10px; line-height: 1.4; }
+    .audit-check i { display: block; color: #8394a9; margin-bottom: 4px; }
+    .audit-check.pass { color: #23664f; background: #f3fbf7; border-color: #c7e9d9; }
+    .audit-check.pass i { color: #09815f; }
+    .audit-action { padding: 15px; background: #eff6ff; border: 1px solid #c2dafa; border-radius: 10px; }
+    .audit-action strong { display: block; color: #24528d; font-size: 12px; }
+    .audit-action p { margin: 5px 0 11px; color: #5c76a0; }
+    .scientist-source { margin-top: 12px; color: #7b8ca1; font-size: 10px; line-height: 1.5; }
+    .scientist-source a { color: #2e65aa; }
+
     @media (max-width: 1180px) {
       .split-layout { grid-template-columns: 1fr 1fr; }
       .split-layout .split-column:last-child { grid-column: span 2; }
       .guided-grid, .mission-grid { grid-template-columns: 1fr; }
       .work-grid { grid-template-columns: repeat(4, 210px); }
+      .scientist-flow { grid-template-columns: 1fr; }
+      .scientist-lane:not(:last-child)::after, .scientist-lane:not(:last-child)::before { display: none; }
+      .scientist-audit { grid-template-columns: 1fr; }
     }
     @media (max-width: 840px) {
       .app-shell { grid-template-columns: 1fr; }
@@ -222,6 +282,10 @@
       .guided-hero, .evidence-header, .mission-header { padding: 17px; flex-direction: column; }
       .split-layout, .split-layout .split-column:last-child { grid-template-columns: 1fr; grid-column: auto; }
       .handoff, .artifact-list { grid-template-columns: 1fr; }
+      .scientist-metrics { grid-template-columns: 1fr 1fr; }
+      .scientist-header { padding: 17px; flex-direction: column; }
+      .scientist-actions { justify-content: flex-start; }
+      .audit-checks { grid-template-columns: 1fr 1fr; }
       .handoff-step:not(:last-child)::after { display: none; }
       .stage { min-width: 116px; }
       .stage:not(:last-child)::after { left: 100px; }
@@ -241,6 +305,7 @@
         <button class="mode-button active" data-view="guided" type="button"><i class="fa-solid fa-comments"></i><span><strong>方向一 · 引导式讨论</strong><span>讨论中持续形成可追溯决策</span></span></button>
         <button class="mode-button" data-view="evidence" type="button"><i class="fa-solid fa-scale-balanced"></i><span><strong>方向二 · 证据—数据工作台</strong><span>研究证据、方案与本地结果同屏</span></span></button>
         <button class="mode-button" data-view="mission" type="button"><i class="fa-solid fa-diagram-project"></i><span><strong>方向三 · 研究指挥台</strong><span>任务包、交接与专家复核</span></span></button>
+        <button class="mode-button" data-view="scientistone" type="button"><i class="fa-solid fa-atom"></i><span><strong>ScientistOne · 证据链</strong><span>调研、发现、写作与论断审计</span></span></button>
       </nav>
       <div class="rail-footer"><b><span class="dot"></span> 本地分析节点已就绪</b><br>本页为交互式对比原型。所有数值均为演示数据，不会读取或上传任何科研数据。</div>
     </aside>
@@ -252,7 +317,7 @@
       </header>
 
       <div class="workspace">
-        <p class="comparison-note"><i class="fa-solid fa-circle-info"></i> 同一研究问题、同一组模拟本地分析产物，用三种交互结构呈现；请实际点击关键动作后比较哪种更贴合圆桌讨论。</p>
+        <p class="comparison-note"><i class="fa-solid fa-circle-info"></i> 同一研究问题、同一组模拟本地分析产物，用三种圆桌结构与一条证据链科研流水线呈现；请实际点击关键动作后比较哪种更贴合研究任务。</p>
 
         <section class="view active" id="guided" aria-label="方向一 引导式讨论">
           <div class="surface guided-hero">
@@ -295,12 +360,64 @@
           <div class="surface mission-header"><div><div class="small-label">多 Agent 协作 · 可交接</div><h2>把圆桌讨论拆成可见的研究任务包，而不是隐藏在聊天记录里</h2><p>适合复杂研究：每个 Agent 都有明确输入、可检查的输出，以及需要人类裁决的交接节点。</p></div><span class="pill amber"><i class="fa-solid fa-triangle-exclamation"></i> 1 项待复核</span></div>
           <div class="mission-grid"><section class="surface mission-board"><div class="mission-board-head"><div><h3>研究任务流 · 代谢风险与 CVD</h3><p>点击任一任务包可查看其输入、输出与下一位接手者。</p></div><span class="pill green"><i class="fa-solid fa-circle"></i> 3/4 已可交接</span></div><div class="work-grid" id="workGrid"><button class="work-card ready" type="button" data-work="question"><div class="work-number"><span>WP-01</span><span class="pill green">已完成</span></div><h4>界定临床问题与终点</h4><p>PICO、风险窗口、主要终点定义已被圆桌确认。</p><div class="owner"><img class="avatar" src="assets/doctor1.png" alt=""><span>临床研究专家</span></div></button><button class="work-card ready" type="button" data-work="data"><div class="work-number"><span>WP-02</span><span class="pill green">已完成</span></div><h4>核验数据可用性与变量</h4><p>已生成字段清单、缺失概况与登记表引用。</p><div class="owner"><img class="avatar" src="assets/doctor3.png" alt=""><span>数据质量专家</span></div></button><button class="work-card active selected" type="button" data-work="analysis"><div class="work-number"><span>WP-03</span><span class="pill blue">进行中</span></div><h4>构造主模型与敏感性分析</h4><p>主模型可运行；校准评估等待统计规格确认。</p><div class="owner"><img class="avatar" src="assets/doctor2.png" alt=""><span>统计学专家</span></div></button><button class="work-card blocked" type="button" data-work="review"><div class="work-number"><span>WP-04</span><span class="pill amber">待复核</span></div><h4>解释结果并形成结论</h4><p>需要确认风险阈值用于筛查、随访还是临床决策。</p><div class="owner"><img class="avatar" src="assets/doctor4.png" alt=""><span>循证医学专家</span></div></button></div><div class="handoff"><div class="handoff-step"><strong><i class="fa-solid fa-file-circle-check"></i> 输入已冻结</strong><p>研究问题、数据字典和分析规格均有版本号。</p></div><div class="handoff-step"><strong><i class="fa-solid fa-arrow-right-arrow-left"></i> Agent 交接</strong><p>统计学专家收到已核验的字段与限制条件。</p></div><div class="handoff-step"><strong><i class="fa-solid fa-user-doctor"></i> 人类裁决</strong><p>研究负责人只在关键临床决策点介入确认。</p></div></div><div class="artifact-list"><div class="artifact"><i class="fa-solid fa-table-list"></i> 队列字段清单 · v0.3</div><div class="artifact"><i class="fa-solid fa-file-lines"></i> 分析规格 · v0.2</div><div class="artifact"><i class="fa-solid fa-chart-line"></i> 本地运行摘要 · demo</div></div></section><aside class="mission-side"><section class="card"><div class="side-heading"><h3>当前任务详情</h3><span class="pill blue" id="detailStatus">进行中</span></div><div class="selected-detail" id="workDetail"><b>WP-03 · 构造主模型与敏感性分析</b><br><br>输入：已核验的队列字段、预设终点与混杂因素。<br>输出：主模型规格、校准评估计划、可复核的本地运行请求。<br><br>下一位接手者：循证医学专家。</div></section><section class="card"><div class="side-heading"><h3>当前阻塞点</h3><span class="pill amber">需决策</span></div><div class="blocker"><strong>风险阈值的临床用途未确定</strong><p>这不是模型性能问题。需要圆桌会明确其用于筛查提醒、随访分层或仅作为研究性指标。</p></div></section><section class="review-card"><h4><i class="fa-solid fa-users"></i> 召开专家复核</h4><p id="reviewText">将 WP-03 的产物连同证据卡片推送给临床与循证专家，形成一次可审计的裁决记录。</p><button type="button" class="primary-button" id="startReview">发起复核</button></section></aside></div>
         </section>
+
+        <section class="view" id="scientistone" aria-label="ScientistOne 证据链科研流水线">
+          <div class="surface scientist-header">
+            <div>
+              <div class="small-label">ScientistOne-inspired · Chain of Evidence</div>
+              <h2>让每一个科研结论，都能回到证据、代码与实验</h2>
+              <p>把课题调研、并行探索、论文写作和论断审计接成一条可追溯流水线。此页是 MedRoundTable 的交互式模拟扩展，不代表本平台已经复制论文中的全部模型或指标。</p>
+            </div>
+            <div class="scientist-actions"><button class="outline-button" type="button" id="loadScientistFlow"><i class="fa-solid fa-link"></i> 载入当前圆桌</button><button class="primary-button" type="button" id="verifyClaims"><i class="fa-solid fa-shield-check"></i> 运行 CoE 审计</button></div>
+          </div>
+
+          <div class="scientist-metrics">
+            <article class="surface scientist-metric"><strong>3</strong><span>核心模块<br>调研 · 发现 · 写作/校验</span></article>
+            <article class="surface scientist-metric"><strong>4</strong><span>证据审计检查<br>分数 · 规范 · 引用 · 方法—代码</span></article>
+            <article class="surface scientist-metric"><strong>100</strong><span>单课题全文 PDF 上限<br><small>论文系统说明的能力</small></span></article>
+            <article class="surface scientist-metric"><strong>CoE</strong><span>证据链记录<br>每条论断绑定声明来源</span></article>
+          </div>
+
+          <div class="scientist-flow">
+            <section class="surface scientist-lane">
+              <div class="lane-head"><div class="lane-step">1</div><div><h3>课题调研器</h3><p>Problem Investigator · 先把问题和证据范围定清楚</p></div><span class="pill blue lane-tag">Evidence brief</span></div>
+              <div class="flow-list">
+                <div class="flow-item"><i class="fa-solid fa-list-check"></i><div><b>任务定义</b><br>临床问题、研究终点、评价标准和数据范围。</div></div>
+                <div class="flow-item"><i class="fa-solid fa-book-open-reader"></i><div><b>引用图谱</b><br>从种子文献扩展可核验的全文证据集合。</div></div>
+                <div class="flow-item"><i class="fa-solid fa-file-lines"></i><div><b>研究简报</b><br>把结论、限制和待验证假设写成标准化输入。</div></div>
+              </div>
+              <button class="outline-button lane-action" type="button" id="openInvestigator"><i class="fa-solid fa-magnifying-glass"></i> 生成课题调研简报</button>
+              <div class="output-card" id="investigatorOutput"><strong><i class="fa-solid fa-circle-check"></i> 已有本地问题草案</strong><p>代谢风险与 CVD · 3 条证据卡片 · 8 个登记字段 · 2 个待核验假设</p></div>
+            </section>
+
+            <section class="surface scientist-lane">
+              <div class="lane-head"><div class="lane-step amber">2</div><div><h3>并行探索发现引擎</h3><p>Discovery Engine · 用多分支探索—评估—审计寻找候选方案</p></div><span class="pill amber lane-tag">Explore / exploit</span></div>
+              <div class="flow-list"><div class="flow-item"><i class="fa-solid fa-lightbulb"></i><div><b>Ideator</b><br>把研究简报展开为可比较的分析或算法假设。</div></div><div class="flow-item"><i class="fa-solid fa-code-branch"></i><div><b>Parallel Explore–Exploit</b><br>每个分支都记录输入、代码版本、评估分数和失败原因。</div></div></div>
+              <div class="branch-grid" id="scientistBranches"><div class="branch-card"><strong>B1 · 临床基线</strong><span>Cox + 校准曲线</span><span class="branch-status">待运行</span></div><div class="branch-card"><strong>B2 · 机器学习</strong><span>特征筛选 + XGBoost</span><span class="branch-status">待运行</span></div><div class="branch-card"><strong>B3 · 敏感性</strong><span>缺失处理 + 亚组</span><span class="branch-status">待运行</span></div><div class="branch-card"><strong>B4 · 复核分支</strong><span>规范与可复现性检查</span><span class="branch-status">待运行</span></div></div>
+              <div class="selection-row"><span><i class="fa-solid fa-ranking-star"></i> 最佳候选</span><b id="selectedBranch">尚未选择</b></div>
+              <button class="primary-button lane-action" type="button" id="runDiscovery"><i class="fa-solid fa-play"></i> 运行并行探索（模拟）</button>
+            </section>
+
+            <section class="surface scientist-lane">
+              <div class="lane-head"><div class="lane-step green">3</div><div><h3>论文写作与论断校验</h3><p>Paper Writer + Claim Verifier · 写作不脱离证据链</p></div><span class="pill green lane-tag">Draft + audit</span></div>
+              <div class="writing-list"><div class="writing-step"><i class="fa-solid fa-pen-nib"></i><b>CONCEIVE</b><span>研究叙事与假设</span></div><div class="writing-step"><i class="fa-solid fa-anchor"></i><b>GROUND</b><span>绑定文献、代码和运行产物</span></div><div class="writing-step"><i class="fa-solid fa-stethoscope"></i><b>CRITIC / RESOLVE</b><span>识别冲突并交给圆桌裁决</span></div><div class="writing-step"><i class="fa-solid fa-file-signature"></i><b>COMPOSE</b><span>生成可追溯报告草稿</span></div></div>
+              <div class="claim-ledger"><header><i class="fa-solid fa-link"></i> 论断证据账本 · 当前模拟</header><div class="claim-row"><span><b>C1</b> 基线模型区分度方向一致</span><span class="pill green">有来源</span></div><div class="claim-row"><span><b>C2</b> 高风险阈值可用于临床筛查</span><span class="pill amber">需裁决</span></div><div class="claim-row"><span><b>C3</b> 方法描述与本地代码一致</span><span class="pill slate">待核验</span></div></div>
+              <div class="output-card"><strong><i class="fa-solid fa-file-circle-check"></i> 最终交付物</strong><p>研究简报 · 候选分析包 · 论断—来源清单 · 可复核报告草稿</p></div>
+            </section>
+          </div>
+
+          <section class="surface scientist-audit">
+            <div><h3><i class="fa-solid fa-shield-halved"></i> CoE Integrity Audit · 论文终稿前的证据链闸门</h3><p>这是把 ScientistOne 的核心思想转成 MedRoundTable 可落地的审阅节点：先审计代码、实验结果和参考文献，再允许形成终稿。当前结果为模拟状态。</p><div class="audit-checks" id="auditChecks"><div class="audit-check"><i class="fa-solid fa-chart-line"></i>分数复核</div><div class="audit-check"><i class="fa-solid fa-list-check"></i>规范违规</div><div class="audit-check"><i class="fa-solid fa-book"></i>引用核验</div><div class="audit-check"><i class="fa-solid fa-code"></i>方法—代码</div></div></div>
+            <div class="audit-action"><strong id="auditStatus">尚未运行终稿审计</strong><p id="auditMessage">审计通过后，才把报告状态推进到“可供专家审阅”。</p><button class="primary-button" type="button" id="loadToRoundtable"><i class="fa-solid fa-arrow-right"></i> 交给圆桌专家复核</button></div>
+          </section>
+          <p class="scientist-source">参考：<a href="https://arxiv.org/abs/2605.26340" target="_blank" rel="noreferrer">ScientistOne 论文（arXiv:2605.26340）</a> · <a href="https://scientist-one.github.io/" target="_blank" rel="noreferrer">官方项目页</a>。页面中的指标为论文/官方页面的报告口径，不是 MedRoundTable 当前系统的性能承诺。</p>
+        </section>
       </div>
     </main>
   </div>
   <div id="toast" class="toast" role="status"></div>
   <script>
-    const titles = { guided: '方向一 · 引导式讨论工作区', evidence: '方向二 · 证据—数据工作台', mission: '方向三 · 研究指挥台' };
+    const titles = { guided: '方向一 · 引导式讨论工作区', evidence: '方向二 · 证据—数据工作台', mission: '方向三 · 研究指挥台', scientistone: 'ScientistOne · 证据链科研流水线' };
     const defaultView = 'guided';
     let activeView = defaultView;
 
@@ -379,6 +496,37 @@
       document.getElementById('reviewText').textContent = '临床研究专家与循证医学专家已收到同一组模拟产物。圆桌会将把裁决记录在 WP-04 下。';
       showToast('专家复核已发起：圆桌会将等待关键临床裁决。');
     });
+    document.getElementById('loadScientistFlow').addEventListener('click', function () {
+      this.innerHTML = '<i class="fa-solid fa-circle-check"></i> 已载入当前圆桌';
+      this.classList.add('primary-button'); this.classList.remove('outline-button');
+      showToast('ScientistOne 证据链已挂接到当前圆桌，下一步可从课题调研简报开始。');
+    });
+    document.getElementById('openInvestigator').addEventListener('click', function () {
+      const output = document.getElementById('investigatorOutput');
+      output.innerHTML = '<strong><i class="fa-solid fa-circle-check"></i> 课题调研简报已生成</strong><p>已整理 3 条证据卡片、8 个登记字段和 2 个待核验假设，可交给并行探索模块。</p>';
+      this.innerHTML = '<i class="fa-solid fa-rotate-right"></i> 重新生成调研简报';
+      showToast('课题调研器已把证据与研究问题整理为标准化输入。');
+    });
+    document.getElementById('runDiscovery').addEventListener('click', function () {
+      const button = this;
+      button.disabled = true; button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 并行探索中…';
+      document.querySelectorAll('#scientistBranches .branch-status').forEach(status => { status.textContent = '运行中'; status.style.color = '#2563eb'; });
+      window.setTimeout(() => {
+        document.querySelectorAll('#scientistBranches .branch-status').forEach(status => { status.textContent = '已评估'; status.style.color = '#07805e'; });
+        document.getElementById('selectedBranch').textContent = 'B1 · 临床基线（当前最佳）';
+        button.disabled = false; button.innerHTML = '<i class="fa-solid fa-rotate-right"></i> 重新运行并行探索';
+        showToast('并行探索已完成模拟评估，最佳候选已交给写作与校验模块。');
+      }, 1100);
+    });
+    document.getElementById('verifyClaims').addEventListener('click', function () {
+      document.querySelectorAll('#auditChecks .audit-check').forEach(check => check.classList.add('pass'));
+      document.querySelectorAll('#auditChecks .audit-check i').forEach(icon => { icon.className = 'fa-solid fa-circle-check'; });
+      document.getElementById('auditStatus').textContent = '模拟 CoE 审计完成 · 可供专家审阅';
+      document.getElementById('auditMessage').textContent = '四项检查均已生成模拟通过状态；真实运行仍需绑定本地代码、实验输出和文献来源。';
+      this.innerHTML = '<i class="fa-solid fa-rotate-right"></i> 重新运行 CoE 审计';
+      showToast('已生成模拟证据链审计结果，等待圆桌专家复核。');
+    });
+    document.getElementById('loadToRoundtable').addEventListener('click', () => showToast('已把证据账本和审计摘要加入圆桌复核队列。'));
     document.getElementById('feedbackButton').addEventListener('click', () => showToast('偏好记录入口已就绪：可在下一轮接入真实用户评价与会话审计。'));
     document.getElementById('resetButton').addEventListener('click', () => { window.location.href = 'phase2-comparison.html#' + activeView; window.location.reload(); });
     const requested = window.location.hash.slice(1);
