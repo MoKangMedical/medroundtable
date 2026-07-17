@@ -6,6 +6,10 @@ queue; this in-process store is intentionally only a local integration stub.
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
+import hashlib
+import hmac
+import json
+import os
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -29,14 +33,33 @@ class CreateLocalJobRequest(BaseModel):
 class JobResultRequest(BaseModel):
     result: Dict[str, Any] = Field(default_factory=dict)
     audit_id: Optional[str] = None
+    paper_draft: Optional[str] = None
 
 
 class JobFailureRequest(BaseModel):
     error: str = Field(min_length=1, max_length=2000)
 
 
-@router.post("", status_code=202)
-async def create_local_job(request: CreateLocalJobRequest):
+class DispatchResearchPlanRequest(BaseModel):
+    title: str = Field(min_length=3, max_length=160)
+    dataset_id: str = Field(min_length=1, max_length=120)
+    analysis_path: str = Field(min_length=1, max_length=120)
+    research_plan: Dict[str, Any] = Field(min_length=1)
+    requested_by: str = Field(default="roundtable-web", max_length=120)
+
+
+def _signed_plan(plan: Dict[str, Any]) -> Dict[str, str]:
+    canonical = json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    plan_hash = hashlib.sha256(canonical).hexdigest()
+    secret = os.getenv("MRT_JOB_SIGNING_SECRET", "development-only-change-me").encode()
+    signature = hmac.new(secret, canonical, hashlib.sha256).hexdigest()
+    return {"plan_hash": plan_hash, "plan_signature": signature}
+
+
+def _create_job(request: CreateLocalJobRequest, research_plan: Optional[Dict[str, Any]] = None):
+    plan = research_plan or request.payload
+    signed = _signed_plan(plan)
+    now = _now().isoformat()
     job_id = str(uuid4())
     job = {
         "job_id": job_id,
@@ -44,16 +67,39 @@ async def create_local_job(request: CreateLocalJobRequest):
         "dataset_id": request.dataset_id,
         "analysis_path": request.analysis_path,
         "payload": request.payload,
+        "research_plan": research_plan,
+        **signed,
         "requested_by": request.requested_by,
         "status": "queued",
-        "created_at": _now().isoformat(),
-        "updated_at": _now().isoformat(),
+        "created_at": now,
+        "updated_at": now,
         "result": None,
+        "paper_draft": None,
         "audit_id": None,
         "error": None,
     }
     _jobs[job_id] = job
     return job
+
+
+@router.post("", status_code=202)
+async def create_local_job(request: CreateLocalJobRequest):
+    return _create_job(request)
+
+
+@router.post("/from-research-plan", status_code=202)
+async def dispatch_research_plan(request: DispatchResearchPlanRequest):
+    """Convert an approved 14-agent plan into a signed local job envelope."""
+    return _create_job(
+        CreateLocalJobRequest(
+            title=request.title,
+            dataset_id=request.dataset_id,
+            analysis_path=request.analysis_path,
+            payload={"research_plan": request.research_plan},
+            requested_by=request.requested_by,
+        ),
+        research_plan=request.research_plan,
+    )
 
 
 @router.get("")
@@ -74,7 +120,7 @@ async def complete_local_job(job_id: str, request: JobResultRequest):
     job = _jobs.get(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="local job not found")
-    job.update(status="completed", result=request.result, audit_id=request.audit_id, updated_at=_now().isoformat())
+    job.update(status="completed", result=request.result, paper_draft=request.paper_draft, audit_id=request.audit_id, updated_at=_now().isoformat())
     return job
 
 
