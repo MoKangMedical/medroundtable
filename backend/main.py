@@ -10,12 +10,15 @@ import uvicorn
 
 from backend.models import RoundTable, A2AMessage, RoundTableStatus, ResearchOutput
 from agents.orchestrator import orchestrator
+from backend.local_jobs import router as local_jobs_router
 
 app = FastAPI(
     title="MedRoundTable API",
     description="A2A 医学科研协作平台 API",
     version="1.0.0"
 )
+
+app.include_router(local_jobs_router)
 
 # CORS配置
 app.add_middleware(
