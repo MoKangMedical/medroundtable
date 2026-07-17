@@ -34,7 +34,9 @@ Windows 端只回传以下内容：
 ```text
 POST /local-nodes/register
 POST /local-nodes/{node_id}/heartbeat
+POST /local-jobs
 GET  /local-jobs/poll
+GET  /local-jobs/{job_id}
 POST /local-jobs/{job_id}/result
 POST /local-jobs/{job_id}/failed
 ```
@@ -52,6 +54,8 @@ POST /local-jobs/{job_id}/failed
 ```
 
 Windows connector 将 `payload` 原样交给 `http://127.0.0.1:8787` 的现有端点，再把结果 POST 回 relay。relay 不接受任意路径，只允许登记过的本地分析路径。
+
+网站端创建任务时使用 `POST /local-jobs`，请求体至少包含 `dataset_id`、`analysis_path`、`payload` 和 `requested_by`；返回 `job_id` 与 `status=queued`。网站端用 `GET /local-jobs/{job_id}` 查询状态和聚合结果。
 
 ## Windows Hermes 预检命令
 
