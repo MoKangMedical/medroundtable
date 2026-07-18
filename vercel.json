@@ -8,6 +8,18 @@
   ],
   "routes": [
     {
+      "src": "/phase2-comparison.html",
+      "dest": "/frontend/phase2-comparison.html"
+    },
+    {
+      "src": "/real-analysis.html",
+      "dest": "/frontend/real-analysis.html"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/frontend/assets/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/index.html"
     }
