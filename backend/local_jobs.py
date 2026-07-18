@@ -1,42 +1,36 @@
-"""MVP local-analysis job contract for the MedRoundTable web UI.
-
-Production deployment should back this contract with the authenticated relay
-queue; this in-process store is intentionally only a local integration stub.
-"""
+"""Public website adapter for signed jobs in the authenticated relay queue."""
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-from uuid import uuid4
 import hashlib
 import hmac
 import json
 import os
-import sqlite3
-from pathlib import Path
+import uuid
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from backend.relay_router import ALLOWED_PATHS, _db, _job_response, init_relay_db
+
 router = APIRouter(prefix="/api/v1/local-jobs", tags=["local-jobs"])
-_db_path = Path(os.getenv("MRT_JOB_DB", "medroundtable_jobs.sqlite3"))
-_db_path.parent.mkdir(parents=True, exist_ok=True)
-_conn = sqlite3.connect(_db_path, check_same_thread=False)
-_conn.execute("CREATE TABLE IF NOT EXISTS local_jobs (job_id TEXT PRIMARY KEY, payload TEXT NOT NULL)")
-_conn.commit()
-_jobs: Dict[str, Dict[str, Any]] = {
-    row[0]: json.loads(row[1]) for row in _conn.execute("SELECT job_id, payload FROM local_jobs")
-}
+init_relay_db()
 
 
-def _save_job(job: Dict[str, Any]) -> None:
-    _conn.execute(
-        "INSERT OR REPLACE INTO local_jobs(job_id, payload) VALUES (?, ?)",
-        (job["job_id"], json.dumps(job, ensure_ascii=False)),
-    )
-    _conn.commit()
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
 
 
-def _now() -> datetime:
-    return datetime.now(timezone.utc)
+def _canonical(plan: Dict[str, Any]) -> bytes:
+    return json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+
+
+def _signed_plan(plan: Dict[str, Any]) -> Dict[str, str]:
+    body = _canonical(plan)
+    secret = os.getenv("MRT_JOB_SIGNING_SECRET") or os.getenv("MRT_CONNECTOR_TOKEN") or "development-only-change-me"
+    return {
+        "plan_hash": hashlib.sha256(body).hexdigest(),
+        "plan_signature": hmac.new(secret.encode(), body, hashlib.sha256).hexdigest(),
+    }
 
 
 class CreateLocalJobRequest(BaseModel):
@@ -45,16 +39,7 @@ class CreateLocalJobRequest(BaseModel):
     analysis_path: str = Field(min_length=1, max_length=120)
     payload: Dict[str, Any] = Field(default_factory=dict)
     requested_by: str = Field(default="web-user", max_length=120)
-
-
-class JobResultRequest(BaseModel):
-    result: Dict[str, Any] = Field(default_factory=dict)
-    audit_id: Optional[str] = None
-    paper_draft: Optional[str] = None
-
-
-class JobFailureRequest(BaseModel):
-    error: str = Field(min_length=1, max_length=2000)
+    node_id: str = Field(default="windows-medroundtable-local", max_length=64)
 
 
 class DispatchResearchPlanRequest(BaseModel):
@@ -63,91 +48,65 @@ class DispatchResearchPlanRequest(BaseModel):
     analysis_path: str = Field(min_length=1, max_length=120)
     research_plan: Dict[str, Any] = Field(min_length=1)
     requested_by: str = Field(default="roundtable-web", max_length=120)
+    node_id: str = Field(default="windows-medroundtable-local", max_length=64)
 
 
-def _signed_plan(plan: Dict[str, Any]) -> Dict[str, str]:
-    canonical = json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
-    plan_hash = hashlib.sha256(canonical).hexdigest()
-    secret = os.getenv("MRT_JOB_SIGNING_SECRET", "development-only-change-me").encode()
-    signature = hmac.new(secret, canonical, hashlib.sha256).hexdigest()
-    return {"plan_hash": plan_hash, "plan_signature": signature}
+class PublicResultRequest(BaseModel):
+    result: Dict[str, Any] = Field(default_factory=dict)
+    audit_id: Optional[str] = None
+    paper_draft: Optional[str] = None
 
 
-def _create_job(request: CreateLocalJobRequest, research_plan: Optional[Dict[str, Any]] = None):
-    plan = research_plan or request.payload
-    signed = _signed_plan(plan)
-    now = _now().isoformat()
-    job_id = str(uuid4())
-    job = {
-        "job_id": job_id,
-        "title": request.title,
-        "dataset_id": request.dataset_id,
-        "analysis_path": request.analysis_path,
-        "payload": request.payload,
-        "research_plan": research_plan,
-        **signed,
-        "requested_by": request.requested_by,
-        "status": "queued",
-        "created_at": now,
-        "updated_at": now,
-        "result": None,
-        "paper_draft": None,
-        "audit_id": None,
-        "error": None,
-    }
-    _jobs[job_id] = job
-    _save_job(job)
-    return job
+def _enqueue(title: str, dataset_id: str, analysis_path: str, payload: Dict[str, Any], plan: Dict[str, Any], requested_by: str, node_id: str):
+    if analysis_path not in ALLOWED_PATHS:
+        raise HTTPException(400, f"analysis_path not allowed: {analysis_path}")
+    signed, job_id, now = _signed_plan(plan), str(uuid.uuid4()), _now()
+    envelope = dict(payload)
+    envelope.update({"research_plan": plan, "output_schema": "medroundtable.analysis-result/1.1"})
+    with _db() as conn:
+        conn.execute(
+            "INSERT INTO local_jobs (job_id,title,dataset_id,analysis_path,payload,research_plan,plan_hash,plan_signature,requested_by,node_id,status,created_at,updated_at,schema_version) VALUES (?,?,?,?,?,?,?,?,?,?,'pending',?,?,?)",
+            (job_id, title, dataset_id, analysis_path, json.dumps(envelope, ensure_ascii=False),
+             json.dumps(plan, ensure_ascii=False), signed["plan_hash"], signed["plan_signature"],
+             requested_by, node_id, now, now, "1.1"),
+        )
+        return _job_response(conn, job_id)
 
 
 @router.post("", status_code=202)
 async def create_local_job(request: CreateLocalJobRequest):
-    return _create_job(request)
+    plan = request.payload.get("research_plan") or request.payload
+    return _enqueue(request.title, request.dataset_id, request.analysis_path, request.payload, plan, request.requested_by, request.node_id)
 
 
 @router.post("/from-research-plan", status_code=202)
 async def dispatch_research_plan(request: DispatchResearchPlanRequest):
-    """Convert an approved 14-agent plan into a signed local job envelope."""
-    return _create_job(
-        CreateLocalJobRequest(
-            title=request.title,
-            dataset_id=request.dataset_id,
-            analysis_path=request.analysis_path,
-            payload={"research_plan": request.research_plan},
-            requested_by=request.requested_by,
-        ),
-        research_plan=request.research_plan,
-    )
+    return _enqueue(request.title, request.dataset_id, request.analysis_path, {}, request.research_plan, request.requested_by, request.node_id)
 
 
 @router.get("")
 async def list_local_jobs(limit: int = 20) -> List[Dict[str, Any]]:
-    return list(reversed(list(_jobs.values())))[: max(1, min(limit, 100))]
+    with _db() as conn:
+        ids = [row[0] for row in conn.execute("SELECT job_id FROM local_jobs ORDER BY created_at DESC LIMIT ?", (max(1, min(limit, 100)),))]
+        return [_job_response(conn, job_id) for job_id in ids]
 
 
 @router.get("/{job_id}")
 async def get_local_job(job_id: str):
-    job = _jobs.get(job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="local job not found")
-    return job
+    with _db() as conn:
+        return _job_response(conn, job_id)
 
 
 @router.post("/{job_id}/result")
-async def complete_local_job(job_id: str, request: JobResultRequest):
-    job = _jobs.get(job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="local job not found")
-    job.update(status="completed", result=request.result, paper_draft=request.paper_draft, audit_id=request.audit_id, updated_at=_now().isoformat())
-    _save_job(job)
-    return job
-
-
-@router.post("/{job_id}/failed")
-async def fail_local_job(job_id: str, request: JobFailureRequest):
-    job = _jobs.get(job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="local job not found")
-    job.update(status="failed", error=request.error, updated_at=_now().isoformat())
-    _save_job(job)
-    return job
+async def complete_local_job(job_id: str, request: PublicResultRequest):
+    """Local-development callback; production connectors use the authenticated relay route."""
+    now = _now()
+    with _db() as conn:
+        if not conn.execute("SELECT 1 FROM local_jobs WHERE job_id=?", (job_id,)).fetchone():
+            raise HTTPException(404, "Job not found")
+        conn.execute("UPDATE local_jobs SET status='completed',updated_at=? WHERE job_id=?", (now, job_id))
+        conn.execute(
+            "INSERT OR REPLACE INTO local_job_results (job_id,status,result,audit_id,posted_at,paper_draft,artifacts) VALUES (?,'completed',?,?,?,?,?)",
+            (job_id, json.dumps(request.result, ensure_ascii=False), request.audit_id, now, request.paper_draft, "[]"),
+        )
+        return _job_response(conn, job_id)
