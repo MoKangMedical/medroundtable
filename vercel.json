@@ -4,6 +4,14 @@
     {
       "src": "frontend/index.html",
       "use": "@vercel/static"
+    },
+    {
+      "src": "frontend/phase2-comparison.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "frontend/real-analysis.html",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
