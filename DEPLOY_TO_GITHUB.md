@@ -70,7 +70,7 @@ To https://github.com/MoKangMedical/medroundtable.git
    - Value: `medroundtable-secret-key-2024` (随机字符串)
 7. 再次点击 **New Variable**:
    - Name: `MOONSHOT_API_KEY`
-   - Value: `sk-JRT2t7Pnqq7Cm2wh6nw1G2QcK9OxNBAFujR3zhD2GzqkbFbz`
+   - Value: 在 Railway/VPS Secret 管理器中设置已轮换的密钥，不要提交到 Git
 8. 点击 **Deploy** 重新部署
 9. 等待完成，记录域名：
    - 点击 **Settings** → **Domain**
