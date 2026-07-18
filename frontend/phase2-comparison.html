@@ -363,6 +363,7 @@
         <button class="mode-button" data-view="mission" type="button"><i class="fa-solid fa-diagram-project"></i><span><strong>方向三 · 研究指挥台</strong><span>任务包、交接与专家复核</span></span></button>
         <button class="mode-button" data-view="scientistone" type="button"><i class="fa-solid fa-atom"></i><span><strong>ScientistOne · 证据链</strong><span>调研、发现、写作与论断审计</span></span></button>
         <button class="mode-button" data-view="ars" type="button"><i class="fa-solid fa-graduation-cap"></i><span><strong>ARS · 学术研究技能</strong><span>问题收敛、写作、审稿与实验</span></span></button>
+        <button class="mode-button" data-view="storm" type="button"><i class="fa-solid fa-tornado"></i><span><strong>STORM · 多视角研究</strong><span>扫描、矛盾、简报与同行评审</span></span></button>
       </nav>
       <div class="rail-footer"><b><span class="dot"></span> 本地分析节点已就绪</b><br>本页为交互式对比原型。所有数值均为演示数据，不会读取或上传任何科研数据。</div>
     </aside>
@@ -482,12 +483,34 @@
           <aside class="ars-side"><div class="surface passport-card"><div class="ars-workflows-head"><div><div class="eyebrow">MATERIAL PASSPORT</div><h3>文献材料护照</h3></div><span class="pill slate"><i class="fa-solid fa-lock"></i>本地证据</span></div><div class="passport-list"><div class="passport-row"><span class="passport-dot"></span><span><strong>Smith 2023</strong><small>Butyrate &amp; blood-brain barrier</small></span><em>已读 · 关键论据</em></div><div class="passport-row"><span class="passport-dot warn"></span><span><strong>Li 2024</strong><small>Gut microbiota in subclinical depression</small></span><em>未读 · 需人工核实</em></div><div class="passport-row"><span class="passport-dot"></span><span><strong>Chen 2024</strong><small>FMT intervention in mice</small></span><em>已读 · 关键论据</em></div></div></div><div class="surface socratic-card"><div class="eyebrow">SOCRATIC MODE</div><h3>研究问题收敛</h3><p>用 5 轮追问把宽泛主题变成可执行的研究问题。</p><div class="socratic-steps"><span class="active">01 现象</span><span>02 人群</span><span>03 暴露</span><span>04 结局</span><span>05 证据</span></div><button class="secondary-button" id="arsStartSocratic" type="button"><i class="fa-solid fa-comments"></i>开始 5 轮问题收敛</button></div></aside></div>
           <div class="ars-footer"><i class="fa-solid fa-circle-info"></i><span>MedRoundTable 只保存本地索引、任务状态与审阅结果；ARS 技能源与许可信息请以官方仓库为准。</span><a href="https://github.com/Imbad0202/academic-research-skills-codex" target="_blank" rel="noreferrer">academic-research-skills-codex ↗</a></div>
         </section>
+
+        <section class="view" id="storm" aria-label="STORM 多视角研究工作流">
+          <div class="surface" style="padding:24px;margin-bottom:18px;background:linear-gradient(115deg,#10243e 0%,#163c5f 52%,#0f766e 100%);color:#f8fbff;position:relative;overflow:hidden">
+            <div style="position:relative;z-index:1;max-width:790px"><div class="small-label" style="color:#9ed8cf">MEDROUNDTABLE · EVIDENCE SYNTHESIS</div><h2 style="font-size:24px;margin:7px 0 8px;line-height:1.3">STORM：把一个问题交给五种声音，再交给证据</h2><p style="margin:0;color:#c7d9e7;font-size:13px;line-height:1.7">沿用 MedRoundTable 的 14 agents 协作底座，新增四个可追踪阶段：多视角扫描、矛盾地图、研究简报、同行评审。完成后可一键生成签名 local-job。</p></div>
+            <div style="position:absolute;right:-30px;top:-52px;width:210px;height:210px;border:1px solid #8ad6c94a;border-radius:50%;box-shadow:0 0 0 22px #8ad6c912,0 0 0 44px #8ad6c908"></div>
+          </div>
+          <div class="surface" style="padding:16px;margin-bottom:18px;display:flex;gap:12px;align-items:end;flex-wrap:wrap">
+            <label style="flex:1;min-width:280px;margin:0"><span class="small-label">RESEARCH TOPIC</span><input id="stormTopic" value="肠道微生物与抑郁症风险：关联证据与真实世界验证" style="margin-top:6px"></label>
+            <label style="width:170px;margin:0"><span class="small-label">YOUR ROLE</span><select id="stormRole" style="margin-top:6px"><option>临床研究负责人</option><option>统计学专家</option><option>医学写作者</option></select></label>
+            <button class="primary-button" id="stormStart" type="button"><i class="fa-solid fa-play"></i>开始 STORM</button>
+          </div>
+          <div class="storm-steps" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px">
+            <button class="surface storm-step active" data-storm-step="1" type="button" style="padding:15px;text-align:left;border:1px solid #8db3df;cursor:pointer"><b>01 · 多视角扫描</b><span style="display:block;color:#71839a;font-size:11px;margin-top:5px">实践者 / 学者 / 怀疑者 / 经济学家 / 历史学家</span></button>
+            <button class="surface storm-step" data-storm-step="2" type="button" style="padding:15px;text-align:left;border:1px solid #dbe5f1;cursor:pointer"><b>02 · 矛盾地图</b><span style="display:block;color:#71839a;font-size:11px;margin-top:5px">冲突、共识、证据强弱与盲点</span></button>
+            <button class="surface storm-step" data-storm-step="3" type="button" style="padding:15px;text-align:left;border:1px solid #dbe5f1;cursor:pointer"><b>03 · 研究简报</b><span style="display:block;color:#71839a;font-size:11px;margin-top:5px">关键发现、隐藏关联与行动建议</span></button>
+            <button class="surface storm-step" data-storm-step="4" type="button" style="padding:15px;text-align:left;border:1px solid #dbe5f1;cursor:pointer"><b>04 · 同行评审</b><span style="display:block;color:#71839a;font-size:11px;margin-top:5px">置信度、遗漏视角与审计结论</span></button>
+          </div>
+          <div class="storm-panel surface" style="padding:20px;min-height:390px">
+            <div id="stormStageContent"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid #e5edf5;flex-wrap:wrap"><span id="stormProgress" class="pill slate">尚未运行 · 0/4 阶段完成</span><div style="display:flex;gap:8px"><button class="outline-button" id="stormNext" type="button">运行本阶段</button><button class="primary-button" id="stormDispatch" type="button" disabled><i class="fa-solid fa-signature"></i>生成签名 local-job</button></div></div>
+          </div>
+        </section>
       </div>
     </main>
   </div>
   <div id="toast" class="toast" role="status"></div>
   <script>
-    const titles = { guided: '方向一 · 引导式讨论工作区', evidence: '方向二 · 证据—数据工作台', mission: '方向三 · 研究指挥台', scientistone: 'ScientistOne · 证据链科研流水线', ars: 'ARS · 学术研究技能套件' };
+    const titles = { guided: '方向一 · 引导式讨论工作区', evidence: '方向二 · 证据—数据工作台', mission: '方向三 · 研究指挥台', scientistone: 'ScientistOne · 证据链科研流水线', ars: 'ARS · 学术研究技能套件', storm: 'STORM · 多视角研究工作流' };
     const defaultView = 'guided';
     let activeView = defaultView;
 
@@ -531,6 +554,21 @@
         showToast('已把敏感性分析请求加入本地工作队列。');
       }
     }
+
+    const stormStages = [
+      {title:'多视角扫描', kicker:'5 VOICES · 14 AGENTS', body:'围绕同一个研究问题，圆桌会并行生成五类视角。每个视角都必须给出核心立场、最强证据，以及其他视角通常不会主动指出的事实。', items:['实践者：临床流程、可行性与被忽略的现实约束','学者：同行评议证据、争议和方法学边界','怀疑者：主流叙事的最强反方与反证','经济学家：资金、激励和利益相关者','历史学家：相似模式、先例与失败教训']},
+      {title:'矛盾地图', kicker:'CONTRADICTION MAP', body:'把五种声音放在同一张证据地图上，优先显示真正影响研究设计的冲突，而不是把不同表述误判为矛盾。', items:['冲突：观察性关联 ≠ 因果关系；机制证据与人群证据可能不一致','共识：需要定义人群、暴露、结局和时间窗才能比较研究','盲点：缺少可在本地队列中直接验证的操作性变量','关键问题：哪一个可观测结果最能区分两个竞争性解释？']},
+      {title:'研究简报', kicker:'EVIDENCE SYNTHESIS BRIEF', body:'把矛盾和共识压缩成可供研究负责人决策的简报，并保留支持与挑战每条发现的视角。', items:['60 秒摘要：现有证据支持关联信号，但不足以直接做因果或临床决策','五项发现：按证据可靠性排序，并标注支持/挑战视角','隐藏关联：把机制线索、队列变量和可复现实验连接起来','行动建议：先做字段核验与可重复的敏感性分析，再扩大结论']},
+      {title:'同行评审', kicker:'CLAIM AUDIT', body:'每条结论都经过自我质询：置信度、证据类型、未覆盖视角、最弱环节，以及是否需要第六个角色。', items:['结论置信度：高 / 中 / 低，并说明降级原因','最弱环节：外推、混杂、样本选择或引用链断点','遗漏视角：数据工程师与患者代表应作为第六/第七视角补充','审计门槛：通过后才允许生成签名 local-job']}
+    ];
+    let stormDone = 0, stormStage = 1;
+    function renderStormStage() { const s=stormStages[stormStage-1]; document.getElementById('stormStageContent').innerHTML = `<div class="eyebrow">${s.kicker}</div><h2 style="margin:7px 0;color:#243c5e;font-size:20px">${s.title}</h2><p style="color:#62758d;line-height:1.7;font-size:13px;max-width:850px">${s.body}</p><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:18px">${s.items.map((item,i)=>`<div style="padding:12px;border:1px solid #e1eaf4;border-radius:10px;background:${stormStage===4?'#f5fbf8':'#f8fbff'};font-size:12px;color:#4c6580;line-height:1.55"><b style="color:#2d557f">${String(i+1).padStart(2,'0')}</b> ${item}</div>`).join('')}</div>`; document.querySelectorAll('.storm-step').forEach((el,i)=>{el.classList.toggle('active',i===stormStage-1);el.style.borderColor=i===stormStage-1?'#8db3df':'#dbe5f1'}); document.getElementById('stormProgress').textContent=`${stormDone===4?'可下发':'进行中'} · ${stormDone}/4 阶段完成`; document.getElementById('stormNext').textContent=stormDone>=stormStage?'重新运行本阶段':'运行本阶段'; document.getElementById('stormDispatch').disabled=stormDone<4; }
+    function runStormStage(){ if(stormDone<stormStage) stormDone=stormStage; renderStormStage(); showToast(`STORM 第 ${stormStage} 阶段已完成：${stormStages[stormStage-1].title}`); }
+    document.querySelectorAll('.storm-step').forEach(el=>el.addEventListener('click',()=>{stormStage=Number(el.dataset.stormStep);renderStormStage()}));
+    document.getElementById('stormStart').addEventListener('click',()=>{stormDone=1;stormStage=1;renderStormStage();showToast('已启动 STORM：五类专家视角正在并行扫描。')});
+    document.getElementById('stormNext').addEventListener('click',runStormStage);
+    document.getElementById('stormDispatch').addEventListener('click',async()=>{const topic=document.getElementById('stormTopic').value.trim();const plan={method:'STORM',topic,role:document.getElementById('stormRole').value,stages:stormStages.map(s=>s.title),outputs:['perspective_scan','contradiction_map','research_brief','peer_review'],limitations:['evidence_synthesis_only','not_clinical_decision']};try{const r=await fetch((window.MRT_API_BASE||'/api/v1')+'/local-jobs/from-research-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:'MedRoundTable STORM · '+topic.slice(0,50),dataset_id:'pending-local-dataset',analysis_path:'/api/analyze/hybrid',research_plan:plan,requested_by:'medroundtable-storm'})});if(!r.ok)throw new Error(await r.text());showToast('STORM 研究方案已生成签名 local-job');document.getElementById('stormProgress').textContent='已生成签名 local-job · 等待本地节点';}catch(e){showToast('local-job 接口尚未接通：'+e.message)}});
+    renderStormStage();
 
     const workDetails = {
       question: { status: '已完成', copy: '<b>WP-01 · 界定临床问题与终点</b><br><br>输出：PICO、事件定义、风险窗口与临床使用场景的初版提案。<br><br>交接给：数据质量专家，用于确认队列能否满足研究问题。' },
