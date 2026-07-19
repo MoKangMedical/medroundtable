@@ -175,7 +175,8 @@ async def poll_jobs(authorization: str = Header(...), node_id: Optional[str] = N
         plan = json.loads(row["research_plan"]) if row["research_plan"] else payload.get("research_plan")
         return {
             "schema_version": row["schema_version"] or "1.1", "job_id": row["job_id"],
-            "title": row["title"], "dataset_id": row["dataset_id"], "analysis_path": row["analysis_path"],
+            "title": row["title"], "dataset_id": row["dataset_id"], "dataset": row["dataset_id"],
+            "analysis_path": row["analysis_path"],
             "payload": payload, "research_plan": plan, "plan_hash": row["plan_hash"],
             "plan_signature": row["plan_signature"], "requested_by": row["requested_by"],
             "result_contract": ["summary", "timeline", "agent_notes", "charts.forest", "charts.km", "charts.missingness", "tables.baseline", "tables.associations", "interpretation", "review_items", "paper_draft"],
