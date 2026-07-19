@@ -62,7 +62,16 @@ def _enqueue(title: str, dataset_id: str, analysis_path: str, payload: Dict[str,
         raise HTTPException(400, f"analysis_path not allowed: {analysis_path}")
     signed, job_id, now = _signed_plan(plan), str(uuid.uuid4()), _now()
     envelope = dict(payload)
-    envelope.update({"research_plan": plan, "output_schema": "medroundtable.analysis-result/1.1"})
+    # Keep routing metadata both on the signed job envelope and inside payload.
+    # Older Windows connectors forward only ``payload`` to the local analysis
+    # endpoint, so omitting dataset_id makes the local API see an empty dataset.
+    envelope.update({
+        "dataset_id": dataset_id,
+        "analysis_path": analysis_path,
+        "question": plan.get("question", ""),
+        "research_plan": plan,
+        "output_schema": "medroundtable.analysis-result/1.1",
+    })
     with _db() as conn:
         conn.execute(
             "INSERT INTO local_jobs (job_id,title,dataset_id,analysis_path,payload,research_plan,plan_hash,plan_signature,requested_by,node_id,status,created_at,updated_at,schema_version) VALUES (?,?,?,?,?,?,?,?,?,?,'pending',?,?,?)",

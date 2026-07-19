@@ -8,6 +8,25 @@ GET https://medroundtable.cn/api/v1/relay/local-jobs/poll?node_id=windows-medrou
 
 任务新增 `research_plan`、`plan_hash`、`plan_signature`、`schema_version` 和 `result_contract`。connector 必须在调用本地分析 API 前执行 `bridge.plan_verifier.assert_executable()`。
 
+## 本地请求组装（必须）
+
+relay 的 `dataset_id` 是任务顶层字段，不能仅把原始 `payload` 直接交给本地 API。Windows connector 在调用 `127.0.0.1:8787` 前必须显式合并数据集 ID：
+
+```python
+local_payload = dict(job.get("payload") or {})
+local_payload["dataset_id"] = job["dataset_id"]
+local_payload.setdefault("dataset", job["dataset_id"])  # 兼容旧本地端点
+local_payload.setdefault("question", (job.get("research_plan") or {}).get("question", ""))
+
+response = requests.post(
+    f"{local_origin}{job['analysis_path']}",
+    json=local_payload,
+    timeout=analysis_timeout,
+)
+```
+
+执行前应在审计日志中记录 `job_id`、`dataset_id`、`analysis_path` 和 payload 的字段名，但不记录原始数据值。若本地 API 返回 `Dataset '' not registered`，说明 connector 仍未将顶层 `dataset_id` 合并到本地请求。
+
 完成本地分析后，使用 `bridge.result_adapter.normalize_result()` 生成聚合结果，并提交：
 
 ```text
