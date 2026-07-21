@@ -1,185 +1,76 @@
-# MedRoundTable - Vercel + Railway 部署配置
+# MedRoundTable 正式站部署指南
 
-## 快速部署方案
+## 生产环境基线
 
-### 方案1: Vercel (前端) + Railway (后端)
+MedRoundTable 只有一个对外展示入口：
 
-#### 1. 部署前端到 Vercel
+- 正式网站：`https://medroundtable.cn/`
+- 分析观察台：`https://medroundtable.cn/real-analysis.html`
+- 正式 API：`https://medroundtable.cn/api/v1`
+- Windows relay：`https://medroundtable.cn/api/v1/relay`
 
-1. 访问 https://vercel.com
-2. 点击 "Add New Project"
-3. 导入你的 GitHub 仓库
-4. 配置:
-   - Framework: Other
-   - Build Command: 空
-   - Output Directory: frontend
-   - Install Command: 空
+代码仓库为 `MoKangMedical/medroundtable`，生产运行环境为腾讯云 Ubuntu、Nginx 和 FastAPI。GitHub 不存储 Windows 上的原始科研数据。
 
-#### 2. 部署后端到 Railway
+## 系统路由
 
-1. 访问 https://railway.app
-2. 点击 "New Project" → "Deploy from GitHub repo"
-3. 选择仓库
-4. 添加环境变量:
-   ```
-   OPENAI_API_KEY=your_key
-   MOONSHOT_API_KEY=your_key
-   SECRET_KEY=random_secret
-   ```
-5. 自动生成域名
-
-#### 3. 配置 CORS
-
-修改 backend/main.py 中的 CORS 配置，添加 Vercel 域名:
-```python
-allow_origins=["https://your-vercel-app.vercel.app"]
+```text
+用户浏览器
+  → https://medroundtable.cn/
+  → Nginx
+      ├─ frontend/*.html
+      └─ /api/* → FastAPI 127.0.0.1:8010
+                         ↓
+                    relay SQLite
+                         ↕ HTTPS outbound
+                    Windows connector
+                         ↓
+                 127.0.0.1:8787 + Ollama
 ```
 
----
-
-### 方案2: Render (推荐 - 免费且稳定)
-
-#### 部署后端到 Render
-
-1. 访问 https://render.com
-2. 点击 "New Web Service"
-3. 连接 GitHub 仓库
-4. 配置:
-   - Name: medroundtable-api
-   - Runtime: Python 3
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
-5. 添加环境变量
-6. 免费套餐即可
-
-#### 部署前端到 Render Static Site
-
-1. 点击 "New Static Site"
-2. 连接同一仓库
-3. 配置:
-   - Build Command: 空
-   - Publish Directory: frontend
-4. 设置环境变量指向后端 URL
-
----
-
-### 方案3: Cloudflare Pages + Workers (最佳性能)
-
-#### 前端部署到 Pages
-
-1. 访问 https://dash.cloudflare.com
-2. 进入 Pages → "Create a project"
-3. 连接 GitHub
-4. 构建设置:
-   - Build command: 空
-   - Build output: frontend
-
-#### 后端使用 Workers
-
-1. 创建 Worker
-2. 使用 wrangler 部署 Python 后端
-3. 或使用 Cloudflare Tunnel 连接现有后端
-
----
-
-### 方案4: 免费服务器 (VPS) - 当前方案
-
-使用已有的腾讯云/阿里云轻量服务器:
+## GitHub 更新
 
 ```bash
-# 安装 PM2 进程管理器
-npm install -g pm2
-
-# 创建 PM2 配置文件
-cat > ecosystem.config.js << 'EOF'
-module.exports = {
-  apps: [
-    {
-      name: 'medroundtable-api',
-      script: 'backend/main.py',
-      interpreter: 'python3',
-      env: {
-        PYTHONPATH: '/root/.openclaw/workspace/medroundtable',
-        PORT: 8000
-      },
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '500M'
-    },
-    {
-      name: 'medroundtable-web',
-      script: 'python3',
-      args: '-m http.server 3000',
-      cwd: '/root/.openclaw/workspace/medroundtable/frontend',
-      instances: 1,
-      autorestart: true
-    }
-  ]
-};
-EOF
-
-# 启动
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup
+gh auth status
+git status -sb
+git add <本次文件>
+git commit -m "Describe the production change"
+git push origin main
 ```
 
----
+禁止在 remote URL、脚本或文档中写入 GitHub Token、connector Token 或 API Key。
 
-## 当前推荐: 使用 Nginx 反向代理 + 域名
+## 正式服务器更新
 
-如果你有域名，最佳方案是:
+服务器上保留现有 `.env`、relay SQLite 和审计日志，不覆盖密钥与运行数据。
 
-1. 绑定域名到服务器
-2. 配置 Nginx:
-
-```nginx
-server {
-    listen 80;
-    server_name medroundtable.yourdomain.com;
-    
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-    }
-    
-    location /api {
-        proxy_pass http://localhost:8000;
-        proxy_http_version 1.1;
-    }
-}
+```bash
+cd /var/www/medroundtable
+git fetch origin main
+git pull --ff-only origin main
+python3 -m py_compile backend/main.py backend/local_jobs.py backend/relay_router.py
+sudo nginx -t
 ```
 
-3. 申请 SSL 证书
+按服务器当前的进程托管方式重启 FastAPI，然后执行验收。若日后配置 systemd，应将唯一的重启命令写入服务器运维文档，而不在仓库中硬编码凭据。
 
----
+## 上线验收
 
-## 立即访问方案
+```bash
+curl -fsS https://medroundtable.cn/api/health
+curl -fsS https://medroundtable.cn/api/v1/agents
+curl -fsS https://medroundtable.cn/api/v1/relay/health
+curl -fsS 'https://medroundtable.cn/api/v1/local-jobs?limit=1'
+curl -fsSI https://medroundtable.cn/real-analysis.html
+```
 
-当前服务器已配置，可以通过以下方式访问:
+同时确认：
 
-1. **直接访问** (需要服务器IP):
-   - http://YOUR_SERVER_IP:3000
-   - http://YOUR_SERVER_IP:8000
+1. 首页存在“打开全流程分析观察台”入口；
+2. relay 健康状态为 `ok`；
+3. `windows-medroundtable-local` 持续心跳和轮询；
+4. 合成任务可完成签名、执行、图表与论文回传；
+5. 真实数据任务仅回传聚合结果。
 
-2. **使用 Cloudflare Tunnel** (临时):
-   ```bash
-   cloudflared tunnel --url http://localhost:3000
-   ```
+## 回滚
 
-3. **使用 ngrok** (推荐):
-   ```bash
-   # 安装 ngrok
-   curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-   echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-   sudo apt update && sudo apt install ngrok
-   
-   # 配置 authtoken (从 https://dashboard.ngrok.com 获取)
-   ngrok config add-authtoken YOUR_TOKEN
-   
-   # 启动
-   ngrok http 3000
-   ```
+上线前保留被替换文件的时间戳备份。出现故障时仅回滚本次修改的明确文件，不删除 `.env`、`data/local_relay.db` 或 Windows 本地数据。
