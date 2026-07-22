@@ -317,6 +317,52 @@
     .ars-footer { margin-top: 13px; color: #7c8da2; font-size: 10px; line-height: 1.5; }
     .ars-footer a { color: #2d67a9; }
 
+    /* Reliability collaboration: inference-time consensus is audited, not trusted blindly. */
+    .reliability-hero { padding: 23px 24px; margin-bottom: 16px; display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; background: linear-gradient(125deg, #10243f 0%, #153b5f 56%, #0b6257 100%); color: #f5f9ff; }
+    .reliability-hero h2 { margin: 7px 0 7px; font-size: 22px; line-height: 1.35; }
+    .reliability-hero p { margin: 0; max-width: 790px; color: #c8d9e8; font-size: 13px; line-height: 1.65; }
+    .reliability-hero .eyebrow { color: #9fd9cf; }
+    .reliability-controls { padding: 16px; margin-bottom: 14px; display: flex; gap: 11px; align-items: end; flex-wrap: wrap; }
+    .reliability-controls label { margin: 0; min-width: 230px; flex: 1; }
+    .reliability-controls select { margin-top: 6px; }
+    .reliability-layout { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .75fr); gap: 14px; align-items: start; }
+    .opinion-board, .reliability-decision { padding: 18px; }
+    .opinion-board-head, .decision-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 13px; }
+    .opinion-board-head h3, .decision-head h3 { margin: 0; color: #263f61; font-size: 14px; }
+    .opinion-board-head p { margin: 4px 0 0; color: #708198; font-size: 11px; }
+    .opinion-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+    .opinion-card { padding: 13px; border: 1px solid #dfe8f2; border-radius: 10px; background: #fbfdff; min-width: 0; }
+    .opinion-agent { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+    .opinion-agent i { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; color: #285e97; background: #e9f3ff; }
+    .opinion-agent strong, .opinion-agent span { display: block; }
+    .opinion-agent strong { color: #2d4c71; font-size: 11px; }
+    .opinion-agent span { color: #8190a5; font-size: 9px; margin-top: 2px; }
+    .opinion-card > p { min-height: 48px; margin: 0 0 10px; color: #4f6480; font-size: 11px; line-height: 1.5; }
+    .opinion-meta { display: grid; gap: 6px; }
+    .opinion-meta span { color: #71839a; font-size: 9px; }
+    .mini-track { height: 5px; overflow: hidden; border-radius: 999px; background: #e6edf5; }
+    .mini-track b { display: block; height: 100%; border-radius: inherit; background: #3e7dbd; }
+    .metric-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+    .metric-box { padding: 10px; text-align: center; border: 1px solid #e2eaf3; border-radius: 9px; background: #f8fbff; }
+    .metric-box strong { display: block; color: #214f7c; font-size: 17px; }
+    .metric-box span { display: block; margin-top: 2px; color: #7a8ba0; font-size: 9px; }
+    .reliability-side { display: grid; gap: 12px; }
+    .tier-orb { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 17px; color: #fff; background: #d18a28; font-size: 19px; font-weight: 800; box-shadow: 0 8px 22px rgba(176, 110, 28, .2); }
+    .tier-orb.easy { background: #07805e; }
+    .tier-orb.hard { background: #bd4b4b; }
+    .decision-copy { color: #64768d; font-size: 11px; line-height: 1.55; margin: 0 0 12px; }
+    .route-box { padding: 11px; margin-bottom: 11px; color: #3d5d7d; background: #f4f8fd; border: 1px solid #dce8f4; border-radius: 9px; font-size: 10px; line-height: 1.55; }
+    .required-actions { display: grid; gap: 7px; margin-bottom: 12px; }
+    .required-action { display: grid; grid-template-columns: 19px 1fr; gap: 7px; color: #556b84; font-size: 10px; line-height: 1.45; }
+    .required-action i { color: #3e78b3; margin-top: 2px; }
+    .risk-list { display: grid; gap: 7px; }
+    .risk-flag { padding: 9px 10px; color: #8b5a24; background: #fff8ee; border: 1px solid #efd5af; border-radius: 8px; font-size: 10px; line-height: 1.45; }
+    .risk-flag.high { color: #8c3f3f; background: #fff4f4; border-color: #edc4c4; }
+    .risk-empty { padding: 10px; color: #2e705b; background: #f3fbf7; border: 1px solid #cce9db; border-radius: 8px; font-size: 10px; }
+    .reliability-boundary { padding: 14px 16px; color: #60748c; font-size: 10px; line-height: 1.55; }
+    .reliability-boundary b { color: #365d84; }
+    .reliability-boundary a { color: #2e69ab; }
+
     @media (max-width: 1180px) {
       .split-layout { grid-template-columns: 1fr 1fr; }
       .split-layout .split-column:last-child { grid-column: span 2; }
@@ -326,6 +372,8 @@
       .scientist-lane:not(:last-child)::after, .scientist-lane:not(:last-child)::before { display: none; }
       .scientist-audit { grid-template-columns: 1fr; }
       .ars-layout { grid-template-columns: 1fr; }
+      .reliability-layout { grid-template-columns: 1fr; }
+      .opinion-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 840px) {
       .app-shell { grid-template-columns: 1fr; }
@@ -342,6 +390,8 @@
       .audit-checks { grid-template-columns: 1fr 1fr; }
       .ars-header { padding: 17px; flex-direction: column; }
       .ars-grid { grid-template-columns: 1fr; }
+      .reliability-hero { padding: 17px; flex-direction: column; }
+      .opinion-grid, .metric-strip { grid-template-columns: 1fr 1fr; }
       .handoff-step:not(:last-child)::after { display: none; }
       .stage { min-width: 116px; }
       .stage:not(:last-child)::after { left: 100px; }
@@ -364,8 +414,9 @@
         <button class="mode-button" data-view="scientistone" type="button"><i class="fa-solid fa-atom"></i><span><strong>ScientistOne · 证据链</strong><span>调研、发现、写作与论断审计</span></span></button>
         <button class="mode-button" data-view="ars" type="button"><i class="fa-solid fa-graduation-cap"></i><span><strong>ARS · 学术研究技能</strong><span>问题收敛、写作、审稿与实验</span></span></button>
         <button class="mode-button" data-view="storm" type="button"><i class="fa-solid fa-tornado"></i><span><strong>STORM · 多视角研究</strong><span>扫描、矛盾、简报与同行评审</span></span></button>
+        <button class="mode-button" data-view="reliability" type="button"><i class="fa-solid fa-shield-heart"></i><span><strong>可靠性协作</strong><span>共识分层、冲突仲裁与错误共识复核</span></span></button>
       </nav>
-      <div class="rail-footer"><b><span class="dot"></span> 本地分析节点已就绪</b><br>本页为交互式对比原型。所有数值均为演示数据，不会读取或上传任何科研数据。</div>
+      <div class="rail-footer"><b><span class="dot"></span> 本地分析节点已就绪</b><br>可靠性协作页调用正式 API；页面中的专家意见与数值均为演示输入，不读取或上传科研数据。</div>
     </aside>
 
     <main class="main">
@@ -505,12 +556,47 @@
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid #e5edf5;flex-wrap:wrap"><span id="stormProgress" class="pill slate">尚未运行 · 0/4 阶段完成</span><div style="display:flex;gap:8px"><button class="outline-button" id="stormNext" type="button">运行本阶段</button><button class="primary-button" id="stormDispatch" type="button" disabled><i class="fa-solid fa-signature"></i>生成签名 local-job</button></div></div>
           </div>
         </section>
+
+        <section class="view" id="reliability" aria-label="MedRoundTable 可靠性协作">
+          <div class="surface reliability-hero">
+            <div><div class="eyebrow">RELIABILITY-CONDITIONED COLLABORATION</div><h2>不让“多数同意”代替科学审查</h2><p>14 Agents 完成研究方案后，系统先评估一致度、证据覆盖和置信度离散。Easy 可汇总，Medium 必须仲裁，Hard 必须独立重分析与人工复核。</p></div>
+            <span class="pill green"><i class="fa-solid fa-circle-check"></i> 正式 API 已接入</span>
+          </div>
+          <div class="surface reliability-controls">
+            <label><span class="small-label">DEMONSTRATION SCENARIO</span><select id="reliabilityScenario"><option value="medium">有分歧：Cox 基线模型 vs XGBoost</option><option value="easy">稳定共识：多源证据支持 Cox 基线模型</option><option value="hard">错误共识风险：高置信度但无证据</option></select></label>
+            <button class="primary-button" id="runReliability" type="button"><i class="fa-solid fa-wave-square"></i>运行可靠性评估</button>
+            <a class="outline-button" href="/api/v1/collaboration/protocol" target="_blank" rel="noreferrer"><i class="fa-solid fa-code"></i>查看协议</a>
+          </div>
+          <div class="reliability-layout">
+            <div class="surface opinion-board">
+              <div class="opinion-board-head"><div><h3>独立专家意见</h3><p>每个 Agent 先提交结论、置信度、证据和不确定性，再进入仲裁。</p></div><span class="pill slate" id="opinionCount">3 个意见</span></div>
+              <div class="opinion-grid" id="opinionGrid"></div>
+              <div class="metric-strip">
+                <div class="metric-box"><strong id="metricConsensus">—</strong><span>多数一致度</span></div>
+                <div class="metric-box"><strong id="metricEvidence">—</strong><span>证据覆盖</span></div>
+                <div class="metric-box"><strong id="metricConfidence">—</strong><span>平均置信度</span></div>
+                <div class="metric-box"><strong id="metricSpread">—</strong><span>置信度离散</span></div>
+              </div>
+            </div>
+            <aside class="reliability-side">
+              <div class="surface reliability-decision">
+                <div class="decision-head"><div><div class="eyebrow">ROUTING DECISION</div><h3 id="reliabilityLabel">等待评估</h3></div><div class="tier-orb" id="tierOrb">?</div></div>
+                <p class="decision-copy" id="reliabilityDescription">运行后将显示任务分层、风险标记与下一步审查路由。</p>
+                <div class="route-box" id="reliabilityRoute"><b>当前路由：</b>尚未生成</div>
+                <div class="required-actions" id="requiredActions"></div>
+                <button class="primary-button" id="reliabilityGate" type="button" disabled style="width:100%"><i class="fa-solid fa-lock"></i>尚未通过下发门禁</button>
+              </div>
+              <div class="surface reliability-decision"><div class="opinion-board-head"><div><h3>风险信号</h3><p>错误共识和少数强证据会被显式保留。</p></div></div><div class="risk-list" id="riskList"><div class="risk-empty">等待可靠性评估。</div></div></div>
+              <div class="surface reliability-boundary"><b>实现边界：</b>当前是透明的运行时路由策略，不是 MMedAgent-RL 强化学习训练的复现，也不是临床诊断准确率。参考 <a href="https://arxiv.org/abs/2506.00555" target="_blank" rel="noreferrer">MMedAgent-RL 论文 ↗</a></div>
+            </aside>
+          </div>
+        </section>
       </div>
     </main>
   </div>
   <div id="toast" class="toast" role="status"></div>
   <script>
-    const titles = { guided: '方向一 · 引导式讨论工作区', evidence: '方向二 · 证据—数据工作台', mission: '方向三 · 研究指挥台', scientistone: 'ScientistOne · 证据链科研流水线', ars: 'ARS · 学术研究技能套件', storm: 'STORM · 多视角研究工作流' };
+    const titles = { guided: '方向一 · 引导式讨论工作区', evidence: '方向二 · 证据—数据工作台', mission: '方向三 · 研究指挥台', scientistone: 'ScientistOne · 证据链科研流水线', ars: 'ARS · 学术研究技能套件', storm: 'STORM · 多视角研究工作流', reliability: '可靠性协作 · 共识分层与冲突仲裁' };
     const defaultView = 'guided';
     let activeView = defaultView;
 
@@ -569,6 +655,59 @@
     document.getElementById('stormNext').addEventListener('click',runStormStage);
     document.getElementById('stormDispatch').addEventListener('click',async()=>{const topic=document.getElementById('stormTopic').value.trim();const plan={method:'STORM',topic,role:document.getElementById('stormRole').value,stages:stormStages.map(s=>s.title),outputs:['perspective_scan','contradiction_map','research_brief','peer_review'],limitations:['evidence_synthesis_only','not_clinical_decision']};try{const r=await fetch((window.MRT_API_BASE||'/api/v1')+'/local-jobs/from-research-plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:'MedRoundTable STORM · '+topic.slice(0,50),dataset_id:'pending-local-dataset',analysis_path:'/api/analyze/hybrid',research_plan:plan,requested_by:'medroundtable-storm'})});if(!r.ok)throw new Error(await r.text());showToast('STORM 研究方案已生成签名 local-job');document.getElementById('stormProgress').textContent='已生成签名 local-job · 等待本地节点';}catch(e){showToast('local-job 接口尚未接通：'+e.message)}});
     renderStormStage();
+
+    const reliabilityScenarios = {
+      easy: [
+        {agent_id:'clinical-agent',specialty:'临床研究',conclusion:'采用预设变量 Cox 基线模型',confidence:.82,evidence_items:['队列方案 v2','结局定义表'],uncertainties:['风险时间窗']},
+        {agent_id:'statistics-agent',specialty:'生物统计',conclusion:'采用预设变量 Cox 基线模型',confidence:.78,evidence_items:['DAG v2','仿真报告 014'],uncertainties:['比例风险假设']},
+        {agent_id:'data-agent',specialty:'数据质量',conclusion:'采用预设变量 Cox 基线模型',confidence:.80,evidence_items:['数据字典 v3','缺失概况'],uncertainties:['编码一致性']}
+      ],
+      medium: [
+        {agent_id:'clinical-agent',specialty:'临床研究',conclusion:'采用预设变量 Cox 基线模型',confidence:.82,evidence_items:['队列方案 v2','结局定义表'],uncertainties:['风险阈值用途']},
+        {agent_id:'statistics-agent',specialty:'生物统计',conclusion:'采用预设变量 Cox 基线模型',confidence:.76,evidence_items:['DAG v2','仿真报告 014'],uncertainties:['比例风险假设']},
+        {agent_id:'data-agent',specialty:'数据质量',conclusion:'先训练 XGBoost 作为主模型',confidence:.71,evidence_items:['完整性基准'],uncertainties:['可解释性与过拟合']}
+      ],
+      hard: [
+        {agent_id:'clinical-agent',specialty:'临床研究',conclusion:'直接采用 XGBoost 作为主模型',confidence:.91,evidence_items:[],uncertainties:[]},
+        {agent_id:'statistics-agent',specialty:'生物统计',conclusion:'直接采用 XGBoost 作为主模型',confidence:.88,evidence_items:[],uncertainties:[]},
+        {agent_id:'data-agent',specialty:'数据质量',conclusion:'直接采用 XGBoost 作为主模型',confidence:.90,evidence_items:[],uncertainties:[]}
+      ]
+    };
+    const reliabilityIcons = ['fa-stethoscope','fa-chart-line','fa-database'];
+    function renderReliabilityOpinions(opinions) {
+      document.getElementById('opinionCount').textContent = `${opinions.length} 个意见`;
+      document.getElementById('opinionGrid').innerHTML = opinions.map((opinion,index)=>`<article class="opinion-card"><div class="opinion-agent"><i class="fa-solid ${reliabilityIcons[index]||'fa-user-doctor'}"></i><div><strong>${opinion.specialty}</strong><span>${opinion.agent_id}</span></div></div><p>${opinion.conclusion}</p><div class="opinion-meta"><span>置信度 ${Math.round(opinion.confidence*100)}% · 证据 ${opinion.evidence_items.length} 条</span><div class="mini-track"><b style="width:${opinion.confidence*100}%"></b></div></div></article>`).join('');
+    }
+    function percent(value) { return `${Math.round(value*100)}%`; }
+    function renderReliabilityResult(result) {
+      const tier = result.reliability_tier.code;
+      document.getElementById('metricConsensus').textContent = percent(result.metrics.consensus_ratio);
+      document.getElementById('metricEvidence').textContent = percent(result.metrics.evidence_coverage);
+      document.getElementById('metricConfidence').textContent = percent(result.metrics.mean_confidence);
+      document.getElementById('metricSpread').textContent = percent(result.metrics.confidence_spread);
+      document.getElementById('reliabilityLabel').textContent = result.reliability_tier.label;
+      document.getElementById('reliabilityDescription').textContent = result.reliability_tier.description;
+      const orb=document.getElementById('tierOrb'); orb.textContent=tier[0].toUpperCase(); orb.className=`tier-orb ${tier}`;
+      document.getElementById('reliabilityRoute').innerHTML = `<b>当前路由：</b>${result.policy.route}<br><b>探索预算：</b>${result.policy.exploration_budget}`;
+      document.getElementById('requiredActions').innerHTML = result.policy.required_actions.map(action=>`<div class="required-action"><i class="fa-solid fa-arrow-right"></i><span>${action}</span></div>`).join('');
+      const risks=document.getElementById('riskList'); risks.innerHTML=result.risk_flags.length?result.risk_flags.map(flag=>`<div class="risk-flag ${flag.severity}"><b>${flag.code}</b><br>${flag.message}</div>`).join(''):'<div class="risk-empty"><i class="fa-solid fa-circle-check"></i> 未检出额外高风险信号；仍需执行基本验证。</div>';
+      const gate=document.getElementById('reliabilityGate'); gate.disabled=!result.policy.signing_allowed; gate.innerHTML=result.policy.signing_allowed?'<i class="fa-solid fa-signature"></i>通过门禁 · 可生成签名 local-job':'<i class="fa-solid fa-lock"></i>下发已阻断 · 需先完成审查';
+    }
+    async function runReliabilityAssessment() {
+      const scenario=document.getElementById('reliabilityScenario').value;
+      const opinions=reliabilityScenarios[scenario]; renderReliabilityOpinions(opinions);
+      const button=document.getElementById('runReliability'); button.disabled=true; button.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>评估中…';
+      try {
+        const response=await fetch('/api/v1/collaboration/assess',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({case_id:`demo-${scenario}`,task_type:'analysis_plan',question:'代谢综合征队列应采用何种主分析模型？',opinions})});
+        if(!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+        renderReliabilityResult(await response.json()); showToast('可靠性协作评估已由正式 API 返回。');
+      } catch(error) { showToast('可靠性 API 调用失败：'+error.message); }
+      finally { button.disabled=false; button.innerHTML='<i class="fa-solid fa-wave-square"></i>运行可靠性评估'; }
+    }
+    document.getElementById('reliabilityScenario').addEventListener('change',event=>renderReliabilityOpinions(reliabilityScenarios[event.target.value]));
+    document.getElementById('runReliability').addEventListener('click',runReliabilityAssessment);
+    document.getElementById('reliabilityGate').addEventListener('click',()=>showToast('已通过可靠性门禁；下一步可把当前方案交给签名 local-job 接口。'));
+    renderReliabilityOpinions(reliabilityScenarios.medium);
 
     const workDetails = {
       question: { status: '已完成', copy: '<b>WP-01 · 界定临床问题与终点</b><br><br>输出：PICO、事件定义、风险窗口与临床使用场景的初版提案。<br><br>交接给：数据质量专家，用于确认队列能否满足研究问题。' },

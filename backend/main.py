@@ -12,6 +12,7 @@ from backend.models import RoundTable, A2AMessage, RoundTableStatus, ResearchOut
 from agents.orchestrator import orchestrator
 from backend.local_jobs import router as local_jobs_router
 from backend.relay_router import router as relay_router
+from backend.reliability_collaboration import router as reliability_router
 
 app = FastAPI(
     title="MedRoundTable API",
@@ -21,6 +22,7 @@ app = FastAPI(
 
 app.include_router(local_jobs_router)
 app.include_router(relay_router, prefix="/api/v1/relay")
+app.include_router(reliability_router)
 
 # CORS配置
 app.add_middleware(
