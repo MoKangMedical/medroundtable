@@ -16,6 +16,7 @@
 
 - `GET /api/v1/collaboration/protocol`：查看协议版本、拓扑和限制。
 - `POST /api/v1/collaboration/assess`：提交 2–14 个结构化专家意见，返回分层、风险旗标、审查路由与下发门禁。
+- `POST /api/v1/collaboration/assess-and-dispatch`：对意见先评估再下发。只有 Easy 会返回 `202` 并进入签名 relay 队列；Medium/Hard 返回 `409` 和完整审查路由。
 
 请求的每个意见包含：
 

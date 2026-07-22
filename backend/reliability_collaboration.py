@@ -13,7 +13,7 @@ from collections import Counter
 from statistics import mean
 from typing import Any, Dict, List, Literal
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 
@@ -39,6 +39,16 @@ class ReliabilityAssessmentRequest(BaseModel):
     ] = "analysis_plan"
     question: str = Field(min_length=1, max_length=3000)
     opinions: List[ExpertOpinion] = Field(min_length=2, max_length=14)
+
+
+class ReliabilityDispatchRequest(BaseModel):
+    title: str = Field(min_length=3, max_length=160)
+    dataset_id: str = Field(min_length=1, max_length=120)
+    analysis_path: str = Field(min_length=1, max_length=120)
+    research_plan: Dict[str, Any] = Field(min_length=1)
+    reliability: ReliabilityAssessmentRequest
+    requested_by: str = Field(default="roundtable-reliability-gate", max_length=120)
+    node_id: str = Field(default="windows-medroundtable-local", max_length=64)
 
 
 def _normalise_conclusion(value: str) -> str:
@@ -237,3 +247,43 @@ async def get_protocol() -> Dict[str, Any]:
 @router.post("/assess")
 async def assess(request: ReliabilityAssessmentRequest) -> Dict[str, Any]:
     return assess_reliability(request)
+
+
+@router.post("/assess-and-dispatch", status_code=202)
+async def assess_and_dispatch(request: ReliabilityDispatchRequest) -> Dict[str, Any]:
+    """Enqueue a signed local job only after the reliability gate passes."""
+    assessment = assess_reliability(request.reliability)
+    if not assessment["policy"]["signing_allowed"]:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "message": "Reliability review required before local-job signing",
+                "assessment": assessment,
+            },
+        )
+
+    from backend.local_jobs import _enqueue
+
+    signed_plan = dict(request.research_plan)
+    signed_plan["reliability_gate"] = {
+        "protocol_version": assessment["protocol_version"],
+        "case_id": assessment["case_id"],
+        "tier": assessment["reliability_tier"],
+        "metrics": assessment["metrics"],
+        "consensus": assessment["consensus"],
+        "risk_flags": assessment["risk_flags"],
+        "agent_opinions": [
+            opinion.model_dump() if hasattr(opinion, "model_dump") else opinion.dict()
+            for opinion in request.reliability.opinions
+        ],
+    }
+    job = _enqueue(
+        request.title,
+        request.dataset_id,
+        request.analysis_path,
+        {},
+        signed_plan,
+        request.requested_by,
+        request.node_id,
+    )
+    return {"assessment": assessment, "job": job}

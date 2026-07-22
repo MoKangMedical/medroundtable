@@ -3,6 +3,8 @@ from backend.reliability_collaboration import (
     ReliabilityAssessmentRequest,
     assess_reliability,
 )
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 
 def opinion(agent_id, conclusion, confidence, evidence=None, uncertainties=None):
@@ -74,3 +76,31 @@ def test_stronger_minority_evidence_triggers_independent_review():
     )
     assert result["reliability_tier"]["code"] == "hard"
     assert any(flag["code"] == "minority_with_stronger_evidence" for flag in result["risk_flags"])
+
+
+def test_dispatch_endpoint_blocks_non_easy_assessment():
+    from backend.reliability_collaboration import router
+
+    app = FastAPI()
+    app.include_router(router)
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/collaboration/assess-and-dispatch",
+        json={
+            "title": "Blocked reliability test",
+            "dataset_id": "synthetic-demo",
+            "analysis_path": "/api/analyze/hybrid",
+            "research_plan": {"question": "Which model?"},
+            "reliability": {
+                "case_id": "blocked-test",
+                "question": "Which model?",
+                "opinions": [
+                    {"agent_id": "a", "specialty": "clinical", "conclusion": "XGBoost", "confidence": 0.91},
+                    {"agent_id": "b", "specialty": "statistics", "conclusion": "XGBoost", "confidence": 0.89},
+                    {"agent_id": "c", "specialty": "data", "conclusion": "XGBoost", "confidence": 0.90},
+                ],
+            },
+        },
+    )
+    assert response.status_code == 409
+    assert response.json()["detail"]["assessment"]["reliability_tier"]["code"] == "hard"
