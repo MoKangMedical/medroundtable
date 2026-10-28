@@ -4,6 +4,15 @@
 
 5位专业AI专家协作平台，助力临床研究设计。
 
+## 正式环境（唯一对外入口）
+
+- 正式网站：[https://medroundtable.cn/](https://medroundtable.cn/)
+- 全流程分析观察台：[https://medroundtable.cn/real-analysis.html](https://medroundtable.cn/real-analysis.html)
+- API 健康检查：[https://medroundtable.cn/api/health](https://medroundtable.cn/api/health)
+- Relay 健康检查：[https://medroundtable.cn/api/v1/relay/health](https://medroundtable.cn/api/v1/relay/health)
+
+生产环境由腾讯云 Ubuntu + Nginx + FastAPI 承载。GitHub 用于代码留痕和部署源；不再使用第三方静态托管页面作为展示入口。详见 [DEPLOYMENT.md](DEPLOYMENT.md)。
+
 ## 🚀 快速开始
 
 ### 方式一：使用 Second Me CLI

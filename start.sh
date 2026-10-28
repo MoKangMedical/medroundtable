@@ -6,7 +6,11 @@ echo "🩺 启动 MedRoundTable..."
 echo ""
 
 # 设置环境变量
-export MOONSHOT_API_KEY="sk-smniqSMmzNn4QjctQdtGAr77yr9rR4bsW3CameO4Zk3LckPA"
+if [ -z "${MOONSHOT_API_KEY:-}" ]; then
+    echo "❌ 请先在 Windows 环境变量中设置 MOONSHOT_API_KEY"
+    exit 1
+fi
+export MOONSHOT_API_KEY
 export MOONSHOT_BASE_URL="https://api.moonshot.cn/v1"
 export MOONSHOT_MODEL="moonshot-v1-32k"
 
